@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>salman.mirghasemi@epfl.ch</em:id>
-    <em:version>0.0.1</em:version>
+    <em:version>0.1.0</em:version>
    
     <!-- Firefox -->
     <em:targetApplication>
@@ -16,8 +16,8 @@
       </Description>
     </em:targetApplication>
 
-    <em:name>QP4FB</em:name>
-    <em:description>Firebug Query-Point Debugging Extension</em:description>
+    <em:name>QP-FBUG</em:name>
+    <em:description>Firebug Querypoint Debugging Extension</em:description>
     <em:creator>Salman Mirghasemi</em:creator>
     <em:homepageURL>http://ltiwww.epfl.ch/~mirghase</em:homepageURL>
   </Description>      
