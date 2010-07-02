@@ -1,0 +1,38 @@
+<?xml version="1.0"   encoding="UTF-8" ?>
+
+<project name="Build" default="" basedir=".." >
+
+
+    <!-- project tasks -->
+    <target name="deploy">
+        <copy todir="C:\Users\salmir\AppData\Roaming\Mozilla\Firefox\Profiles\test-profile\extensions\salman.mirghasemi@epfl.ch">
+            <fileset dir = "./chrome"></fileset>
+        </copy>
+
+    </target>
+
+    <target name="makeXPI">
+        <delete file="qp4fb.xpi"/>
+        <zip destfile="qp4fb.xpi"
+            update="true"
+            basedir="./chrome"
+        />
+    </target>
+
+    <target name="deployFireBug">
+        <copy todir="C:\Users\salmir\AppData\Roaming\Mozilla\Firefox\Profiles\test-profile\extensions\firebug@software.joehewitt.com">
+
+            <fileset dir = "../fbug/branches/firebug1.6"></fileset>
+        </copy>
+
+    </target>
+
+    <target name="deployChromeBug">
+        <copy todir="C:\Users\salmir\AppData\Roaming\Mozilla\Firefox\Profiles\test-profile\extensions\chromebug@johnjbarton.com">
+
+            <fileset dir = "../fbug/chromebug/branches/chromebug1.6"></fileset>
+        </copy>
+
+    </target>
+
+</project>
