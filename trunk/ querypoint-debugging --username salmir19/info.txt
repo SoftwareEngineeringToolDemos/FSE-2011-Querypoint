@@ -1,3 +1,0 @@
-
-to edit any page put it in the address bar:
-javascript:document.body.contentEditable='true'; document.designMode='on'; void 0
