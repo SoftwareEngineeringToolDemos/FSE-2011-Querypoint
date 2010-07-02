@@ -1,0 +1,38 @@
+<?xml version="1.0"   encoding="UTF-8" ?>
+
+<project name="qp-fbug" default="" basedir=".." >
+
+
+    <!-- project tasks -->
+    <target name="deploy_qp-fbug">
+        <copy todir="${firefox.extensions}\salman.mirghasemi@epfl.ch">
+            <fileset dir = "./src/chrome"></fileset>
+        </copy>
+
+    </target>
+
+    <target name="deployFireBug">
+        <copy todir="${firefox.extensions}\firebug@software.joehewitt.com">
+
+            <fileset dir = "../fbug/branches/firebug1.6"></fileset>
+        </copy>
+
+    </target>
+
+    <target name="deployChromeBug">
+        <copy todir="${firefox.extensions}\chromebug@johnjbarton.com">
+
+            <fileset dir = "../fbug/chromebug/branches/chromebug1.6"></fileset>
+        </copy>
+
+    </target>
+
+    <target name="makeXPI">
+        <delete file="output/qp-fbug.xpi"/>
+        <zip destfile="output/qp-fbug.xpi"
+            update="true"
+            basedir="./src/chrome"
+        />
+    </target>
+
+</project>
