@@ -1,0 +1,31 @@
+<?xml version="1.0"?> 
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"> 
+    <script src="chrome://qpfbug/content/qpfbug.js" type="application/x-javascript"/>
+
+    <!-- Register also a command updater that is dispathing text selection changed
+        events (e.g. when search is performed in the HTML panel). These events are
+        useful for some tests -->
+    <!--<commandset id="mainCommandSet">-->
+        <!--<command id="cmd_openTestConsole" oncommand="FBTestFirebugOverlay.open()"/>-->
+    <!--</commandset>-->
+
+    <!-- Overlay for Firebug icon menu -->
+    <!--<popupset id="mainPopupSet">-->
+        <!--<popup id="fbContextMenu">-->
+            <!--<menuitem label="Hi!" command="cmd_copy"/>-->
+            <!--<menuitem id="menu_openTestConsole" label="Open Test Console"-->
+                <!--command="cmd_openTestConsole" insertbefore="menu_aboutSeparator"-->
+                <!--key="key_openTestConsole"/>-->
+        <!--</popup>-->
+    <!--</popupset>-->
+
+
+    <!--<menupopup id="fbFirebugMenuPopup">-->
+        <!--<menuitem id="menu_openQP4FBConsole" label="Hi"-->
+            <!--command="cmd_copy" insertbefore="menu_aboutSeparator"-->
+            <!--/>-->
+    <!--</menupopup>-->
+
+</overlay>
+
