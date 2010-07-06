@@ -1,4 +1,4 @@
-content qp-fbug content/
-resource qp-fbug content/
+content qpfbug content/
+resource qpfbug content/
 
-overlay chrome://firebug/content/firebugOverlay.xul   chrome://qp-fbug/content/qp-fbug.xul
+overlay chrome://firebug/content/firebugOverlay.xul   chrome://qpfbug/content/qpfbug.xul

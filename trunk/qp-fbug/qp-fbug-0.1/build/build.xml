@@ -1,10 +1,10 @@
 <?xml version="1.0"   encoding="UTF-8" ?>
 
-<project name="qp-fbug" default="" basedir=".." >
+<project name="qp-fbug" default="deploy_qpfbug" basedir=".." >
 
-
+    <property file="build/build.properties"/>
     <!-- project tasks -->
-    <target name="deploy_qp-fbug">
+    <target name="deploy_qpfbug">
         <copy todir="${firefox.extensions}\salman.mirghasemi@epfl.ch">
             <fileset dir = "./src/chrome"></fileset>
         </copy>
