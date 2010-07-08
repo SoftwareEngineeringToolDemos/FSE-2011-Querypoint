@@ -36,6 +36,7 @@ Firebug.QP4FBModel = extend(Firebug.Module,
 
      		Firebug.QP4FBGlobals.addLastChangeMenuItem();
 
+            //added code for FBTest
             var testListURI="C:\\salmir\\work\\epfl\\projects\\43_querypoint-debugging\\trunk\\qp-fbug\\qp-fbug-0.1\\test\\testList.html";
             var args = {
                 firebugWindow: window,
@@ -44,6 +45,7 @@ Firebug.QP4FBModel = extend(Firebug.Module,
             window.arguments[0] = args;
 
             var FBTest = FBTestApp.FBTest = {};
+            FBTestApp.TestConsole = {};
     },
     initContext: function(context, persistedState)
     {
@@ -219,7 +221,6 @@ Firebug.QP4FBGlobals.lastChange = function(row)
 //        Firebug.Console.log("Point : "+ point.toString());
 
 
-        Firebug.QP4FBGlobals.reproduce();
         var sourceFile = this.context.sourceFileMap[wrappedJSDValue.objectValue.creatorURL];
 //        var sourceFile = FirebugContext[wrappedJSDValue.objectValue.creatorURL];
 //        sourceFile.href = wrappedJSDValue.objectValue.creatorURL;
@@ -241,6 +242,8 @@ Firebug.QP4FBGlobals.lastChange = function(row)
           if (bp)
             Firebug.Console.log(bp);
         }
+
+        Firebug.QP4FBGlobals.reproduce();
         Firebug.Console.log("**************");
 
         // reprdouce
@@ -253,7 +256,7 @@ Firebug.QP4FBGlobals.reproduce = function ()
 
 //    var runTest = function{
     FBTrace.sysout("test1.START");
-    var url = "file:///C:/salmir/work/epfl/projects/38_qp4firebug/projects/testqp4fb/test.html";
+    var url = "file:///C:/salmir/work/epfl/projects/43_querypoint-debugging/trunk/qp-fbug/qp-fbug-0.1/test/test.html";
 
     var tabbrowser = getBrowser();
    // Open new tab and mark as 'test' so it can be closed automatically.
@@ -266,9 +269,9 @@ Firebug.QP4FBGlobals.reproduce = function ()
     // Wait till the new window is loaded.
     var browser = tabbrowser.getBrowserForTab(newTab);
 
-    var callback =
-         FBTestFirebug.openNewTab("file:///C:/salmir/work/epfl/projects/38_qp4firebug/projects/testqp4fb/test.html", function(win)
-         {
+//    var callback =
+//         FBTestFirebug.openNewTab("file:///C:/salmir/work/epfl/projects/43_querypoint-debugging/trunk/qp-fbug/qp-fbug-0.1/test/test.html", function(win)
+//         {
              // Open Firebug UI and realod the page.
 //             FBTestFirebug.pressToggleFirebug(true);
 //
@@ -279,10 +282,10 @@ Firebug.QP4FBGlobals.reproduce = function ()
 //                FBTest.click(win.document.getElementById("mybody"));
 //             }
 //             FBTrace.sysout(win.document.getElementById("mybody"));
-             FBTrace.sysout(win.myObject.first);
-             FBTrace.sysout("test reloading");
+//             FBTrace.sysout(win.myObject.first);
+//             FBTrace.sysout("test reloading");
 //             FBTest.testDone();
-         });
+//         });
 
 //    waitForWindowLoad(browser, callback);
 
@@ -303,10 +306,10 @@ Firebug.QP4FBGlobals.reproduce = function ()
 //           FBTest.click(win.document.getElementById("mybody"));
 //           FBTest.click(win.document.getElementById("mybody"));
 //        }
-//                                 .getElementById("testButton")
-        FBTrace.sysout(win.document.getElementById("mybody"));
-        FBTrace.sysout(win.myObject.first);
-        FBTrace.sysout("test reloading");
+////                                 .getElementById("testButton")
+//        FBTrace.sysout(win.document.getElementById("mybody"));
+//        FBTrace.sysout(win.myObject.first);
+//        FBTrace.sysout("test reloading");
 
 //        FBTestFirebug.reload(function(win)
 //        {
