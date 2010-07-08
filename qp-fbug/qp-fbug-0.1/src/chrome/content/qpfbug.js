@@ -35,6 +35,15 @@ Firebug.QP4FBModel = extend(Firebug.Module,
 //        jsd.breakpointHook = { onExecute: hook(fbs.onBreakpoint, RETURN_CONTINUE) };
 
      		Firebug.QP4FBGlobals.addLastChangeMenuItem();
+
+            var testListURI="C:\\salmir\\work\\epfl\\projects\\43_querypoint-debugging\\trunk\\qp-fbug\\qp-fbug-0.1\\test\\testList.html";
+            var args = {
+                firebugWindow: window,
+                testListURI: testListURI
+            };
+            window.arguments[0] = args;
+
+            var FBTest = FBTestApp.FBTest = {};
     },
     initContext: function(context, persistedState)
     {
@@ -202,12 +211,12 @@ Firebug.QP4FBGlobals.lastChange = function(row)
         Firebug.Console.log(wrappedJSDValue.objectValue.creatorLine);
         Firebug.Console.log(wrappedJSDValue.objectValue.constructorURL);
 
-		Components.utils.import("resource://qp4fb/concept/tracepoint.js", this);
+//		Components.utils.import("resource://qp4fb/concept/tracepoint.js", this);
 
-        var point = new this.TracePointFactory(wrappedJSDValue.objectValue.creatorURL,
-                                          wrappedJSDValue.objectValue.creatorLine,
-                                          value);
-        Firebug.Console.log("Point : "+ point.toString());                                  
+//        var point = new this.TracePointFactory(wrappedJSDValue.objectValue.creatorURL,
+//                                          wrappedJSDValue.objectValue.creatorLine,
+//                                          value);
+//        Firebug.Console.log("Point : "+ point.toString());
 
 
         Firebug.QP4FBGlobals.reproduce();
@@ -241,7 +250,7 @@ Firebug.QP4FBGlobals.lastChange = function(row)
 
 Firebug.QP4FBGlobals.reproduce = function ()
 {
-    
+
 //    var runTest = function{
     FBTrace.sysout("test1.START");
     var url = "file:///C:/salmir/work/epfl/projects/38_qp4firebug/projects/testqp4fb/test.html";
