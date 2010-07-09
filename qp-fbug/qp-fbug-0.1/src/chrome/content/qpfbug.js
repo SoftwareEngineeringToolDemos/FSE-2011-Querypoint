@@ -7,11 +7,16 @@ FBL.ns(function() { with (FBL) {
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 const jsdIStackFrame = Ci.jsdIStackFrame;
-FBTrace.DBG_QP4FB = true;
 //----------------------------------- Module ----------------------------------
 
-Firebug.QP4FBModel = extend(Firebug.Module,
+Firebug.QP4FBModel = extend(Firebug.Module,  //TODO change it to activeModule
 {
+    initialize: function(){
+
+        FBTrace.DBG_QPFBUG = true;
+        QPFBUG = {}; //the global object contains all QP data
+        QPFBUG.dbSessions= [];
+    },
     initializeUI: function()
     {
 
@@ -45,15 +50,28 @@ Firebug.QP4FBModel = extend(Firebug.Module,
             window.arguments[0] = args;
 
             var FBTest = FBTestApp.FBTest = {};
-            FBTestApp.TestConsole = {};
+            FBTestApp.TestConsole =
+            {
+               initialize : function(){},
+               shutdown : function(){},
+            };
+
     },
     initContext: function(context, persistedState)
     {
+
+       Firebug.Console.log("initContext ................. " + context.uid);
+       
        object = context.window;
        if (object.wrappedJSObject)
                 object = object.wrappedJSObject;
        alert("QueryPoint Debugging! Use it!");
     },
+    loadedContext: function(context)
+    {
+       Firebug.Console.log("loadedContext ................. " + context.uid);
+
+    }
 });
 
 //----------------------------------- Rep -----------------------------------
@@ -154,7 +172,7 @@ Firebug.QP4FBGlobals.addLastChangeMenuItem = function()
 
 Firebug.QP4FBGlobals.lastChange = function(row)
 {
-        if (FBTrace.DBG_QP4FB)
+        if (FBTrace.DBG_QPFBUG)
             FBTrace.sysout("lastChange: "+row, row);
 
         var value = this.getRowPathName(row);
@@ -321,6 +339,7 @@ Firebug.QP4FBGlobals.reproduce = function ()
 //    });
 //    }
 //    runTest();
+      Firebug.Console.log("REPRODUCED!!!!!!!!!!");
 }
 
 }});
