@@ -15,7 +15,10 @@ Firebug.QP4FBModel = extend(Firebug.Module,  //TODO change it to activeModule
 
         FBTrace.DBG_QPFBUG = true;
         QPFBUG = {}; //the global object contains all QP data
-        QPFBUG.dbSessions= [];
+		Components.utils.import("resource://qpfbug/concept/debugstate.js");
+		Components.utils.import("resource://qpfbug/concept/debugmodel.js");
+        QPFBUG.debugstate = new QPFBUG.DebugStateFactory();
+
     },
     initializeUI: function()
     {

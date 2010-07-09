@@ -7,14 +7,39 @@ QPFBUG.DebugModelFactory = function(){
      tracePointId = 0;
 }
 
+// The reason to use prototype for setting fuctions: http://www.jibbering.com/faq/notes/closures/
 QPFBUG.DebugModelFactory.prototype = {
-
 
      addTracePoint() : function(){},
 
+}
 
 
+//------------------------------- TracePoint ----------------------------------
+// trace point is kept in debug model.
+QPFBUG.TracePointFactory = function(id, name, queryType){
+    this.id = id;
+    this.queryType = queryType;
+    this.refPoint = refPoint;
+    this.refObj = refObj;
+}
 
+QPFBUG.TracePointFactory.prototype = {
+
+}
+
+//------------------------------- TraceObject ----------------------------------
+// This object is the global object reference.
+QPFBUG.TracePointFactory = function(id, name, pointName, frame, ref ){
+    this.id = id;
+    this.name = name;
+    this.pointName = pointName;
+    this.frame = frame;
+    this.ref = ref;
+}
+
+QPFBUG.TracePointFactory.prototype = {
+    // no fuctions
 }
 
 //------------------------------- TracePointDef -------------------------------
@@ -31,16 +56,3 @@ QPFBUG.TracePointDefFactory.prototype = {
     // no functions
 }
 
-
-//------------------------------- TracePoint ----------------------------------
-// This object is the live object is kept in debug model.
-QPFBUG.TracePointFactory = function(id, name, queryType){
-    this.id = id;
-    this.queryType = queryType;
-    this.refPoint = refPoint;
-    this.refObj = refObj;
-}
-
-QPFBUG.TracePointFactory.prototype = {
-
-}
