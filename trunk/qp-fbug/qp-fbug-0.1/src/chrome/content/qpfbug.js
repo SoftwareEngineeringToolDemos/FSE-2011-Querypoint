@@ -7,13 +7,14 @@ FBL.ns(function() { with (FBL) {
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 const jsdIStackFrame = Ci.jsdIStackFrame;
+FBTrace.DBG_QPFBUG = true;
+
 //----------------------------------- Module ----------------------------------
 
 Firebug.QP4FBModel = extend(Firebug.Module,  //TODO change it to activeModule
 {
     initialize: function(){
-
-        FBTrace.DBG_QPFBUG = true;
+        alert("QueryPoint Debugging! Use it!");
         QPFBUG = {}; //the global object contains all QP data
 		Components.utils.import("resource://qpfbug/concept/debugstate.js");
 		Components.utils.import("resource://qpfbug/concept/debugmodel.js");
@@ -62,13 +63,20 @@ Firebug.QP4FBModel = extend(Firebug.Module,  //TODO change it to activeModule
     },
     initContext: function(context, persistedState)
     {
-
        Firebug.Console.log("initContext ................. " + context.uid);
-       
+
+       var tabBrowser = $("content");
+       var selectedTab = tabBrowser.selectedTab;
+
+       if (selectedTab.hasAttribute("debugSessionId"));
+       {
+           Firebug.Console.log(selectedTab.getAttribute("debugSessionId")+" ");
+           Firebug.Console.log(selectedTab.getAttribute("reproductionId")+" ");
+       }
+
        object = context.window;
        if (object.wrappedJSObject)
                 object = object.wrappedJSObject;
-       alert("QueryPoint Debugging! Use it!");
     },
     loadedContext: function(context)
     {
@@ -76,47 +84,6 @@ Firebug.QP4FBModel = extend(Firebug.Module,  //TODO change it to activeModule
 
     }
 });
-
-//----------------------------------- Rep -----------------------------------
-//xxxsalmir we don't have any Rep yet
-
-//var qp4fbRep = domplate(
-//{
-//    date: (new Date()).toGMTString(),
-//
-//    myTag:
-//        DIV({class: "MyDiv", onclick: "$onClick"},
-//            SPAN("OOOOOOOOOOOOOOOOOOO")
-//        ),
-//
-//    onClick: function(event)
-//    {
-////        var cont = context.window;
-//       var x = Firebug.Console;
-//        alert("OOOOOOOOOOOOOOOOOO");
-//       Firebug.Console.log("QP4FB");
-//       Firebug.Console.log(jsd);
-//       Firebug.Console.log(x);
-//
-//    }
-//});
-
-//----------------------------------- Panel -----------------------------------
-//xxxsalmir we don't have any panel yet
-//function QueryPointPanel() {}
-//QueryPointPanel.prototype = extend(Firebug.Panel,
-//{
-//    name: "QP4FB",
-//    title: "QueryPoint Debugging",
-//
-//    initialize: function() {
-//      Firebug.Panel.initialize.apply(this, arguments);
-//      var panel = this;
-//    },
-//});
-
-//xxxsalmir we don't have any panel yet
-// Firebug.registerPanel(QueryPointPanel);
 
 Firebug.registerModule(Firebug.QP4FBModel);
 
@@ -264,25 +231,29 @@ Firebug.QP4FBGlobals.lastChange = function(row)
             Firebug.Console.log(bp);
         }
 
-        Firebug.QP4FBGlobals.reproduce();
-        Firebug.Console.log("**************");
-
-        // reprdouce
-
-        //
+        Firebug.QP4FBGlobals.reproduce(10,10); //TODO changeit
 }
 
-Firebug.QP4FBGlobals.reproduce = function ()
+Firebug.QP4FBGlobals.reproduce = function (debugSessionId, reproductionId)
 {
 
-//    var runTest = function{
-    FBTrace.sysout("test1.START");
+//----- first phase
+// just loading the page
+
     var url = "file:///C:/salmir/work/epfl/projects/43_querypoint-debugging/trunk/qp-fbug/qp-fbug-0.1/test/test.html";
 
     var tabbrowser = getBrowser();
    // Open new tab and mark as 'test' so it can be closed automatically.
     var newTab = tabbrowser.addTab(url);
     newTab.setAttribute("firebug", "test");
+    newTab.setAttribute("debugSessionId", debugSessionId);
+    newTab.setAttribute("reproductionId", reproductionId);
+    //A tab is like a process in java version. For the moment we only support one tab
+    newTab.setAttribute("tabId", "");
+
+//----- second phase
+//----- the start of the second phase: after the next line the context will change
+
     tabbrowser.selectedTab = newTab;
 
 
@@ -290,62 +261,66 @@ Firebug.QP4FBGlobals.reproduce = function ()
     // Wait till the new window is loaded.
     var browser = tabbrowser.getBrowserForTab(newTab);
 
-//    var callback =
-//         FBTestFirebug.openNewTab("file:///C:/salmir/work/epfl/projects/43_querypoint-debugging/trunk/qp-fbug/qp-fbug-0.1/test/test.html", function(win)
-//         {
-             // Open Firebug UI and realod the page.
-//             FBTestFirebug.pressToggleFirebug(true);
-//
-//             FBTestFirebug.selectPanel("dom");
-//
-//             for (var i=0 ;  i<10 ; i++ )
-//             {
-//                FBTest.click(win.document.getElementById("mybody"));
-//             }
-//             FBTrace.sysout(win.document.getElementById("mybody"));
-//             FBTrace.sysout(win.myObject.first);
-//             FBTrace.sysout("test reloading");
-//             FBTest.testDone();
-//         });
+   //look at FBTestFirebug.openNewTab(url, callback)
 
-//    waitForWindowLoad(browser, callback);
+// Open Firebug UI and realod the page.
+//      FBTestFirebug.pressToggleFirebug(true);
 
-
-    //{
-        // Open Firebug UI and realod the page.
-//                FBTestFirebug.pressToggleFirebug(true);
-
-//                FBTestFirebug.selectPanel("dom");
-//        FBTestFirebug.openFirebug();
+//     FBTestFirebug.selectPanel("dom");
+//      FBTestFirebug.openFirebug();
 //      var clickTarget = FW.FBL.getElementByClass(logRow, "spyTitleCol", "spyCol");
 //      FBTest.click(win.document.getElementById("testButton"));
 
-//        for (var i=0 ;  i<10 ; i++ )
-//        {
-//           FBTrace.sysout("i:"+i);
-//           FBTest.click(win);
-//           FBTest.click(win.document.getElementById("mybody"));
-//           FBTest.click(win.document.getElementById("mybody"));
-//        }
-////                                 .getElementById("testButton")
-//        FBTrace.sysout(win.document.getElementById("mybody"));
-//        FBTrace.sysout(win.myObject.first);
-//        FBTrace.sysout("test reloading");
-
-//        FBTestFirebug.reload(function(win)
-//        {
-//            FBTest.ok(FBTestFirebug.isFirebugOpen(), "Firebug UI must be opened now.");
-//            FBTestFirebug.testDone("openOnLocalPage.DONE");
-//        });
 //    FBTest.testDone();
 
-//    });
-//    }
-//    runTest();
-      Firebug.Console.log("REPRODUCED!!!!!!!!!!");
+    Firebug.Console.log("The end of reproduction " + reproductionId + ".");
 }
 
 }});
+
+//---------------------------------- TO BE REMOVED --------------------------------
+//---------------------------------------------------------------------------------
+
+//----------------------------------- Rep -----------------------------------
+//xxxsalmir we don't have any Rep yet
+
+//var qp4fbRep = domplate(
+//{
+//    date: (new Date()).toGMTString(),
+//
+//    myTag:
+//        DIV({class: "MyDiv", onclick: "$onClick"},
+//            SPAN("OOOOOOOOOOOOOOOOOOO")
+//        ),
+//
+//    onClick: function(event)
+//    {
+////        var cont = context.window;
+//       var x = Firebug.Console;
+//        alert("OOOOOOOOOOOOOOOOOO");
+//       Firebug.Console.log("QP4FB");
+//       Firebug.Console.log(jsd);
+//       Firebug.Console.log(x);
+//
+//    }
+//});
+
+//----------------------------------- Panel -----------------------------------
+//xxxsalmir we don't have any panel yet
+//function QueryPointPanel() {}
+//QueryPointPanel.prototype = extend(Firebug.Panel,
+//{
+//    name: "QP4FB",
+//    title: "QueryPoint Debugging",
+//
+//    initialize: function() {
+//      Firebug.Panel.initialize.apply(this, arguments);
+//      var panel = this;
+//    },
+//});
+
+//xxxsalmir we don't have any panel yet
+// Firebug.registerPanel(QueryPointPanel);
 
 
 

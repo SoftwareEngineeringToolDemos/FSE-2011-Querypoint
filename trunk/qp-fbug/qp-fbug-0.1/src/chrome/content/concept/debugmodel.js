@@ -1,5 +1,6 @@
-QPFBUG.const.querytypes.lastchange = 0;
-QPFBUG.const.querytypes.lastcondition = 1;
+QPFBUG.const.querytypes.reproduction = 0;
+QPFBUG.const.querytypes.lastchange = 1;
+QPFBUG.const.querytypes.lastcondition = 2;
 
 //--------------------------------- DebugModel --------------------------------
 QPFBUG.DebugModelFactory = function(){
@@ -45,7 +46,7 @@ QPFBUG.TracePointFactory.prototype = {
 //------------------------------- TracePointDef -------------------------------
 // This object is the result of parsing the inserted query by the user
 QPFBUG.TracePointDefFactory = function(name){
-    //e.g., for "lastChange(A, foo), queryType is 0, refPoint is A, and refObj is foo.
+    //e.g., for "lastChange(A, foo), queryType is 1, refPoint is A, and refObj is foo.
     this.name = name;
     this.queryType = queryType;
     this.refPoint = refPoint;
