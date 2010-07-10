@@ -1,0 +1,7 @@
+
+
+Firefox browser, tab browser
+https://developer.mozilla.org/en/Code_snippets/Tabbed_browser
+
+Java script closure
+http://www.jibbering.com/faq/notes/closures/
