@@ -1,25 +1,24 @@
-/* 
- * Author: Salman Mirghasemi
- */
-
-FBL.ns(function() { with (FBL) { 
-
+FBL.ns(function() { with (FBL) {
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 const jsdIStackFrame = Ci.jsdIStackFrame;
 FBTrace.DBG_QPFBUG = true;
 
 //----------------------------------- Module ----------------------------------
-
-Firebug.QP4FBModel = extend(Firebug.Module,  //TODO change it to activeModule
+Firebug.QPFBUGModel = extend(Firebug.Module,  //TODO change it to activeModule
 {
     initialize: function(){
-        alert("QueryPoint Debugging! Use it!");
-        QPFBUG = {}; //the global object contains all QP data
-		Components.utils.import("resource://qpfbug/concept/debugstate.js");
-		Components.utils.import("resource://qpfbug/concept/debugmodel.js");
-        QPFBUG.debugstate = new QPFBUG.DebugStateFactory();
+        alert("QPFBUG is available!");
 
+        //the global object contains all QPFBUG data
+        QPFBUG = {};
+
+        var loader = Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader);
+
+        loader.loadSubScript("resource://qpfbug/concept/qpfbugstate.js", QPFBUG);
+        loader.loadSubScript("resource://qpfbug/concept/debugmodel.js", QPFBUG);
+
+        QPFBUG.qpfbugState = new QPFBUG.QpfbugStateFactory();
     },
     initializeUI: function()
     {
@@ -27,16 +26,11 @@ Firebug.QP4FBModel = extend(Firebug.Module,  //TODO change it to activeModule
        this.jsd = Cc["@mozilla.org/js/jsd/debugger-service;1"].getService(Ci.jsdIDebuggerService);
        jsd.flags=0;
 
-//        this.fbs = Cc["@joehewitt.com/firebug;1"].getService().wrappedJSObject;
         var old_onBreakpoint = fbs.onBreakpoint;
         fbs.onBreakpoint = function(frame, type, val){
             FBTrace.sysout("onBreakpoint frame ... ", frame);
             FBTrace.sysout("onBreakpoint type ... ", type);
             FBTrace.sysout("onBreakpoint val ... ", val);
-//            Firebug.Console.log("onBreakpoint .... ((()))");
-//            var jsdIExecutionHook = Ci.jsdIExecutionHook;
-//            var RETURN_CONTINUE = jsdIExecutionHook.RETURN_CONTINUE;
-//            return RETURN_CONTINUE;
 
             return old_onBreakpoint.apply(this,arguments);
         };
@@ -68,11 +62,20 @@ Firebug.QP4FBModel = extend(Firebug.Module,  //TODO change it to activeModule
        var tabBrowser = $("content");
        var selectedTab = tabBrowser.selectedTab;
 
-       if (selectedTab.hasAttribute("debugSessionId"));
+       if (selectedTab.hasAttribute("debugSessionId"))
        {
            Firebug.Console.log(selectedTab.getAttribute("debugSessionId")+" ");
            Firebug.Console.log(selectedTab.getAttribute("reproductionId")+" ");
+       }else{
+           var debugSession = QPFBUG.qpfbugState.newDebugSession();
+           alert("New Debugging Session: " + debugSession.id);
        }
+
+       //var debugSession = QPFBUG.qpfbugState.getDebugSession(debugSessionId);
+       // analyze debug model
+       // set breakpoint as javascripts are loaded
+       // store points
+       // find the right one.
 
        object = context.window;
        if (object.wrappedJSObject)
@@ -85,7 +88,7 @@ Firebug.QP4FBModel = extend(Firebug.Module,  //TODO change it to activeModule
     }
 });
 
-Firebug.registerModule(Firebug.QP4FBModel);
+Firebug.registerModule(Firebug.QPFBUGModel);
 
 // QP4FB Globals
 Firebug.QP4FBGlobals = {};
