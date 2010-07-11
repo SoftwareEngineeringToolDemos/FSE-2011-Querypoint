@@ -1,7 +1,3 @@
-//var EXPORTED_SYMBOLS = ["QpfbugStateFactory","DebugSessionFactory", "ReproductionFactory"];
-
-//(function() {
-
 //--------------------------------- QpfbugState --------------------------------
 this.QpfbugStateFactory = function(){
 
@@ -48,6 +44,4 @@ this.ReproductionFactory = function(id){
 this.ReproductionFactory.prototype = {
 
 }
-
-//}).apply(QPFBUG);
 
