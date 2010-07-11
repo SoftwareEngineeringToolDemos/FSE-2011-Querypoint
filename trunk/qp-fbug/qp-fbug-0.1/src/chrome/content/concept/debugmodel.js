@@ -1,3 +1,8 @@
+// This script should be loaded in QPFBUG.Classes object
+
+with (QPFBUG.Lang){
+with (QPFBUG.Classes){
+
 
 this.const = {};
 this.const.querytypes =
@@ -64,3 +69,4 @@ this.TracePointDefFactory.prototype = {
     // no functions
 }
 
+}}

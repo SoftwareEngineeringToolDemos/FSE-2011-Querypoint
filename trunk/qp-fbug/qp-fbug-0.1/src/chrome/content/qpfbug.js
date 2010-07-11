@@ -8,17 +8,25 @@ FBTrace.DBG_QPFBUG = true;
 Firebug.QPFBUGModel = extend(Firebug.Module,  //TODO change it to activeModule
 {
     initialize: function(){
-        alert("QPFBUG is available!");
+        if (FBTrace.DBG_QPFBUG)
+             FBTrace.sysout("QPFBUG - initialize() ...");
 
         //the global object contains all QPFBUG data
         QPFBUG = {};
 
         var loader = Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader);
 
-        loader.loadSubScript("resource://qpfbug/concept/qpfbugstate.js", QPFBUG);
-        loader.loadSubScript("resource://qpfbug/concept/debugmodel.js", QPFBUG);
+        loader.loadSubScript("resource://qpfbug/util/lang.js", QPFBUG);
+        QPFBUG.Classes = {}
+        loader.loadSubScript("resource://qpfbug/util/statemachine.js", QPFBUG.Classes);
+        loader.loadSubScript("resource://qpfbug/util/timer.js", QPFBUG.Classes);
+        loader.loadSubScript("resource://qpfbug/concept/qpfbugstate.js", QPFBUG.Classes);
+        loader.loadSubScript("resource://qpfbug/concept/debugmodel.js", QPFBUG.Classes);
 
-        QPFBUG.qpfbugState = new QPFBUG.QpfbugStateFactory();
+        QPFBUG.qpfbugState = new QPFBUG.Classes.QpfbugStateFactory();
+        if (FBTrace.DBG_QPFBUG)
+             FBTrace.sysout("QPFBUG - ... initialize()." , QPFBUG.qpfbugState);
+
     },
     initializeUI: function()
     {
@@ -57,7 +65,8 @@ Firebug.QPFBUGModel = extend(Firebug.Module,  //TODO change it to activeModule
     },
     initContext: function(context, persistedState)
     {
-       Firebug.Console.log("initContext ................. " + context.uid);
+        if (FBTrace.DBG_QPFBUG)
+            FBTrace.sysout("QPFBUG initContext() ..." , context);
 
        var tabBrowser = $("content");
        var selectedTab = tabBrowser.selectedTab;
@@ -68,7 +77,8 @@ Firebug.QPFBUGModel = extend(Firebug.Module,  //TODO change it to activeModule
            Firebug.Console.log(selectedTab.getAttribute("reproductionId")+" ");
        }else{
            var debugSession = QPFBUG.qpfbugState.newDebugSession();
-           alert("New Debugging Session: " + debugSession.id);
+           if (FBTrace.DBG_QPFBUG)
+                 FBTrace.sysout("New debug session was created." , debugSession);
        }
 
        //var debugSession = QPFBUG.qpfbugState.getDebugSession(debugSessionId);
@@ -80,6 +90,9 @@ Firebug.QPFBUGModel = extend(Firebug.Module,  //TODO change it to activeModule
        object = context.window;
        if (object.wrappedJSObject)
                 object = object.wrappedJSObject;
+
+        if (FBTrace.DBG_QPFBUG)
+            FBTrace.sysout("... QPFBUG initContext()." , context); 
     },
     loadedContext: function(context)
     {

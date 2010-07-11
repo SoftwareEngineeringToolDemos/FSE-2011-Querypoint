@@ -1,3 +1,8 @@
+// This script should be loaded in QPFBUG.Classes object
+
+with (QPFBUG.Lang){
+with (QPFBUG.Classes){
+
 //--------------------------------- QpfbugState --------------------------------
 this.QpfbugStateFactory = function(){
 
@@ -10,7 +15,7 @@ this.QpfbugStateFactory.prototype =
 {
    newDebugSession: function(){
        var id = this.nextDebugSessionId++;
-       var debugSession = new this.DebugSessionFactory(id);
+       var debugSession = new DebugSessionFactory(id);
        this.debugSessions.push(debugSession);
        return debugSession;
    },
@@ -45,3 +50,4 @@ this.ReproductionFactory.prototype = {
 
 }
 
+}}
