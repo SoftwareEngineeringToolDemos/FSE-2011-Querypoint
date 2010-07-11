@@ -5,3 +5,9 @@ https://developer.mozilla.org/en/Code_snippets/Tabbed_browser
 
 Java script closure
 http://www.jibbering.com/faq/notes/closures/
+
+subscriptloader
+https://developer.mozilla.org/en/mozIJSSubScriptLoader
+
+Components.utils.import()
+https://developer.mozilla.org/en/Using_JavaScript_code_modules
