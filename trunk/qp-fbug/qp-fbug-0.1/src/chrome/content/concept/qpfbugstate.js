@@ -1,52 +1,65 @@
-// This script should be loaded in QPFBUG.Classes object
+// This script should be loaded into QPFBUG.Classes object
 
 with (QPFBUG.Lang){
 with (QPFBUG.Classes){
 
+var owner = QPFBUG.Classes;
+
 //--------------------------------- QpfbugState --------------------------------
-this.QpfbugStateFactory = function(){
 
-   this.nextDebugSessionId = 0;
-   this.debugSessions = [];
-}
+owner.QpfbugState = function(){
+
+//            const states = ["not-initialized", "initialized"];
+//            const transitions = [
+//                    ["initialize", "not-initialized", "not-initialized"]
+//                    ];
 
 
-this.QpfbugStateFactory.prototype =
-{
-   newDebugSession: function(){
-       var id = this.nextDebugSessionId++;
-       var debugSession = new DebugSessionFactory(id);
-       this.debugSessions.push(debugSession);
-       return debugSession;
-   },
+            var constructor = function(){
+//               this.stateMachine = new StateMachine(states, "notstarted", transitions);
+               this.nextDebugSessionId = 0;
+               this.debugSessions = [];
+            }
 
-   getDebugSession: function(id){
-       for (i=0 ; i < this.debugSessions.length ; i++)
-       {
-           if (this.debugSessions[i].id == id)
-           {
-               return this.debugSessions[i];
-           }
-       }
-       return null;
-   }
-}
+
+            constructor.prototype =
+            {
+               newDebugSession: function(){
+                   var id = this.nextDebugSessionId++;
+                   var debugSession = new DebugSession(id);
+                   this.debugSessions.push(debugSession);
+                   return debugSession;
+               },
+
+               getDebugSession: function(id){
+                   for (i=0 ; i < this.debugSessions.length ; i++)
+                   {
+                       if (this.debugSessions[i].id == id)
+                       {
+                           return this.debugSessions[i];
+                       }
+                   }
+                   return null;
+               }
+            }
+            return constructor;
+        }();
 
 //--------------------------------- DebugSession --------------------------------
-this.DebugSessionFactory = function(id){
+owner.DebugSession = function(id){
    this.id = id;
 }
 
-this.DebugSessionFactory.prototype = {
+owner.DebugSession.prototype = {
 
 }
 
 //--------------------------------- Reproduction --------------------------------
-this.ReproductionFactory = function(id){
+owner.Reproduction = function(id){
    this.id = id;
 }
 
-this.ReproductionFactory.prototype = {
+owner.Reproduction.prototype = {
 
 }
 

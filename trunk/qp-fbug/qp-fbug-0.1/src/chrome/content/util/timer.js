@@ -1,10 +1,11 @@
-// This script should be loaded in QPFBUG.Classes object
+// This script should be loaded into QPFBUG.Classes object
 
 with (QPFBUG.Lang){
 with (QPFBUG.Classes){
 
+    var owner = QPFBUG.Classes;
     //--------------------------------- Timer --------------------------------
-    this.Timer =
+    owner.Timer =
         function(){
             const states = ["notstarted", "paused", "working"];
             const transitions = [
