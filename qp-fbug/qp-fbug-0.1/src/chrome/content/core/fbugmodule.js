@@ -1,29 +1,30 @@
 // This script should be loaded into QPFBUG object
 //------------------------------- FBUGModule ------------------------------
 with (FBL) {
+with (QPFBUG){
 with (QPFBUG.Lang){
 with (QPFBUG.Classes){
 
     var owner = QPFBUG;
     owner.FBUGModule = extend(Firebug.Module,  //TODO change it to activeModule
     {
-
         stateMachine : new StateMachine
             (
                 ["not-initialized", "initialized"],
                 "not-initialized",
                 [
-                    ["initialize", "not-initialized", "not-initialized"]
+                    ["initialize", "not-initialized", "initialized"]
                 ] 
             ),
 
         initialize: function(){
             this.stateMachine.startTransit("initialize");
 
-            QPFBUG.qpfbugState = new QPFBUG.Classes.QpfbugState();
+            QPFBUG.manager = new Manager();
 
             this.stateMachine.endTransit();
         },
+
         initializeUI: function()
         {
 
@@ -59,41 +60,15 @@ with (QPFBUG.Classes){
                 };
 
         },
+
         initContext: function(context, persistedState)
         {
-            if (FBTrace.DBG_QPFBUG)
-                FBTrace.sysout("QPFBUG initContext() ..." , context);
-
-           var tabBrowser = $("content");
-           var selectedTab = tabBrowser.selectedTab;
-
-           if (selectedTab.hasAttribute("debugSessionId"))
-           {
-               Firebug.Console.log(selectedTab.getAttribute("debugSessionId")+" ");
-               Firebug.Console.log(selectedTab.getAttribute("reproductionId")+" ");
-           }else{
-               var debugSession = QPFBUG.qpfbugState.newDebugSession();
-               if (FBTrace.DBG_QPFBUG)
-                     FBTrace.sysout("New debug session was created." , debugSession);
-           }
-
-           //var debugSession = QPFBUG.qpfbugState.getDebugSession(debugSessionId);
-           // analyze debug model
-           // set breakpoint as javascripts are loaded
-           // store points
-           // find the right one.
-
-           object = context.window;
-           if (object.wrappedJSObject)
-                    object = object.wrappedJSObject;
-
-            if (FBTrace.DBG_QPFBUG)
-                FBTrace.sysout("... QPFBUG initContext()." , context);
+            manager.initContext(context, persistedState);
         },
+
         loadedContext: function(context)
         {
-           Firebug.Console.log("loadedContext ................. " + context.uid);
-
+            manager.loadedContext(context, persistedState);
         }
     });
-}}};
+}}}};

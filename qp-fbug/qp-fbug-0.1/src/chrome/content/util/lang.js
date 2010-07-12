@@ -13,7 +13,7 @@ owner.Lang = {
 
     assert : function(bool, object){
         if (!bool){
-            throw (" Assertion Error : " + object);// +  this.printStackTrace());//( + object);
+            throw (" Assertion Error : " + assert + ", " + object);// +  this.printStackTrace());//( + object);
         }
     },
 

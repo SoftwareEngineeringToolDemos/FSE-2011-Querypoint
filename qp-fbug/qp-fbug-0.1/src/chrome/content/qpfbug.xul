@@ -17,7 +17,9 @@
     <script src="chrome://qpfbug/content/util/statemachine.js" type="application/x-javascript"/>
     <script src="chrome://qpfbug/content/util/timer.js" type="application/x-javascript"/>
     <script src="chrome://qpfbug/content/concept/debugmodel.js" type="application/x-javascript"/>
-    <script src="chrome://qpfbug/content/concept/qpfbugstate.js" type="application/x-javascript"/>
+    <script src="chrome://qpfbug/content/concept/debugsession.js" type="application/x-javascript"/>
+    <script src="chrome://qpfbug/content/core/datastore.js" type="application/x-javascript"/>
+    <script src="chrome://qpfbug/content/core/manager.js" type="application/x-javascript"/>
     <script src="chrome://qpfbug/content/core/fbugmodule.js" type="application/x-javascript"/>
 
     <script src="chrome://qpfbug/content/qpfbug.js" type="application/x-javascript"/>
