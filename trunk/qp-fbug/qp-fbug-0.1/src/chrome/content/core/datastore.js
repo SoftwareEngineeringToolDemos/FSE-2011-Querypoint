@@ -5,20 +5,15 @@ with (QPFBUG.Classes){
 
 var owner = QPFBUG.Classes;
 
-//--------------------------------- QpfbugState --------------------------------
+//--------------------------------- DataStore --------------------------------
 
-owner.QpfbugState = function(){
-
-//            const states = ["not-initialized", "initialized"];
-//            const transitions = [
-//                    ["initialize", "not-initialized", "not-initialized"]
-//                    ];
-
+owner.DataStore = function(){
 
             var constructor = function(){
-//               this.stateMachine = new StateMachine(states, "notstarted", transitions);
                this.nextDebugSessionId = 0;
+               this.nextReproductionId = 0;
                this.debugSessions = [];
+               this.reproductions = [];
             }
 
 
@@ -41,26 +36,18 @@ owner.QpfbugState = function(){
                    }
                    return null;
                }
+
+               newReproduction: function(debugSessionId){
+                   var id = this.nextReproductionId++;
+                   var reproduction = new Reproduction(id);
+                   this.reproductions.push(reproduction);
+                   return reproduction;
+               }
+
+               getReproduction : function(id){
+
+               }
             }
             return constructor;
         }();
-
-//--------------------------------- DebugSession --------------------------------
-owner.DebugSession = function(id){
-   this.id = id;
-}
-
-owner.DebugSession.prototype = {
-
-}
-
-//--------------------------------- Reproduction --------------------------------
-owner.Reproduction = function(id){
-   this.id = id;
-}
-
-owner.Reproduction.prototype = {
-
-}
-
 }}

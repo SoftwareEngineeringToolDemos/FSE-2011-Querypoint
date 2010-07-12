@@ -16,10 +16,9 @@ with (QPFBUG.Classes){
             // [][3]String transitions
             var constructor = function(states, initial, transitions){
                 // non of the values can be null
-                assert(states, states);
-                assert(initial, initial);
-                assert(transitions, transitions);
-//                assert(!(!states || !initial || !transitions));
+                assert(states);
+                assert(initial);
+                assert(transitions);
                 // the initial state should be one of the states.
                 assert(states.indexOf(initial)!=-1);
                 //[]String states: state names

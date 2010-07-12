@@ -7,16 +7,6 @@ FBL.ns(function() { with (FBL) {
     //the global object contains all QPFBUG data
     
 
-//    var loader = Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader);
-//    loader.loadSubScript("resource://qpfbug/util/lang.js", QPFBUG);
-//
-//    //loades classes
-//    loader.loadSubScript("resource://qpfbug/util/statemachine.js", QPFBUG.Classes);
-//    loader.loadSubScript("resource://qpfbug/util/timer.js", QPFBUG.Classes);
-//    loader.loadSubScript("resource://qpfbug/concept/qpfbugstate.js", QPFBUG.Classes);
-//    loader.loadSubScript("resource://qpfbug/concept/debugmodel.js", QPFBUG.Classes);
-//
-//    loader.loadSubScript("resource://qpfbug/core/fbugmodule.js", QPFBUG);
 
     Firebug.registerModule(QPFBUG.FBUGModule);
 
@@ -213,6 +203,17 @@ QPFBUG.reproduce = function (debugSessionId, reproductionId)
 
 //---------------------------------- TO BE REMOVED --------------------------------
 //---------------------------------------------------------------------------------
+
+//    var loader = Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader);
+//    loader.loadSubScript("resource://qpfbug/util/lang.js", QPFBUG);
+//
+//    //loades classes
+//    loader.loadSubScript("resource://qpfbug/util/statemachine.js", QPFBUG.Classes);
+//    loader.loadSubScript("resource://qpfbug/util/timer.js", QPFBUG.Classes);
+//    loader.loadSubScript("resource://qpfbug/concept/qpfbugstate.js", QPFBUG.Classes);
+//    loader.loadSubScript("resource://qpfbug/concept/debugmodel.js", QPFBUG.Classes);
+//
+//    loader.loadSubScript("resource://qpfbug/core/fbugmodule.js", QPFBUG);
 
 //----------------------------------- Rep -----------------------------------
 //xxxsalmir we don't have any Rep yet
