@@ -1,110 +1,27 @@
 FBL.ns(function() { with (FBL) {
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-const jsdIStackFrame = Ci.jsdIStackFrame;
-FBTrace.DBG_QPFBUG = true;
 
-//----------------------------------- Module ----------------------------------
-Firebug.QPFBUGModel = extend(Firebug.Module,  //TODO change it to activeModule
-{
-    initialize: function(){
-        if (FBTrace.DBG_QPFBUG)
-             FBTrace.sysout("QPFBUG - initialize() ...");
+    if (FBTrace.DBG_INITIALIZE)
+        FBTrace.sysout("Loads QP-FBUG add-on ...");
 
-        //the global object contains all QPFBUG data
-        QPFBUG = {};
+    FBTrace.DBG_QPFBUG = true;
+    //the global object contains all QPFBUG data
+    
 
-        var loader = Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader);
+//    var loader = Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader);
+//    loader.loadSubScript("resource://qpfbug/util/lang.js", QPFBUG);
+//
+//    //loades classes
+//    loader.loadSubScript("resource://qpfbug/util/statemachine.js", QPFBUG.Classes);
+//    loader.loadSubScript("resource://qpfbug/util/timer.js", QPFBUG.Classes);
+//    loader.loadSubScript("resource://qpfbug/concept/qpfbugstate.js", QPFBUG.Classes);
+//    loader.loadSubScript("resource://qpfbug/concept/debugmodel.js", QPFBUG.Classes);
+//
+//    loader.loadSubScript("resource://qpfbug/core/fbugmodule.js", QPFBUG);
 
-        loader.loadSubScript("resource://qpfbug/util/lang.js", QPFBUG);
-        QPFBUG.Classes = {}
-        loader.loadSubScript("resource://qpfbug/util/statemachine.js", QPFBUG.Classes);
-        loader.loadSubScript("resource://qpfbug/util/timer.js", QPFBUG.Classes);
-        loader.loadSubScript("resource://qpfbug/concept/qpfbugstate.js", QPFBUG.Classes);
-        loader.loadSubScript("resource://qpfbug/concept/debugmodel.js", QPFBUG.Classes);
+    Firebug.registerModule(QPFBUG.FBUGModule);
 
-        QPFBUG.qpfbugState = new QPFBUG.Classes.QpfbugStateFactory();
-        if (FBTrace.DBG_QPFBUG)
-             FBTrace.sysout("QPFBUG - ... initialize()." , QPFBUG.qpfbugState);
-
-    },
-    initializeUI: function()
-    {
-
-       this.jsd = Cc["@mozilla.org/js/jsd/debugger-service;1"].getService(Ci.jsdIDebuggerService);
-       jsd.flags=0;
-
-        var old_onBreakpoint = fbs.onBreakpoint;
-        fbs.onBreakpoint = function(frame, type, val){
-            FBTrace.sysout("onBreakpoint frame ... ", frame);
-            FBTrace.sysout("onBreakpoint type ... ", type);
-            FBTrace.sysout("onBreakpoint val ... ", val);
-
-            return old_onBreakpoint.apply(this,arguments);
-        };
-        fbs.hookScripts();
-//        jsd.breakpointHook = { onExecute: hook(fbs.onBreakpoint, RETURN_CONTINUE) };
-
-     		Firebug.QP4FBGlobals.addLastChangeMenuItem();
-
-            //added code for FBTest
-            var testListURI="C:\\salmir\\work\\epfl\\projects\\43_querypoint-debugging\\trunk\\qp-fbug\\qp-fbug-0.1\\test\\testList.html";
-            var args = {
-                firebugWindow: window,
-                testListURI: testListURI
-            };
-            window.arguments[0] = args;
-
-            var FBTest = FBTestApp.FBTest = {};
-            FBTestApp.TestConsole =
-            {
-               initialize : function(){},
-               shutdown : function(){},
-            };
-
-    },
-    initContext: function(context, persistedState)
-    {
-        if (FBTrace.DBG_QPFBUG)
-            FBTrace.sysout("QPFBUG initContext() ..." , context);
-
-       var tabBrowser = $("content");
-       var selectedTab = tabBrowser.selectedTab;
-
-       if (selectedTab.hasAttribute("debugSessionId"))
-       {
-           Firebug.Console.log(selectedTab.getAttribute("debugSessionId")+" ");
-           Firebug.Console.log(selectedTab.getAttribute("reproductionId")+" ");
-       }else{
-           var debugSession = QPFBUG.qpfbugState.newDebugSession();
-           if (FBTrace.DBG_QPFBUG)
-                 FBTrace.sysout("New debug session was created." , debugSession);
-       }
-
-       //var debugSession = QPFBUG.qpfbugState.getDebugSession(debugSessionId);
-       // analyze debug model
-       // set breakpoint as javascripts are loaded
-       // store points
-       // find the right one.
-
-       object = context.window;
-       if (object.wrappedJSObject)
-                object = object.wrappedJSObject;
-
-        if (FBTrace.DBG_QPFBUG)
-            FBTrace.sysout("... QPFBUG initContext()." , context); 
-    },
-    loadedContext: function(context)
-    {
-       Firebug.Console.log("loadedContext ................. " + context.uid);
-
-    }
-});
-
-Firebug.registerModule(Firebug.QPFBUGModel);
-
-// QP4FB Globals
-Firebug.QP4FBGlobals = {};
+    if (FBTrace.DBG_INITIALIZE)
+        FBTrace.sysout("QP-FBUG add-on was loaded.");
 
 
 //----------------------- Changes getContextMenuItems --------------
@@ -116,9 +33,9 @@ Firebug.QP4FBGlobals = {};
 // paramters: window: the global object
 // 'this': is not specified
 
-Firebug.QP4FBGlobals.queries = [];
+QPFBUG.queries = [];
 
-Firebug.QP4FBGlobals.addLastChangeMenuItem = function()
+QPFBUG.addLastChangeMenuItem = function()
 {
       var old_GetContextMenuItems = Firebug.getPanelType("dom").prototype.getContextMenuItems;
 
@@ -145,7 +62,7 @@ Firebug.QP4FBGlobals.addLastChangeMenuItem = function()
                 var isStackFrame = rowObject instanceof jsdIStackFrame;
 
             items.push(
-                {label: "Last Change", command: bindFixed(Firebug.QP4FBGlobals.lastChange, this, row)});
+                {label: "Last Change", command: bindFixed(QPFBUG.lastChange, this, row)});
             }
             return items;
        };
@@ -156,7 +73,7 @@ Firebug.QP4FBGlobals.addLastChangeMenuItem = function()
       Firebug.getPanelType("watches").prototype.getContextMenuItems = new_GetContextMenuItems;
 }
 
-Firebug.QP4FBGlobals.lastChange = function(row)
+QPFBUG.lastChange = function(row)
 {
         if (FBTrace.DBG_QPFBUG)
             FBTrace.sysout("lastChange: "+row, row);
@@ -247,10 +164,10 @@ Firebug.QP4FBGlobals.lastChange = function(row)
             Firebug.Console.log(bp);
         }
 
-        Firebug.QP4FBGlobals.reproduce(10,10); //TODO changeit
+        QPFBUG.reproduce(10,10); //TODO changeit
 }
 
-Firebug.QP4FBGlobals.reproduce = function (debugSessionId, reproductionId)
+QPFBUG.reproduce = function (debugSessionId, reproductionId)
 {
 
 //----- first phase

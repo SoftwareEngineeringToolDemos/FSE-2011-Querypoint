@@ -1,22 +1,25 @@
-// This script should be loaded in QPFBUG.Classes object
+// This script should be loaded into QPFBUG.Classes object
 
 with (QPFBUG.Lang){
 with (QPFBUG.Classes){
 
+    var owner = QPFBUG.Classes;
     //--------------------------------- StateMachine --------------------------------
     // This object works like a state machine and is usually used for keeping
     // the state of an object or component.
     // A transition has a name, from and to values.
-    this.StateMachine =
+    owner.StateMachine =
         function(){
 
             // []String states
             // String initial
             // [][3]String transitions
-            this.Constructor = function(states, initial, transitions){
-                var assert = QPFBUG.Lang.assert;
+            var constructor = function(states, initial, transitions){
                 // non of the values can be null
-                assert(!states && !initial && !transitions);
+                assert(states, states);
+                assert(initial, initial);
+                assert(transitions, transitions);
+//                assert(!(!states || !initial || !transitions));
                 // the initial state should be one of the states.
                 assert(states.indexOf(initial)!=-1);
                 //[]String states: state names
@@ -24,6 +27,8 @@ with (QPFBUG.Classes){
                 //String   initial: initial state name
                 this.initial = initial;
 
+                //map<String,[3]String> transitions: all transitions
+                this.transitions = {};
                 for (i = 0; i < transitions.length; i++) {
                     //both from and to states should be in the list of states
                     assert(states.indexOf(transitions[i][1]!=-1));
@@ -31,11 +36,9 @@ with (QPFBUG.Classes){
                     this.transitions[transitions[i][0]] = transitions[i];
                 }
 
-                //map<String,[3]String> transitions: all transitions
-                this.transitions = transitions;
                 //String: current state
                 this.state = initial;
-                //boolean: it is true if state machin is in transition
+                //boolean: it is true if state machine is in transition
                 this.inTransition = false;
                 //String
                 this.currentTransition = null;
@@ -43,12 +46,12 @@ with (QPFBUG.Classes){
                 this.lastChangeTime = currentTimeMillis();
             };
 
-            this.Constructor.prototype = {
+            constructor.prototype = {
 
                 //String transition: transition name
                 startTransit: function(transition)
                 {
-                    assert(this.transitions.indexOf(transition)!=-1);
+                    assert(this.transitions[transition]);
                     assert(this.state == this.transitions[transition][1], this.state);
                     this.inTransition = true;
                     this.state = null;
@@ -58,7 +61,7 @@ with (QPFBUG.Classes){
 
                 endTransit: function()
                 {
-                    assert(inTransition);
+                    assert(this.inTransition);
                     this.state = this.transitions[this.currentTransition][2];
                     this.inTransition = false;
                     this.currentTransition = null;
@@ -87,7 +90,7 @@ with (QPFBUG.Classes){
                     return (stateName == this.state);
                 }
             };
-            return Constructor;
+            return constructor;
         }();
 
 }}
