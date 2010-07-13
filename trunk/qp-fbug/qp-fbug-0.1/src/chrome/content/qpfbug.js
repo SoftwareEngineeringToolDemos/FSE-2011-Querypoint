@@ -4,9 +4,6 @@ FBL.ns(function() { with (FBL) {
         FBTrace.sysout("Loads QP-FBUG add-on ...");
 
     FBTrace.DBG_QPFBUG = true;
-    //the global object contains all QPFBUG data
-    
-
 
     Firebug.registerModule(QPFBUG.FBUGModule);
 
@@ -200,61 +197,6 @@ QPFBUG.reproduce = function (debugSessionId, reproductionId)
 }
 
 }});
-
-//---------------------------------- TO BE REMOVED --------------------------------
-//---------------------------------------------------------------------------------
-
-//    var loader = Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader);
-//    loader.loadSubScript("resource://qpfbug/util/lang.js", QPFBUG);
-//
-//    //loades classes
-//    loader.loadSubScript("resource://qpfbug/util/statemachine.js", QPFBUG.Classes);
-//    loader.loadSubScript("resource://qpfbug/util/timer.js", QPFBUG.Classes);
-//    loader.loadSubScript("resource://qpfbug/concept/qpfbugstate.js", QPFBUG.Classes);
-//    loader.loadSubScript("resource://qpfbug/concept/debugmodel.js", QPFBUG.Classes);
-//
-//    loader.loadSubScript("resource://qpfbug/core/fbugmodule.js", QPFBUG);
-
-//----------------------------------- Rep -----------------------------------
-//xxxsalmir we don't have any Rep yet
-
-//var qp4fbRep = domplate(
-//{
-//    date: (new Date()).toGMTString(),
-//
-//    myTag:
-//        DIV({class: "MyDiv", onclick: "$onClick"},
-//            SPAN("OOOOOOOOOOOOOOOOOOO")
-//        ),
-//
-//    onClick: function(event)
-//    {
-////        var cont = context.window;
-//       var x = Firebug.Console;
-//        alert("OOOOOOOOOOOOOOOOOO");
-//       Firebug.Console.log("QP4FB");
-//       Firebug.Console.log(jsd);
-//       Firebug.Console.log(x);
-//
-//    }
-//});
-
-//----------------------------------- Panel -----------------------------------
-//xxxsalmir we don't have any panel yet
-//function QueryPointPanel() {}
-//QueryPointPanel.prototype = extend(Firebug.Panel,
-//{
-//    name: "QP4FB",
-//    title: "QueryPoint Debugging",
-//
-//    initialize: function() {
-//      Firebug.Panel.initialize.apply(this, arguments);
-//      var panel = this;
-//    },
-//});
-
-//xxxsalmir we don't have any panel yet
-// Firebug.registerPanel(QueryPointPanel);
 
 
 

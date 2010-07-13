@@ -28,8 +28,8 @@ with (QPFBUG.Classes){
         initializeUI: function()
         {
 
-           this.jsd = Cc["@mozilla.org/js/jsd/debugger-service;1"].getService(Ci.jsdIDebuggerService);
-           jsd.flags=0;
+            this.jsd = Cc["@mozilla.org/js/jsd/debugger-service;1"].getService(Ci.jsdIDebuggerService);
+            jsd.flags=0;
 
             var old_onBreakpoint = fbs.onBreakpoint;
             fbs.onBreakpoint = function(frame, type, val){

@@ -8,20 +8,11 @@ var owner = QPFBUG.Classes;
 //--------------------------------- DebugSession --------------------------------
 owner.DebugSession = function(id){
    this.id = id;
+   this.reproductions = [];
    this.debugModel = new DebugModel();
 }
 
 owner.DebugSession.prototype = {
-
-}
-
-//--------------------------------- Reproduction --------------------------------
-owner.Reproduction = function(id){
-   this.id = id;
-}
-
-owner.Reproduction.prototype = {
-
 }
 
 }}
