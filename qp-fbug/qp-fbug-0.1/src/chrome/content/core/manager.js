@@ -18,36 +18,50 @@ owner.Manager = function(){
             constructor.prototype =
             {
                //events
-               newContext: function(){
-                  var tabBrowser = $("content");
-                  var selectedTab = tabBrowser.selectedTab;
+                initContext: function(){
+                    var debugSession;
+                    var reproduction;
 
-                  if (selectedTab.hasAttribute("debugSessionId"))
-                  {
-                      Firebug.Console.log(selectedTab.getAttribute("debugSessionId")+" ");
-                      Firebug.Console.log(selectedTab.getAttribute("reproductionId")+" ");
-                  }else{
-                      var debugSession = this.dataStore.newDebugSession();
-                      if (FBTrace.DBG_QPFBUG)
-                            FBTrace.sysout("New debug session was created." , debugSession);
-                  }
+                    var tabBrowser = $("content");
+                    var selectedTab = tabBrowser.selectedTab;
 
-                  //var debugSession = QPFBUG.qpfbugState.getDebugSession(debugSessionId);
-                  // analyze debug model
-                  // set breakpoint as javascripts are loaded
-                  // store points
-                  // find the right one.
+                    var reproductionId = selectedTab.getAttribute("reproductionId");
+                    if (reproductionId)
+                    {
+                        reproduction = this.dataStore.getReproduction(reproductionId);
+                        debugSession = this.dataStore.getDebugSessionForReproduction(reproductionId);
+                    }
 
-                  object = context.window;
-                  if (object.wrappedJSObject)
-                           object = object.wrappedJSObject;
+                    if (!debugSession)
+                    {
+                        debugSession = this.dataStore.newDebugSession();
+                        reproduction = this.dataStore.newReproduction(debugSession.id);
+                        if (FBTrace.DBG_QPFBUG)
+                              FBTrace.sysout("New debug session was created." , debugSession);
+                    }
 
-                   if (FBTrace.DBG_QPFBUG)
-                       FBTrace.sysout("... QPFBUG initContext()." , context);
-               }
-            }
-            return constructor;
-        }();
+                    // analyze debug model
+                    var debugModel = debugSession.debugModel;
+                    debugModel.tracePoints;
+
+                        //set bps
+
+                    // set breakpoint as javascripts are loaded
+                    // store points
+                    // find the right one.
+
+                    object = context.window;
+                    if (object.wrappedJSObject)
+                             object = object.wrappedJSObject;
+
+                },
+
+                loadedContext: function(){
+
+                }
+             }
+             return constructor;
+         }();
 
 //--------------------------------- DebugSession --------------------------------
 owner.DebugSession = function(id){
