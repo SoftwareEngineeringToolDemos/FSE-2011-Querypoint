@@ -1,15 +1,17 @@
+var EXPORTED_SYMBOLS = ["QPFBUG"];
+//Module = function(win)
+//with(win){
+
+QPFBUG = {};
 //--------------------------------- Lang --------------------------------
 //this class contains basic needed functions at language level
 
-QPFBUG = {};
 
-var owner = QPFBUG;
-
-owner.Lang = {
+QPFBUG.Lang = {
 
     Cc : Components.classes,
     Ci : Components.interfaces,
-    jsdIStackFrame : Ci.jsdIStackFrame,
+    jsdIStackFrame : Components.interfaces.jsdIStackFrame,
 
     assert : function(bool, object){
         if (!bool){
@@ -69,4 +71,4 @@ owner.Lang = {
 //	}
 };
 
-owner.Classes = {};
+QPFBUG.Classes = {};

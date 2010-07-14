@@ -8,19 +8,12 @@
     <script type="application/x-javascript" src="chrome://fbtest/content/testResultRep.js"/>
     <script type="application/x-javascript" src="chrome://fbtest/content/testListRep.js"/>
     <script type="application/x-javascript" src="chrome://fbtest/content/testRunner.js"/>
-    <!--<script type="application/x-javascript" src="chrome://fbtest/content/testConsole.js"/>-->
     <script type="application/x-javascript" src="chrome://fbtest/content/testLogger.js"/>
+    <!--<script type="application/x-javascript" src="chrome://fbtest/content/testConsole.js"/>-->
 
+    
     <!-- qpfbug -->
-    loader.loadSubScript("resource://qpfbug/util/lang.js", QPFBUG);
-    <script src="chrome://qpfbug/content/util/lang.js" type="application/x-javascript"/>
-    <script src="chrome://qpfbug/content/util/statemachine.js" type="application/x-javascript"/>
-    <script src="chrome://qpfbug/content/util/timer.js" type="application/x-javascript"/>
-    <script src="chrome://qpfbug/content/concept/debugmodel.js" type="application/x-javascript"/>
-    <script src="chrome://qpfbug/content/concept/debugsession.js" type="application/x-javascript"/>
-    <script src="chrome://qpfbug/content/concept/reproduction.js" type="application/x-javascript"/>
-    <script src="chrome://qpfbug/content/core/datastore.js" type="application/x-javascript"/>
-    <script src="chrome://qpfbug/content/core/manager.js" type="application/x-javascript"/>
+    <script src="chrome://qpfbug/content/util/scriptloader.js" type="application/x-javascript"/>
     <script src="chrome://qpfbug/content/core/fbugmodule.js" type="application/x-javascript"/>
 
     <script src="chrome://qpfbug/content/qpfbug.js" type="application/x-javascript"/>

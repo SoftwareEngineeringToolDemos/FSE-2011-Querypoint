@@ -1,11 +1,12 @@
-// This script should be loaded into QPFBUG.Classes object
+var EXPORTED_SYMBOLS = ["loadModule"];
+loadModule = function(QPFBUG)
+{
 
 with (QPFBUG.Lang){
 with (QPFBUG.Classes){
 
-    var owner = QPFBUG.Classes;
     //--------------------------------- Timer --------------------------------
-    owner.Timer =
+    QPFBUG.Classes.Timer =
         function(){
             const states = ["notstarted", "paused", "working"];
             const transitions = [
@@ -83,3 +84,4 @@ with (QPFBUG.Classes){
         }();
 
 }}
+};
