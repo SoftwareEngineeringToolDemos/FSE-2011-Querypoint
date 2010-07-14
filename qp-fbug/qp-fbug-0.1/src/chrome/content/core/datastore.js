@@ -1,4 +1,6 @@
-// This script should be loaded into QPFBUG.Classes object
+var EXPORTED_SYMBOLS = ["loadModule"];
+loadModule = function(QPFBUG)
+{
 
 with (QPFBUG.Lang){
 with (QPFBUG.Classes){
@@ -63,3 +65,5 @@ owner.DataStore = function(){
         return constructor;
     }();
 }}
+
+};

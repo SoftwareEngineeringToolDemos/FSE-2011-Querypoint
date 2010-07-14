@@ -1,6 +1,9 @@
-// This script should be loaded into QPFBUG.Classes object
+var EXPORTED_SYMBOLS = ["loadModule"];
+loadModule = function(QPFBUG)
+{
 
-with (FBL) {
+
+//with (FBL) {
 with (QPFBUG){
 with (QPFBUG.Lang){
 with (QPFBUG.Classes){
@@ -13,12 +16,37 @@ owner.Manager = function(){
 
             var constructor = function(){
                this.dataStore = new DataStore();
-            }
+               this.view = new View();
+               this.reproducer = new Reproducer();
+            };
 
             constructor.prototype =
             {
-               //events
-                initContext: function(){
+                //------------------------------ event handling -----------------------------------------
+                init : function(){
+
+                    //set jsd flags 0
+                    //jsd.flags=0;
+
+                    var old_onBreakpoint = fbs.onBreakpoint;
+                    fbs.onBreakpoint = function(frame, type, val){
+                        FBTrace.sysout("onBreakpoint frame ... ", frame);
+                        FBTrace.sysout("onBreakpoint type ... ", type);
+                        FBTrace.sysout("onBreakpoint val ... ", val);
+
+                        return old_onBreakpoint.apply(this,arguments);
+                    };
+                    fbs.hookScripts();
+                    //        jsd.breakpointHook = { onExecute: hook(fbs.onBreakpoint, RETURN_CONTINUE) };
+
+                    //update view
+                    this.view.init();
+
+//                    this.reproducer.init();
+
+                },
+
+                initContext : function(context){
                     var debugSession;
                     var reproduction;
 
@@ -42,6 +70,7 @@ owner.Manager = function(){
 
                     // analyze debug model
                     var debugModel = debugSession.debugModel;
+
                     debugModel.tracePoints;
 
                         //set bps
@@ -56,29 +85,18 @@ owner.Manager = function(){
 
                 },
 
-                loadedContext: function(){
+                loadedContext: function(context){
 
                 }
-             }
+
+                //------------------------- internal functions -----------------------------
+
+
+
+             };
              return constructor;
          }();
 
-//--------------------------------- DebugSession --------------------------------
-owner.DebugSession = function(id){
-   this.id = id;
-}
+}}}
 
-owner.DebugSession.prototype = {
-
-}
-
-//--------------------------------- Reproduction --------------------------------
-owner.Reproduction = function(id){
-   this.id = id;
-}
-
-owner.Reproduction.prototype = {
-
-}
-
-}}}}
+};
