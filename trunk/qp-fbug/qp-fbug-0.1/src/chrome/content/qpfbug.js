@@ -1,4 +1,5 @@
 FBL.ns(function() { with (FBL)
+with(QPFBUG)
 with(QPFBUG.Classes)
 {
 
@@ -7,7 +8,10 @@ with(QPFBUG.Classes)
 
     FBTrace.DBG_QPFBUG = true;
 
-    Firebug.registerModule(FBUGModuleFactory());
+    // A new module is created for every new firefox window
+    qpfbugmodule = new QPFBUGModule(window);
+
+    Firebug.registerModule(qpfbugmodule);
 
     if (FBTrace.DBG_INITIALIZE)
         FBTrace.sysout("QP-FBUG add-on was loaded.");

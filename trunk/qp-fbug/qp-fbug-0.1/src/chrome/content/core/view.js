@@ -11,7 +11,8 @@ var owner = QPFBUG.Classes;
 
 owner.View = function(){
 
-        var constructor = function(){
+        var constructor = function(manager){
+            this.manager = manager;
         };
 
         constructor.prototype =
@@ -31,40 +32,44 @@ owner.View = function(){
             // 'this': is not specified
             addLastChangeMenuItem : function()
             {
-                  var old_GetContextMenuItems = Firebug.getPanelType("dom").prototype.getContextMenuItems;
+                  with(this.manager.win){
+                  with(FBL){
+                      var old_GetContextMenuItems = Firebug.getPanelType("dom").prototype.getContextMenuItems;
 
-                  //'this': is one of the dom panels
-                  var new_GetContextMenuItems = function(sourceLink, target)
-                  {
-                        var items = old_GetContextMenuItems.apply(this, arguments);
-                        var panel = target ? Firebug.getElementPanel(target) : null;
-                        if (!panel) // the event must be on our chrome not inside the panel
+                      var manager = this.manager;
+                      //'this': is one of the dom panels
+                      var new_GetContextMenuItems = function(sourceLink, target)
+                      {
+                            var items = old_GetContextMenuItems.apply(this, arguments);
+                            var panel = target ? Firebug.getElementPanel(target) : null;
+                            if (!panel) // the event must be on our chrome not inside the panel
+                                return items;
+
+                            var row = getAncestorByClass(target, "memberRow");
+                            if (row)
+                            {
+                                var rowName;
+                                // = getRowName(row);
+                                var labelNode = row.getElementsByClassName("memberLabelCell").item(0);
+                                rowName = labelNode.textContent;
+
+                                var rowObject = this.getRowObject(row);
+                                var rowValue = this.getRowPropertyValue(row);
+
+                                var isWatch = hasClass(row, "watchRow");
+                                var isStackFrame = rowObject instanceof jsdIStackFrame;
+
+                            items.push(
+                                {label: "Last Change", command: bindFixed(manager.view.lastChange, this, row)});
+                            }
                             return items;
+                       };
 
-                        var row = getAncestorByClass(target, "memberRow");
-                        if (row)
-                        {
-                            var rowName;
-                            // = getRowName(row);
-                            var labelNode = row.getElementsByClassName("memberLabelCell").item(0);
-                            rowName = labelNode.textContent;
-
-                            var rowObject = this.getRowObject(row);
-                            var rowValue = this.getRowPropertyValue(row);
-
-                            var isWatch = hasClass(row, "watchRow");
-                            var isStackFrame = rowObject instanceof jsdIStackFrame;
-
-                        items.push(
-                            {label: "Last Change", command: bindFixed(QPFBUG.manager.view.lastChange, this, row)});
-                        }
-                        return items;
-                   };
-
-                  // change panels
-                  Firebug.getPanelType("dom").prototype.getContextMenuItems = new_GetContextMenuItems;
-                  Firebug.getPanelType("domSide").prototype.getContextMenuItems = new_GetContextMenuItems;
-                  Firebug.getPanelType("watches").prototype.getContextMenuItems = new_GetContextMenuItems;
+                      // change panels
+                      Firebug.getPanelType("dom").prototype.getContextMenuItems = new_GetContextMenuItems;
+                      Firebug.getPanelType("domSide").prototype.getContextMenuItems = new_GetContextMenuItems;
+                      Firebug.getPanelType("watches").prototype.getContextMenuItems = new_GetContextMenuItems;
+                  }};
             },
 
              lastChange : function(row)

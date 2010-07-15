@@ -14,16 +14,17 @@ var owner = QPFBUG.Classes;
 
 owner.Manager = function(){
 
-            var constructor = function(){
+            var constructor = function(win){
+               this.win = win;
                this.dataStore = new DataStore();
-               this.view = new View();
+               this.view = new View(this);
                this.reproducer = new Reproducer();
             };
 
             constructor.prototype =
             {
                 //------------------------------ event handling -----------------------------------------
-                init : function(){
+                initialize : function(){
 
                     //set jsd flags 0
                     //jsd.flags=0;
@@ -40,48 +41,52 @@ owner.Manager = function(){
                     //        jsd.breakpointHook = { onExecute: hook(fbs.onBreakpoint, RETURN_CONTINUE) };
 
                     //update view
-                    this.view.init();
 
 //                    this.reproducer.init();
 
                 },
 
+                initializeUI :function(){
+                    this.view.init();
+                },
                 initContext : function(context){
-                    var debugSession;
-                    var reproduction;
+                    with (this.win){
+                        var debugSession;
+                        var reproduction;
 
-                    var tabBrowser = $("content");
-                    var selectedTab = tabBrowser.selectedTab;
+                        var tabBrowser = FBL.$("content");
+                        var selectedTab = tabBrowser.selectedTab;
 
-                    var reproductionId = selectedTab.getAttribute("reproductionId");
-                    if (reproductionId)
-                    {
-                        reproduction = this.dataStore.getReproduction(reproductionId);
-                        debugSession = this.dataStore.getDebugSessionForReproduction(reproductionId);
-                    }
+                        var reproductionId = selectedTab.getAttribute("reproductionId");
+                        if (reproductionId)
+                        {
+                            reproduction = this.dataStore.getReproduction(reproductionId);
+                            debugSession = this.dataStore.getDebugSessionForReproduction(reproductionId);
+                        }
 
-                    if (!debugSession)
-                    {
-                        debugSession = this.dataStore.newDebugSession();
-                        reproduction = this.dataStore.newReproduction(debugSession.id);
-                        if (FBTrace.DBG_QPFBUG)
-                              FBTrace.sysout("New debug session was created." , debugSession);
-                    }
+                        if (!debugSession)
+                        {
+                            debugSession = this.dataStore.newDebugSession();
+                            reproduction = this.dataStore.newReproduction(debugSession.id);
+                            if (FBTrace.DBG_QPFBUG)
+                                  FBTrace.sysout("New debug session was created." , debugSession);
+                        }
 
-                    // analyze debug model
-                    var debugModel = debugSession.debugModel;
+                        // analyze debug model
+                        var debugModel = debugSession.debugModel;
 
-                    debugModel.tracePoints;
+                        debugModel.tracePoints;
 
-                        //set bps
+                            //set bps
 
-                    // set breakpoint as javascripts are loaded
-                    // store points
-                    // find the right one.
+                        // set breakpoint as javascripts are loaded
+                        // store points
+                        // find the right one.
 
-                    object = context.window;
-                    if (object.wrappedJSObject)
-                             object = object.wrappedJSObject;
+                        object = context.window;
+                        if (object.wrappedJSObject)
+                                 object = object.wrappedJSObject;
+                    };
 
                 },
 
