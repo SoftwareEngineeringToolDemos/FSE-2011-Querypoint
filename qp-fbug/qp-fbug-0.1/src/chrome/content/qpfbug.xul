@@ -3,18 +3,19 @@
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"> 
 
     <!-- FBTest -->
-    <script type="application/x-javascript" src="chrome://fbtest/content/jsdiff.js"/>
-    <script type="application/x-javascript" src="chrome://fbtest/content/testCore.js"/>
-    <script type="application/x-javascript" src="chrome://fbtest/content/testResultRep.js"/>
-    <script type="application/x-javascript" src="chrome://fbtest/content/testListRep.js"/>
-    <script type="application/x-javascript" src="chrome://fbtest/content/testRunner.js"/>
-    <script type="application/x-javascript" src="chrome://fbtest/content/testLogger.js"/>
+    <!--<script type="application/x-javascript" src="chrome://fbtest/content/jsdiff.js"/>-->
+    <!--<script type="application/x-javascript" src="chrome://fbtest/content/testCore.js"/>-->
+    <!--<script type="application/x-javascript" src="chrome://fbtest/content/testResultRep.js"/>-->
+    <!--<script type="application/x-javascript" src="chrome://fbtest/content/testListRep.js"/>-->
+    <!--<script type="application/x-javascript" src="chrome://fbtest/content/testRunner.js"/>-->
+    <!--<script type="application/x-javascript" src="chrome://fbtest/content/testLogger.js"/>-->
+
     <!--<script type="application/x-javascript" src="chrome://fbtest/content/testConsole.js"/>-->
 
     
     <!-- qpfbug -->
     <script src="chrome://qpfbug/content/util/scriptloader.js" type="application/x-javascript"/>
-    <script src="chrome://qpfbug/content/core/fbugmodule.js" type="application/x-javascript"/>
+    <!--<script src="chrome://qpfbug/content/core/qpfbugmodule.js" type="application/x-javascript"/>-->
 
     <script src="chrome://qpfbug/content/qpfbug.js" type="application/x-javascript"/>
 

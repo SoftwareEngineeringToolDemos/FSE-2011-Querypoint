@@ -2,8 +2,18 @@
 // the js files are loaded only once fore thw whole firefox process.
 
 var tmp = {};
+
+//qpfbug basic
 Components.utils.import("resource://qpfbug/util/lang.js");
 
+// firebug
+Components.utils.import("resource://firebug/firebug-service.js", QPFBUG);
+
+//QPFBUG.FBL = FBL;
+
+//adding firebug classes
+
+// other scripts
 Components.utils.import("resource://qpfbug/util/statemachine.js", tmp);
 tmp.loadModule(QPFBUG);
 
@@ -31,9 +41,8 @@ tmp.loadModule(QPFBUG);
 Components.utils.import("resource://qpfbug/core/reproducer.js", tmp);
 tmp.loadModule(QPFBUG);
 
-//Components.utils.import("resource://qpfbug/core/fbugmodule.js", tmp);
-//tmp.loadModule(QPFBUG);
-Components.utils.import("resource://firebug/firebug-service.js", QPFBUG);
+Components.utils.import("resource://qpfbug/core/qpfbugmodule.js", tmp);
+tmp.loadModule(QPFBUG);
 
 
 delete tmp;
