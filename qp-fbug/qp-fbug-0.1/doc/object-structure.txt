@@ -1,0 +1,6 @@
+
+QPFBUG in window is created only once for whole firefox process.
+qpfbug in window.Firebug is created once for every firefox window (similar to Firebug object).
+
+
+

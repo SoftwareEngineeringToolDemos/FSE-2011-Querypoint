@@ -26,8 +26,11 @@ with (QPFBUG.Classes){
                 initialize: function(){
                     this.stateMachine.startTransit("initialize");
 
+                    this.win.Firebug.qpfbug = {};
+
                     this.manager = new Manager(this.win);
-                    
+                    this.win.Firebug.qpfbug.manager = this.manager;
+                    this.manager.initialize();
                     this.stateMachine.endTransit();
                 },
 

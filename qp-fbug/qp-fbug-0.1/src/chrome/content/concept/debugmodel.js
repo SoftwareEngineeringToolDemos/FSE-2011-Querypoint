@@ -24,32 +24,39 @@ owner.DebugModel =
             constructor.prototype = {
 
                 addTracePoint_Breakpoint : function(url, lineNumber, hitCount){
-                    var tracePoint = new TracePoint(tracePointId++, this.QUERYT_TYPES.BREAKPOINT,
+                    var tracePoint = new TracePoint(++this.tracePointId, this.QUERY_TYPES.BREAKPOINT,
                                                     null, null,
                                                     url, lineNumber, hitCount);
 
-                    this.tracePoints[tracePointId] = tracePoint;
+                    this.tracePoints[this.tracePointId] = tracePoint;
                     return tracePoint;
                 },
 
-                addTracePoint_LastChange : function(refPoint, refObj){
-                    var tracePoint = new TracePoint(tracePointId++, this.QUERYT_TYPES.LASTCHANGE,
-                                                    refPoint, refObject,
+                addTracePoint_LastChange : function(refPointId, valueFrame, valueRef){
+
+                    var refPoint = this.tracePoints[refPointId];
+                    var refObj = new TraceObject(valueFrame, valueRef);
+                    refPoint.addTraceObject(refObj);
+
+                    var tracePoint = new TracePoint(++this.tracePointId, this.QUERY_TYPES.LASTCHANGE,
+                                                    refPoint, refObj,
                                                     null, null, null);
 
                     //add traceObject to this point and the related point
-                    this.tracePoints[tracePointId] = tracePoint;
+                    this.tracePoints[this.tracePointId] = tracePoint;
                     return tracePoint;
                 },
-                addTreacePoint_LastCondition : function(refPoint){
-                    var tracePoint = new TracePoint(tracePointId++, this.QUERYT_TYPES.LASTCONDITION,
-                                                    refPoint,
+                addTreacePoint_LastCondition : function(refPointId){
+                    var tracePoint = new TracePoint(++this.tracePointId, this.QUERY_TYPES.LASTCONDITION,
+                                                    refPointId, null,
                                                     null, null, null);
-                    this.tracePoints[tracePointId] = tracePoint;
+
+                    this.tracePoints[this.tracePointId] = tracePoint;
                     return tracePoint;
                 }
 
             };
+
             return constructor;
         }();
 
@@ -63,18 +70,23 @@ owner.TracePoint =
                 this.queryType = queryType;
 
                 // lastChange
+                // ref point object
                 this.refPoint = refPoint;
+                // refObj at refPoint
                 this.refObj = refObj;
 
                 // breakpoint
                 this.url = url;
                 this.lineNumber = lineNumber;
                 this.hitCount = hitCount;
+
+                //obj should be traced at this point
+                this.traceObjects = [];
             };
 
             constructor.prototype = {
-                addTraceObject : function(frame, ref){
-                    var traceObject = new TraceObject(frame, ref);
+                addTraceObject : function(traceObject){
+                    this.traceObjects.push(traceObject);
                     return traceObject;
                 }
             };
@@ -86,6 +98,7 @@ owner.TracePoint =
 owner.TraceObject =
         function(){
             var constructor = function(frame, ref ){
+                //frame number
                 this.frame = frame;
                 this.ref = ref;
             };

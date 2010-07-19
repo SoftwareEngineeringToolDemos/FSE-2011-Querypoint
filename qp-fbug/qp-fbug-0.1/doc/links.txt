@@ -11,3 +11,14 @@ https://developer.mozilla.org/en/mozIJSSubScriptLoader
 
 Components.utils.import()
 https://developer.mozilla.org/en/Using_JavaScript_code_modules
+
+Scopes and Contexts - Threads , Dynamic scopes(from Rhino)
+https://developer.mozilla.org/En/Rhino_documentation/Scopes_and_Contexts
+
+JSD pause, unpause and nestedEventLoop code
+http://mxr.mozilla.org/mozilla/source/js/jsd/jsd_xpc.cpp
+http://mxr.mozilla.org/mozilla/source/js/jsd/jsd_xpc.h
+
+debugger service interface
+http://mxr.mozilla.org/mozilla/source/js/jsd/idl/jsdIDebuggerService.idl
+https://developer.mozilla.org/en/Code_snippets/JavaScript_Debugger_Service
