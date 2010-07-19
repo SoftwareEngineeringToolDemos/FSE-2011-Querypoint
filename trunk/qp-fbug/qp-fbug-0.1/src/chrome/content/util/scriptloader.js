@@ -7,7 +7,7 @@ var tmp = {};
 Components.utils.import("resource://qpfbug/util/lang.js");
 
 // firebug
-Components.utils.import("resource://firebug/firebug-service.js", QPFBUG);
+//Components.utils.import("resource://firebug/firebug-service.js", QPFBUG);
 
 //QPFBUG.FBL = FBL;
 

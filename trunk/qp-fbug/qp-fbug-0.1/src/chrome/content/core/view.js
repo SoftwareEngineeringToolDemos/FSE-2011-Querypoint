@@ -11,8 +11,8 @@ var owner = QPFBUG.Classes;
 
 owner.View = function(){
 
-        var constructor = function(manager){
-            this.manager = manager;
+        var constructor = function(win){
+            this.win = win;
         };
 
         constructor.prototype =
@@ -32,11 +32,11 @@ owner.View = function(){
             // 'this': is not specified
             addLastChangeMenuItem : function()
             {
-                  with(this.manager.win){
+                  with(this.win){
                   with(FBL){
                       var old_GetContextMenuItems = Firebug.getPanelType("dom").prototype.getContextMenuItems;
 
-                      var manager = this.manager;
+
                       //'this': is one of the dom panels
                       var new_GetContextMenuItems = function(sourceLink, target)
                       {
@@ -48,19 +48,22 @@ owner.View = function(){
                             var row = getAncestorByClass(target, "memberRow");
                             if (row)
                             {
-                                var rowName;
-                                // = getRowName(row);
-                                var labelNode = row.getElementsByClassName("memberLabelCell").item(0);
-                                rowName = labelNode.textContent;
+                                  //todo needs more check for adding this item
 
-                                var rowObject = this.getRowObject(row);
-                                var rowValue = this.getRowPropertyValue(row);
+//                                var rowName;
+//                                // = getRowName(row);
+//                                var labelNode = row.getElementsByClassName("memberLabelCell").item(0);
+//                                rowName = labelNode.textContent;
+//
+//                                var rowObject = this.getRowObject(row);
+//                                var rowValue = this.getRowPropertyValue(row);
+//
+//                                var isWatch = hasClass(row, "watchRow");
+//                                var isStackFrame = rowObject instanceof jsdIStackFrame;
 
-                                var isWatch = hasClass(row, "watchRow");
-                                var isStackFrame = rowObject instanceof jsdIStackFrame;
-
-                            items.push(
-                                {label: "Last Change", command: bindFixed(manager.view.lastChange, this, row)});
+                                var view = Firebug.qpfbug.manager.view;
+                                items.push({label: "Last Change", command:
+                                                    bindFixed(view.lastChangeAction, view, this, row)});
                             }
                             return items;
                        };
@@ -72,104 +75,93 @@ owner.View = function(){
                   }};
             },
 
-             lastChange : function(row)
+             //this : is a view object as expected.
+             lastChangeAction : function(domPanel, row)
              {
-                 //--------------- local functions --------------------------------
-                 // We have to define these functions because they are kind of private
-                 // in dom.js .
-                 var getRowValue = function(row)
-                 {
-                     var valueNode = row.getElementsByClassName("memberValueCell").item(0);
-                     return valueNode.firstChild.repObject;
-                 }
+                  with(this.win){
+                  with(FBL){
+                     //--------------- local functions --------------------------------
+                     // We have to define these functions because they are kind of private
+                     // in dom.js .
 
-                 var getRowOwnerObject = function (row)
-                 {
-                     var parentRow = getParentRow(row);
-                     if (parentRow)
-                         return getRowValue(parentRow);
-                 };
 
-                 var getParentRow = function(row)
-                 {
-                     var level = parseInt(row.getAttribute("level"))-1;
-                     // If it's top level object the level is now set to -1, is that a problem?
-                     for (row = row.previousSibling; row; row = row.previousSibling)
+                     var getRowValue = function(row)
                      {
-                         if (parseInt(row.getAttribute("level")) == level)
-                             return row;
+                         var valueNode = row.getElementsByClassName("memberValueCell").item(0);
+                         return valueNode.firstChild.repObject;
+                     };
+
+                     //It goes up until reaches the parent row
+                     var getParentRow = function(row)
+                     {
+                         var level = parseInt(row.getAttribute("level"))-1;
+                         // If it's top level object the level is now set to -1, is that a problem?
+                         for (row = row.previousSibling; row; row = row.previousSibling)
+                         {
+                             if (parseInt(row.getAttribute("level")) == level)
+                                 return row;
+                         }
+                     };
+
+                     var getRowOwnerObject = function (row)
+                     {
+                         var parentRow = getParentRow(row);
+                         if (parentRow)
+                             return getRowValue(parentRow);
+                     };
+                    // ----------------------------------------------------------------
+
+                     // the value of row, object or primitive
+                     var rowValue = getRowValue(row);
+
+                     // getting the owner;
+                     var owner;
+
+
+                     var owner = getRowOwnerObject(row);
+
+                     //domPanel.selection is the whole object which is shown in dom panel
+                     // so if row is at top level the owner will be the whole object of
+                     // dom panel.
+                     owner = owner ? owner : domPanel.selection;
+
+                     var type = typeof(rowValue);
+
+                     if (type == "object")
+                     {
+
+                     }else if(type == "string")
+                     {
+
+                     }else if(type == "number")
+                     {
+
+                     }else if (type == "undefined")
+                     {
+
+                     }else if (type == "boolean")
+                     {
+
+                     }else if (type == "xml")
+                     {
+
+                     }else if (type == "function")
+                     {
+
                      }
-                 };
+                     var propertyPath = domPanel.getPropertyPath(row).join("");
+                     var propertyName = domPanel.getRowPathName(row);
+                     // value is something like  [., name] so we ignore the separator(dot).
+                     propertyName = propertyName[1];
 
-                // ----------------------------------------------------------------
+                     Firebug.qpfbug.manager.addLastChange(domPanel.context, owner, propertyName, propertyPath);
 
-                 var value = this.getRowPathName(row);
-                 value = value[1]; //don't want the separator
-                 Firebug.Console.log(value);
-
-                 var object = getRowOwnerObject(row);
-
-
-                 object = object ? object : this.selection;
-                 //getRealObject
-                 object = unwrapObject(object)
-
-                 var propertyValue = this.getObjectPropertyValue(object, row.domObject.name);
-
-                 Firebug.Console.log(propertyValue);
-                 Firebug.Console.log(typeof(propertyValue));
-
-                 var objectToDebug = value;
-
-                 var wrappedJSDValue = jsd.wrapValue(propertyValue);
-
-                 // NO good reason for getting js parent only because it works
-                 wrappedJSDValue = wrappedJSDValue.jsParent;
-                 propertyValue.newProp = 29;
-
-
-                 Firebug.Console.log(wrappedJSDValue.objectValue);
-                 Firebug.Console.log(wrappedJSDValue.objectValue.creatorURL);
-                 Firebug.Console.log(wrappedJSDValue.objectValue.creatorLine);
-                 Firebug.Console.log(wrappedJSDValue.objectValue.constructorURL);
-
-         //		Components.utils.import("resource://qp4fb/concept/tracepoint.js", this);
-
-         //        var point = new this.TracePointFactory(wrappedJSDValue.objectValue.creatorURL,
-         //                                          wrappedJSDValue.objectValue.creatorLine,
-         //                                          value);
-         //        Firebug.Console.log("Point : "+ point.toString());
-
-
-                 var sourceFile = this.context.sourceFileMap[wrappedJSDValue.objectValue.creatorURL];
-         //        var sourceFile = FirebugContext[wrappedJSDValue.objectValue.creatorURL];
-         //        sourceFile.href = wrappedJSDValue.objectValue.creatorURL;
-                 Firebug.Debugger.setBreakpoint(sourceFile, wrappedJSDValue.objectValue.creatorLine);
-         //          fbs.setBreakpoint(//,
-         //                            wrappedJSDValue.objectValue.creatorLine, null, Firebug.Debugger);
-
-
-                 Firebug.Console.log(this.context.stopped);
-                 if (this.context.stopped)
-                 { //get info about bp
-                   // get breakpoin for url and line no and see if it is active or not.
-                   Firebug.Console.log("debugFrame");
-         //          Firebug.Console.log(this.context.debugFrame);
-                   Firebug.Console.log(this.context.debugFrame.script.fileName);
-                   Firebug.Console.log(this.context.debugFrame.line);
-                   Firebug.Console.log(this.context.executingSourceFile.href);
-                   var bp = fbs.findBreakpoint(this.context.executingSourceFile.href, this.context.debugFrame.line);
-                   if (bp)
-                     Firebug.Console.log(bp);
-                 }
-
-                 QPFBUG.manager.reproducer.reproduce(10,10); //TODO changeit
+                  }}
              }
 
          };
 
          //"this" which is passed to this object is a dom panel
-
          return constructor;
 
 
