@@ -41,7 +41,7 @@ owner.DataStore = function(){
 
            getDebugSessionForReproduction : function(reproductionId){
                var reproduction = this.getReproduction(reproductionId);
-               return reproduction.getDebugSession();
+               return reproduction.debugSession;
            },
 
            newReproduction : function(debugSession){

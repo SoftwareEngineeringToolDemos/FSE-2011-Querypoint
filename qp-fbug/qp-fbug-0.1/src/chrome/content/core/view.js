@@ -149,12 +149,13 @@ owner.View = function(){
                      {
 
                      }
+
                      var propertyPath = domPanel.getPropertyPath(row).join("");
                      var propertyName = domPanel.getRowPathName(row);
                      // value is something like  [., name] so we ignore the separator(dot).
                      propertyName = propertyName[1];
 
-                     Firebug.qpfbug.manager.addLastChange(domPanel.context, owner, propertyName, propertyPath);
+                     Firebug.qpfbug.manager.addLastChange(domPanel.context, owner, propertyPath);
 
                   }}
              }

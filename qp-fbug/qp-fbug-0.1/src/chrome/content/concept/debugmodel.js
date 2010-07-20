@@ -35,6 +35,7 @@ owner.DebugModel =
                 addTracePoint_LastChange : function(refPointId, valueFrame, valueRef){
 
                     var refPoint = this.tracePoints[refPointId];
+
                     var refObj = new TraceObject(valueFrame, valueRef);
                     refPoint.addTraceObject(refObj);
 
@@ -43,9 +44,13 @@ owner.DebugModel =
                                                     null, null, null);
 
                     //add traceObject to this point and the related point
+                    var localTraceObject = new TraceObject(0, ".owner" );
+                    tracePoint.addTraceObject(localTraceObject)
                     this.tracePoints[this.tracePointId] = tracePoint;
+
                     return tracePoint;
                 },
+
                 addTreacePoint_LastCondition : function(refPointId){
                     var tracePoint = new TracePoint(++this.tracePointId, this.QUERY_TYPES.LASTCONDITION,
                                                     refPointId, null,

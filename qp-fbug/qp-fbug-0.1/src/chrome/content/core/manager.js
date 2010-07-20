@@ -15,7 +15,7 @@ owner.Manager = function(){
                this.win = win;
                this.dataStore = new DataStore();
                this.view = new View(win);
-               this.reproducer = new Reproducer();
+               this.reproducer = new Reproducer(win);
             };
 
             constructor.prototype =
@@ -31,7 +31,7 @@ owner.Manager = function(){
                             this.enableDebugging();
                         //update view
 
-    //                    this.reproducer.init();
+                        this.reproducer.init();
                     }}
 
                 },
@@ -52,6 +52,9 @@ owner.Manager = function(){
                         {
                             reproduction = this.dataStore.getReproduction(reproductionId);
                             debugSession = this.dataStore.getDebugSessionForReproduction(reproductionId);
+                            //to select this context
+                            Firebug.selectContext(context);
+
                         }
 
                         if (!debugSession)
@@ -87,7 +90,7 @@ owner.Manager = function(){
                 },
 
                 //------------------------- actions ---------------------------------------
-                addLastChange: function(context, owner, propertyName, propertyPath){
+                addLastChange: function(context, owner, propertyPath){
                      with(this.win){
                          var debugSession = context.debugSession;
                          var reproduction = context.reproduction;
@@ -110,50 +113,35 @@ owner.Manager = function(){
                             var tracePointA;
                             if (bp)
                             {
-                              //todo set the correct hit count
-                              tracePointA = debugModel.addTracePoint_Breakpoint(href, line, 0);
+                                //todo set the correct hit count
+                                tracePointA = debugModel.addTracePoint_Breakpoint(href, line, 0);
+
+                                //todo set the correct frame number
+                                debugModel.addTracePoint_LastChange(tracePointA.id, 0, propertyPath);
+
+                                //todo add current traceobj  data to the tracePointAlog in reproduction
+                                // we keep parent creation url as information in traceobjlog
+                                //getRealObject
+                                 owner = FBL.unwrapObject(owner);
+
+                                 var wrappedJSDValue = FBL.jsd.wrapValue(owner);
+                                 // NO good reason for getting js parent only because it works
+                                 wrappedJSDValue = wrappedJSDValue.jsParent;
+
+
+                                 Firebug.Console.log(wrappedJSDValue.objectValue);
+                                 Firebug.Console.log(wrappedJSDValue.objectValue.creatorURL);
+                                 Firebug.Console.log(wrappedJSDValue.objectValue.creatorLine);
+                                 Firebug.Console.log(wrappedJSDValue.objectValue.constructorURL);
+
+                                 var sourceFile = context.sourceFileMap[wrappedJSDValue.objectValue.creatorURL];
+
                             }
-
-                            //todo set the correct frame number
-                            debugModel.addTracePoint_LastChange(tracePointA.id, 0, propertyPath);
-
-                            //todo add current traceobj  data to the tracePointAlog in reproduction
-                            // we keep parent creation url as information in traceobjlog
-                            Firebug.Console.log("11111111111111111111111");
-                            Firebug.Console.log(propertyPath);
-                             //getRealObject
-                             owner = FBL.unwrapObject(owner);
-        //                     if(owner == context.win)
-
-                             var wrappedJSDValue = FBL.jsd.wrapValue(owner);
-        //                     var wrappedJSDValue = jsd.wrapValue(rowValue);
-
-                             // NO good reason for getting js parent only because it works
-                             wrappedJSDValue = wrappedJSDValue.jsParent;
-
-                            Firebug.Console.log("2222222222222222222");
-
-                             Firebug.Console.log(wrappedJSDValue.objectValue);
-                             Firebug.Console.log(wrappedJSDValue.objectValue.creatorURL);
-                             Firebug.Console.log(wrappedJSDValue.objectValue.creatorLine);
-                             Firebug.Console.log(wrappedJSDValue.objectValue.constructorURL);
-
-//move these lines
-                            Firebug.Console.log("3333333333333333333");
-                             var sourceFile = context.sourceFileMap[wrappedJSDValue.objectValue.creatorURL];
-
-                             Firebug.Debugger.setBreakpoint(sourceFile, wrappedJSDValue.objectValue.creatorLine);
-                            Firebug.Console.log("4444444444444444444");
+//                             Firebug.Debugger.setBreakpoint(sourceFile, wrappedJSDValue.objectValue.creatorLine);
                          }
-
-                 //        var sourceFile = FirebugContext[wrappedJSDValue.objectValue.creatorURL];
-                 //        sourceFile.href = wrappedJSDValue.objectValue.creatorURL;
-
-                 //          fbs.setBreakpoint(//,
-                 //                            wrappedJSDValue.objectValue.creatorLine, null, Firebug.Debugger);
-
-
-//                         QPFBUG.manager.reproducer.reproduce(10,10); //TODO changeit
+                         Firebug.Debugger.resume(context);
+                         var newReproduction = this.dataStore.newReproduction(context.debugSession);
+                         this.reproducer.reproduce(context.debugSession.id, newReproduction.id); //TODO changeit
 
                      }
 
@@ -209,8 +197,9 @@ owner.Manager = function(){
                                     theDebugger = fbs.findDebugger(frame);
 
                                 //todo it seems that to make sure that
-                                // all debuggers all updated I need to get the list of debuggers
-                                // from fbs at first and update them.
+                                // all debuggers are updated I need to get the list of debuggers
+                                // from fbs at first and update them. The next check is due to this
+                                // issue.
                                 if (!theDebugger.qpfbug)
                                 {
                                     theDebugger.qpfbug = {};
@@ -277,6 +266,15 @@ owner.Manager = function(){
                                          };
                                     debuggr.qpfbug.filter1 = filter;
 
+                                    var filter = {
+                                             globalObject: null,
+                                             flags: jsdIFilter.FLAG_ENABLED | jsdIFilter.FLAG_PASS,
+                                             urlPattern:  "*/fbtest/*",
+                                             startLine: 0,
+                                             endLine: 0
+                                         };
+                                    debuggr.qpfbug.filter_test = filter;
+
                                     //ignores all other
                                     filter = {
                                              globalObject: null,
@@ -288,7 +286,9 @@ owner.Manager = function(){
                                     debuggr.qpfbug.filter2 = filter;
 
                                     fbs.getJSD().appendFilter(debuggr.qpfbug.filter1);
+                                    fbs.getJSD().appendFilter(debuggr.qpfbug.filter_test);
                                     fbs.getJSD().appendFilter(debuggr.qpfbug.filter2);
+
                                     // by calling unPause we let other bp hooks happen.
                                     fbs.getJSD().unPause();
                                     return rv;
@@ -323,8 +323,26 @@ owner.Manager = function(){
                                     // unPause;
                                     fbs.getJSD().pause();
                                     fbs.getJSD().removeFilter(debuggr.qpfbug.filter1);
+                                    fbs.getJSD().removeFilter(debuggr.qpfbug.filter_test);
                                     fbs.getJSD().removeFilter(debuggr.qpfbug.filter2);
                                 }
+
+
+                                var old_thaw = debuggr.thaw;
+                                debuggr.thaw = function(context)
+                                {
+                                    try{
+                                        old_thaw.apply(debuggr, arguments);
+                                    }catch(e){}
+                                    // this part is added because of possible exception
+                                    // in debugger thow function due to invalid stackframe.
+                                    if (debuggr.qpfbug.executionContext.isValid)
+                                    {
+                                        this.unsuppressEventHandling(context);
+                                        debuggr.qpfbug.executionContext.scriptsEnabled = true;
+                                    }
+                                }
+
                             }
                             return old_registerDebugger.apply(fbs, arguments);
                         }

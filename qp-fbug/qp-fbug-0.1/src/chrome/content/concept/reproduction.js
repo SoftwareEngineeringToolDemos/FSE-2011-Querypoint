@@ -53,9 +53,9 @@ owner.TracePointLog =
 
 owner.TraceObjectLog =
         function(){
-            var constructor = function(frame, ref ){
-                this.frame = frame;
-                this.ref = ref;
+            var constructor = function(theOwner, value ){
+                this.theOwner = theOwner;
+                this.value = value;
             };
 
             constructor.prototype = {
