@@ -3,11 +3,32 @@
 <project name="qp-fbug" default="deploy-qpfbug" basedir=".." >
 
     <property file="build/build.properties"/>
+
+
+    <target name="FirefoxClose">
+      <exec executable="cmd">
+        <arg value="/c"/>
+        <arg value="taskkill"/>
+        <arg value="/IM"/>
+        <arg value="firefox.exe"/>
+        <arg value="/f"/>
+      </exec>
+    </target>
+
+    <target name="FirefoxOpen">
+      <exec executable="cmd">
+        <arg value="/c"/>
+        <arg value="${basedir}\bin\firefox-chromebug.bat"/>
+      </exec>
+    </target>
+
     <!-- project tasks -->
     <target name="deploy-qpfbug">
+        <antcall target="FirefoxClose"/>
         <copy todir="${firefox.extensions}\salman.mirghasemi@gmail.com">
             <fileset dir = "./src/chrome"></fileset>
         </copy>
+        <antcall target="FirefoxOpen"/>
 
     </target>
 
