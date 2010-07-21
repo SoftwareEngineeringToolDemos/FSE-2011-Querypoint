@@ -24,19 +24,19 @@ owner.Reproducer = function(){
                     //added code to make FBTest usable
                     // However it is not stil usable.
                     // TODO, it doesn't work when Firebug is detached.
-                    var testListURI="C:\\salmir\\work\\epfl\\projects\\43_querypoint-debugging\\trunk\\qp-fbug\\qp-fbug-0.1\\test\\testList.html";
-                    var args = {
-                        firebugWindow: window,
-                        testListURI: testListURI
-                    };
-                    window.arguments[0] = args;
-
-                    var FBTest = FBTestApp.FBTest = {};
-                    FBTestApp.TestConsole =
-                    {
-                       initialize : function(){},
-                       shutdown : function(){},
-                    };
+//                    var testListURI="C:\\salmir\\work\\epfl\\projects\\43_querypoint-debugging\\trunk\\qp-fbug\\qp-fbug-0.1\\test\\testList.html";
+//                    var args = {
+//                        firebugWindow: window,
+//                        testListURI: testListURI
+//                    };
+//                    window.arguments[0] = args;
+//
+//                    var FBTest = FBTestApp.FBTest = {};
+//                    FBTestApp.TestConsole =
+//                    {
+//                       initialize : function(){},
+//                       shutdown : function(){},
+//                    };
                 }
             },
 

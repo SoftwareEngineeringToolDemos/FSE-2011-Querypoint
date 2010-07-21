@@ -32,6 +32,11 @@ with (QPFBUG.Classes){
                     this.win.Firebug.qpfbug.manager = this.manager;
                     this.manager.initialize();
                     this.stateMachine.endTransit();
+
+                    // it is not part of functionality, just to make debugging this code possible
+                    var doubleDebugger = new DoubleDebugger(this.win)
+                    // should be called after manager.initialize to wrap fbs changes by manager
+                    doubleDebugger.enableDoubleDebugger();
                 },
 
                 initializeUI: function()
