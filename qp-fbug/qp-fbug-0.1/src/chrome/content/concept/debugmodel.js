@@ -10,21 +10,19 @@ var owner = QPFBUG.Classes;
 owner.DebugModel =
         function(){
             var constructor = function(){
-                 this.QUERY_TYPES =
-                 {
-                     BREAKPOINT : 0,
-                     LASTCHANGE : 1,
-                     LASTCONDITION : 2
-                 };
-
                  this.tracePoints = {};
                  this.tracePointId = 0;
             };
 
             constructor.prototype = {
-
+                 QUERY_TYPES :
+                 {
+                     BREAKPOINT : 0,
+                     LASTCHANGE : 1,
+                     LASTCONDITION : 2
+                 },
                 addTracePoint_Breakpoint : function(url, lineNumber, hitCount){
-                    var tracePoint = new TracePoint(++this.tracePointId, this.QUERY_TYPES.BREAKPOINT,
+                    var tracePoint = new TracePoint(++this.tracePointId, DebugModel.QUERY_TYPES.BREAKPOINT,
                                                     null, null,
                                                     url, lineNumber, hitCount);
 
@@ -39,7 +37,7 @@ owner.DebugModel =
                     var refObj = new TraceObject(valueFrame, valueRef);
                     refPoint.addTraceObject(refObj);
 
-                    var tracePoint = new TracePoint(++this.tracePointId, this.QUERY_TYPES.LASTCHANGE,
+                    var tracePoint = new TracePoint(++this.tracePointId, DebugModel.QUERY_TYPES.LASTCHANGE,
                                                     refPoint, refObj,
                                                     null, null, null);
 
@@ -52,7 +50,7 @@ owner.DebugModel =
                 },
 
                 addTreacePoint_LastCondition : function(refPointId){
-                    var tracePoint = new TracePoint(++this.tracePointId, this.QUERY_TYPES.LASTCONDITION,
+                    var tracePoint = new TracePoint(++this.tracePointId, DebugModel.QUERY_TYPES.LASTCONDITION,
                                                     refPointId, null,
                                                     null, null, null);
 

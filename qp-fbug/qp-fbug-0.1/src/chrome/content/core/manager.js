@@ -16,7 +16,6 @@
                    this.dataStore = new DataStore();
                    this.view = new View(win);
                    this.reproducer = new Reproducer(win);
-                   this.jsdEventHandler = new JSDEventHandler(win);
                 };
 
                 constructor.prototype =
@@ -25,16 +24,19 @@
                     initialize : function(){
                         with(this.win){with(FBL){
 
-                            var jsd = Cc["@mozilla.org/js/jsd/debugger-service;1"].getService(Ci.jsdIDebuggerService);
-                            jsd.flags = 0; //activating object creation tracing
-                            this.addJSDEventHandling();
+                            this.win.Firebug.qpfbug = {};
+                            this.win.Firebug.qpfbug.manager = this.manager;
+
+                            if (!QPFBUG.jsdEventHandler)
+                            {
+                                var jsdEventHandler = new JSDEventHandler(fbs);
+                                jsdEventHandler.init();
+                                QPFBUG.jsdEventHandler = jsdEventHandler;
+                            }
+
+                            QPFBUG.jsdEventHandler.registerManager(this);
 
                             this.reproducer.init();
-                            this.jsdEventHandler.init();
-                            var wrappedDebugger = {
-                                wrappedJSObject: this.jsdEventHandler
-                            };
-                            Firebug.Debugger.fbs.registerDebugger(wrappedDebugger);
                         }}
 
                     },
@@ -146,46 +148,6 @@
 
                          }
 
-                    },
-
-                    addJSDEventHandling : function(){
-
-                        with(this.win){with(FBL){
-
-                            var old_onBreakpoint = fbs.onBreakpoint;
-                            fbs.onBreakpoint = function(frame, type, val){
-                                FBTrace.sysout("**************");
-                                if ( fbs.isTopLevelScript(frame, type, val) )
-                                    return Ci.jsdIExecutionHook.RETURN_CONTINUE;
-
-                                FBTrace.sysout(frame.script.fileName);
-
-                                if (frame.script.fileName.indexOf("test.html") != -1)
-                                    var context = TabWatcher.getContextByWindow(this.win);
-
-
-                                var rv =  old_onBreakpoint.apply(fbs,arguments);
-                                return rv;
-                            };
-
-    //                        var old_onScriptCreated = fbs.onScriptCreated;
-    //
-    //                        fbs.onScriptCreated = function(script){
-    //                            if (script.fileName.indexOf("test.html") != -1)
-    //                                FBTrace.sysout("script loaded!" ,script)
-    //                            old_onScriptCreated.apply(fbs, arguments);
-    //                        }
-    //
-    //                        var old_onScriptDestroyed = fbs.onScriptDestroyed;
-    //                        fbs.onScriptDestroyed = function(script){
-    //
-    //                            old_onScriptDestroyed.apply(fbs, arguments);
-    //                        }
-
-                            // to make sure that new hook will be applied.
-                            fbs.hookScripts();
-
-                        }}
                     }
                     //------------------------- internal functions -----------------------------
 

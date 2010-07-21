@@ -35,6 +35,9 @@ tmp.loadModule(QPFBUG);
 Components.utils.import("resource://qpfbug/core/datastore.js", tmp);
 tmp.loadModule(QPFBUG);
 
+Components.utils.import("resource://qpfbug/core/debuginterface.js", tmp);
+tmp.loadModule(QPFBUG);
+
 Components.utils.import("resource://qpfbug/core/manager.js", tmp);
 tmp.loadModule(QPFBUG);
 
