@@ -5,7 +5,7 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Lang){
 with (QPFBUG.Classes){
 
-    //------------------------- enable debugging -----------------------------
+    //------------------------- enable double debuggers -----------------------------
     // This function changes Firebug in a way that I can debug my code in chromebug
     // when firebug paused the page execution.
     // This function should not be called in the release versions.
