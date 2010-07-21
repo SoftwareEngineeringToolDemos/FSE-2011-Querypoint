@@ -20,6 +20,9 @@ tmp.loadModule(QPFBUG);
 Components.utils.import("resource://qpfbug/util/timer.js", tmp);
 tmp.loadModule(QPFBUG);
 
+Components.utils.import("resource://qpfbug/util/doubledebugger.js", tmp);
+tmp.loadModule(QPFBUG);
+
 Components.utils.import("resource://qpfbug/concept/debugmodel.js", tmp);
 tmp.loadModule(QPFBUG);
 
@@ -39,6 +42,9 @@ Components.utils.import("resource://qpfbug/core/view.js", tmp);
 tmp.loadModule(QPFBUG);
 
 Components.utils.import("resource://qpfbug/core/reproducer.js", tmp);
+tmp.loadModule(QPFBUG);
+
+Components.utils.import("resource://qpfbug/core/jsdeventhandler.js", tmp);
 tmp.loadModule(QPFBUG);
 
 Components.utils.import("resource://qpfbug/core/qpfbugmodule.js", tmp);
