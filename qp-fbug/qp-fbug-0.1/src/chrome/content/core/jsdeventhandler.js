@@ -14,7 +14,6 @@ owner.JSDEventHandler = function(){
 
         var constructor = function(fbs){
             this.fbs = fbs;
-            this.managers = [];
         };
 
         constructor.prototype =
@@ -30,14 +29,11 @@ owner.JSDEventHandler = function(){
                 this.replaceFBSFunction("onError");
                 this.replaceFBSFunction("onTopLevel");
                 this.fbs.unhookScripts();
+                this.fbs.getJSD().flags = 0;
                 this.fbs.hookScripts();
 
             },
 
-
-            registerManager: function(manager){
-                this.managers.push(manager);
-            },
 
             // ---------------------------------------   fbs functions -----------------------------
             // Do not use "this" in the following methods.
@@ -49,8 +45,7 @@ owner.JSDEventHandler = function(){
                 var returnValue = jsdEventHandler.fbs_enableDebugger.apply(fbs, arguments);
 
                 //activate object tracing
-                var jsd = Cc["@mozilla.org/js/jsd/debugger-sereturnValueice;1"].getSereturnValueice(Ci.jsdIDebuggerSereturnValueice);
-                jsd.flags = 0;
+                fbs.getJSD().flags = 0;
                 return returnValue;
             },
             //jsd.scriptHook.onScriptCreated
@@ -89,36 +84,40 @@ owner.JSDEventHandler = function(){
             onBreakpoint: function(frame, type, rv){
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var fbs = jsdEventHandler.fbs;
-                if ( fbs.isTopLevelScript(frame, type, rv) )
-                    return jsdEventHandler.fbs_onBreakpoint.apply(fbs,arguments);
 
-                var outerMostScope = fbs.getOutermostScope(frame);
-                if (!outerMostScope)
-                    return jsdEventHandler.fbs_onBreakpoint.apply(fbs,arguments);
+//                if ( fbs.isTopLevelScript(frame, type, rv) )
+//                    return jsdEventHandler.fbs_onBreakpoint.apply(fbs,arguments);
+
+                var outerMostScope;
+                var manager;
+                var context;
 
                 // this 'outerMostScope' is just the outermost scope (not necessarily
                 // 'manager.win' which has 'Firebug' object)
-                outerMostScope = outerMostScope.wrappedJSObject;
-                var context;
-                var manager;
-                for (i=0 ; i<jsdEventHandler.managers.length ; i++)
+                outerMostScope = fbs.getOutermostScope(frame);
+                if (outerMostScope)
                 {
-                    manager = jsdEventHandler.managers[i];
-                    context = manager.win.TabWatcher.getContextByWindow(outerMostScope);
-                    if (!context)
-                        break;
+                    outerMostScope = outerMostScope.wrappedJSObject;
+//                    for (i=0 ; i<jsdEventHandler.managers.length ; i++)
+//                    {
+//                        manager = jsdEventHandler.managers[i];
+//                        context = manager.win.TabWatcher.getContextByWindow(outerMostScope);
+//                        if (context) break;
+//                    }
                 }
-
                 if (!context)
                     return jsdEventHandler.fbs_onBreakpoint.apply(fbs,arguments);
 
-                manager.win.FBTrace.sysout("************** Context", context);
-                var reproduction = context.reproduction;
-
-                var tracePoints = context.debugSession.debugModel.tracePoints;
-                for (i=0 ; i<tracePoints.length ; i++)
+                with(manager.win)
                 {
-                    var tracePoint = tracePoints[i];
+                    FBTrace.sysout("************** Context", context);
+                    var reproduction = context.reproduction;
+                    reproduction.on
+                    var tracePoints = context.debugSession.debugModel.tracePoints;
+                    for (i=0 ; i<tracePoints.length ; i++)
+                    {
+                        var tracePoint = tracePoints[i];
+                    }
                 }
                 var returnValue = jsdEventHandler.fbs_onBreakpoint.apply(fbs, arguments);
                 return returnValue;
@@ -161,6 +160,17 @@ owner.JSDEventHandler = function(){
             }
 
         };
+
+
+        constructor.getInstance = function(fbs){
+            if (!QPFBUG.jsdEventHandler)
+            {
+                QPFBUG.jsdEventHandler = new JSDEventHandler(fbs);
+                QPFBUG.jsdEventHandler.init();
+            }
+            return QPFBUG.jsdEventHandler;
+        };
+
         return constructor;
     }();
 }}

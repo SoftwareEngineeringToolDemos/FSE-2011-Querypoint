@@ -7,9 +7,9 @@ with (QPFBUG.Classes){
 
 var owner = QPFBUG.Classes;
 
-//--------------------------------- View --------------------------------
+//--------------------------------- UIEventHandler --------------------------------
 
-owner.View = function(){
+owner.UIEventHandler = function(){
 
         var constructor = function(win){
             this.win = win;
@@ -61,9 +61,9 @@ owner.View = function(){
 //                                var isWatch = hasClass(row, "watchRow");
 //                                var isStackFrame = rowObject instanceof jsdIStackFrame;
 
-                                var view = Firebug.qpfbug.manager.view;
+                                var uiEventHandler = Firebug.qpfbug.uiEventHandler;
                                 items.push({label: "Last Change", command:
-                                                    bindFixed(view.lastChangeAction, view, this, row)});
+                                                    bindFixed(uiEventHandler.lastChangeAction, uiEventHandler, this, row)});
                             }
                             return items;
                        };
@@ -75,7 +75,7 @@ owner.View = function(){
                   }};
             },
 
-             //this : is a view object as expected.
+             //this : is a uiEventHandler object as expected.
              lastChangeAction : function(domPanel, row)
              {
                   with(this.win){
@@ -155,8 +155,7 @@ owner.View = function(){
                      // value is something like  [., name] so we ignore the separator(dot).
                      propertyName = propertyName[1];
 
-                     Firebug.qpfbug.manager.addLastChange(domPanel.context, owner, propertyPath);
-
+                     QPFBUG.manager.addLastChange(domPanel.context, owner, propertyPath);
                   }}
              }
 
@@ -164,8 +163,6 @@ owner.View = function(){
 
          //"this" which is passed to this object is a dom panel
          return constructor;
-
-
     }();
 }}
 
