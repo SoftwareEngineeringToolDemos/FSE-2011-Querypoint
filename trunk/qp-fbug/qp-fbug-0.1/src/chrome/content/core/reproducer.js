@@ -11,15 +11,14 @@ var owner = QPFBUG.Classes;
 
 owner.Reproducer = function(){
 
-        var constructor = function(win){
-            this.win = win;
+        var constructor = function(){
         };
 
         constructor.prototype =
         {
-            init : function()
+            initialize : function()
             {
-                with(this.win){
+//                with(this.win){
 
                     //added code to make FBTest usable
                     // However it is not stil usable.
@@ -37,13 +36,12 @@ owner.Reproducer = function(){
 //                       initialize : function(){},
 //                       shutdown : function(){},
 //                    };
-                }
+//                }
             },
 
-            reproduce : function (debugSessionId, reproductionId)
+            reproduce : function (win, debugSessionId, reproductionId)
             {
-
-                  with(this.win){
+                  with(win){
                   with(FBL){
 
 //                   if I wanted to use FBTest
@@ -150,6 +148,15 @@ owner.Reproducer = function(){
                 }}
             }
 
+        };
+
+        constructor.getInstance = function(){
+            if (!QPFBUG.reproducer)
+            {
+                QPFBUG.reproducer = new Reproducer();
+                QPFBUG.reproducer.initialize();
+            }
+            return QPFBUG.reproducer;
         };
 
         return constructor;

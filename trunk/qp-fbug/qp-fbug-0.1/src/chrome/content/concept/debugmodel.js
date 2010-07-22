@@ -15,12 +15,6 @@ owner.DebugModel =
             };
 
             constructor.prototype = {
-                 QUERY_TYPES :
-                 {
-                     BREAKPOINT : 0,
-                     LASTCHANGE : 1,
-                     LASTCONDITION : 2
-                 },
                 addTracePoint_Breakpoint : function(url, lineNumber, hitCount){
                     var tracePoint = new TracePoint(++this.tracePointId, DebugModel.QUERY_TYPES.BREAKPOINT,
                                                     null, null,
@@ -58,6 +52,13 @@ owner.DebugModel =
                     return tracePoint;
                 }
 
+            };
+
+            constructor.QUERY_TYPES =
+            {
+                 BREAKPOINT : 0,
+                 LASTCHANGE : 1,
+                 LASTCONDITION : 2
             };
 
             return constructor;

@@ -5,6 +5,8 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Lang){
 with (QPFBUG.Classes){
 
+    const DBG_DOUBLEDEBUGGER = false;
+
     //------------------------- enable double debuggers -----------------------------
     // This function changes Firebug in a way that I can debug my code in chromebug
     // when firebug paused the page execution.
@@ -32,6 +34,7 @@ with (QPFBUG.Classes){
 
 
     QPFBUG.Classes.DoubleDebugger =
+
         function(){
             var constructor = function(win){
                 this.win = win;
@@ -46,7 +49,8 @@ with (QPFBUG.Classes){
 
                         var old_onBreakpoint = fbs.onBreakpoint;
                         fbs.onBreakpoint = function(frame, type, val){
-                            FBTrace.sysout("Execution hook, "+ frame.script.fileName + ", " +frame.line , frame);
+                            if (DBG_DOUBLEDEBUGGER)
+                                FBTrace.sysout("Execution hook, "+ frame.script.fileName + ", " +frame.line , frame);
 
                             if(!QPFBUG)
                                 return old_onBreakpoint.apply(fbs, arguments);
@@ -81,15 +85,15 @@ with (QPFBUG.Classes){
 
                             QPFBUG.enableDebugging.stopped++;
 
-
-                            FBTrace.sysout("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+                            if (DBG_DOUBLEDEBUGGER)
+                                FBTrace.sysout("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
                             //because debugFrame may not exist later due to our artifial
                             // changes by calling unPause() we keep
                             // execution context reference.
                             QPFBUG.enableDebugging.executionContext = frame.executionContext;
 
-
-                            FBTrace.sysout(QPFBUG.enableDebugging.stopped);
+                            if (DBG_DOUBLEDEBUGGER)
+                                FBTrace.sysout(QPFBUG.enableDebugging.stopped);
                             if (QPFBUG.enableDebugging.stopped == 1)
                             {
                                 fbs.getJSD().appendFilter(QPFBUG.enableDebugging.filter1);
@@ -170,7 +174,8 @@ with (QPFBUG.Classes){
 
                         var old_onBreakpoint = fbs.onBreakpoint;
                         fbs.onBreakpoint = function(frame, type, val){
-                            FBTrace.sysout("Execution hook, "+ frame.script.fileName + ", " +frame.line , frame);
+                            if (DBG_DOUBLEDEBUGGER)
+                                FBTrace.sysout("Execution hook, "+ frame.script.fileName + ", " +frame.line , frame);
 
 //                            if ( fbs.isTopLevelScript(frame, type, val) )
 //                                return Ci.jsdIExecutionHook.RETURN_CONTINUE;
@@ -225,7 +230,8 @@ with (QPFBUG.Classes){
                                 var old_startDebugging = debuggr.startDebugging;
                                 debuggr.startDebugging = function(context)
                                 {
-                                    FBTrace.sysout("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+                                    if (DBG_DOUBLEDEBUGGER)
+                                        FBTrace.sysout("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
                                     //because debugFrame may not exist later due to our artifial
                                     // changes by calling unPause() we keep
                                     // execution context reference.

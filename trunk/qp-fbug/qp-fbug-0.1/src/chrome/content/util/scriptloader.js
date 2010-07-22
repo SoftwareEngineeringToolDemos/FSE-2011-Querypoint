@@ -41,7 +41,7 @@ tmp.loadModule(QPFBUG);
 Components.utils.import("resource://qpfbug/core/manager.js", tmp);
 tmp.loadModule(QPFBUG);
 
-Components.utils.import("resource://qpfbug/core/view.js", tmp);
+Components.utils.import("resource://qpfbug/core/uieventhandler.js", tmp);
 tmp.loadModule(QPFBUG);
 
 Components.utils.import("resource://qpfbug/core/reproducer.js", tmp);
@@ -50,7 +50,7 @@ tmp.loadModule(QPFBUG);
 Components.utils.import("resource://qpfbug/core/jsdeventhandler.js", tmp);
 tmp.loadModule(QPFBUG);
 
-Components.utils.import("resource://qpfbug/core/qpfbugmodule.js", tmp);
+Components.utils.import("resource://qpfbug/core/moduleeventhandler.js", tmp);
 tmp.loadModule(QPFBUG);
 
 

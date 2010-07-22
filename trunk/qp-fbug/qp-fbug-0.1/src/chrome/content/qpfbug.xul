@@ -15,10 +15,6 @@
     
     <!-- qpfbug -->
     <script src="chrome://qpfbug/content/util/scriptloader.js" type="application/x-javascript"/>
-    <!--<script src="chrome://qpfbug/content/core/qpfbugmodule.js" type="application/x-javascript"/>-->
-
     <script src="chrome://qpfbug/content/qpfbug.js" type="application/x-javascript"/>
-
-
 </overlay>
 

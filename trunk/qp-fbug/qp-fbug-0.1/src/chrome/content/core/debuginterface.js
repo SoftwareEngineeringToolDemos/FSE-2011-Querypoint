@@ -21,6 +21,29 @@ owner.DebugInterface = function(){
         return constructor;
     }();
 
+//--------------------------------- BreakEvent --------------------------------
+owner.BreakEvent = function(){
+        var constructor = function(eventType, frame, type, rv){
+            this.eventType = eventType;
+            this.frame = frame;
+            this.type = type;
+            this.rv = rv;
+        };
+
+        constructor.prototype =
+        {
+
+        };
+
+        constructor.TYPES =
+        {
+            BREAKPOINT : 0,
+            WATCH : 1
+        }
+
+        return constructor;
+    }();
+
 //--------------------------------- BreakRequest --------------------------------
 
 owner.BreakRequest = function(){
@@ -35,13 +58,14 @@ owner.BreakRequest = function(){
 
         constructor.prototype =
         {
-            TYPES : {
-              BREAKPOINT : 0,
-              WATCH : 1
-            }
         };
+
+        constructor.TYPES = {
+            BREAKPOINT : 0,
+            WATCH : 1
+        };
+
         return constructor;
     }();
 }}
-
 };
