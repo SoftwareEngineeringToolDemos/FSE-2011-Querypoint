@@ -3,6 +3,10 @@ var EXPORTED_SYMBOLS = ["QPFBUG"];
 //with(win){
 
 QPFBUG = {};
+
+QPFBUG.FBTrace = Components.classes["@joehewitt.com/firebug-trace-service;1"]
+                .getService(Components.interfaces.nsISupports).wrappedJSObject.getTracer("extensions.firebug");
+
 //--------------------------------- Lang --------------------------------
 //this class contains basic needed functions at language level
 

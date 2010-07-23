@@ -39,7 +39,6 @@ owner.DebugModel =
                     var localTraceObject = new TraceObject(0, ".owner" );
                     tracePoint.addTraceObject(localTraceObject)
                     this.tracePoints[this.tracePointId] = tracePoint;
-
                     return tracePoint;
                 },
 
@@ -69,7 +68,7 @@ owner.DebugModel =
 // trace point is kept in debug model.
 owner.TracePoint =
         function(){
-            var constructor = function(id, queryType, refPoint, refObj, url, lineNumber, hitCount){
+            var constructor = function(id, queryType, refPoint, refObj, url, lineNo, hitCount){
                 this.id = id;
                 this.queryType = queryType;
 
@@ -81,7 +80,7 @@ owner.TracePoint =
 
                 // breakpoint
                 this.url = url;
-                this.lineNumber = lineNumber;
+                this.lineNo = lineNo;
                 this.hitCount = hitCount;
 
                 //obj should be traced at this point

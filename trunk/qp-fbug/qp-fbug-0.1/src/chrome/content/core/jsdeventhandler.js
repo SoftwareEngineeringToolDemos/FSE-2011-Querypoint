@@ -85,41 +85,35 @@ owner.JSDEventHandler = function(){
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var fbs = jsdEventHandler.fbs;
 
-//                if ( fbs.isTopLevelScript(frame, type, rv) )
-//                    return jsdEventHandler.fbs_onBreakpoint.apply(fbs,arguments);
+                var context = jsdEventHandler.getContextFromFrame(fbs, frame);
 
-                var outerMostScope;
-                var manager;
-                var context;
-
-                // this 'outerMostScope' is just the outermost scope (not necessarily
-                // 'manager.win' which has 'Firebug' object)
-                outerMostScope = fbs.getOutermostScope(frame);
-                if (outerMostScope)
-                {
-                    outerMostScope = outerMostScope.wrappedJSObject;
-//                    for (i=0 ; i<jsdEventHandler.managers.length ; i++)
-//                    {
-//                        manager = jsdEventHandler.managers[i];
-//                        context = manager.win.TabWatcher.getContextByWindow(outerMostScope);
-//                        if (context) break;
-//                    }
-                }
                 if (!context)
                     return jsdEventHandler.fbs_onBreakpoint.apply(fbs,arguments);
 
-                with(manager.win)
+
+
+                var bp = jsdEventHandler.findBreakpointByScript(context, frame.script, frame.pc);
+                QPFBUG.FBTrace.sysout("xxxxxxxxxxxxxxxxx");
+
+//                   var fbugbp = fbs.findBreakpointByScript(frame.script, frame.pc);
+                if (!bp)
+                    return jsdEventHandler.fbs_onBreakpoint.apply(fbs,arguments);
+                QPFBUG.FBTrace.sysout("eeeeeeeeeeeeee");
+
+                var win = context.qpfbug.firefoxWindow;
+                with(win)
                 {
-                    FBTrace.sysout("************** Context", context);
-                    var reproduction = context.reproduction;
-                    reproduction.on
-                    var tracePoints = context.debugSession.debugModel.tracePoints;
-                    for (i=0 ; i<tracePoints.length ; i++)
-                    {
-                        var tracePoint = tracePoints[i];
-                    }
+                    QPFBUG.FBTrace.sysout("BP");
+                    QPFBUG.FBTrace.sysout(frame.script.fileName);
+                    QPFBUG.FBTrace.sysout("************** Context", context);
+                    var reproduction = context.qpfbug.reproduction;
+//                    var tracePoints = context.qpfbug.debugSession.debugModel.tracePoints;
+//                    for (i=0 ; i<tracePoints.length ; i++)
+//                    {
+//                        var tracePoint = tracePoints[i];
+//                    }
                 }
-                var returnValue = jsdEventHandler.fbs_onBreakpoint.apply(fbs, arguments);
+                var returnValue = Components.interfaces.jsdIExecutionHook.RETURN_CONTINUE;
                 return returnValue;
 
             },
@@ -153,11 +147,63 @@ owner.JSDEventHandler = function(){
 
 
             //---------------------------------- internal functions --------------------------------
+            findBreakpointByScript: function(context, script, pc)
+            {
+                var urlsWithBreakpoints = context.qpfbug.breakpointURLs;
+                var breakpoints = context.qpfbug.breakpoints;
+                for (let iURL = 0; iURL < urlsWithBreakpoints.length; iURL++)
+                {
+                    var url = urlsWithBreakpoints[iURL];
+                    var urlBreakpoints = breakpoints[url];
+                    if (urlBreakpoints)
+                    {
+                        for (var iBreakpoint = 0; iBreakpoint < urlBreakpoints.length; ++iBreakpoint)
+                        {
+                            var bp = urlBreakpoints[iBreakpoint];
+                            if (bp.scriptsWithBreakpoint)
+                            {
+                                for (let iScript = 0; iScript < bp.scriptsWithBreakpoint.length; iScript++)
+                                {
+                                    if ( bp.scriptsWithBreakpoint[iScript] && (bp.scriptsWithBreakpoint[iScript].tag == script.tag) && (bp.pc[iScript] == pc) )
+                                        return bp;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return null;
+            },
+
+            getContextFromFrame: function(fbs, frame)
+            {
+                var context;
+
+                // this 'outerMostScope' is just the outermost scope (not necessarily
+                // 'manager.win' which has 'Firebug' object)
+                outerMostScope = fbs.getOutermostScope(frame);
+                if (outerMostScope)
+                {
+                    outerMostScope = outerMostScope.wrappedJSObject;
+                    for (i=0 ; i<QPFBUG.windows.length ; i++)
+                    {
+                        context = QPFBUG.windows[i].TabWatcher.getContextByWindow(outerMostScope);
+                        if (context)
+                            return context;
+                    }
+
+                }
+                return null;
+            },
+
+
             replaceFBSFunction: function(functionName)
             {
                 this["fbs_"+functionName] = this.fbs[functionName];
                 this.fbs[functionName] = this[functionName];
             }
+
+
 
         };
 
