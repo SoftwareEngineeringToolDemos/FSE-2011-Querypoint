@@ -4,50 +4,57 @@ loadModule = function(QPFBUG)
 
 with (QPFBUG.Lang){
 with (QPFBUG.Classes){
-var owner = QPFBUG.Classes;
-
-//--------------------------------- DebugModel --------------------------------
-owner.DebugModel =
+    var owner = QPFBUG.Classes;
+    
+    //--------------------------------- DebugModel --------------------------------
+    owner.DebugModel =
         function(){
             var constructor = function(){
                  this.tracePoints = {};
-                 this.tracePointId = 0;
+                 this.nextTracePointId = 0;
             };
 
             constructor.prototype = {
                 addTracePoint_Breakpoint : function(url, lineNumber, hitCount){
-                    var tracePoint = new TracePoint(++this.tracePointId, DebugModel.QUERY_TYPES.BREAKPOINT,
+                    var tracePoint = new TracePoint(++this.nextTracePointId, DebugModel.QUERY_TYPES.BREAKPOINT,
                                                     null, null,
                                                     url, lineNumber, hitCount);
 
-                    this.tracePoints[this.tracePointId] = tracePoint;
+                    this.tracePoints[this.nextTracePointId] = tracePoint;
+
                     return tracePoint;
                 },
 
-                addTracePoint_LastChange : function(refPointId, valueFrame, valueRef){
+                addTracePoint_LastChange : function(refPoint, valueFrameNo, valueRef){
 
-                    var refPoint = this.tracePoints[refPointId];
+                    // updates refPoint traceObjects
+                    var type = TraceObject.TYPES.PARENT_CREATIONDATA | TraceObject.TYPES.PARENT_VALUE;
+                    var traceObject = new TraceObject(type, valueFrameNo, valueRef);
+                    refPoint.addTraceObject(traceObject);
 
-                    var refObj = new TraceObject(valueFrame, valueRef);
-                    refPoint.addTraceObject(refObj);
-
-                    var tracePoint = new TracePoint(++this.tracePointId, DebugModel.QUERY_TYPES.LASTCHANGE,
-                                                    refPoint, refObj,
+                    // makes tracePoint
+                    var globalObjectRef = new GlobalObjectRef(refPoint, valueFrameNo, valueRef);
+                    var tracePoint = new TracePoint(++this.nextTracePointId, DebugModel.QUERY_TYPES.LASTCHANGE,
+                                                    null, globalObjectRef,
                                                     null, null, null);
 
-                    //add traceObject to this point and the related point
-                    var localTraceObject = new TraceObject(0, ".owner" );
-                    tracePoint.addTraceObject(localTraceObject)
-                    this.tracePoints[this.tracePointId] = tracePoint;
+                    // updates tracePoint traceObjects
+                    type = TraceObject.TYPES.PARENT_CREATIONDATA | TraceObject.TYPES.PARENT_VALUE;
+                    traceObject = new TraceObject(type, 0, ".owner" );
+                    tracePoint.addTraceObject(traceObject)
+
+                    // add trace point to the list
+                    this.tracePoints[this.nextTracePointId] = tracePoint;
+
                     return tracePoint;
                 },
 
-                addTreacePoint_LastCondition : function(refPointId){
-                    var tracePoint = new TracePoint(++this.tracePointId, DebugModel.QUERY_TYPES.LASTCONDITION,
-                                                    refPointId, null,
+                addTreacePoint_LastCondition : function(refPoint){
+                    var tracePoint = new TracePoint(++this.nextTracePointId, DebugModel.QUERY_TYPES.LASTCONDITION,
+                                                    refPoint, null,
                                                     null, null, null);
 
-                    this.tracePoints[this.tracePointId] = tracePoint;
+                    this.tracePoints[this.nextTracePointId] = tracePoint;
                     return tracePoint;
                 }
 
@@ -64,20 +71,22 @@ owner.DebugModel =
         }();
 
 
-//------------------------------- TracePoint ----------------------------------
-// trace point is kept in debug model.
-owner.TracePoint =
+    //------------------------------- TracePoint ----------------------------------
+    // trace point is kept in debug model.
+    owner.TracePoint =
         function(){
-            var constructor = function(id, queryType, refPoint, refObj, url, lineNo, hitCount){
+            var constructor = function(id, queryType, refPoint, globalObjectRef, url, lineNo, hitCount){
                 this.id = id;
                 this.queryType = queryType;
 
-                // lastChange
+                //lastCondition
                 // ref point object
                 this.refPoint = refPoint;
-                // refObj at refPoint
-                this.refObj = refObj;
-
+                
+                // lastChange
+                // what we are looking for its last change
+                this.globalObjectRef = globalObjectRef;
+                           
                 // breakpoint
                 this.url = url;
                 this.lineNo = lineNo;
@@ -96,19 +105,51 @@ owner.TracePoint =
             return constructor;
         }();
 
-//------------------------------- TraceObject ----------------------------------
-// This object uniquely specifies an object at a point.
-owner.TraceObject =
+    //------------------------------- TraceObject ----------------------------------
+    // This object uniquely specifies an object at a point.
+    owner.GlobalObjectRef =
         function(){
-            var constructor = function(frame, ref ){
+            var constructor = function(refPoint, frameNo, ref){
+                this.refPoint = refPoint;
                 //frame number
-                this.frame = frame;
+                this.frameNo = frameNo;
+                //reference to object or value (in general it can be any expression that can be evaluated)
                 this.ref = ref;
             };
 
             constructor.prototype = {
                 // no fuctions
             };
+            
+            return constructor;
+        }();
+
+    //------------------------------- TraceObject ----------------------------------
+    // This object specifies data should be collect for an object at a point.
+    owner.TraceObject =
+        function(){
+            var constructor = function(type, frameNo, ref){
+
+                this.type = type;
+                //frame number
+                this.frameNo = frameNo;
+                //reference to object or value (in general it can be any expression that can be evaluated)
+                this.ref = ref;
+            };
+
+            constructor.prototype = {
+                // no fuctions
+            };
+            
+            constructor.TYPES = {
+                PARENT_NOTHING: 0,
+                PARENT_CREATIONDATA: 1,
+                PARENT_VALUE: 2,
+                PARENT_CREATIONDATA: 4,
+                OBJECT_VALUE: 8,
+                ALL:127,
+            }
+            
             return constructor;
         }();
 

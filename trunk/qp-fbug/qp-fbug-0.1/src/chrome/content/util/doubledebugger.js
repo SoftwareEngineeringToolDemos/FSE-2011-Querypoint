@@ -102,7 +102,13 @@ with (QPFBUG.Classes){
                                 fbs.getJSD().unPause();
                             }
 
-                            var rv =  old_onBreakpoint.apply(fbs,arguments);
+                            var rv = Components.interfaces.jsdIExecutionHook.RETURN_CONTINUE;
+                            try{
+                               rv =  old_onBreakpoint.apply(fbs,arguments);
+                            }catch(e)
+                            {
+                                QPFBUG.FBTrace.sysout("FBS onBreakpoint Exception! : " + e, e)
+                            }
 
                             if (QPFBUG.enableDebugging.stopped == 1)
                             {

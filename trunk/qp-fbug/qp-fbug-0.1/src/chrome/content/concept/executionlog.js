@@ -5,37 +5,85 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Lang){
 with (QPFBUG.Classes){
 
-var owner = QPFBUG.Classes;
+    var owner = QPFBUG.Classes;
 
-//--------------------------------- ExecutionLog --------------------------------
-owner.ExecutionLog =
+    //--------------------------------- ExecutionLog --------------------------------
+    owner.ExecutionLog =
 
         function(){
 
-            var constructor = function(id, debugSession){
-               this.id = id;
-               this.debugSession = debugSession;
-               this.breakRequestsId = 0;
-               this.breakRequests_tracePoints = [];
+            var constructor = function(){
+                this.nextTracePointLogId = 0;
+                this.tracePointLogs = {}; //<int tracePointId, [] tracePointLogs>
+                this.tracePointId_tracePointLog = {};
             };
 
             constructor.prototype = {
-                start : function(){
-                    this.stateMachine.transit("start");
+                addTracePointLog: function(tracePoint, frame)
+                {
+                    var tracePointId = tracePoint.id;
+                    if (!this.tracePointLogs[tracePointId]){
+                        this.tracePointLogs[tracePointId] = [];
+                    }
+
+                    var stackFrameLog = new StackFrameLog(frame);
+                    var tracePointLog = new TracePointLog(++this.nextTracePointLogId, tracePoint, stackFrameLog);
+
+                    for (let i=0 ; i<tracePoint.traceObjects.length ; i++)
+                    {
+                        var traceObject = tracePoint.traceObjects[i];
+                        var result = {};
+                        if (traceObject.ref == ".owner")
+                        {
+                            // add it later
+                        }else
+                        {
+                            //todo find the right frame based on traceObject.frameNo
+                            var valueRef = traceObject.ref;
+                            var parentRef = valueRef.substring(0, valueRef.lastIndexOf("."));
+                            var propertyName = valueRef.substring(valueRef.lastIndexOf(".")+1, valueRef.length);
+
+                            frame.eval(parentRef, "", 1, result)
+                            var parentJSDIValue = result.value;
+
+                            var parentJSValue = parentJSDIValue.getWrappedValue();
+
+                            // This one for is a wrapper for security reasons
+                            // specially when this object is going to be used
+                            // by other modules/extenstions
+                            // var xpSafeWrappedValue = XPCSafeJSObjectWrapper(jsValue);
+
+                            var traceObjectLog = new TraceObjectLog(traceObject, parentJSValue, parentJSValue[propertyName])
+
+                            var jsdIObject = parentJSDIValue.objectValue;
+                            if (jsdIObject)
+                            {
+                                traceObjectLog.parentCreatorURL = jsdIObject.creatorURL;
+                                traceObjectLog.parentCreatorLine = jsdIObject.creatorLine;
+                                traceObjectLog.parentConstructorURL = jsdIObject.constructorURL;
+                                traceObjectLog.parentConstructorLine = jsdIObject.constructorLine;
+                            }
+
+                            tracePointLog.addTraceObjectLog(traceObjectLog);
+                        }
+
+                    }
+
+                    this.tracePointLogs[tracePointId].push(tracePointLog);
+                    return tracePointLog;
                 },
 
-                pause : function(){
-                    this.stateMachine.transit("pause");
-                },
-                resume : function(){
-                    this.stateMachine.transit("resume");
-                },
-                stop : function(){
-                    this.stateMachine.transit("stop");
+                assignTracePointLog: function(tracePoint, tracePointLog)
+                {
+                    this.tracePointId_tracePointLog[tracePoint.id] = tracePointLog;
                 },
 
-                newBreakEvent : function(breakEvent){
-
+                getTraceObjectLog: function(pointRef, frameNo, objectRef)
+                {
+                    var tracePointLog = this.tracePointId_tracePointLog[pointRef.id];
+                    if (tracePointLog)
+                        return tracePointLog.getTraceObjectLog(frameNo, objectRef);
+                    return null;
                 }
 
             };
@@ -44,50 +92,74 @@ owner.ExecutionLog =
         }();
 
 
-//------------------------------- TracePointLog ----------------------------------
-// trace point is kept in debug model.
-owner.TracePointLog =
+    //------------------------------- TracePointLog ----------------------------------
+    // trace point is kept in debug model.
+    owner.TracePointLog =
         function(){
-            var constructor = function(id, queryType, refPoint, refObj, url, lineNumber, hitCount){
+            var constructor = function(id, tracePoint, stackFrameLog){
                 this.id = id;
-                this.queryType = queryType;
-
-                // lastChange
-                this.refPoint = refPoint;
-                this.refObj = refObj;
-
-                // breakpoint
-                this.url = url;
-                this.lineNumber = lineNumber;
-                this.hitCount = hitCount;
+                this.tracePoint = tracePoint;
+                this.stackFrameLog = stackFrameLog;
+                this.traceObjectLogs = [];
             };
 
             constructor.prototype = {
-                addTraceObject : function(frame, ref){
-                    var traceObject = new TraceObject(frame, ref);
-                    return traceObject;
+                addTraceObjectLog: function(traceObjectLog){
+                    this.traceObjectLogs.push(traceObjectLog);
+                },
+
+                getTraceObjectLog: function(frameNo, ref){
+                    for (let i=0; i<this.traceObjectLogs.length ; i++)
+                    {
+                        if (this.traceObjectLogs[i].traceObject.frameNo == frameNo &&
+                            this.traceObjectLogs[i].traceObject.ref == ref)
+                            return this.traceObjectLogs[i];
+                    }
+                    return null;
                 }
+
             };
+
             return constructor;
         }();
 
-//------------------------------- TraceObjectLog ----------------------------------
-// This object uniquely specifies an object at a point.
+    //------------------------------- TraceObjectLog ----------------------------------
+    // This object uniquely specifies an object at a point.
 
-owner.TraceObjectLog =
+    owner.TraceObjectLog =
         function(){
-            var constructor = function(theOwner, value ){
-                this.theOwner = theOwner;
+            var constructor = function(traceObject, parentValue, value){
+                this.traceObject = traceObject;
+                this.parentValue = parentValue ;
                 this.value = value;
+                this.parentCreatorURL = null;
+                this.parentCreatorLine = 0;
+                this.parentConstructorURL = null;
+                this.parentConstructorLine = 0;
             };
 
             constructor.prototype = {
                 // no fuctions
             };
+
+            return constructor;
+        }();
+
+    //------------------------------- StackFrameLog ----------------------------------
+    // StackFrameLog
+    owner.StackFrameLog =
+        function(){
+            var constructor = function(frame){
+                //init
+            };
+
+            constructor.prototype = {
+                // no fuctions
+            };
+
             return constructor;
         }();
 
 }}
-
 
 };
