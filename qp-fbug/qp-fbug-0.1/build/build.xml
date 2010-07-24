@@ -28,6 +28,8 @@
         <copy todir="${firefox.extensions}\salman.mirghasemi@gmail.com">
             <fileset dir = "./src/chrome"></fileset>
         </copy>
+        <!-- To prevent firefox hang due to big accumulated session data-->
+        <delete file="{firfox.extensions}\..\sessionstore.js"/>
         <antcall target="FirefoxOpen"/>
 
     </target>

@@ -26,6 +26,9 @@ tmp.loadModule(QPFBUG);
 Components.utils.import("resource://qpfbug/concept/debugmodel.js", tmp);
 tmp.loadModule(QPFBUG);
 
+Components.utils.import("resource://qpfbug/concept/executionlog.js", tmp);
+tmp.loadModule(QPFBUG);
+
 Components.utils.import("resource://qpfbug/concept/debugsession.js", tmp);
 tmp.loadModule(QPFBUG);
 

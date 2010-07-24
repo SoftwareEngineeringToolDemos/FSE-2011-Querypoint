@@ -9,7 +9,7 @@ FBL.ns(function() { with (FBL)
         QPFBUG.windows = [];
         QPFBUG.windows.push(window);
 
-        manager = Manager.getInstance();
+        manager = Manager.getInstance(fbs);
         
         reproducer = Reproducer.getInstance();
         
