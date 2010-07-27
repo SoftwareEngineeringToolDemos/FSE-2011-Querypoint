@@ -36,9 +36,7 @@ owner.JSDEventHandler = function(){
                 this.fbs.unhookScripts();
                 this.fbs.getJSD().flags = 0;
                 this.fbs.hookScripts();
-
             },
-
 
             // ---------------------------------------   fbs functions -----------------------------
             // Do not use "this" in the following methods.
@@ -53,6 +51,7 @@ owner.JSDEventHandler = function(){
                 fbs.getJSD().flags = 0;
                 return returnValue;
             },
+
             //jsd.scriptHook.onScriptCreated
             onScriptCreated: function(script){
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
@@ -91,7 +90,6 @@ owner.JSDEventHandler = function(){
                 var fbs = jsdEventHandler.fbs;
 
                 var done = QPFBUG.manager.onBreak(frame, type, rv);
-
                 if (done)
                     return Components.interfaces.jsdIExecutionHook.RETURN_CONTINUE;
 
@@ -130,7 +128,6 @@ owner.JSDEventHandler = function(){
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var fbs = jsdEventHandler.fbs;
 
-                // avoid step_out from web page to chrome
                 if (type==Components.interfaces.jsdIExecutionHook.TYPE_INTERRUPTED)
                 {
                     var done = QPFBUG.manager.onInterrupt(frame, type, rv);
@@ -152,7 +149,6 @@ owner.JSDEventHandler = function(){
             }
 
         };
-
 
         constructor.getInstance = function(fbs){
             if (!QPFBUG.jsdEventHandler)

@@ -155,6 +155,11 @@ owner.UIEventHandler = function(){
                      // value is something like  [., name] so we ignore the separator(dot).
                      propertyName = propertyName[1];
 
+                     if (propertyPath.match(/^scopeChain\[/) != null) //startsWith scopeChain[
+                     {
+                         propertyPath = propertyPath.substring(valueRef.indexOf("].")+2, propertyPath.length);
+                     }
+
                      QPFBUG.manager.addLastChange(domPanel.context, owner, propertyPath);
                   }}
              }

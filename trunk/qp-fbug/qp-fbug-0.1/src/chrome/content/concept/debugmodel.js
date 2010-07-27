@@ -115,6 +115,11 @@ with (QPFBUG.Classes){
                 this.frameNo = frameNo;
                 //reference to object or value (in general it can be any expression that can be evaluated)
                 this.ref = ref;
+
+                this.propertyName = ref.substring(ref.lastIndexOf(".")+1, ref.length);
+                if (ref.lastIndexOf(".") >= 0)
+                    this.parentRef = ref.substring(0, ref.lastIndexOf("."));
+
             };
 
             constructor.prototype = {
@@ -135,6 +140,10 @@ with (QPFBUG.Classes){
                 this.frameNo = frameNo;
                 //reference to object or value (in general it can be any expression that can be evaluated)
                 this.ref = ref;
+
+                this.propertyName = ref.substring(ref.lastIndexOf(".")+1, ref.length);
+                if (ref.lastIndexOf(".") >= 0)
+                    this.parentRef = ref.substring(0, ref.lastIndexOf("."));
             };
 
             constructor.prototype = {
