@@ -86,14 +86,12 @@ with (QPFBUG.Classes){
                             QPFBUG.enableDebugging.stopped++;
 
                             if (DBG_DOUBLEDEBUGGER)
-                                FBTrace.sysout("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+                                FBTrace.sysout("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<, stopped: " + QPFBUG.enableDebugging.stopped);
                             //because debugFrame may not exist later due to our artifial
                             // changes by calling unPause() we keep
                             // execution context reference.
                             QPFBUG.enableDebugging.executionContext = frame.executionContext;
 
-                            if (DBG_DOUBLEDEBUGGER)
-                                FBTrace.sysout(QPFBUG.enableDebugging.stopped);
                             if (QPFBUG.enableDebugging.stopped == 1)
                             {
                                 fbs.getJSD().appendFilter(QPFBUG.enableDebugging.filter1);
@@ -104,7 +102,7 @@ with (QPFBUG.Classes){
 
                             var rv = Components.interfaces.jsdIExecutionHook.RETURN_CONTINUE;
                             try{
-                               rv =  old_onBreakpoint.apply(fbs,arguments);
+                                rv =  old_onBreakpoint.apply(fbs,arguments);
                             }catch(e)
                             {
                                 QPFBUG.FBTrace.sysout("FBS onBreakpoint Exception! : " + e, e)

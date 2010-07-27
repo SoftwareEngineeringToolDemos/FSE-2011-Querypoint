@@ -44,7 +44,6 @@ with (QPFBUG.Classes){
 
                 for (i in tracePoints)
                 {
-                    QPFBUG.FBTrace.sysout(i);
                     var tracePoint = tracePoints[i];
                     if (tracePoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT)
                     {
@@ -110,17 +109,15 @@ with (QPFBUG.Classes){
                 if (!context || !context.qpfbug.stepping) // it is not in any context that manager knows
                     return false;
 
+                QPFBUG.FBTrace.sysout("******* " + frame.line + "," +frame.pc +  " , " + frame.isConstructing +" , "+ frame.script.functionSource, frame);
+
+                if (context.qpfbug.isStepping)
+                {
+                    this.inStepping(context, frame, type, rv);
+                }
                 return false;
-//                QPFBUG.FBTrace.sysout("******* " + frame.line +  " , " + frame.isConstructing +" , "+ frame.script.functionSource, frame);
-//                context.qpfbug.stepCount++;
-//                if (context.qpfbug.stepCount == 100)
-//                {
-//                    this.fbs.stopStepping();
-//                    context.qpfbug.stepping = false;
-////                    context.qpfbug.stepCount = 0;
-//                }
-//                return true;
-////                return false;
+
+
             },
 
             onBreak: function(frame, type ,rv){
@@ -132,7 +129,7 @@ with (QPFBUG.Classes){
                 context.stoppedFrame = frame;
                 var bp = this.findBreakpointByScript(context, frame.script, frame.pc);
 
-//                   var fbugbp = fbs.findBreakpointByScript(frame.script, frame.pc);
+                //var fbugbp = fbs.findBreakpointByScript(frame.script, frame.pc);
                 if (!bp) // it is not any of manager's breakpoints
                     return false;
 
@@ -149,27 +146,89 @@ with (QPFBUG.Classes){
                     }
                     if (tracePoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE)
                     {
-
                         // get the object which is Created
                         //set watch point
-                        QPFBUG.FBTrace.sysout(">>> " + frame.script.functionSource);
+
                         //getScriptsAtLineNumber
-                        //tracePointLog = context.qpfbug.reproduction.executionLog.addTracePointLog(tracePoint, frame);
-                        QPFBUG.FBTrace.sysout(frame.script.fileName);
+                        tracePointLog = context.qpfbug.reproduction.executionLog.addTracePointLog(tracePoint, frame);
                         var sourceFile = context.sourceFileMap[context.qpfbug.firefoxWindow.FBL.normalizeURL(frame.script.fileName)];
-//                        QPFBUG.FBTrace.sysout(sourceFile.getScriptsAtLineNumer(bp.lineNo));
-                        //step_into 2
-//                        this.fbs.step(1, context.stoppedFrame, context.qpfbug.firefoxWindow.Firebug.Debugger);
-                        this.fbs.step(2, context.stoppedFrame, context.qpfbug.firefoxWindow.Firebug.Debugger);
-                        this.fbs.startStepping();
-                        context.qpfbug.stepping = true;
-                        context.qpfbug.stepCount = 0;
+//                        QPFBUG.FBTrace.sysout(sourceFile.getScriptsAtLineNumber(bp.lineNo));
+                        context.qpfbug.isStepping = true;
+
+                        context.qpfbug.stepping = {};
+                        context.qpfbug.stepping.stepCount = 0;
+                        context.qpfbug.stepping.searchURL = bp.href;
+                        context.qpfbug.stepping.searchLine = bp.lineNo;
+                        context.qpfbug.stepping.propertyToWatch = tracePoint.globalObjectRef.propertyName;
+                        this.inStepping(context, frame, type, rv);
                     }
                 }
 
                 QPFBUG.FBTrace.sysout("<<<<<<<<");
                 context.stoppedFrame = null;
                 return true;
+            },
+
+            //to find new created objects in a line
+            inStepping: function(context, frame, type, rv){
+                context.qpfbug.stepping.currentscript;
+                context.qpfbug.stepping.assignees;
+
+                if (frame.line != context.qpfbug.stepping.searchLine)
+                {
+                    context.qpfbug.isStepping = false;
+                    return;
+                }
+
+
+
+
+                //step_into 2
+                this.fbs.step(2, context.stoppedFrame, context.qpfbug.firefoxWindow.Firebug.Debugger);
+                this.fbs.startStepping();
+                context.qpfbug.stepping = true;
+                context.qpfbug.stepping.stepCount = 0;
+
+                var currentScript = context.qpfbug.stepping.currentscript;
+                var assginees = [];
+                assginees.oldValues = [];
+                if (!currentScript || frame.script.tag != currentScript.tag)
+                {
+                    currentScript = frame.script;
+                    var scriptAnalyzer = new ScriptAnalyzer(currentScript.functionSource);
+
+//                    var more = true;
+//                    while (more)
+//                    {
+//
+//                    }
+
+                }
+                context.qpfbug.stepping.assignees;
+                var currentScript;
+
+
+
+
+
+//                            try{
+//                                watchThisPropforAllscopesVariables(frame.scope, )
+    //                            frame.scope.watch("myProp",
+//                                scopeJSDIValue.jsParent.jsParent.getWrappedValue().watch("myObject",
+//                                   function (id, oldval, newval) {
+//                                      QPFBUG.FBTrace.sysout("o." + id + " changed from " + oldval + " to " + newval);
+//                                      return newval;
+//                                   });
+//                                rootJSValue.watch("infun",
+//                                   function (id, oldval, newval) {
+//                                      QPFBUG.FBTrace.sysout("o." + id + " changed from " + oldval + " to " + newval);
+//                                      return newval;
+//                                   });
+//                            }catch(e)
+//                            {
+//                                QPFBUG.FBTrace.sysout("xxxxxxxxxxxxxx" , e);
+//                            }
+
             },
 
             addLastChange: function(context, owner, propertyPath){
@@ -214,10 +273,10 @@ with (QPFBUG.Classes){
                         // NO good reason for getting js parent only because it works
                         wrappedJSDValue = wrappedJSDValue.jsParent;
 
-                        FBTrace.sysout(wrappedJSDValue.objectValue);
-                        FBTrace.sysout(wrappedJSDValue.objectValue.creatorURL);
-                        FBTrace.sysout(wrappedJSDValue.objectValue.creatorLine);
-                        FBTrace.sysout(wrappedJSDValue.objectValue.constructorURL);
+//                        FBTrace.sysout(wrappedJSDValue.objectValue);
+//                        FBTrace.sysout(wrappedJSDValue.objectValue.creatorURL);
+//                        FBTrace.sysout(wrappedJSDValue.objectValue.creatorLine);
+//                        FBTrace.sysout(wrappedJSDValue.objectValue.constructorURL);
 
                         var sourceFile = context.sourceFileMap[wrappedJSDValue.objectValue.creatorURL];
 //                        FBL.fbs.addBreakpoint(1, sourceFile, wrappedJSDValue.objectValue.creatorLine,

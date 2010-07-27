@@ -16,19 +16,19 @@ with (QPFBUG.Classes){
                     ["reset", "paused", "notstarted"]
                     ];
 
-             var Constructor = function(){
-             this.stateMachine = new StateMachine(states, "notstarted", transitions);
-             //long
-             this.startTime;
-             //long
-             this.lastStartTime;
-             //long
-             this.lastPauseTime;
-             //long
-             this.recordedTime;
+             var constructor = function(){
+                 this.stateMachine = new StateMachine(states, "notstarted", transitions);
+                 //long
+                 this.startTime;
+                 //long
+                 this.lastStartTime;
+                 //long
+                 this.lastPauseTime;
+                 //long
+                 this.recordedTime;
              };
 
-             Constructor.prototype = {
+             constructor.prototype = {
 
                 start : function(){
                     this.stateMachine.startTransit("start");
@@ -80,7 +80,7 @@ with (QPFBUG.Classes){
                     return currentTimeMillis() - this.startTime;
                 }
             }
-            return Constructor;
+            return constructor;
         }();
 
 }}

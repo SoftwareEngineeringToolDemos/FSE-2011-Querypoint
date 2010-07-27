@@ -13,6 +13,9 @@
         <arg value="firefox.exe"/>
         <arg value="/f"/>
       </exec>
+        <!-- To prevent firefox hang due to big accumulated session data-->
+        <delete file="${firefox.extensions}\..\sessionstore.bak"/>
+        <delete file="${firefox.extensions}\..\sessionstore.js"/>
     </target>
 
     <target name="FirefoxOpen">
@@ -28,8 +31,6 @@
         <copy todir="${firefox.extensions}\salman.mirghasemi@gmail.com">
             <fileset dir = "./src/chrome"></fileset>
         </copy>
-        <!-- To prevent firefox hang due to big accumulated session data-->
-        <delete file="{firfox.extensions}\..\sessionstore.js"/>
         <antcall target="FirefoxOpen"/>
 
     </target>

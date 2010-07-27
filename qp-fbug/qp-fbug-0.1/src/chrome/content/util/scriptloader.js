@@ -56,5 +56,11 @@ tmp.loadModule(QPFBUG);
 Components.utils.import("resource://qpfbug/core/moduleeventhandler.js", tmp);
 tmp.loadModule(QPFBUG);
 
+Components.utils.import("resource://qpfbug/parser/jsparser.js", tmp);
+tmp.loadModule(QPFBUG);
+
+Components.utils.import("resource://qpfbug/util/scriptanalyzer.js", tmp);
+tmp.loadModule(QPFBUG);
+
 
 delete tmp;

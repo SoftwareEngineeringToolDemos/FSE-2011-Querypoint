@@ -32,22 +32,24 @@ with (QPFBUG.Classes){
                     for (let i=0 ; i<tracePoint.traceObjects.length ; i++)
                     {
                         var traceObject = tracePoint.traceObjects[i];
-                        var result = {};
+                        var result;
                         if (traceObject.ref == ".owner")
                         {
+
                             // add it later
                         }else
                         {
                             //todo find the right frame based on traceObject.frameNo
                             var valueRef = traceObject.ref;
-                            var parentRef = valueRef.substring(0, valueRef.lastIndexOf("."));
-                            var propertyName = valueRef.substring(valueRef.lastIndexOf(".")+1, valueRef.length);
 
+                            var propertyName = traceObject.propertyName;
+                            var parentRef = traceObject.parentRef;
+
+                            //parent
+                            result = {};
                             frame.eval(parentRef, "", 1, result)
                             var parentJSDIValue = result.value;
-
                             var parentJSValue = parentJSDIValue.getWrappedValue();
-
                             // This one for is a wrapper for security reasons
                             // specially when this object is going to be used
                             // by other modules/extenstions
@@ -55,13 +57,13 @@ with (QPFBUG.Classes){
 
                             var traceObjectLog = new TraceObjectLog(traceObject, parentJSValue, parentJSValue[propertyName])
 
-                            var jsdIObject = parentJSDIValue.objectValue;
-                            if (jsdIObject)
+                            var parentJSDIObject = parentJSDIValue.objectValue;
+                            if (parentJSDIObject)
                             {
-                                traceObjectLog.parentCreatorURL = jsdIObject.creatorURL;
-                                traceObjectLog.parentCreatorLine = jsdIObject.creatorLine;
-                                traceObjectLog.parentConstructorURL = jsdIObject.constructorURL;
-                                traceObjectLog.parentConstructorLine = jsdIObject.constructorLine;
+                                traceObjectLog.parentCreatorURL = parentJSDIObject.creatorURL;
+                                traceObjectLog.parentCreatorLine = parentJSDIObject.creatorLine;
+                                traceObjectLog.parentConstructorURL = parentJSDIObject.constructorURL;
+                                traceObjectLog.parentConstructorLine = parentJSDIObject.constructorLine;
                             }
 
                             tracePointLog.addTraceObjectLog(traceObjectLog);
