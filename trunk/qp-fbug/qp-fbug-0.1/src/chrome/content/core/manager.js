@@ -248,8 +248,8 @@ with (QPFBUG.Classes){
                     // todo get breakpoint from context
 
                     var href = context.executingSourceFile.href;
-                    var line = context.debugFrame.line;
-                    var fileName = context.debugFrame.script.fileName;
+                    var line = context.stoppedFrame.line;
+                    var fileName = context.stoppedFrame.script.fileName;
                     var bp = FBL.fbs.findBreakpoint(href, line);
                     var tracePointA, tracePointB;
                     if (bp)
@@ -261,7 +261,7 @@ with (QPFBUG.Classes){
                         tracepointB = debugModel.addTracePoint_LastChange(tracePointA, 0, propertyPath);
 
                         // collect data
-                        var tracePointLog = reproduction.executionLog.addTracePointLog(tracePointA, context.debugFrame);
+                        var tracePointLog = reproduction.executionLog.addTracePointLog(tracePointA, context.stoppedFrame);
                         reproduction.executionLog.assignTracePointLog(tracePointA, tracePointLog);
 
                         //todo add current traceobj  data to the tracePointAlog in reproduction

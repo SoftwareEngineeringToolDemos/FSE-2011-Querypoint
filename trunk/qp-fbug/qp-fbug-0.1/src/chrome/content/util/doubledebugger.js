@@ -239,7 +239,7 @@ with (QPFBUG.Classes){
                                     //because debugFrame may not exist later due to our artifial
                                     // changes by calling unPause() we keep
                                     // execution context reference.
-                                    debuggr.qpfbug.executionContext = context.debugFrame.executionContext;
+                                    debuggr.qpfbug.executionContext = context.stoppedFrame.executionContext;
                                     var rv = old_startDebugging.apply(debuggr, arguments);
                                     // filters prevent all other hook calls except those
                                     // in this module. The reason is that whenever executionHook_Proc

@@ -4,8 +4,9 @@ var EXPORTED_SYMBOLS = ["QPFBUG"];
 
 QPFBUG = {};
 
-QPFBUG.FBTrace = Components.classes["@joehewitt.com/firebug-trace-service;1"]
-                .getService(Components.interfaces.nsISupports).wrappedJSObject.getTracer("extensions.firebug");
+Components.utils.import("resource://firebug/firebug-trace-service.js");
+
+QPFBUG.FBTrace = traceConsoleService.getTracer("extensions.firebug");
 
 //--------------------------------- Lang --------------------------------
 //this class contains basic needed functions at language level
