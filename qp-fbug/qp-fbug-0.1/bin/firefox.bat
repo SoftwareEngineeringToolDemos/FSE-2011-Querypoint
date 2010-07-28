@@ -1,1 +1,1 @@
-"C:\Program Files\Mozilla Firefox\Firefox.exe" -P test-profile -no-remote
+"C:\Program Files\Mozilla Firefox\Firefox.exe" -P %1 -no-remote

@@ -26,9 +26,9 @@ FBL.ns(function() { with (FBL)
     
         // It is not part of functionality, just to make 
         // debugging this code possible.
-//        var doubleDebugger = new DoubleDebugger(window);
+        var doubleDebugger = new DoubleDebugger(window);
         // should be called after jsdEventHandler getInstance to wrap fbs changes.
-//        doubleDebugger.enableDoubleDebugger();
+        doubleDebugger.enableDoubleDebugger();
     }
 }});
 

@@ -14,14 +14,15 @@
         <arg value="/f"/>
       </exec>
         <!-- To prevent firefox hang due to big accumulated session data-->
-        <delete file="${firefox.extensions}\..\sessionstore.bak"/>
-        <delete file="${firefox.extensions}\..\sessionstore.js"/>
+        <delete file="${firefox.profile}\sessionstore.bak"/>
+        <delete file="${firefox.profile}\sessionstore.js"/>
     </target>
 
     <target name="FirefoxOpen">
       <exec executable="cmd">
         <arg value="/c"/>
         <arg value="${basedir}\bin\firefox-chromebug.bat"/>
+        <arg value="${firefox.profile}"/>
       </exec>
     </target>
 
@@ -38,7 +39,7 @@
     <target name="deployFireBug">
         <copy todir="${firefox.extensions}\firebug@software.joehewitt.com">
 
-            <fileset dir = "../fbug/branches/firebug1.6"></fileset>
+            <fileset dir = "${fbug}/branches/firebug1.6"></fileset>
         </copy>
 
     </target>
@@ -46,7 +47,7 @@
     <target name="deployChromeBug">
         <copy todir="${firefox.extensions}\chromebug@johnjbarton.com">
 
-            <fileset dir = "../fbug/chromebug/branches/chromebug1.6"></fileset>
+            <fileset dir = "${fbug}/chromebug/branches/chromebug1.6"></fileset>
         </copy>
 
     </target>
