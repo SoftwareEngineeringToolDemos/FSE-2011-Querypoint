@@ -49,7 +49,7 @@ with (QPFBUG.Classes){
                     return tracePoint;
                 },
 
-                addTreacePoint_LastCondition : function(refPoint){
+                addTracePoint_LastCondition : function(refPoint){
                     var tracePoint = new TracePoint(++this.nextTracePointId, DebugModel.QUERY_TYPES.LASTCONDITION,
                                                     refPoint, null,
                                                     null, null, null);
