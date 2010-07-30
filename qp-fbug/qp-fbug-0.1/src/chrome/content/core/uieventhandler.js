@@ -41,6 +41,7 @@ owner.UIEventHandler = function(){
                       var new_GetContextMenuItems = function(sourceLink, target)
                       {
                             var items = old_GetContextMenuItems.apply(this, arguments);
+                            //todo if !context.stopped return items
                             var panel = target ? Firebug.getElementPanel(target) : null;
                             if (!panel) // the event must be on our chrome not inside the panel
                                 return items;

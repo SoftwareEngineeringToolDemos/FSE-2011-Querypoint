@@ -81,5 +81,5 @@ function analyzeSource(source, onlyOuterScript)
     var QPFBUG = FBTest.FirebugWindow.QPFBUG;
     var scriptAnalyzer = new QPFBUG.Classes.ScriptAnalyzer(source);
 //    FBTrace.sysout("root", scriptAnalyzer.root);
-    return scriptAnalyzer.getObjectRefsToCreatedObjects(onlyOuterScript);
+    return scriptAnalyzer.getRefsToCreatedObjects(onlyOuterScript);
 }

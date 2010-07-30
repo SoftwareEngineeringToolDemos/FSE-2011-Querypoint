@@ -104,6 +104,11 @@ with (QPFBUG.Classes){
 
             },
 
+            onFunction: function(frame, type, rv){
+
+                return false;
+            },
+
             onInterrupt: function(frame, type, rv){
                 var context = this.getContextFromFrame(this.fbs, frame);
                 if (!context || !context.qpfbug.stepping) // it is not in any context that manager knows
@@ -160,11 +165,13 @@ with (QPFBUG.Classes){
                         context.qpfbug.stepping.searchURL = bp.href;
                         context.qpfbug.stepping.searchLine = bp.lineNo;
                         context.qpfbug.stepping.propertyToWatch = tracePoint.globalObjectRef.propertyName;
+                        context.qpfbug.stepping.currentscript = frame.script;
+                        context.qpfbug.stepping.callstackdepth = this.getCallStackDepth(frame);
+                        
                         this.inStepping(context, frame, type, rv);
                     }
-                }
+                };
 
-                QPFBUG.FBTrace.sysout("<<<<<<<<");
                 context.stoppedFrame = null;
                 return true;
             },
@@ -174,60 +181,84 @@ with (QPFBUG.Classes){
                 context.qpfbug.stepping.currentscript;
                 context.qpfbug.stepping.assignees;
 
-                if (frame.line != context.qpfbug.stepping.searchLine)
+                var currentScript = context.qpfbug.stepping.currentscript;
+                var depth = context.qpfbug.stepping.callstackdepth;
+                QPFBUG.FBTrace.sysout('Depth : ' + depth + " " + this.getCallStackDepth(frame));
+
+                if (!currentScript || (frame.script.tag != currentScript.tag))
                 {
                     context.qpfbug.isStepping = false;
                     return;
                 }
+//                if (frame.line != context.qpfbug.stepping.searchLine)
+//                {
+//                    context.qpfbug.isStepping = false;
+//                    return;
+//                }
 
 
-
-
-                //step_into 2
-                this.fbs.step(2, context.stoppedFrame, context.qpfbug.firefoxWindow.Firebug.Debugger);
-                this.fbs.startStepping();
                 context.qpfbug.stepping = true;
                 context.qpfbug.stepping.stepCount = 0;
 
-                var currentScript = context.qpfbug.stepping.currentscript;
-                var assginees = [];
-                assginees.oldValues = [];
-                if (!currentScript || frame.script.tag != currentScript.tag)
+                var scriptAnalyzer = context.qpfbug.stepping.scriptAnalyzer;
+                var refs = context.qpfbug.stepping.refs;
+                var refValues = context.qpfbug.stepping.refValues;
+                var result;
+
+                if (!refs)
                 {
                     currentScript = frame.script;
-                    var scriptAnalyzer = new ScriptAnalyzer(currentScript.functionSource);
+                    scriptAnalyzer = context.qpfbug.stepping.scriptAnalyzer =
+                        new ScriptAnalyzer(currentScript.functionSource);
 
-//                    var more = true;
-//                    while (more)
-//                    {
-//
-//                    }
+                    refs = context.qpfbug.stepping.refs =
+                        scriptAnalyzer.getRefsToCreatedObjects(true);
 
+                    QPFBUG.FBTrace.sysout("<<<<<<<<  "+ refs.join(" , "));
+                    refValues = context.qpfbug.stepping.refValues = [];
+
+                    for (let k=0 ; k<refs.length ; k++)
+                    {
+                        QPFBUG.FBTrace.sysout("<<<<<<<<" + refs[k]);
+                        refValue = null;
+                        result = {};
+                        try{
+                            frame.eval(ref[k], "", 1, result)
+                            refValue = result.value;
+                        }catch(e)
+                        {
+                        }
+                        QPFBUG.FBTrace.sysout("<<<<<<<<", refValue);
+                        refValues[k] = refValue;
+                    }
+                }else{
+                    for (let k=0 ; k<refs.length ; k++)
+                    {
+                        QPFBUG.FBTrace.sysout("<<<<<<<<" + refs[k]);
+                        refValue = null;
+                        result = {};
+                        try{
+                            frame.eval(ref[k], "", 1, result)
+                            refValue = result.value;
+                        }catch(e)
+                        {
+                        }
+                        if (refValue && refValues[k] != refValue)
+                        {
+                            if (typeof(refValue) == "object")
+                            {
+                                refValue.watch(context.qpfbug.stepping.propertyToWatch,
+                                   function (id, oldval, newval) {
+                                      QPFBUG.FBTrace.sysout("o." + id + " changed from " + oldval + " to " + newval);
+                                      return newval;
+                                   });
+                            }
+                        }
+                    }
                 }
-                context.qpfbug.stepping.assignees;
-                var currentScript;
-
-
-
-
-
-//                            try{
-//                                watchThisPropforAllscopesVariables(frame.scope, )
-    //                            frame.scope.watch("myProp",
-//                                scopeJSDIValue.jsParent.jsParent.getWrappedValue().watch("myObject",
-//                                   function (id, oldval, newval) {
-//                                      QPFBUG.FBTrace.sysout("o." + id + " changed from " + oldval + " to " + newval);
-//                                      return newval;
-//                                   });
-//                                rootJSValue.watch("infun",
-//                                   function (id, oldval, newval) {
-//                                      QPFBUG.FBTrace.sysout("o." + id + " changed from " + oldval + " to " + newval);
-//                                      return newval;
-//                                   });
-//                            }catch(e)
-//                            {
-//                                QPFBUG.FBTrace.sysout("xxxxxxxxxxxxxx" , e);
-//                            }
+                //step_into 2
+                this.fbs.step(2, context.stoppedFrame, context.qpfbug.firefoxWindow.Firebug.Debugger);
+                this.fbs.startStepping();
 
             },
 
@@ -273,10 +304,6 @@ with (QPFBUG.Classes){
                         // NO good reason for getting js parent only because it works
                         wrappedJSDValue = wrappedJSDValue.jsParent;
 
-//                        FBTrace.sysout(wrappedJSDValue.objectValue);
-//                        FBTrace.sysout(wrappedJSDValue.objectValue.creatorURL);
-//                        FBTrace.sysout(wrappedJSDValue.objectValue.creatorLine);
-//                        FBTrace.sysout(wrappedJSDValue.objectValue.constructorURL);
 
                         var sourceFile = context.sourceFileMap[wrappedJSDValue.objectValue.creatorURL];
 //                        FBL.fbs.addBreakpoint(1, sourceFile, wrappedJSDValue.objectValue.creatorLine,
@@ -340,6 +367,16 @@ with (QPFBUG.Classes){
 
                 }
                 return null;
+            },
+
+            getCallStackDepth: function(frame)
+            {
+                var depth = 0;
+                while (frame){
+                    depth++;
+                    frame = frame.callingFrame;
+                }
+                return depth;
             },
 
 
