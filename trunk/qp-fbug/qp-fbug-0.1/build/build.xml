@@ -22,7 +22,7 @@
       <exec executable="cmd">
         <arg value="/c"/>
         <arg value="${basedir}\bin\firefox-chromebug.bat"/>
-        <arg value="${firefox.profile}"/>
+        <arg value="${firefox.profileName}"/>
       </exec>
     </target>
 
