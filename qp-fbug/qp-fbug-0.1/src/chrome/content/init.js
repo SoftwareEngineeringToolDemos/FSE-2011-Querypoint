@@ -6,22 +6,21 @@ FBL.ns(function() { with (FBL)
         // it keeps qpfbug data for this window
         Firebug.qpfbug = {};
 
-        QPFBUG.windows = [];
         QPFBUG.windows.push(window);
 
-        manager = Manager.getInstance(fbs);
+        var manager = Manager.getInstance();
         
-        reproducer = Reproducer.getInstance();
+        var reproducer = Reproducer.getInstance();
         
-        jsdEventHandler = JSDEventHandler.getInstance(fbs);
+        var jsdEventHandler = JSDEventHandler.getInstance();
 
         // A new Module event handler is created for every new firefox window
-        moduleEventHandler = new ModuleEventHandler(window);
+        var moduleEventHandler = new ModuleEventHandler(window);
         Firebug.registerModule(moduleEventHandler);
         Firebug.qpfbug.moduleEventHandler = moduleEventHandler; 
     
         // A new UI event handler is created for every new firefox window
-        uiEventHandler = new UIEventHandler(window);
+        var uiEventHandler = new UIEventHandler(window);
         Firebug.qpfbug.uiEventHandler = uiEventHandler; 
     
         // It is not part of functionality, just to make 

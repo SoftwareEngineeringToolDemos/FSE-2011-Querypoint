@@ -1,79 +1,28 @@
-var EXPORTED_SYMBOLS = ["QPFBUG"];
-//Module = function(win)
-//with(win){
+var EXPORTED_SYMBOLS = ["loadModule"];
 
-QPFBUG = {};
+loadModule = function(QPFBUG)
+{
+    QPFBUG.FBTrace = QPFBUG.traceConsoleService.getTracer("extensions.firebug");
 
-Components.utils.import("resource://firebug/firebug-trace-service.js");
+    //--------------------------------- Lang --------------------------------
+    //this class contains basic needed functions at language level
 
-QPFBUG.FBTrace = traceConsoleService.getTracer("extensions.firebug");
+    QPFBUG.Lang = {
 
-//--------------------------------- Lang --------------------------------
-//this class contains basic needed functions at language level
+        Cc : Components.classes,
+        Ci : Components.interfaces,
+        jsdIStackFrame : Components.interfaces.jsdIStackFrame,
 
+        assert : function(bool, object){
+            if (!bool){
+                throw (" Assertion Error : " + assert + ", " + object);// +  this.printStackTrace());//( + object);
+            }
+        },
 
-QPFBUG.Lang = {
+        currentTimeMillis : function(){
+            return (new Date()).getTime();
+        },
 
-    Cc : Components.classes,
-    Ci : Components.interfaces,
-    jsdIStackFrame : Components.interfaces.jsdIStackFrame,
+    };
+}
 
-    assert : function(bool, object){
-        if (!bool){
-            throw (" Assertion Error : " + assert + ", " + object);// +  this.printStackTrace());//( + object);
-        }
-    },
-
-    currentTimeMillis : function(){
-        return (new Date()).getTime();
-    },
-
-//    printStackTrace : function() {
-// 	    var callstack = [];
-//	    var isCallstackPopulated = false;
-//	    try {
-//     	    i.dont.exist+=0; //doesn't exist- that's the point
-//	    } catch(e) {
-//	        if (e.stack) { //Firefox
-//	           var lines = e.stack.split('\n');
-//	           for (var i=0, len=lines.length; i<len; i++) {
-//	               if (lines[i].match(/^\s*[A-Za-z0-9\-_\$]+\(/)) {
-//	                   callstack.push(lines[i]);
-//	               }
-//	           }
-//	           //Remove call to printStackTrace()
-//	           callstack.shift();
-//	           isCallstackPopulated = true;
-//	         }
-//	         else if (window.opera && e.message) { //Opera
-//	             var lines = e.message.split('\n');
-//	             for (var i=0, len=lines.length; i<len; i++) {
-//	             if (lines[i].match(/^\s*[A-Za-z0-9\-_\$]+\(/)) {
-//                     var entry = lines[i];
-//                     //Append next line also since it has the file info
-//                      if (lines[i+1]) {
-//                        entry += " at " + lines[i+1];
-//                        i++;
-//                      }
-//                 callstack.push(entry);
-//                }
-//             }
-//              //Remove call to printStackTrace()
-//              callstack.shift();
-//              isCallstackPopulated = true;
-//            }
-//          }
-//          if (!isCallstackPopulated) { //IE and Safari
-//            var currentFunction = arguments.callee.caller;
-//            while (currentFunction) {
-//              var fn = currentFunction.toString();
-//              var fname = fn.substring(fn.indexOf("function") + 8, fn.indexOf('')) || 'anonymous';
-//              callstack.push(fname);
-//              currentFunction = currentFunction.caller;
-//            }
-//    	  }
-//	  return callstack.join('\n\n');
-//	}
-};
-
-QPFBUG.Classes = {};
