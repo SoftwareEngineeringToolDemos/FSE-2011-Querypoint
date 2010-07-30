@@ -32,24 +32,23 @@
         <copy todir="${firefox.extensions}\salman.mirghasemi@gmail.com">
             <fileset dir = "./src/chrome"></fileset>
         </copy>
+        <!-- update firebug by my changes -->
+        <copy todir="${firefox.extensions}\firebug@software.joehewitt.com">
+            <fileset dir = "./src-fbug/branches/firebug1.6"></fileset>
+        </copy>
         <antcall target="FirefoxOpen"/>
-
     </target>
 
     <target name="deployFireBug">
         <copy todir="${firefox.extensions}\firebug@software.joehewitt.com">
-
             <fileset dir = "${fbug}/branches/firebug1.6"></fileset>
         </copy>
-
     </target>
 
     <target name="deployChromeBug">
         <copy todir="${firefox.extensions}\chromebug@johnjbarton.com">
-
             <fileset dir = "${fbug}/chromebug/branches/chromebug1.6"></fileset>
         </copy>
-
     </target>
 
     <target name="makeXPI">

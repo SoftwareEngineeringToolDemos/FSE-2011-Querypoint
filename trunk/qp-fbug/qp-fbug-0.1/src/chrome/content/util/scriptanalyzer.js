@@ -33,7 +33,7 @@ with (QPFBUG.Classes){
 
                 // if only outer script is true it only returns the results for
                 // the outer script.
-                getObjectRefsToCreatedObjects: function(onlyOuterScript)
+                getRefsToCreatedObjects: function(onlyOuterScript)
                 {
                     var root = this.root;
                     var jsParser = this.jsParser;
