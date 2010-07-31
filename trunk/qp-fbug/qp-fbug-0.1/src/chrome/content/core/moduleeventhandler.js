@@ -2,8 +2,8 @@ var EXPORTED_SYMBOLS = ["loadModule"];
 loadModule = function(QPFBUG)
 {
 with (QPFBUG){
-with (QPFBUG.Lang){
 with (QPFBUG.Classes){
+with (Lang){
 
     var owner = QPFBUG.Classes;
 
@@ -21,35 +21,14 @@ with (QPFBUG.Classes){
 
                 initializeUI: function(){
                     //initialize UIEventHandler for this firefox window
-                    this.win.Firebug.qpfbug.uiEventHandler.init();
+                    with (this.win){
+                        Firebug.qpfbug.uiEventHandler.init();
+                    }
                 },
 
                 initContext: function(context, persistedState)
                 {
-                    with (this.win){
-                        //set qpfbug data holder for the context
-                        context.qpfbug = {};
-                        context.qpfbug.firefoxWindow = this.win;
-                        context.qpfbug.breakpoints = {};
-                        context.qpfbug.breakpointURLs = [];
-                        context.qpfbug.debugger = {debuggerName:"QPFBUG"}
-
-                        //get reproductionId passed to this tab
-                        var tabBrowser = FBL.$("content");
-                        var selectedTab = tabBrowser.selectedTab;
-                        var reproductionId = selectedTab.getAttribute("reproductionId");
-
-                        //get reproduction for this tab;
-                        var reproduction = QPFBUG.manager.getReproduction(null, reproductionId);
-
-                        // set reproduction and debugSession for the context
-                        context.qpfbug.reproduction = reproduction;
-                        context.qpfbug.debugSession = reproduction.debugSession;
-                        context.qpfbug.tab = selectedTab;
-
-                        //to select this context
-                        Firebug.selectContext(context);
-                    };
+                    QPFBUG.manager.initContext(this.win, context, sourceFile);
                 },
 
                 loadedContext: function(context)
@@ -59,15 +38,12 @@ with (QPFBUG.Classes){
                 // source file is created or changed
                 onSourceFileCreated: function(context, sourceFile)
                 {
-                    QPFBUG.manager.onSourceFileCreated(context, sourceFile);
+                    QPFBUG.debugService.onSourceFileCreated(context, sourceFile);
                 },
 
                 destroyContext: function(context, persistedState)
                 {
-                     delete context.qpfbug;
-
-                    //todo store debugModel in the persistedState
-                    // remove all breakpoints
+                    QPFBUG.manager.destroyContext(this.win, context, sourceFile);
                 }
 
             });

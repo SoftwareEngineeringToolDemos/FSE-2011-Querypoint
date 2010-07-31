@@ -2,8 +2,8 @@ var EXPORTED_SYMBOLS = ["loadModule"];
 loadModule = function(QPFBUG)
 {
 
-with (QPFBUG.Lang){
 with (QPFBUG.Classes){
+with (Lang){
 
     var owner = QPFBUG.Classes;
 
@@ -19,12 +19,11 @@ with (QPFBUG.Classes){
         {
             getReproduction: function(debugSession, reproductionId){
                 var reproduction;
-                if (reproductionId)
-                {
+                if (reproductionId){
                     reproduction = this.dataStore.getReproduction(reproductionId);
                 }
-                if (!reproduction)
-                {
+
+                if (!reproduction){
                     if (!debugSession)
                         debugSession = this.dataStore.newDebugSession();
                     reproduction = this.dataStore.newReproduction(debugSession);
@@ -33,135 +32,117 @@ with (QPFBUG.Classes){
                 return reproduction;
             },
 
-            //------------------------- actions ---------------------------------------
-            onSourceFileCreated: function(context, sourceFile){
-                var tracePoints = context.qpfbug.debugSession.debugModel.tracePoints;
+            initContext: function(win, context, persistedState)
+            {
+                with (win){
+                    //set qpfbug data holder for the context
+                    context.qpfbug = {};
+                    context.qpfbug.firefoxWindow = this.win;
+                    context.qpfbug.breakpoints = {};
+                    context.qpfbug.breakpointURLs = [];
+                    context.qpfbug.debugger = {debuggerName:"QPFBUG"}
 
-                //remove all breakpoints for this sourceFile
-                var breakpoints = context.qpfbug.breakpoints[sourceFile.href] = [];
+                    //get reproductionId passed to this tab
+                    var tabBrowser = FBL.$("content");
+                    var selectedTab = tabBrowser.selectedTab;
+                    var reproductionId = selectedTab.getAttribute("reproductionId");
 
-                var anyBreakpoint = false;
+                    //get reproduction for this tab;
+                    var reproduction = QPFBUG.manager.getReproduction(null, reproductionId);
 
-                for (i in tracePoints)
-                {
-                    var tracePoint = tracePoints[i];
-                    if (tracePoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT)
-                    {
-                        if (tracePoint.url == sourceFile.href)
-                        {
-                            var bp = {type: 1, href: sourceFile.href, lineNo: tracePoint.lineNo, disabled: 0,
-                                      debuggerName: "QPFBUG",
-                                      condition: "", onTrue: true, hitCount: -1, hit: 0, tracePoints : []};
-                            bp.tracePoints.push(tracePoint);
-                            breakpoints.push(bp);
-                            anyBreakpoint = true;
-                            context.qpfbug.firefoxWindow.FBL.fbs.setJSDBreakpoint(sourceFile, bp);
+                    // set reproduction and debugSession for the context
+                    context.qpfbug.reproduction = reproduction;
+                    context.qpfbug.debugSession = reproduction.debugSession;
+                    context.qpfbug.tab = selectedTab;
+
+                    //to select this context
+                    Firebug.selectContext(context);
+
+
+                    //------------------------ create event requests -----------------
+
+                    var tracePoints = context.qpfbug.debugSession.debugModel.tracePoints;
+
+                    var eventRequests = context.qpfbug.eventRequests = [];
+
+                    for (i in tracePoints){
+
+                        var tracePoint = tracePoints[i];
+                        var eventRequest = null;
+
+                        if (tracePoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT){
+                            if (tracePoint.url == sourceFile.href){
+                                //todo set execution context tag
+                                eventRequest = QPFBUG.createBreakpointRequest(
+                                   bind(this.onBreakpointEvent, this), context, tracePoint.url, tracePoint.lineNo);
+                            }
+
                         }
 
-                    }
+                        if (tracePoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE){
+                            var traceObjectLog = context.qpfbug.debugSession.getLastTraceObjectLog(
+                                         tracePoint.globalObjectRef.refPoint,
+                                         tracePoint.globalObjectRef.frameNo,
+                                         tracePoint.globalObjectRef.ref
+                                         );
 
-                    if (tracePoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE)
-                    {
-                        var traceObjectLog = context.qpfbug.debugSession.getLastTraceObjectLog(
-                                     tracePoint.globalObjectRef.refPoint,
-                                     tracePoint.globalObjectRef.frameNo,
-                                     tracePoint.globalObjectRef.ref
-                                     );
+                            if (traceObjectLog){
+                                var lineNo;
+                                var url;
+                                if (sourceFile.href == traceObjectLog.parentCreatorURL){
+                                    url = sourceFile.href;
+                                    lineNo = traceObjectLog.parentCreatorLine;
+                                }
 
-                        if (traceObjectLog)
-                        {
-                            var lineNo;
-                            var url;
-                            if (sourceFile.href == traceObjectLog.parentCreatorURL)
-                            {
-                                url = sourceFile.href;
-                                lineNo = traceObjectLog.parentCreatorLine;
+                                if (sourceFile.href == traceObjectLog.parentConstructorURL){
+                                    url = sourceFile.href;
+                                    lineNo = traceObjectLog.parentConstructorLine;
+                                }
+
+                                if (url){
+                                    eventRequest = QPFBUG.createModificationWatchpointRequest(
+                                        bind(this.onModificationWatchpointEvent, this),
+                                        context, url, lineNo, tracePoint.globalObjectRef.propertyName);
+                                }
+
                             }
 
-                            if (sourceFile.href == traceObjectLog.parentConstructorURL)
-                            {
-                                url = sourceFile.href;
-                                lineNo = traceObjectLog.parentConstructorLine;
-                            }
-
-                            if (url)
-                            {
-                                var bp = {type: 1, href: url, lineNo: lineNo, disabled: 0,
-                                          debuggerName: "QPFBUG",
-                                          condition: "", onTrue: true, hitCount: -1, hit: 0, tracePoints : []};
-                                bp.tracePoints.push(tracePoint);
-                                breakpoints.push(bp);
-                                anyBreakpoint = true;
-                                context.qpfbug.firefoxWindow.FBL.fbs.setJSDBreakpoint(sourceFile, bp);
-                            }
                         }
-
-                    }
-
-                }
-                if (anyBreakpoint)
-                    context.qpfbug.breakpointURLs.push(sourceFile.href);
-
-            },
-
-            onFunction: function(frame, type, rv){
-
-                return false;
-            },
-
-
-            onBreak: function(frame, type ,rv){
-
-                var context = this.getContextFromFrame(this.fbs, frame);
-                if (!context) // it is not in any context that manager knows
-                    return false;
-
-                context.stoppedFrame = frame;
-                var bp = this.findBreakpointByScript(context, frame.script, frame.pc);
-
-                //var fbugbp = fbs.findBreakpointByScript(frame.script, frame.pc);
-                if (!bp) // it is not any of manager's breakpoints
-                    return false;
-
-                if (!bp.tracePoints)
-                    return false;
-
-                for (let i=0 ; i<bp.tracePoints.length ; i++ )
-                {
-                    var tracePoint = bp.tracePoints[i];
-                    var tracePointLog;
-                    if (tracePoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT)
-                    {
-                        tracePointLog = context.qpfbug.reproduction.executionLog.addTracePointLog(tracePoint, frame);
-                    }
-                    if (tracePoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE)
-                    {
-                        // get the object which is Created
-                        //set watch point
-
-                        //getScriptsAtLineNumber
-                        tracePointLog = context.qpfbug.reproduction.executionLog.addTracePointLog(tracePoint, frame);
-                        var sourceFile = context.sourceFileMap[context.qpfbug.firefoxWindow.FBL.normalizeURL(frame.script.fileName)];
-//                        QPFBUG.FBTrace.sysout(sourceFile.getScriptsAtLineNumber(bp.lineNo));
-                        context.qpfbug.isStepping = true;
-
-                        context.qpfbug.stepping = {};
-                        context.qpfbug.stepping.stepCount = 0;
-                        context.qpfbug.stepping.searchURL = bp.href;
-                        context.qpfbug.stepping.searchLine = bp.lineNo;
-                        context.qpfbug.stepping.propertyToWatch = tracePoint.globalObjectRef.propertyName;
-                        context.qpfbug.stepping.currentscript = frame.script;
-                        context.qpfbug.stepping.callstackdepth = this.getCallStackDepth(frame);
-                        
-                        this.inStepping(context, frame, type, rv);
+                        if (eventRequest){
+                            eventRequest.tracePoint = tracePoint;
+                            eventRequest.context = context;
+                            eventRequests.push(eventRequest);
+                        }
                     }
                 };
-
-                context.stoppedFrame = null;
-                return true;
             },
 
+            destroyContext: function(win, context, persistedState)
+            {
+                delete context.qpfbug;
+                //todo store debugModel in the persistedState
+                // remove all breakpoints
+            },
 
+            //------------------------------- call backs ---------------------------------------
+            onModificationWathpointEvent: function(eventRequest, oldValue, newValue){
+
+            },
+
+            onBreakpointEvent: function(eventRequest, frame, type ,rv){
+
+                var context = eventRequest.context;
+                var tracePoint = eventRequest.tracePoint;
+
+                var tracePointLog;
+                if (tracePoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT)
+                {
+                    tracePointLog = context.qpfbug.reproduction.executionLog.addTracePointLog(tracePoint, frame);
+                }
+
+            },
+
+            //------------------------------- actions ---------------------------------------
             addLastChange: function(context, owner, propertyPath){
                 var win = context.qpfbug.firefoxWindow;
                 with(win){
@@ -221,54 +202,6 @@ with (QPFBUG.Classes){
             },
 
             //---------------------------------- internal functions --------------------------------
-            findBreakpointByScript: function(context, script, pc)
-            {
-                var urlsWithBreakpoints = context.qpfbug.breakpointURLs;
-                var breakpoints = context.qpfbug.breakpoints;
-                for (let iURL = 0; iURL < urlsWithBreakpoints.length; iURL++)
-                {
-                    var url = urlsWithBreakpoints[iURL];
-                    var urlBreakpoints = breakpoints[url];
-                    if (urlBreakpoints)
-                    {
-                        for (var iBreakpoint = 0; iBreakpoint < urlBreakpoints.length; ++iBreakpoint)
-                        {
-                            var bp = urlBreakpoints[iBreakpoint];
-                            if (bp.scriptsWithBreakpoint)
-                            {
-                                for (let iScript = 0; iScript < bp.scriptsWithBreakpoint.length; iScript++)
-                                {
-                                    if ( bp.scriptsWithBreakpoint[iScript] && (bp.scriptsWithBreakpoint[iScript].tag == script.tag) && (bp.pc[iScript] == pc) )
-                                        return bp;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                return null;
-            },
-
-            getContextFromFrame: function(fbs, frame)
-            {
-                var context;
-
-                // this 'outerMostScope' is just the outermost scope (not necessarily
-                // 'manager.win' which has 'Firebug' object)
-                outerMostScope = fbs.getOutermostScope(frame);
-                if (outerMostScope)
-                {
-                    outerMostScope = outerMostScope.wrappedJSObject;
-                    for (i=0 ; i<QPFBUG.windows.length ; i++)
-                    {
-                        context = QPFBUG.windows[i].TabWatcher.getContextByWindow(outerMostScope);
-                        if (context)
-                            return context;
-                    }
-
-                }
-                return null;
-            },
 
             getCallStackDepth: function(frame)
             {

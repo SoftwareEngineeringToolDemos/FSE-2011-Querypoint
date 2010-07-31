@@ -2,8 +2,8 @@ var EXPORTED_SYMBOLS = ["loadModule"];
 loadModule = function(QPFBUG)
 {
 
-with (QPFBUG.Lang){
 with (QPFBUG.Classes){
+with (Lang){
 
     var owner = QPFBUG.Classes;
 

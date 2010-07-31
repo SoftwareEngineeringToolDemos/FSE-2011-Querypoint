@@ -2,8 +2,8 @@ var EXPORTED_SYMBOLS = ["loadModule"];
 loadModule = function(QPFBUG)
 {
 
-with (QPFBUG.Lang){
 with (QPFBUG.Classes){
+with (QPFBUG){
 
 var owner = QPFBUG.Classes;
 
@@ -138,11 +138,21 @@ owner.JSDEventHandler = function(){
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
 
-                var done = ds.onBreakpoint(frame, type, rv);
-                if (done)
-                    return Components.interfaces.jsdIExecutionHook.RETURN_CONTINUE;
+                var returnValue = ds.onBreakpoint(frame, type, rv);
 
-                var returnValue = jsdEventHandler.fbs_onBreakpoint.apply(fbs,arguments);
+                // fbs removes the breakpoint from the script if it doesn't have
+                // the breakpoint in its list, so it should be called
+                // if this breakpoint is one of its breakpoints.
+                // Consider that "isTopLevelScript" is called another time in fbs
+                // and it may cause some issues.
+                // To understand these lines look at fbs onBreakpoint function.
+                if (fbs.isTopLevelScript(frame, type, rv) )
+                    return returnValue;
+                var bp = fbs.findBreakpointByScript(frame.script, frame.pc);
+                if (bp){
+                    returnValue = jsdEventHandler.fbs_onBreakpoint.apply(fbs,arguments);
+                }
+
                 return returnValue;
             },
 
@@ -174,7 +184,7 @@ owner.JSDEventHandler = function(){
             },
 
             // jsd.interruptHook
-            interruptHook: function(frame, type, rv){
+            onInterrupt: function(frame, type, rv){
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
@@ -190,7 +200,7 @@ owner.JSDEventHandler = function(){
             },
 
             // jsd.functionHook
-            functionHook: function(frame, type){
+            onFunction: function(frame, type){
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;

@@ -2,68 +2,206 @@ var EXPORTED_SYMBOLS = ["loadModule"];
 loadModule = function(QPFBUG)
 {
 
-with (QPFBUG.Lang){
 with (QPFBUG.Classes){
+with (Lang){
 
     var owner = QPFBUG.Classes;
 
-    //--------------------------- DebugService ----------------------
+    //------------------------------ DebugService --------------------------
     owner.DebugService = function(){
 
         var constructor = function(fbs){
             this.fbs = fbs;
-            this.dataStore = new DataStore();
+            this.eventRequests = [];
         };
 
         constructor.prototype =
         {
+            
             // TODO: in cases that owner object created in another context this request
             // will not be effective, we need to consider all contexts to make sure
             // that we don't miss anything.
             //
             // url & lineNo that the object is created there.
-            createModificationWatchpointRequest: function(contextTag, ownerCreationURL, 
+            createModificationWatchpointRequest: function(callBack, context, ownerCreationURL,
                                                           ownerCreationLineNo, propertyName){
+                var eventRequest = new EventRequest(EventRequest.WATCHPOINT, callBack, context,
+                                                    null, null,
+                                                    ownerCreationURL, ownerCreationLineNo, propertyName
+                                                    );
+                this.eventRequests.push[eventRequest];
+                return eventRequest;
             },
 
-            createBreakpointRequest: function(contextTag, url, lineNo ){
+            createBreakpointRequest: function(callBack, context, url, lineNo ){
 
+                var eventRequest = new EventRequest(EventRequest.BREAKPOINT, callBack, context,
+                                                    url, lineNo,
+                                                    null, null, null
+                                                    );
+                this.eventRequests.push[eventRequest];
+                return eventRequest;
             },
 
-            onInterrupt: function(frame, type, rv){
-                var context = this.getContextFromFrame(this.fbs, frame);
-                if (!context || !context.qpfbug.stepping) // it is not in any context that manager knows
-                    return false;
+            //--------------------------------- changes to loaded scripts --------------------------------
+            // source file is created or changed so update breakpoints
+            onSourceFileCreated: function(context, sourceFile){
+                var eventRequests = this.eventRequests;
 
-                QPFBUG.FBTrace.sysout("******* " + frame.line + "," +frame.pc +  " , " + frame.isConstructing +" , "+ frame.script.functionSource, frame);
-
-                if (context.qpfbug.isStepping)
+                for (let i=0 ; i<eventRequests.length ; i++)
                 {
-                    this.inStepping(context, frame, type, rv);
+                    if (sourceFile.href == eventRequests[i].bp_url){
+                        var bp = {type: 1, href: sourceFile.href, lineNo: tracePoint.lineNo, disabled: 0,
+                                  debuggerName: "QPFBUG",
+                                  condition: "", onTrue: true, hitCount: -1, hit: 0, tracePoints : []};
+                        eventRequest.breakpoints.push(bp);
+                        this.setJSDBreakpoint(sourceFile, bp);
+                    }
+
+                    if (sourceFile.href == eventRequests[i].w_ownerCreationURL){
+                        var bp = {type: 1, href: url, lineNo: lineNo, disabled: 0,
+                                  debuggerName: "QPFBUG",
+                                  condition: "", onTrue: true, hitCount: -1, hit: 0, tracePoints : []};
+                        eventRequest.breakpoints.push(bp);
+                        this.setJSDBreakpoint(sourceFile, bp);
+                    }
+
                 }
-                return false;
-
-
             },
 
-            onBreakpoint: function(frame, type, rv){
-                return false;
+            //------------------------------------------ jsd hooks -------------------------------------------------
+            onInterrupt: function(frame, type, rv){
+//                var context = this.getContextFromFrame(frame);
+//                if (!context || !context.qpfbug.stepping) // it is not in any context that manager knows
+//                    return Ci.jsdIExecutionHook.RETURN_CONTINUE;
+//
+//                QPFBUG.FBTrace.sysout("******* " + frame.line + "," +frame.pc +  " , " + frame.isConstructing +" , "+ frame.script.functionSource, frame);
+//
+//                if (context.qpfbug.isStepping)
+//                {
+//                    this.inStepping(context, frame, type, rv);
+//                }
+                return Ci.jsdIExecutionHook.RETURN_CONTINUE;
+
             },
 
             onFunction: function(frame, type, rv){
-                var context = this.getContextFromFrame(this.fbs, frame);
-                if (!context || !context.qpfbug.stepping) // it is not in any context that manager knows
-                    return false;
+//                var context = this.getContextFromFrame(frame);
+//                if (!context || !context.qpfbug.stepping) // it is not in any context that manager knows
+//                    return false;
+//
+//                QPFBUG.FBTrace.sysout("******* " + frame.line + "," +frame.pc +  " , " + frame.isConstructing +" , "+ frame.script.functionSource, frame);
+//
+//                if (context.qpfbug.isStepping)
+//                {
+//                    this.inStepping(context, frame, type, rv);
+//                }
+                return Ci.jsdIExecutionHook.RETURN_CONTINUE;
+            },
 
-                QPFBUG.FBTrace.sysout("******* " + frame.line + "," +frame.pc +  " , " + frame.isConstructing +" , "+ frame.script.functionSource, frame);
+            onBreakpoint: function(frame, type, rv){
+                var eventRequests = this.eventRequests;
+                var eventRequest;
+                var script = frame.script;
+                for (let i=0 ; i<eventRequests.length ; i++){
 
-                if (context.qpfbug.isStepping)
-                {
-                    this.inStepping(context, frame, type, rv);
+                    eventRequest = eventRequests[i];
+                    for (let j=0 ; j<eventRequest.breakpoints ; j++){ //there is only one   
+
+                        var bp = eventRequest.breakpoints[j];
+                        if (bp.scriptsWithBreakpoint)
+                        {
+                            for (let iScript = 0; iScript < bp.scriptsWithBreakpoint.length; iScript++)
+                            {
+                                if ( bp.scriptsWithBreakpoint[iScript] && (bp.scriptsWithBreakpoint[iScript].tag == script.tag) && (bp.pc[iScript] == pc) )
+                                {
+                                    if (eventRequest.type == EventRequest.BREAKPOINT)
+                                    {
+                                        eventRequest.callBack(eventRequest, frame, type, rv); 
+                                    }
+                                    if (eventRequest.type == EventRequest.WATCHPOINT) 
+                                    {
+                                        // start monitoring the execution
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-                return false;
 
+                //find eventRequests related to this breakpoint
+                return Ci.jsdIExecutionHook.RETURN_CONTINUE;
+            },
 
+            //TODO improve it
+            // set breakpoint
+            setJSDBreakpoint: function(sourceFile, bp)
+            {
+                var scripts = sourceFile.getScriptsAtLineNumber(bp.lineNo);
+                if (!scripts)
+                {
+                     scripts = [sourceFile.outerScript];
+                }
+
+                if (!bp.scriptsWithBreakpoint)
+                {
+                    bp.scriptsWithBreakpoint = [];
+                    bp.pc = [];
+                }
+
+                for (var i = 0; i < scripts.length; i++)
+                {
+                    var script = scripts[i];
+                    if (!script.isValid){
+                        continue;
+                    }
+
+                    var haveScript = false;
+                    for (let j = 0; j < bp.scriptsWithBreakpoint.length; j++)
+                    {
+                        if (bp.scriptsWithBreakpoint[j].tag === script.tag)
+                           {
+                            haveScript = true;
+                            break;
+                           }
+                    }
+                    if (haveScript) //it is already set
+                        continue;
+
+                    var pcmap = sourceFile.pcmap_type;
+                    if (!pcmap)
+                    {
+                        pcmap = Ci.jsdIScript.PCMAP_SOURCETEXT;
+                    }
+                    var jsdLine = bp.lineNo + sourceFile.getBaseLineOffset();
+
+                    var isExecutable = false;
+                    try {
+                         isExecutable = script.isLineExecutable(jsdLine, pcmap);
+                    } catch(e) {
+                        // guess not then...
+                    }
+
+                    if (isExecutable)
+                    {
+                        var pc = script.lineToPc(jsdLine, pcmap);
+                        var pcToLine = script.pcToLine(pc, pcmap);  // avoid calling this unless we have to...
+
+                        if (pcToLine == jsdLine)
+                        {
+                            script.setBreakpoint(pc);
+
+                            bp.scriptsWithBreakpoint.push(script);
+                            bp.pc.push(pc);
+                            bp.pcmap = pcmap;
+                            bp.jsdLine = jsdLine;
+
+                            if (pc == 0)  // signal the breakpoint handler to break for user
+                                sourceFile.breakOnZero = script.tag;
+
+                        }
+                    }
+                 }
             },
 
             //to find new created objects in a line
@@ -147,10 +285,60 @@ with (QPFBUG.Classes){
                     }
                 }
                 //step_into 2
-                this.fbs.step(2, context.stoppedFrame, context.qpfbug.firefoxWindow.Firebug.Debugger);
-                this.fbs.startStepping();
+//                this.fbs.step(2, context.stoppedFrame, context.qpfbug.firefoxWindow.Firebug.Debugger);
+//                this.fbs.startStepping();
 
             },
+
+            findBreakpointByScript: function(context, script, pc)
+            {
+                var urlsWithBreakpoints = context.qpfbug.breakpointURLs;
+                var breakpoints = context.qpfbug.breakpoints;
+                for (let iURL = 0; iURL < urlsWithBreakpoints.length; iURL++)
+                {
+                    var url = urlsWithBreakpoints[iURL];
+                    var urlBreakpoints = breakpoints[url];
+                    if (urlBreakpoints)
+                    {
+                        for (var iBreakpoint = 0; iBreakpoint < urlBreakpoints.length; ++iBreakpoint)
+                        {
+                            var bp = urlBreakpoints[iBreakpoint];
+                            if (bp.scriptsWithBreakpoint)
+                            {
+                                for (let iScript = 0; iScript < bp.scriptsWithBreakpoint.length; iScript++)
+                                {
+                                    if ( bp.scriptsWithBreakpoint[iScript] && (bp.scriptsWithBreakpoint[iScript].tag == script.tag) && (bp.pc[iScript] == pc) )
+                                        return bp;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return null;
+            },
+
+            getContextFromFrame: function(fbs, frame)
+            {
+                var context;
+
+                // this 'outerMostScope' is just the outermost scope (not necessarily
+                // 'manager.win' which has 'Firebug' object)
+                outerMostScope = this.fbs.getOutermostScope(frame);
+                if (outerMostScope)
+                {
+                    outerMostScope = outerMostScope.wrappedJSObject;
+                    for (i=0 ; i<QPFBUG.windows.length ; i++)
+                    {
+                        context = QPFBUG.windows[i].TabWatcher.getContextByWindow(outerMostScope);
+                        if (context)
+                            return context;
+                    }
+
+                }
+                return null;
+            },
+
 
 
 
