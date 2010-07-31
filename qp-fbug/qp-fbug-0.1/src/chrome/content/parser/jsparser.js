@@ -2,8 +2,8 @@ var EXPORTED_SYMBOLS = ["loadModule"];
 loadModule = function(QPFBUG)
 {
 
-with (QPFBUG.Lang){
 with (QPFBUG.Classes){
+with (Lang){
 
     //--------------------------------- JSParser --------------------------------
     QPFBUG.Classes.JSParser =
@@ -16,9 +16,6 @@ with (QPFBUG.Classes){
             };
 
             constructor.prototype = {
-
-//                parse : function(source){
-//                }
 
             }
 

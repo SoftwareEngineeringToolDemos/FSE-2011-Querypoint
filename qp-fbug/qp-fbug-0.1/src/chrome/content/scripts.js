@@ -3,7 +3,7 @@
 
 var loadScript = function(path, scope)
 {
-    if (typeof(QPFBUG) == "undefined") //qpfbug.js
+    if (typeof(QPFBUG) == "undefined") //basics.js
         Components.utils.import(path);
     else{
         if (!scope){
@@ -40,7 +40,7 @@ loadScript("resource://qpfbug/core/uieventhandler.js");
 loadScript("resource://qpfbug/core/reproducer.js");
 loadScript("resource://qpfbug/core/moduleeventhandler.js");
 loadScript("resource://qpfbug/di/jsdeventhandler.js");
-loadScript("resource://qpfbug/di/debuginterface.js");
+loadScript("resource://qpfbug/di/eventrequest.js");
 loadScript("resource://qpfbug/di/debugservice.js");
 loadScript("resource://qpfbug/di/executionmonitor.js");
 loadScript("resource://qpfbug/parser/jsparser.js");

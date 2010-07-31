@@ -1,1 +1,1 @@
-"C:\Program Files\Mozilla Firefox\Firefox.exe" -P %1 getchromebug -no-remote -chromebug
+"C:\Program Files\Mozilla Firefox\Firefox.exe" -P %1 -no-remote -chromebug

@@ -2,15 +2,16 @@ var EXPORTED_SYMBOLS = ["loadModule"];
 loadModule = function(QPFBUG)
 {
 
-with (QPFBUG.Lang){
 with (QPFBUG.Classes){
-//
-//    var owner = QPFBUG.Classes;
+with (Lang){
+
+    var owner = QPFBUG.Classes;
+
     //--------------------------------- StateMachine --------------------------------
     // This object works like a state machine and is usually used for keeping
     // the state of an object or component.
     // A transition has a name, from and to values.
-    QPFBUG.Classes.StateMachine =
+    owner.StateMachine =
         function(){
 
             // []String states
