@@ -37,7 +37,7 @@ with (Lang){
                 with (win){
                     //set qpfbug data holder for the context
                     context.qpfbug = {};
-                    context.qpfbug.firefoxWindow = this.win;
+                    context.qpfbug.firefoxWindow = win;
                     context.qpfbug.breakpoints = {};
                     context.qpfbug.breakpointURLs = [];
                     context.qpfbug.debugger = {debuggerName:"QPFBUG"}
@@ -71,11 +71,11 @@ with (Lang){
                         var eventRequest = null;
 
                         if (tracePoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT){
-                            if (tracePoint.url == sourceFile.href){
+//                            if (tracePoint.url == sourceFile.href){
                                 //todo set execution context tag
-                                eventRequest = QPFBUG.createBreakpointRequest(
+                                eventRequest = DebugService.getInstance().createBreakpointRequest(
                                    bind(this.onBreakpointEvent, this), context, tracePoint.url, tracePoint.lineNo);
-                            }
+//                            }
 
                         }
 
@@ -87,20 +87,16 @@ with (Lang){
                                          );
 
                             if (traceObjectLog){
-                                var lineNo;
-                                var url;
-                                if (sourceFile.href == traceObjectLog.parentCreatorURL){
-                                    url = sourceFile.href;
-                                    lineNo = traceObjectLog.parentCreatorLine;
-                                }
+                                var url = traceObjectLog.parentCreatorURL;
+                                var lineNo = traceObjectLog.parentCreatorLine;
 
-                                if (sourceFile.href == traceObjectLog.parentConstructorURL){
-                                    url = sourceFile.href;
+                                if (!url){
+                                    url = traceObjectLog.parentConstructorURL;
                                     lineNo = traceObjectLog.parentConstructorLine;
                                 }
 
                                 if (url){
-                                    eventRequest = QPFBUG.createModificationWatchpointRequest(
+                                    eventRequest = DebugService.getInstance().createModificationWatchpointRequest(
                                         bind(this.onModificationWatchpointEvent, this),
                                         context, url, lineNo, tracePoint.globalObjectRef.propertyName);
                                 }
@@ -130,13 +126,14 @@ with (Lang){
             },
 
             onBreakpointEvent: function(eventRequest, frame, type ,rv){
-
+                trace("--------------------");
                 var context = eventRequest.context;
                 var tracePoint = eventRequest.tracePoint;
-
+                trace("000000000000000000");
                 var tracePointLog;
                 if (tracePoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT)
                 {
+                    trace("11111111111111");
                     tracePointLog = context.qpfbug.reproduction.executionLog.addTracePointLog(tracePoint, frame);
                 }
 

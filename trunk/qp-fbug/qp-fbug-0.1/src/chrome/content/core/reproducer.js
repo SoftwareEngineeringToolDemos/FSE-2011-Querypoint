@@ -53,7 +53,7 @@ owner.Reproducer = function(){
 //                    }
 
 
-                    var url = "file:///C:/salmir/work/epfl/projects/43_querypoint-debugging/trunk/qp-fbug/qp-fbug-0.1/test/test.html";
+                    var url = "file:///C:/salmir/work/epfl/projects/43_querypoint-debugging/trunk/qp-fbug/qp-fbug-0.1/test/page_simple.html";
 
                     var openNewTab = function(url, callback)
                     {
@@ -133,7 +133,7 @@ owner.Reproducer = function(){
                     var newTab = openNewTab(url,
                       callback = function(win)
                       {
-                        var node = win.document.getElementById("mybody");
+                        var node = win.document.getElementById("myBody");
                         // on cliec
                         var doc = node.ownerDocument, event = doc.createEvent("MouseEvents");
                         event.initMouseEvent("click", true, true, doc.defaultView, 0, 0, 0, 0, 0,

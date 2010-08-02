@@ -63,8 +63,8 @@ owner.UIEventHandler = function(){
 //                                var isStackFrame = rowObject instanceof jsdIStackFrame;
 
                                 var uiEventHandler = Firebug.qpfbug.uiEventHandler;
-                                items.push({label: "Last Change", command:
-                                                    bindFixed(uiEventHandler.lastChangeAction, uiEventHandler, this, row)});
+                                items.push({label: "Last Change",  id: "lastChange", 
+                                            command: bindFixed(uiEventHandler.lastChangeAction, uiEventHandler, this, row)});
                             }
                             return items;
                        };

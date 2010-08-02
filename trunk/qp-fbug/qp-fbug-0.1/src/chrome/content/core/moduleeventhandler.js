@@ -28,7 +28,7 @@ with (Lang){
 
                 initContext: function(context, persistedState)
                 {
-                    QPFBUG.manager.initContext(this.win, context, sourceFile);
+                    Manager.getInstance().initContext(this.win, context, persistedState);
                 },
 
                 loadedContext: function(context)
@@ -38,7 +38,7 @@ with (Lang){
                 // source file is created or changed
                 onSourceFileCreated: function(context, sourceFile)
                 {
-                    QPFBUG.debugService.onSourceFileCreated(context, sourceFile);
+                    DebugService.getInstance().onSourceFileCreated(context, sourceFile);
                 },
 
                 destroyContext: function(context, persistedState)

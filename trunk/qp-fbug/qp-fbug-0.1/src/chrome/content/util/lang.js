@@ -23,12 +23,12 @@ loadModule = function(QPFBUG)
         },
 
         bind: function(){ // fn, thisObject, args => thisObject.fn(args, arguments);
-           var args = cloneArray(arguments), fn = args.shift(), object = args.shift();
+           var args = this.cloneArray(arguments), fn = args.shift(), object = args.shift();
            return function bind() { return fn.apply(object, arrayInsert(cloneArray(args), 0, arguments)); }
         },
 
         bindFixed: function(){ // fn, thisObject, args => thisObject.fn(args);
-            var args = cloneArray(arguments), fn = args.shift(), object = args.shift();
+            var args = this.cloneArray(arguments), fn = args.shift(), object = args.shift();
             return function() { return fn.apply(object, args); }
         },
 
@@ -41,6 +41,26 @@ loadModule = function(QPFBUG)
             return newOb;
         },
 
+        trace: function(message, obj)
+        {
+            QPFBUG.FBTrace.sysout(message, obj);
+        },
+
+        cloneArray: function(array, fn)
+        {
+           var newArray = [];
+
+           if (fn)
+               for (var i = 0; i < array.length; ++i)
+                   newArray.push(fn(array[i]));
+           else
+               for (var i = 0; i < array.length; ++i)
+                   newArray.push(array[i]);
+
+           return newArray;
+        },
+
     };
+
 }
 

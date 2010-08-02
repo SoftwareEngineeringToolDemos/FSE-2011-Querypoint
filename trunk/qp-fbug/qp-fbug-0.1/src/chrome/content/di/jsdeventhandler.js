@@ -312,7 +312,7 @@ owner.JSDEventHandler = function(){
         constructor.getInstance = function(){
             if (!QPFBUG.jsdEventHandler)
             {
-                var ds = QPFBUG.Classes.DebugService.getInstance();
+                var ds = DebugService.getInstance();
                 var fbs = QPFBUG.fbs;
                 QPFBUG.jsdEventHandler = new JSDEventHandler(ds ,fbs);
                 QPFBUG.jsdEventHandler.init();
