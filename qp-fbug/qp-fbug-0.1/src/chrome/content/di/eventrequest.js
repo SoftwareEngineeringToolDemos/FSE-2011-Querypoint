@@ -10,7 +10,7 @@ var owner = QPFBUG.Classes;
 //--------------------------------- EventRequest --------------------------------
 owner.EventRequest = function(){
 
-        var constructor = function(type, callBack, context, bp_url, bp_lineNumber,
+        var constructor = function(type, callBack, context, bp_url, bp_lineNo,
                                          w_ownerCreationUrl, w_ownerCreationLineNo, w_propertyName){
             this.type = type;
             this.callBack = callBack;

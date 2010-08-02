@@ -117,11 +117,12 @@ with (Lang){
                                 {
                                     if (eventRequest.type == EventRequest.BREAKPOINT)
                                     {
-                                        eventRequest.callBack(eventRequest, frame, type, rv); 
+                                        eventRequest.callBack(eventRequest, frame, type, rv);
                                     }
                                     if (eventRequest.type == EventRequest.WATCHPOINT) 
                                     {
                                         // start monitoring the execution
+
                                     }
                                 }
                             }
@@ -344,9 +345,10 @@ with (Lang){
 
         };
 
-        constructor.getInstance = function(fbs){
+        constructor.getInstance = function(){
             if (!QPFBUG.debugService)
             {
+                var fbs = QPFBUG.fbs;
                 QPFBUG.debugService = new DebugService(fbs);
             }
             return QPFBUG.debugService;

@@ -51,6 +51,12 @@
         </copy>
     </target>
 
+    <target name="deployFBTest">
+        <copy todir="${firefox.extensions}\fbtest@mozilla.com">
+            <fileset dir = "${fbug}/fbtest/branches/fbtest1.6"></fileset>
+        </copy>
+    </target>
+
     <target name="makeXPI">
         <delete file="output/qp-fbug.xpi"/>
         <zip destfile="output/qp-fbug.xpi"
