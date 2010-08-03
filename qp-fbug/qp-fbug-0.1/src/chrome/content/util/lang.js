@@ -60,6 +60,27 @@ loadModule = function(QPFBUG)
            return newArray;
         },
 
+        wrapFunctionsWithTryCatch: function(obj)
+        {
+            for (var p in obj)
+            {
+                if (typeof(obj[p]) == "function" && obj[p] )
+                {
+                    QPFBUG.Classes.Lang.trace("+++++++++++++++++");
+                    var obj_p = obj[p];           //p & obj_p changes in the loop
+                    obj[p] = function(fName, f){ // so by calling another function we fix them for the internal function
+                        return function(){
+                            try{
+                                return f.apply(obj, arguments);
+                            }catch(exc){
+                                QPFBUG.Classes.Lang.trace("Error : " + exc, exc);
+                            }
+                        }
+                    }(p, obj_p);
+                };
+            };
+        },
+
     };
 
 }

@@ -21,9 +21,7 @@ with (Lang){
 
                 initializeUI: function(){
                     //initialize UIEventHandler for this firefox window
-                    with (this.win){
-                        Firebug.qpfbug.uiEventHandler.init();
-                    }
+                    UIEventHandler.getInstance(this.win).init();
                 },
 
                 initContext: function(context, persistedState)
@@ -43,13 +41,23 @@ with (Lang){
 
                 destroyContext: function(context, persistedState)
                 {
-                    QPFBUG.manager.destroyContext(this.win, context, sourceFile);
+                    QPFBUG.manager.destroyContext(this.win, context);
                 }
 
             });
 
             module.win = win;
             return module;
+        };
+
+        constructor.getInstance = function(win){
+            if (!win.Firebug.qpfbug.moduleEventHandler)
+            {
+                var moduleEventHandler = new ModuleEventHandler(win);
+                Lang.wrapFunctionsWithTryCatch(moduleEventHandler);
+                win.Firebug.qpfbug.moduleEventHandler = moduleEventHandler;
+            }
+            return win.Firebug.qpfbug.moduleEventHandler;
         };
 
         return constructor;

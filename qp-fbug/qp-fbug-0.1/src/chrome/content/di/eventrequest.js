@@ -30,11 +30,11 @@ owner.EventRequest = function(){
         constructor.prototype =
         {
             isBreakpoint: function(){
-                return (this.type == EventRequest.BREAKPOINT);
+                return (this.type == EventRequest.TYPES.BREAKPOINT);
             },
 
             isWatchPoint: function(){
-                return (this.type == EventRequest.WATCHPOINT);
+                return (this.type == EventRequest.TYPES.WATCHPOINT);
             },
 
         };

@@ -6,6 +6,11 @@ function runTest()
     with (Lang){
         //write your code here
         //e.g., QPFBUG.reproducer.reproduce = function(){ ...}
+
+        //Enable double debugger
+        DoubleDebugger.getInstance().enableDoubleDebugging();
+
+
     }}
     FBTest.testDone();
 };
