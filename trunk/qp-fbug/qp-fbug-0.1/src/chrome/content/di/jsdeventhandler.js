@@ -315,6 +315,7 @@ owner.JSDEventHandler = function(){
                 var ds = DebugService.getInstance();
                 var fbs = QPFBUG.fbs;
                 QPFBUG.jsdEventHandler = new JSDEventHandler(ds ,fbs);
+                Lang.wrapFunctionsWithTryCatch(QPFBUG.jsdEventHandler);
                 QPFBUG.jsdEventHandler.init();
             }
             return QPFBUG.jsdEventHandler;

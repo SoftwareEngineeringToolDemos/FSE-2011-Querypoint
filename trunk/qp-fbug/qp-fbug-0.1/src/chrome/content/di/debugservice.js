@@ -25,21 +25,21 @@ with (Lang){
             // url & lineNo that the object is created there.
             createModificationWatchpointRequest: function(callBack, context, ownerCreationURL,
                                                           ownerCreationLineNo, propertyName){
-                var eventRequest = new EventRequest(EventRequest.WATCHPOINT, callBack, context,
+                var eventRequest = new EventRequest(EventRequest.TYPES.WATCHPOINT, callBack, context,
                                                     null, null,
                                                     ownerCreationURL, ownerCreationLineNo, propertyName
                                                     );
-                this.eventRequests.push[eventRequest];
+                this.eventRequests.push(eventRequest);
                 return eventRequest;
             },
 
             createBreakpointRequest: function(callBack, context, url, lineNo ){
 
-                var eventRequest = new EventRequest(EventRequest.BREAKPOINT, callBack, context,
+                var eventRequest = new EventRequest(EventRequest.TYPES.BREAKPOINT, callBack, context,
                                                     url, lineNo,
                                                     null, null, null
                                                     );
-                this.eventRequests.push[eventRequest];
+                this.eventRequests.push(eventRequest);
                 return eventRequest;
             },
 
@@ -48,23 +48,29 @@ with (Lang){
             onSourceFileCreated: function(context, sourceFile){
                 var eventRequests = this.eventRequests;
 
-                for (let i=0 ; i<eventRequests.length ; i++)
+                for (var i=0 ; i<eventRequests.length ; i++)
                 {
-                    if (sourceFile.href == eventRequests[i].bp_url){
-                        var bp = {type: 1, href: sourceFile.href, lineNo: tracePoint.lineNo, disabled: 0,
+                    var eventRequest = eventRequests[i];
+                    if (eventRequest.context != context)
+                        continue;
+                    if (sourceFile.href == eventRequest.bp_url){
+                        var bp = {type: 1, href: sourceFile.href, lineNo: eventRequest.bp_lineNo, disabled: 0,
                                   debuggerName: "QPFBUG",
                                   condition: "", onTrue: true, hitCount: -1, hit: 0, tracePoints : []};
+                        eventRequest.breakpoints=[];
                         eventRequest.breakpoints.push(bp);
                         this.setJSDBreakpoint(sourceFile, bp);
                     }
 
-                    if (sourceFile.href == eventRequests[i].w_ownerCreationURL){
-                        var bp = {type: 1, href: url, lineNo: lineNo, disabled: 0,
+                    if (sourceFile.href == eventRequest.w_ownerCreationURL){
+                        var bp = {type: 1, href: url, lineNo: eventRequest.w_ownerCreationLineNo, disabled: 0,
                                   debuggerName: "QPFBUG",
                                   condition: "", onTrue: true, hitCount: -1, hit: 0, tracePoints : []};
+                        eventRequest.breakpoints=[];
                         eventRequest.breakpoints.push(bp);
                         this.setJSDBreakpoint(sourceFile, bp);
                     }
+                    trace(sourceFile.href+ " " + eventRequest.bp_url);
 
                 }
             },
@@ -103,10 +109,13 @@ with (Lang){
                 var eventRequests = this.eventRequests;
                 var eventRequest;
                 var script = frame.script;
+                var context = this.getContextFromFrame(this.fbs, frame);
                 for (let i=0 ; i<eventRequests.length ; i++){
 
                     eventRequest = eventRequests[i];
-                    for (let j=0 ; j<eventRequest.breakpoints ; j++){ //there is only one   
+                    if (eventRequest.context != context)
+                        continue;
+                    for (let j=0 ; j<eventRequest.breakpoints.length ; j++){ //there is only one
 
                         var bp = eventRequest.breakpoints[j];
                         if (bp.scriptsWithBreakpoint)

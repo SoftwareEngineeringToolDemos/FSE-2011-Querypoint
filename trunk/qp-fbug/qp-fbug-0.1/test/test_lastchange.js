@@ -60,10 +60,12 @@ function runTest()
         var myPropertyElt = FW.FBL.getElementsByClass(testData.watchesPanelNode, "memberLabel userLabel")[2];
         FBTest.executeContextMenuCommand(myPropertyElt, "lastChange", function()
         {
-            cleanUpReproductionTabs();
+            setTimeout(cleanUpReproductionTabs, 500);
             FBTest.testDone("DONE");
         });
     }
+
+
 
      // wait for the second tab
      // once it is loaded and the reproduction point hit

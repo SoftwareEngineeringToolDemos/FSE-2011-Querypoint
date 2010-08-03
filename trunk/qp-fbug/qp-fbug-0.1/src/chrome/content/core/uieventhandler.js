@@ -167,6 +167,15 @@ owner.UIEventHandler = function(){
 
          };
 
+        constructor.getInstance = function(win){
+            if (!win.Firebug.qpfbug.uiEventHandler)
+            {
+                var uiEventHandler = new UIEventHandler(win);
+                Lang.wrapFunctionsWithTryCatch(uiEventHandler);
+                win.Firebug.qpfbug.uiEventHandler = uiEventHandler;
+            }
+            return win.Firebug.qpfbug.uiEventHandler;
+        };
          //"this" which is passed to this object is a dom panel
          return constructor;
     }();
