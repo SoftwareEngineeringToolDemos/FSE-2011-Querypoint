@@ -66,7 +66,7 @@ loadModule = function(QPFBUG)
             {
                 if (typeof(obj[p]) == "function" && obj[p] )
                 {
-                    QPFBUG.Classes.Lang.trace("+++++++++++++++++");
+                    QPFBUG.Classes.Lang.trace("++++++++QPFBUG Classes.Lang+++++++++");
                     var obj_p = obj[p];           //p & obj_p changes in the loop
                     obj[p] = function(fName, f){ // so by calling another function we fix them for the internal function
                         return function(){
