@@ -200,7 +200,7 @@ owner.JSDEventHandler = function(){
             },
 
             // jsd.functionHook
-            onFunction: function(frame, type){
+            onFunction: function(frame, type, rv){
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
