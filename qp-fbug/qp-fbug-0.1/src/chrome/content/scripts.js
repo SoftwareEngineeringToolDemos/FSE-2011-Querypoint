@@ -18,7 +18,7 @@ var loadScript = function(path, scope)
 
 //qpfbug basics
 loadScript("resource://qpfbug/basics.js");
-
+// to be available as a basic utility function
 QPFBUG.loadScript = loadScript; 
 
 //--------------------- all following modules will be loaded in QPFBUG
@@ -47,6 +47,7 @@ loadScript("resource://qpfbug/di/jsdeventhandler.js");
 loadScript("resource://qpfbug/di/eventrequest.js");
 loadScript("resource://qpfbug/di/debugservice.js");
 loadScript("resource://qpfbug/di/executionmonitor.js");
+loadScript("resource://qpfbug/di/steppingdriver.js");
 loadScript("resource://qpfbug/parser/jsparser.js");
 loadScript("resource://qpfbug/util/scriptanalyzer.js");
 
