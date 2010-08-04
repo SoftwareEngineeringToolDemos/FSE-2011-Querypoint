@@ -35,12 +35,16 @@ with (Lang){
             initContext: function(win, context, persistedState)
             {
                 with (win){
+                    QPFBUG.contexts.push(context);
                     //set qpfbug data holder for the context
-                    context.qpfbug = {};
-                    context.qpfbug.firefoxWindow = win;
-                    context.qpfbug.breakpoints = {};
-                    context.qpfbug.breakpointURLs = [];
-                    context.qpfbug.debugger = {debuggerName:"QPFBUG"}
+                    context.qpfbug = {
+                        firefoxWindow : win,
+                        breakpoints : {},
+                        breakpointURLs : [],
+                        debugger : {debuggerName:"QPFBUG"},
+                        eventRequests : [],
+                    };
+
 
                     //get reproductionId passed to this tab
                     var tabBrowser = FBL.$("content");
@@ -48,7 +52,7 @@ with (Lang){
                     var reproductionId = selectedTab.getAttribute("reproductionId");
 
                     //get reproduction for this tab;
-                    var reproduction = QPFBUG.manager.getReproduction(null, reproductionId);
+                    var reproduction = this.getReproduction(null, reproductionId);
 
                     // set reproduction and debugSession for the context
                     context.qpfbug.reproduction = reproduction;
@@ -63,8 +67,6 @@ with (Lang){
 
                     var tracePoints = context.qpfbug.debugSession.debugModel.tracePoints;
 
-                    var eventRequests = context.qpfbug.eventRequests = [];
-
                     for (i in tracePoints){
 
                         var tracePoint = tracePoints[i];
@@ -74,7 +76,7 @@ with (Lang){
 //                            if (tracePoint.url == sourceFile.href){
                                 //todo set execution context tag
                                 eventRequest = DebugService.getInstance().createBreakpointRequest(
-                                   bind(this.onBreakpointEvent, this), context, tracePoint.url, tracePoint.lineNo);
+                                   context, bind(this.onBreakpointEvent, this), tracePoint.url, tracePoint.lineNo);
 //                            }
 
                         }
@@ -96,9 +98,9 @@ with (Lang){
                                 }
 
                                 if (url){
+                                    url = normalizeURL(url);
                                     eventRequest = DebugService.getInstance().createModificationWatchpointRequest(
-                                        bind(this.onModificationWatchpointEvent, this),
-                                        context, url, lineNo, tracePoint.globalObjectRef.propertyName);
+                                        context, bind(this.onModificationWatchpointEvent, this), url, lineNo, tracePoint.globalObjectRef.propertyName);
                                 }
 
                             }
@@ -107,7 +109,6 @@ with (Lang){
                         if (eventRequest){
                             eventRequest.tracePoint = tracePoint;
                             eventRequest.context = context;
-                            eventRequests.push(eventRequest);
                         }
                     }
                 };
@@ -115,9 +116,12 @@ with (Lang){
 
             destroyContext: function(win, context, persistedState)
             {
-                delete context.qpfbug;
                 //todo store debugModel in the persistedState
                 // remove all breakpoints
+                DebugService.getInstance().removeEventRequestsForContext(context);
+                delete context.qpfbug;
+                for (var i=0 ; i<QPFBUG.contexts.length ; i++)
+                    QPFBUG.contexts.splice(i, 1);
             },
 
             //------------------------------- call backs ---------------------------------------

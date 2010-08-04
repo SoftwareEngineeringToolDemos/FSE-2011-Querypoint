@@ -4,5 +4,5 @@ QPFBUG = {};
 
 QPFBUG.Classes = {};
 
-QPFBUG.windows = [];
+QPFBUG.contexts = [];
 

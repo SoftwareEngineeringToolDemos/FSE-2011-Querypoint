@@ -16,7 +16,7 @@ var loadScript = function(path, scope)
     }
 }
 
-//qpfbug init
+//qpfbug basics
 loadScript("resource://qpfbug/basics.js");
 
 QPFBUG.loadScript = loadScript; 
@@ -26,8 +26,10 @@ QPFBUG.loadScript = loadScript;
 //from firebug
 loadScript("resource://firebug/firebug-service.js", QPFBUG);
 loadScript("resource://firebug/firebug-trace-service.js", QPFBUG);
+//load lib.js
+QPFBUG.FBL = FBL; //FBL is created once per window, one of them is enough
 
-// other scripts
+// qpfbug scripts
 loadScript("resource://qpfbug/util/lang.js");
 loadScript("resource://qpfbug/util/statemachine.js");
 loadScript("resource://qpfbug/util/doubledebugger.js");

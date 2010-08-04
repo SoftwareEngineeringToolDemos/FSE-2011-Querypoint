@@ -60,11 +60,30 @@ function runTest()
         var myPropertyElt = FW.FBL.getElementsByClass(testData.watchesPanelNode, "memberLabel userLabel")[2];
         FBTest.executeContextMenuCommand(myPropertyElt, "lastChange", function()
         {
-            setTimeout(cleanUpReproductionTabs, 500);
-            FBTest.testDone("DONE");
+            setTimeout(end, 100000);
         });
     }
 
+    var end = function()
+    {
+        //cleanUpReproductionTabs
+        var tabbrowser = FBTest.FirebugWindow.getBrowser();
+        var removeThese = [];
+        for (var i = 0; i < tabbrowser.mTabs.length; i++)
+        {
+            var tab = tabbrowser.mTabs[i];
+
+            var firebugAttr = tab.getAttribute("reproductionId");
+
+            if (firebugAttr)
+                removeThese.push(tab);
+        }
+
+        for (var i = 0; i < removeThese.length; i++)
+                tabbrowser.removeTab(removeThese[i]);
+
+        FBTest.testDone("DONE");
+    }
 
 
      // wait for the second tab
@@ -80,22 +99,5 @@ function runTest()
 /**
  * Closes all Firefox tabs that were opened because of test purposes.
  */
-var cleanUpReproductionTabs = function()
-{
-    var tabbrowser = FBTest.FirebugWindow.getBrowser();
-    var removeThese = [];
-    for (var i = 0; i < tabbrowser.mTabs.length; i++)
-    {
-        var tab = tabbrowser.mTabs[i];
-
-        var firebugAttr = tab.getAttribute("reproductionId");
-
-        if (firebugAttr)
-            removeThese.push(tab);
-    }
-
-    for (var i = 0; i < removeThese.length; i++)
-            tabbrowser.removeTab(removeThese[i]);
-}
 
 

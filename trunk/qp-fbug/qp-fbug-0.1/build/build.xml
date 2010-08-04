@@ -34,26 +34,26 @@
         </copy>
         <!-- update firebug by my changes -->
         <copy todir="${firefox.extensions}\firebug@software.joehewitt.com">
-            <fileset dir = "./src-fbug/branches/firebug1.6"></fileset>
+            <fileset dir = "./src-fbug/branches/firebug${fbug-version}"></fileset>
         </copy>
         <antcall target="FirefoxOpen"/>
     </target>
 
     <target name="deployFireBug">
         <copy todir="${firefox.extensions}\firebug@software.joehewitt.com">
-            <fileset dir = "${fbug}/branches/firebug1.6"></fileset>
+            <fileset dir = "${fbug}/branches/firebug${fbug-version}"></fileset>
         </copy>
     </target>
 
     <target name="deployChromeBug">
         <copy todir="${firefox.extensions}\chromebug@johnjbarton.com">
-            <fileset dir = "${fbug}/chromebug/branches/chromebug1.6"></fileset>
+            <fileset dir = "${fbug}/chromebug/branches/chromebug${fbug-version}"></fileset>
         </copy>
     </target>
 
     <target name="deployFBTest">
         <copy todir="${firefox.extensions}\fbtest@mozilla.com">
-            <fileset dir = "${fbug}/fbtest/branches/fbtest1.6"></fileset>
+            <fileset dir = "${fbug}/fbtest/branches/fbtest${fbug-version}"></fileset>
         </copy>
     </target>
 

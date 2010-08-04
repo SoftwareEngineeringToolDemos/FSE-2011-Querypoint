@@ -12,126 +12,139 @@ with (Lang){
 
         var constructor = function(fbs){
             this.fbs = fbs;
-            this.eventRequests = [];
+            this.nextEventRequestId = 0;
+            this.nextBreakpointId = 0;
         };
 
         constructor.prototype =
         {
-            
             // TODO: in cases that owner object created in another context this request
             // will not be effective, we need to consider all contexts to make sure
             // that we don't miss anything.
             //
             // url & lineNo that the object is created there.
-            createModificationWatchpointRequest: function(callBack, context, ownerCreationURL,
+            createModificationWatchpointRequest: function(context, callBack, w_ownerCreationUrl,
                                                           ownerCreationLineNo, propertyName){
                 var eventRequest = new EventRequest(EventRequest.TYPES.WATCHPOINT, callBack, context,
                                                     null, null,
-                                                    ownerCreationURL, ownerCreationLineNo, propertyName
+                                                    w_ownerCreationUrl, ownerCreationLineNo, propertyName
                                                     );
-                this.eventRequests.push(eventRequest);
+                eventRequest.id = this.nextEventRequestId++;
+                context.qpfbug.eventRequests.push(eventRequest);
                 return eventRequest;
             },
 
-            createBreakpointRequest: function(callBack, context, url, lineNo ){
+            createBreakpointRequest: function(context, callBack, url, lineNo ){
 
                 var eventRequest = new EventRequest(EventRequest.TYPES.BREAKPOINT, callBack, context,
                                                     url, lineNo,
                                                     null, null, null
                                                     );
-                this.eventRequests.push(eventRequest);
+                eventRequest.id = this.nextEventRequestId++;
+                context.qpfbug.eventRequests.push(eventRequest);
                 return eventRequest;
+            },
+
+            removeEventRequestsForContext: function(context){
+                var eventRequests = context.qpfbug.eventRequests;
+                for (var i=0 ; i<eventRequests.length ; i++){
+                        eventRequests.splice(i,1); //removes one element from index i
+                }
             },
 
             //--------------------------------- changes to loaded scripts --------------------------------
             // source file is created or changed so update breakpoints
             onSourceFileCreated: function(context, sourceFile){
-                var eventRequests = this.eventRequests;
+                var eventRequests = context.qpfbug.eventRequests;
 
                 for (var i=0 ; i<eventRequests.length ; i++)
                 {
                     var eventRequest = eventRequests[i];
-                    if (eventRequest.context != context)
-                        continue;
                     if (sourceFile.href == eventRequest.bp_url){
                         var bp = {type: 1, href: sourceFile.href, lineNo: eventRequest.bp_lineNo, disabled: 0,
                                   debuggerName: "QPFBUG",
                                   condition: "", onTrue: true, hitCount: -1, hit: 0, tracePoints : []};
+                        bp.id = this.nextBreakpointId++;
                         eventRequest.breakpoints=[];
                         eventRequest.breakpoints.push(bp);
                         this.setJSDBreakpoint(sourceFile, bp);
                     }
 
-                    if (sourceFile.href == eventRequest.w_ownerCreationURL){
-                        var bp = {type: 1, href: url, lineNo: eventRequest.w_ownerCreationLineNo, disabled: 0,
+                    if (sourceFile.href == eventRequest.w_ownerCreationUrl){
+                        var bp = {type: 1, href: sourceFile.href, lineNo: eventRequest.w_ownerCreationLineNo, disabled: 0,
                                   debuggerName: "QPFBUG",
                                   condition: "", onTrue: true, hitCount: -1, hit: 0, tracePoints : []};
+                        bp.id = this.nextBreakpointId++;
                         eventRequest.breakpoints=[];
                         eventRequest.breakpoints.push(bp);
                         this.setJSDBreakpoint(sourceFile, bp);
                     }
-                    trace(sourceFile.href+ " " + eventRequest.bp_url);
 
                 }
             },
 
             //------------------------------------------ jsd hooks -------------------------------------------------
-            onInterrupt: function(frame, type, rv){
-//                var context = this.getContextFromFrame(frame);
+            onInterrupt: function(context, frame, type, rv){
+                    return Ci.jsdIExecutionHook.RETURN_CONTINUE;
+
 //                if (!context || !context.qpfbug.stepping) // it is not in any context that manager knows
 //                    return Ci.jsdIExecutionHook.RETURN_CONTINUE;
 //
-//                QPFBUG.FBTrace.sysout("******* " + frame.line + "," +frame.pc +  " , " + frame.isConstructing +" , "+ frame.script.functionSource, frame);
+//                trace("******* " + frame.line + "," +frame.pc +  " , " + frame.isConstructing +" , "+ frame.script.functionSource, frame);
 //
 //                if (context.qpfbug.isStepping)
 //                {
 //                    this.inStepping(context, frame, type, rv);
 //                }
-                return Ci.jsdIExecutionHook.RETURN_CONTINUE;
-
+//                return Ci.jsdIExecutionHook.RETURN_CONTINUE;
             },
 
-            onFunction: function(frame, type, rv){
+            onFunction: function(context, frame, type, rv){
+                    return Ci.jsdIExecutionHook.RETURN_CONTINUE;
 //                var context = this.getContextFromFrame(frame);
 //                if (!context || !context.qpfbug.stepping) // it is not in any context that manager knows
 //                    return false;
 //
-//                QPFBUG.FBTrace.sysout("******* " + frame.line + "," +frame.pc +  " , " + frame.isConstructing +" , "+ frame.script.functionSource, frame);
+//                trace("******* " + frame.line + "," +frame.pc +  " , " + frame.isConstructing +" , "+ frame.script.functionSource, frame);
 //
 //                if (context.qpfbug.isStepping)
 //                {
 //                    this.inStepping(context, frame, type, rv);
 //                }
-                return Ci.jsdIExecutionHook.RETURN_CONTINUE;
+//                return Ci.jsdIExecutionHook.RETURN_CONTINUE;
             },
 
-            onBreakpoint: function(frame, type, rv){
-                var eventRequests = this.eventRequests;
+            onBreakpoint: function(context, frame, type, rv){
+                var eventRequests = context.qpfbug.eventRequests;
                 var eventRequest;
                 var script = frame.script;
-                var context = this.getContextFromFrame(this.fbs, frame);
+                var pc = frame.pc;
                 for (let i=0 ; i<eventRequests.length ; i++){
 
                     eventRequest = eventRequests[i];
-                    if (eventRequest.context != context)
-                        continue;
                     for (let j=0 ; j<eventRequest.breakpoints.length ; j++){ //there is only one
 
+                       trace("********************************");
+                       trace("**** " + eventRequest.type);
                         var bp = eventRequest.breakpoints[j];
                         if (bp.scriptsWithBreakpoint)
                         {
                             for (let iScript = 0; iScript < bp.scriptsWithBreakpoint.length; iScript++)
                             {
+                               trace("**** " + bp.scriptsWithBreakpoint[iScript].tag +  ", " + script.tag);
+                               trace("**** " + bp.pc[iScript] +  ", " + bp.pc[iScript] == pc);
                                 if ( bp.scriptsWithBreakpoint[iScript] && (bp.scriptsWithBreakpoint[iScript].tag == script.tag) && (bp.pc[iScript] == pc) )
                                 {
-                                    if (eventRequest.type == EventRequest.BREAKPOINT)
+                                    if (eventRequest.isBreakpoint())
                                     {
                                         eventRequest.callBack(eventRequest, frame, type, rv);
                                     }
-                                    if (eventRequest.type == EventRequest.WATCHPOINT) 
+                                    if (eventRequest.isWatchpoint()) 
                                     {
+                                        trace("********************************");
+                                        trace("********************************");
+                                        trace("********************************");
                                         // start monitoring the execution
-
                                     }
                                 }
                             }
@@ -214,92 +227,6 @@ with (Lang){
                  }
             },
 
-            //to find new created objects in a line
-            inStepping: function(context, frame, type, rv){
-                context.qpfbug.stepping.currentscript;
-                context.qpfbug.stepping.assignees;
-
-                var currentScript = context.qpfbug.stepping.currentscript;
-                var depth = context.qpfbug.stepping.callstackdepth;
-                QPFBUG.FBTrace.sysout('Depth : ' + depth + " " + this.getCallStackDepth(frame));
-
-                if (!currentScript || (frame.script.tag != currentScript.tag))
-                {
-                    context.qpfbug.isStepping = false;
-                    return;
-                }
-//                if (frame.line != context.qpfbug.stepping.searchLine)
-//                {
-//                    context.qpfbug.isStepping = false;
-//                    return;
-//                }
-
-
-                context.qpfbug.stepping = true;
-                context.qpfbug.stepping.stepCount = 0;
-
-                var scriptAnalyzer = context.qpfbug.stepping.scriptAnalyzer;
-                var refs = context.qpfbug.stepping.refs;
-                var refValues = context.qpfbug.stepping.refValues;
-                var result;
-
-                if (!refs)
-                {
-                    currentScript = frame.script;
-                    scriptAnalyzer = context.qpfbug.stepping.scriptAnalyzer =
-                        new ScriptAnalyzer(currentScript.functionSource);
-
-                    refs = context.qpfbug.stepping.refs =
-                        scriptAnalyzer.getRefsToCreatedObjects(true);
-
-                    QPFBUG.FBTrace.sysout("<<<<<<<<  "+ refs.join(" , "));
-                    refValues = context.qpfbug.stepping.refValues = [];
-
-                    for (let k=0 ; k<refs.length ; k++)
-                    {
-                        QPFBUG.FBTrace.sysout("<<<<<<<<" + refs[k]);
-                        refValue = null;
-                        result = {};
-                        try{
-                            frame.eval(ref[k], "", 1, result)
-                            refValue = result.value;
-                        }catch(e)
-                        {
-                        }
-                        QPFBUG.FBTrace.sysout("<<<<<<<<", refValue);
-                        refValues[k] = refValue;
-                    }
-                }else{
-                    for (let k=0 ; k<refs.length ; k++)
-                    {
-                        QPFBUG.FBTrace.sysout("<<<<<<<<" + refs[k]);
-                        refValue = null;
-                        result = {};
-                        try{
-                            frame.eval(ref[k], "", 1, result)
-                            refValue = result.value;
-                        }catch(e)
-                        {
-                        }
-                        if (refValue && refValues[k] != refValue)
-                        {
-                            if (typeof(refValue) == "object")
-                            {
-                                refValue.watch(context.qpfbug.stepping.propertyToWatch,
-                                   function (id, oldval, newval) {
-                                      QPFBUG.FBTrace.sysout("o." + id + " changed from " + oldval + " to " + newval);
-                                      return newval;
-                                   });
-                            }
-                        }
-                    }
-                }
-                //step_into 2
-//                this.fbs.step(2, context.stoppedFrame, context.qpfbug.firefoxWindow.Firebug.Debugger);
-//                this.fbs.startStepping();
-
-            },
-
             findBreakpointByScript: function(context, script, pc)
             {
                 var urlsWithBreakpoints = context.qpfbug.breakpointURLs;
@@ -327,30 +254,6 @@ with (Lang){
 
                 return null;
             },
-
-            getContextFromFrame: function(fbs, frame)
-            {
-                var context;
-
-                // this 'outerMostScope' is just the outermost scope (not necessarily
-                // 'manager.win' which has 'Firebug' object)
-                outerMostScope = this.fbs.getOutermostScope(frame);
-                if (outerMostScope)
-                {
-                    outerMostScope = outerMostScope.wrappedJSObject;
-                    for (i=0 ; i<QPFBUG.windows.length ; i++)
-                    {
-                        context = QPFBUG.windows[i].TabWatcher.getContextByWindow(outerMostScope);
-                        if (context)
-                            return context;
-                    }
-
-                }
-                return null;
-            },
-
-
-
 
         };
 
