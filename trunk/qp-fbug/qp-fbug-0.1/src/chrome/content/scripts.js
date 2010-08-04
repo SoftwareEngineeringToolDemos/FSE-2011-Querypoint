@@ -19,6 +19,8 @@ var loadScript = function(path, scope)
 //qpfbug init
 loadScript("resource://qpfbug/basics.js");
 
+QPFBUG.loadScript = loadScript; 
+
 //--------------------- all following modules will be loaded in QPFBUG
 
 //from firebug
