@@ -22,42 +22,9 @@ loadModule = function(QPFBUG)
             return (new Date()).getTime();
         },
 
-        bind: function(){ // fn, thisObject, args => thisObject.fn(args, arguments);
-           var args = this.cloneArray(arguments), fn = args.shift(), object = args.shift();
-           return function bind() { return fn.apply(object, arrayInsert(cloneArray(args), 0, arguments)); }
-        },
-
-        bindFixed: function(){ // fn, thisObject, args => thisObject.fn(args);
-            var args = this.cloneArray(arguments), fn = args.shift(), object = args.shift();
-            return function() { return fn.apply(object, args); }
-        },
-
-        extend: function(l, r){ //extends one object from another
-            var newOb = {};
-            for (var n in l)
-                newOb[n] = l[n];
-            for (var n in r)
-                newOb[n] = r[n];
-            return newOb;
-        },
-
         trace: function(message, obj)
         {
             QPFBUG.FBTrace.sysout(message, obj);
-        },
-
-        cloneArray: function(array, fn)
-        {
-           var newArray = [];
-
-           if (fn)
-               for (var i = 0; i < array.length; ++i)
-                   newArray.push(fn(array[i]));
-           else
-               for (var i = 0; i < array.length; ++i)
-                   newArray.push(array[i]);
-
-           return newArray;
         },
 
         wrapFunctionsWithTryCatch: function(obj)
@@ -80,6 +47,38 @@ loadModule = function(QPFBUG)
                 };
             };
         },
+
+        traceFunctionCalls: function(objName, obj)
+        {
+            for (var p in obj)
+            {
+                if (typeof(obj[p]) == "function" && obj[p] )
+                {
+                    var obj_p = obj[p];           //p & obj_p changes in the loop
+                    obj[p] = function(fName, f){ // so by calling another function we fix them for the internal function
+                        return function(){
+                                QPFBUG.Classes.Lang.trace(objName + "-" + fName , arguments);
+                                return f.apply(obj, arguments);
+                        }
+                    }(p, obj_p);
+                };
+            };
+        },
+
+        //--------------------------------- from firebug lib.js -----------------------------
+        bind: QPFBUG.FBL.bind,
+
+        bindFixed: QPFBUG.FBL.bindFixed,
+
+        extend: QPFBUG.FBL.extend,
+
+        cloneArray: QPFBUG.FBL.cloneArray,
+
+        arrayInsert: QPFBUG.FBL.arrayInsert,
+
+        getRootWindow : QPFBUG.FBL.getRootWindow,
+
+        normalizeURL : QPFBUG.FBL.normalizeURL,
 
     };
 
