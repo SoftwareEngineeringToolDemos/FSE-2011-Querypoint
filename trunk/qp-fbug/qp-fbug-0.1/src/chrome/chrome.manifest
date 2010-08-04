@@ -2,3 +2,6 @@ content qpfbug content/
 resource qpfbug content/
 
 overlay chrome://firebug/content/firebugOverlay.xul   chrome://qpfbug/content/qpfbug.xul
+
+
+skin    qpfbug classic/1.0 skin/classic/
