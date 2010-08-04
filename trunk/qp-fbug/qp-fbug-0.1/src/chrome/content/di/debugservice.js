@@ -14,6 +14,10 @@ with (Lang){
             this.fbs = fbs;
             this.nextEventRequestId = 0;
             this.nextBreakpointId = 0;
+            this.interruptListeners = [];
+            this.functionListeners = [];
+            this.listeningToInterrupts = false;
+            this.listeningToFunctions = false;
         };
 
         constructor.prototype =
@@ -52,6 +56,48 @@ with (Lang){
                 }
             },
 
+            //--------------------------------- register/unregister listeners ----------------------------
+            // interrupt
+            registerInterruptListener: function(interruptListener){
+                this.interruptListeners.push(interruptListener);
+                if (this.listeningToInterrupts == false){
+                    JSDEventHandler.getInstance().hookInterrupts();
+                    this.listeningToInterrupts == true;
+                }
+            },
+            
+            unRegisterInterruptListener: function(interruptListener){
+                for (var i=0 ; i<this.interruptListeners.length ; i++){
+                    if (this.interruptListeners[i] == interruptListener)
+                        this.interruptListeners.splice(i, 1);
+                }
+                if (this.listeningToInterrupts == false){
+                    JSDEventHandler.getInstance().unHookInterrupts();
+                    this.listeningToInterrupts == false;
+                }
+            },
+            
+            //function
+            registerFunctionListener: function(functionListener){
+                this.functionListeners.push(functionListener);
+                if (this.listeningToFunctions == false){
+                    JSDEventHandler.getInstance().hookFunctions();
+                    this.listeningToFunctions == true;
+                }
+            },
+
+            unRegisterFunctionListener: function(functionListener){
+                for (var i=0 ; i<this.functionListeners.length ; i++){
+                    if (this.functionListeners[i] == functionListener)
+                        this.functionListeners.splice(i, 1);
+                }            
+                if (this.functionListeners.length == 0){
+                    JSDEventHandler.getInstance().unHookFunctions();
+                    this.listeningToFunctions == false;
+                }
+            },
+            
+
             //--------------------------------- changes to loaded scripts --------------------------------
             // source file is created or changed so update breakpoints
             onSourceFileCreated: function(context, sourceFile){
@@ -85,33 +131,20 @@ with (Lang){
 
             //------------------------------------------ jsd hooks -------------------------------------------------
             onInterrupt: function(context, frame, type, rv){
-                    return Ci.jsdIExecutionHook.RETURN_CONTINUE;
 
-//                if (!context || !context.qpfbug.stepping) // it is not in any context that manager knows
-//                    return Ci.jsdIExecutionHook.RETURN_CONTINUE;
-//
-//                trace("******* " + frame.line + "," +frame.pc +  " , " + frame.isConstructing +" , "+ frame.script.functionSource, frame);
-//
-//                if (context.qpfbug.isStepping)
-//                {
-//                    this.inStepping(context, frame, type, rv);
-//                }
-//                return Ci.jsdIExecutionHook.RETURN_CONTINUE;
+                for (var i=0 ; i<this.interruptListeners.length ; i++){
+                    this.interruptListeners[i].onInterrupt(context, frame, type, rv);
+                }            
+
+                return Ci.jsdIExecutionHook.RETURN_CONTINUE;
             },
 
             onFunction: function(context, frame, type, rv){
-                    return Ci.jsdIExecutionHook.RETURN_CONTINUE;
-//                var context = this.getContextFromFrame(frame);
-//                if (!context || !context.qpfbug.stepping) // it is not in any context that manager knows
-//                    return false;
-//
-//                trace("******* " + frame.line + "," +frame.pc +  " , " + frame.isConstructing +" , "+ frame.script.functionSource, frame);
-//
-//                if (context.qpfbug.isStepping)
-//                {
-//                    this.inStepping(context, frame, type, rv);
-//                }
-//                return Ci.jsdIExecutionHook.RETURN_CONTINUE;
+                for (var i=0 ; i<this.functionListeners.length ; i++){
+                    this.functionListeners[i].onFunction(context, frame, type, rv);
+                }            
+
+                return Ci.jsdIExecutionHook.RETURN_CONTINUE;
             },
 
             onBreakpoint: function(context, frame, type, rv){
@@ -124,27 +157,24 @@ with (Lang){
                     eventRequest = eventRequests[i];
                     for (let j=0 ; j<eventRequest.breakpoints.length ; j++){ //there is only one
 
-                       trace("********************************");
-                       trace("**** " + eventRequest.type);
                         var bp = eventRequest.breakpoints[j];
                         if (bp.scriptsWithBreakpoint)
                         {
                             for (let iScript = 0; iScript < bp.scriptsWithBreakpoint.length; iScript++)
                             {
-                               trace("**** " + bp.scriptsWithBreakpoint[iScript].tag +  ", " + script.tag);
-                               trace("**** " + bp.pc[iScript] +  ", " + bp.pc[iScript] == pc);
                                 if ( bp.scriptsWithBreakpoint[iScript] && (bp.scriptsWithBreakpoint[iScript].tag == script.tag) && (bp.pc[iScript] == pc) )
                                 {
+                                   trace("On Breakpoint : " + bp.href +  ": " + bp.lineNo);
                                     if (eventRequest.isBreakpoint())
                                     {
                                         eventRequest.callBack(eventRequest, frame, type, rv);
                                     }
                                     if (eventRequest.isWatchpoint()) 
                                     {
-                                        trace("********************************");
-                                        trace("********************************");
-                                        trace("********************************");
-                                        // start monitoring the execution
+                                        trace("--------------------------");
+                                        //todo monitor should be saved in a list
+                                        executionMonitor = new ExecutionMonitor(context, frame, type, rv);
+                                        executionMonitor.start();
                                     }
                                 }
                             }

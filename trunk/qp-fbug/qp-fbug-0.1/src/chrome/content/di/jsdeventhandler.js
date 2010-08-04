@@ -8,11 +8,11 @@ with (Lang){
 var owner = QPFBUG.Classes;
 
 //--------------------------------- JSDEventHandler --------------------------------
-// Only one instance of this class will be created and it is kept in QPFBUG.jsdEventHandler;
+// Only one instance of this class is created in runtime and kept as QPFBUG.jsdEventHandler;
 // The created object wraps firebug-service and controls jsd flags and hooks.
-// It als overwrites firebug-service hook functions.
+// It also overwrites firebug-service hook functions.
 // WARNING: Changes to jsd flags and hooks from any other point than this object, may cause
-//    bugs.
+//          bugs.
 //
 
 owner.JSDEventHandler = function(){
@@ -48,8 +48,8 @@ owner.JSDEventHandler = function(){
                 // ----- hook/unhook -----
                 //this.replaceFBSFunction("hookScripts");
                 //this.replaceFBSFunction("unhookScripts");
-                this.replaceFBSFunction("unhookInterrupts");
                 this.replaceFBSFunction("hookInterrupts");
+                this.replaceFBSFunction("unhookInterrupts");
                 this.replaceFBSFunction("hookFunctions");
                 this.replaceFBSFunction("unhookFunctions");
                 //this.replaceFBSFunction("hookCalls");
@@ -317,6 +317,10 @@ owner.JSDEventHandler = function(){
                 var context;
                 // this 'outerMostScope' is just the outermost scope (not necessarily
                 // 'manager.win' which has 'Firebug' object)
+
+                if (QPFBUG.contexts.length == 0)//there is no context
+                    return null;
+
                 outerMostScope = this.fbs.getOutermostScope(frame);
                 if (!outerMostScope)
                     return null;

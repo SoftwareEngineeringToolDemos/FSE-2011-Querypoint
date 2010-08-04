@@ -6,7 +6,8 @@ function runTest()
     with (Lang){
         //write your code here
         //e.g., QPFBUG.reproducer.reproduce = function(){ ...}
-
+//        pref("extensions.firebug.alwaysOpenTraceConsole", true);       /*@explore*/
+//        pref("extensions.firebug.alwaysOpenTestConsole", true);       /*@explore*/
         //Enable double debugger
         DoubleDebugger.getInstance().enableDoubleDebugging();
 //        DoubleDebugger.getInstance().disableDoubleDebugging();
