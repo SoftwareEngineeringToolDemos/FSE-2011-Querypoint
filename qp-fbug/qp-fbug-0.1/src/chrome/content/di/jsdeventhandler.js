@@ -3,7 +3,7 @@ loadModule = function(QPFBUG)
 {
 
 with (QPFBUG.Classes){
-with (QPFBUG){
+with (Lang){
 
 var owner = QPFBUG.Classes;
 
@@ -138,7 +138,11 @@ owner.JSDEventHandler = function(){
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
 
-                var returnValue = ds.onBreakpoint(frame, type, rv);
+                var returnValue = Components.interfaces.jsdIExecutionHook.RETURN_CONTINUE;
+
+                var context = jsdEventHandler.getContextFromFrame(frame);
+                if (context)
+                    returnValue = ds.onBreakpoint(context, frame, type, rv);
 
                 // fbs removes the breakpoint from the script if it doesn't have
                 // the breakpoint in its list, so it should be called
@@ -146,7 +150,7 @@ owner.JSDEventHandler = function(){
                 // Consider that "isTopLevelScript" is called another time in fbs
                 // and it may cause some issues.
                 // To understand these lines look at fbs onBreakpoint function.
-                if (fbs.isTopLevelScript(frame, type, rv) )
+                if (fbs.isTopLevelScript(frame, type, rv))
                     return returnValue;
                 var bp = fbs.findBreakpointByScript(frame.script, frame.pc);
                 if (bp){
@@ -190,8 +194,11 @@ owner.JSDEventHandler = function(){
                 var fbs = jsdEventHandler.fbs;
                 var returnValue = Components.interfaces.jsdIExecutionHook.RETURN_CONTINUE;
 
-                if (jsdEventHandler.ds_hooksState.interruptHook)
-                    returnValue = ds.onInterrupt(frame, type, rv);
+                if (jsdEventHandler.ds_hooksState.interruptHook){
+                    var context = jsdEventHandler.getContextFromFrame(frame);
+                    if (context)
+                        returnValue = ds.onInterrupt(context, frame, type, rv);
+                }
 
                 if (jsdEventHandler.fbs_hooksState.interruptHook)
                     returnValue = jsdEventHandler.fbs_onInterrupt.apply(fbs, arguments);
@@ -206,8 +213,11 @@ owner.JSDEventHandler = function(){
                 var fbs = jsdEventHandler.fbs;
                 var returnValue = Components.interfaces.jsdIExecutionHook.RETURN_CONTINUE;
 
-                if (jsdEventHandler.ds_hooksState.functionHook)
-                    returnValue = ds.onFunction(frame, type, rv);
+                if (jsdEventHandler.ds_hooksState.functionHook){
+                    var context = jsdEventHandler.getContextFromFrame(frame);
+                    if (context)
+                    returnValue = ds.onFunction(context, frame, type, rv);
+                }
 
                 if (jsdEventHandler.fbs_hooksState.functionHook)
                     returnValue = jsdEventHandler.fbs_onFunction.apply(fbs, arguments);
@@ -301,11 +311,41 @@ owner.JSDEventHandler = function(){
             },
 
             //---------------------------------- internal functions --------------------------------
+
+            getContextFromFrame: function(frame)
+            {
+                var context;
+                // this 'outerMostScope' is just the outermost scope (not necessarily
+                // 'manager.win' which has 'Firebug' object)
+                outerMostScope = this.fbs.getOutermostScope(frame);
+                if (!outerMostScope)
+                    return null;
+
+                var winIn  = outerMostScope.wrappedJSObject;
+
+                if (!winIn)
+                    return null;
+
+                var rootWindow = getRootWindow(winIn);
+
+                if (rootWindow)
+                {
+                    for (var i = 0; i < QPFBUG.contexts.length; ++i)
+                    {
+                        var context = QPFBUG.contexts[i];
+                        if (context.window == rootWindow)
+                            return context;
+                    }
+                }
+                return null;
+            },
+
+
             replaceFBSFunction: function(functionName)
             {
                 this["fbs_"+functionName] = this.fbs[functionName];
                 this.fbs[functionName] = this[functionName];
-            }
+            },
 
         };
 

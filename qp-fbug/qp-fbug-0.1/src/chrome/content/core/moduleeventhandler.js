@@ -41,7 +41,7 @@ with (Lang){
 
                 destroyContext: function(context, persistedState)
                 {
-                    QPFBUG.manager.destroyContext(this.win, context);
+                    Manager.getInstance().destroyContext(this.win, context);
                 }
 
             });

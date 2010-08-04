@@ -33,7 +33,7 @@ owner.EventRequest = function(){
                 return (this.type == EventRequest.TYPES.BREAKPOINT);
             },
 
-            isWatchPoint: function(){
+            isWatchpoint: function(){
                 return (this.type == EventRequest.TYPES.WATCHPOINT);
             },
 
@@ -41,7 +41,7 @@ owner.EventRequest = function(){
 
         constructor.TYPES = {
             BREAKPOINT : 0,
-            WATHPOINT : 1,
+            WATCHPOINT : 1,
         };
 
         return constructor;

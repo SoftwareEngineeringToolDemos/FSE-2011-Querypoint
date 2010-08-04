@@ -161,7 +161,7 @@ owner.UIEventHandler = function(){
                          propertyPath = propertyPath.substring(valueRef.indexOf("].")+2, propertyPath.length);
                      }
 
-                     QPFBUG.manager.addLastChange(domPanel.context, owner, propertyPath);
+                     Manager.getInstance().addLastChange(domPanel.context, owner, propertyPath);
                   }}
              }
 

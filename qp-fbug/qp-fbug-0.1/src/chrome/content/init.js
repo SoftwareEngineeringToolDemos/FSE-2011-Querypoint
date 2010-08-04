@@ -6,8 +6,6 @@ FBL.ns(function() { with (FBL)
         // it keeps qpfbug data for this window
         Firebug.qpfbug = {};
 
-        QPFBUG.windows.push(window);
-
         var manager = Manager.getInstance();
 
         var reproducer = Reproducer.getInstance();
