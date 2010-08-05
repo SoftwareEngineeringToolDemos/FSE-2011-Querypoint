@@ -20,6 +20,7 @@ owner.JSDEventHandler = function(){
         var constructor = function(ds,fbs){
             this.ds = ds;
             this.fbs = fbs;
+            this.cachedContexts = {}; // map <context.uid, executionContext.tag>
         };
 
         constructor.prototype =
@@ -282,7 +283,7 @@ owner.JSDEventHandler = function(){
                 }else{
                     jsdEventHandler.fbs_hooksState.functionHook = true;
                 }
-
+                trace("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
                 jsdEventHandler.fbs_hookFunctions.apply(fbs, arguments);
             },
             
@@ -311,16 +312,21 @@ owner.JSDEventHandler = function(){
             },
 
             //---------------------------------- internal functions --------------------------------
-
+            // I assumed that different executionContext.tag may assigned to a context
+            // but for each executionContext.tag there is only one context;
             getContextFromFrame: function(frame)
             {
-                var context;
-                // this 'outerMostScope' is just the outermost scope (not necessarily
-                // 'manager.win' which has 'Firebug' object)
+                var contextUID = this.cachedContexts[frame.executionContext.tag];
+                if (contextUID)
+                    return QPFBUG.contexts[contextUID];
+
+                var context = null;
 
                 if (QPFBUG.contexts.length == 0)//there is no context
                     return null;
 
+                // this 'outerMostScope' is just the outermost scope (not necessarily
+                // 'manager.win' which has 'Firebug' object)
                 outerMostScope = this.fbs.getOutermostScope(frame);
                 if (!outerMostScope)
                     return null;
@@ -338,7 +344,10 @@ owner.JSDEventHandler = function(){
                     {
                         var context = QPFBUG.contexts[i];
                         if (context.window == rootWindow)
+                        {
+                            this.cachedContexts[frame.executionContext.tag] = context.uid;
                             return context;
+                        }
                     }
                 }
                 return null;

@@ -10,20 +10,25 @@ with (Lang){
     //--------------------------- Stepping Driver ----------------------
     owner.SteppingDriver = function(){
 
-        var constructor = function(debugService, stepHandler){
+        var constructor = function(debugService){
             this.steppingMode = SteppingDriver.STEP_MODES.STEP_MIN; //default
             this.debugService = debugService;
-            this.stepHandler = stepHandler;
+            this.registeredForInterrupts = false;
+            this.registeredForFunctions = false;
             this.stepRecursion = 0;
+            this.isStopped = true;
         };
 
         constructor.prototype = {
 
-            step: function(steppingMode, startScriptTag, startLineNo, startPC){
+            step: function(stepHandler, context, steppingMode, startScriptTag, startLineNo, startPC){
+                this.stepHandler = stepHandler;
+                this.context = context;
                 this.steppingMode = steppingMode;
                 this.startScriptTag = startScriptTag;
                 this.startLineNo = startLineNo;
                 this.startPC = startPC;
+                this.isStopped = false;
 
                 with(SteppingDriver.STEP_MODES){
                 switch (this.steppingMode){
@@ -43,8 +48,16 @@ with (Lang){
                 }}
             },
 
+            stop: function(){
+                this.isStopped = true;
+                this.unRegisterAsInterruptListener();
+                this.unRegisterAsFunctionListener();
+            },
+
             // -------------------------------- internal local functions --------------------
             registerAsInterruptListener: function(){
+                if (this.isStopped)
+                    return;
                 if (!this.registeredForInterrupts){
                     this.debugService.registerInterruptListener(this);
                     this.registeredForInterrupts = true;
@@ -52,6 +65,8 @@ with (Lang){
             },
 
             registerAsFunctionListener: function(){
+                if (this.isStopped)
+                    return;
                 if (!this.registeredForFunctions){
                     this.debugService.registerFunctionListener(this);
                     this.registeredForFunctions = true;
@@ -66,20 +81,21 @@ with (Lang){
             },
 
             unRegisterAsFunctionListener: function(){
-                if (!this.registeredForFunctions){
+                if (this.registeredForFunctions){
                     this.debugService.unRegisterFunctionListener(this);
                     this.registeredForFunctions = false;
                 }
             },
             
             onStep: function(context, frame, type, rv){
+                this.stop();
                 this.stepHandler.onStep(this.steppingMode, this, context, frame, type, rv);
-                this.unRegisterAsInterruptListener;            
-                this.unRegisterAsFunctionListener;            
             },
 
             // ------------------------------ functions called by debug service -------------
             onInterrupt: function(context, frame, type, rv){
+                if (context != this.context)
+                    return;
                 with(SteppingDriver.STEP_MODES){
                 switch (this.steppingMode){
                     case STEP_MIN: {
@@ -109,7 +125,10 @@ with (Lang){
             },
 
             onFunction: function(context, frame, type, rv){
+                if (context != this.context)
+                    return;
                 with(SteppingDriver.STEP_MODES){
+                with(JSDConstants){
                 switch (this.steppingMode){
                     case STEP_MIN: {
                         this.onStep(context, frame, type, rv);
@@ -129,16 +148,25 @@ with (Lang){
                         {
                             case TYPE_TOPLEVEL_START:
                             case TYPE_FUNCTION_CALL:{
+                                trace("/////////////////");
                                 if (frame.callingFrame && frame.callingFrame.script.tag === this.startScriptTag)
+                                {
+                                    if (!this.stepRecursion){
+                                        this.onStep(context, frame, type, rv);
+                                    }
                                     this.stepRecursion++;
+                                }
+                                trace("+++++++++++++");
                                 this.unRegisterAsInterruptListener();
                                 break;
                             }
                             case TYPE_TOPLEVEL_END:
                             case TYPE_FUNCTION_RETURN:{
                                 if (!this.stepRecursion){ // then we never hit FUNCTION_CALL or we rolled back after we hit it
-                                    if (frame.script.tag === this.startScriptTag)// We are in the stepping frame,
+                                    if (frame.script.tag === this.startScriptTag){// We are in the stepping frame,
+                                        this.onStep(context, frame, type, rv);
                                         this.registerAsInterruptListener();  // so halt on the next PC
+                                    }
 
                                 }else if (frame.callingFrame.script.tag === this.startScriptTag){ //then we could be in the step call
                                     this.stepRecursion--;
@@ -146,6 +174,7 @@ with (Lang){
                                     if (!this.stepRecursion) // then we've rolled back to the step-call
                                         this.registerAsInterruptListener();  // so halt on the next PC
                                 }
+                                trace("------------");
                                 break;
                             }
                         }
@@ -164,9 +193,10 @@ with (Lang){
                             case TYPE_TOPLEVEL_END:
                             case TYPE_FUNCTION_RETURN:{
                                 if (!this.stepRecursion){ // then we never hit FUNCTION_CALL or we rolled back after we hit it
-                                    if (frame.script.tag === this.startScriptTag)// We are in the stepping frame,
+                                    if (frame.script.tag === this.startScriptTag){// We are in the stepping frame,
+                                        this.onStep(context, frame, type, rv);
                                         this.registerAsInterruptListener();  // so halt on the next PC
-
+                                    }
                                 }else if (frame.callingFrame.script.tag === this.startScriptTag){ //then we could be in the step call
                                     this.stepRecursion--;
                                 }
@@ -176,7 +206,7 @@ with (Lang){
                         break;
                     }
 
-                }}
+                }}}
 
             },
 

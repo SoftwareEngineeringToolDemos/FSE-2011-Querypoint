@@ -126,7 +126,7 @@ with (Lang){
         }();
 
     //------------------------------- TraceObjectLog ----------------------------------
-    // This object uniquely specifies an object at a point.
+    // This object keeps collected data from an objects.
 
     owner.TraceObjectLog =
         function(){

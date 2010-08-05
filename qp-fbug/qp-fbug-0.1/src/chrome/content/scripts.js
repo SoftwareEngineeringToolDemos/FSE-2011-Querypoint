@@ -43,6 +43,7 @@ loadScript("resource://qpfbug/core/manager.js");
 loadScript("resource://qpfbug/core/uieventhandler.js");
 loadScript("resource://qpfbug/core/reproducer.js");
 loadScript("resource://qpfbug/core/moduleeventhandler.js");
+loadScript("resource://qpfbug/di/jsdconstants.js");
 loadScript("resource://qpfbug/di/jsdeventhandler.js");
 loadScript("resource://qpfbug/di/eventrequest.js");
 loadScript("resource://qpfbug/di/debugservice.js");
