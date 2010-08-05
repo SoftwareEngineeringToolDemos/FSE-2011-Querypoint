@@ -8,7 +8,9 @@ FBL.ns(function() { with (FBL) {
 /*
  * 
  * @panel A Firebug panel that displays and controls Querypoint functionality. It looks like the script panel but act
- * differently
+ * differently.
+ * 
+ * location objects are QPFBUG.Classes.TracePoint objects.
  */
  
  
@@ -33,6 +35,25 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
         Firebug.SourceBoxPanel.initialize.apply(this, arguments);
     },
+    
+    supportsObject: function(object, type)
+    {
+        if( object instanceof QPFBUG.Classes.TracePoint)
+        	return 1;
+        else return 0;
+    },
+    
+    updateLocation: function(tracePoint)
+    {
+        if (!tracePoint)
+        {
+        	this.showWarningTag();
+        	return;
+        }
+        
+        FBTrace.sysout("QPSourceViewPanel.updateLocation ", tracePoint);
+        debugger;
+    },
 	
 	// ****************************************************************************
     warningTag:
@@ -44,6 +65,15 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
                 SPAN("$suggestion")
             )
         ),
+        
+    showWarningTag: function()
+    {
+        var args = {
+                pageTitle: $STR("Querypoint, Debugging Evolved"),
+                suggestion: $STR("Set a breakpoint, hit it, then use Last Change from the context menu on the Watch panel")
+        }
+        this.activeWarningTag = this.warningTag.replace(args, this.panelNode, this);
+    },
 
     show: function(state)
     {
@@ -61,18 +91,9 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         this.highlight(this.context.stopped);
 
         if (!this.location)
-        { 
-                // Fill the panel node with a warning, the take it out if the user selects a sourceFile
-                var args = {
-                        pageTitle: $STR("Querypoint, Debugging Evolved"),
-                        suggestion: $STR("Set a breakpoint, hit it, then use Last Change from the context menu on the Watch panel")
-                }
-                this.activeWarningTag = this.warningTag.replace(args, this.panelNode, this);
-        }
-        else // show default
-        {
+        	this.showWarningTag();
+        else  
         	this.navigate(this.location);
-        }
     },
 
     hide: function(state)
@@ -90,7 +111,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
 
 /*
- * Q-State
+ * Q-State, shows objects of type QPFBUG.Classes.TraceObjectLog
  */
 Firebug.Querypoint.QueryStatePanel = function QueryStatePanel() {}
 
@@ -108,6 +129,13 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
     	
     },
 
+    supportsObject: function(object, type)
+    {
+        if( object instanceof QPFBUG.Classes.TraceObjectLog)
+        	return 1;
+        else return 0;
+    },
+    
     showEmptyMembers: function()
     {
         this.tag.replace({domPanel: this, toggles: new ToggleBranch()}, this.panelNode);
@@ -191,7 +219,7 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
     getToolbox: function()
     {
         if (!this.toolbox)
-            this.toolbox = ToolboxPlate.tag.replace({domPanel: this}, this.document);
+            this.toolbox = Firebug.DOMBasePanel.ToolboxPlate.tag.replace({domPanel: this}, this.document);
 
         return this.toolbox;
     },
