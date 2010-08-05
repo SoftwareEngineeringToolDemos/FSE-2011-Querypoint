@@ -51,9 +51,21 @@ with (Lang){
 
             removeEventRequestsForContext: function(context){
                 var eventRequests = context.qpfbug.eventRequests;
+                var eventRequest;
+                var executionMonitor;
                 for (var i=0 ; i<eventRequests.length ; i++){
-                        eventRequests.splice(i,1); //removes one element from index i
+                    eventRequest = eventRequests[i];
+                    for (var j=0 ; j<eventRequest.executionMonitors.length ; j++){
+                         executionMonitor = eventRequest.executionMonitors[j]; 
+                         executionMonitor.stop();
+                    }
                 }
+                context.qpfbug.eventRequests = null;
+            },
+
+            //--------------------------------- getSteppingDriver ----------------------------
+            getSteppingDriver: function(){
+                return new SteppingDriver(this);
             },
 
             //--------------------------------- register/unregister listeners ----------------------------
@@ -67,12 +79,9 @@ with (Lang){
             },
             
             unRegisterInterruptListener: function(interruptListener){
-                for (var i=0 ; i<this.interruptListeners.length ; i++){
-                    if (this.interruptListeners[i] == interruptListener)
-                        this.interruptListeners.splice(i, 1);
-                }
-                if (this.listeningToInterrupts == false){
-                    JSDEventHandler.getInstance().unHookInterrupts();
+                arrayRemoveObject(this.interruptListeners, interruptListener);
+                if (this.interruptListeners.length == 0){
+                    JSDEventHandler.getInstance().unhookInterrupts();
                     this.listeningToInterrupts == false;
                 }
             },
@@ -87,16 +96,13 @@ with (Lang){
             },
 
             unRegisterFunctionListener: function(functionListener){
-                for (var i=0 ; i<this.functionListeners.length ; i++){
-                    if (this.functionListeners[i] == functionListener)
-                        this.functionListeners.splice(i, 1);
-                }            
+                arrayRemoveObject(this.functionListeners, functionListener);
                 if (this.functionListeners.length == 0){
-                    JSDEventHandler.getInstance().unHookFunctions();
+                    JSDEventHandler.getInstance().unhookFunctions();
                     this.listeningToFunctions == false;
                 }
             },
-            
+
 
             //--------------------------------- changes to loaded scripts --------------------------------
             // source file is created or changed so update breakpoints
@@ -173,8 +179,10 @@ with (Lang){
                                     {
                                         trace("--------------------------");
                                         //todo monitor should be saved in a list
-                                        executionMonitor = new ExecutionMonitor(context, frame, type, rv);
-                                        executionMonitor.start();
+                                        executionMonitor = new ExecutionMonitor(context, this.getSteppingDriver());
+                                        eventRequest.executionMonitors.push(executionMonitor);
+                                        executionMonitor.start(frame, type, rv);
+
                                     }
                                 }
                             }

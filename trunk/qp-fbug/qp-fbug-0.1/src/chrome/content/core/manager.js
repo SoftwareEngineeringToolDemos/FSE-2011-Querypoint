@@ -35,7 +35,7 @@ with (Lang){
             initContext: function(win, context, persistedState)
             {
                 with (win){
-                    QPFBUG.contexts.push(context);
+                    QPFBUG.contexts[context.uid] = context;
                     //set qpfbug data holder for the context
                     context.qpfbug = {
                         firefoxWindow : win,
@@ -120,8 +120,7 @@ with (Lang){
                 // remove all breakpoints
                 DebugService.getInstance().removeEventRequestsForContext(context);
                 delete context.qpfbug;
-                for (var i=0 ; i<QPFBUG.contexts.length ; i++)
-                    QPFBUG.contexts.splice(i, 1);
+                delete QPFBUG.contexts[context.uid];
             },
 
             //------------------------------- call backs ---------------------------------------
@@ -130,7 +129,6 @@ with (Lang){
             },
 
             onBreakpointEvent: function(eventRequest, frame, type ,rv){
-                trace("--------------------");
                 var context = eventRequest.context;
                 var tracePoint = eventRequest.tracePoint;
                 trace("000000000000000000");

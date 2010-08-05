@@ -33,12 +33,11 @@ loadModule = function(QPFBUG)
             {
                 if (typeof(obj[p]) == "function" && obj[p] )
                 {
-                    QPFBUG.Classes.Lang.trace("++++++++QPFBUG Classes.Lang+++++++++");
                     var obj_p = obj[p];           //p & obj_p changes in the loop
                     obj[p] = function(fName, f){ // so by calling another function we fix them for the internal function
                         return function(){
                             try{
-                                return f.apply(obj, arguments);
+                                return f.apply(this, arguments); //we use "this" instead of "obj" to make sure "this" is the same as normal execution.
                             }catch(exc){
                                 QPFBUG.Classes.Lang.trace("Error : " + exc, exc);
                             }
@@ -58,11 +57,21 @@ loadModule = function(QPFBUG)
                     obj[p] = function(fName, f){ // so by calling another function we fix them for the internal function
                         return function(){
                                 QPFBUG.Classes.Lang.trace(objName + "-" + fName , arguments);
-                                return f.apply(obj, arguments);
+                                return f.apply(this, arguments);
                         }
                     }(p, obj_p);
                 };
             };
+        },
+
+        arrayRemoveObject: function(array, object)
+        {
+            for (var i=0 ; i<array.length ; i++){
+                if (array[i] == object){
+                    array.splice(i, 1);
+                    break;
+                }
+            }
         },
 
         //--------------------------------- from firebug lib.js -----------------------------

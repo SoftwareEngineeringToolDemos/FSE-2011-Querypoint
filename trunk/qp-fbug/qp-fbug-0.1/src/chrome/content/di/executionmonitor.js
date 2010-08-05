@@ -10,29 +10,50 @@ with (Lang){
     //--------------------------- ExecutionMonitor ----------------------
     owner.ExecutionMonitor = function(){
 
-        // state : listens to interrupt
-        // state : listens to function events
-
-        var constructor = function(context, frame, type, rv ){
-             this.startContext = context;
-             this.startScriptTag = frame.script.tag;
-             this.startPC = frame.pc;
-
+        var constructor = function(context, steppingDriver ){
+            this.startContext = context;
+            this.steppingDriver = steppingDriver;
+            this.isStopped = false;
         };
 
         constructor.prototype = {
 
-            start: function(){
-                this.steppingDriver = new SteppingDriver(DebugService.getInstance(), this);
-                this.steppingDriver.step(0, this.startScriptTag, 0, this.startPC); //todo correct line number
+            start: function(frame, type, rv){
+                this.startScriptTag = frame.script.tag;
+                this.startPC = frame.pc;
+                this.steppingDriver.step(this, this.context, 3, this.startScriptTag, 0, this.startPC); //todo correct line number
+                this.isStopped = false;
+            },
+
+            stop: function(){
+                this.isStopped = true;
+                this.steppingDriver.stop();
             },
 
             onStep: function(steppingDriver, stepMode, context, frame, type, rv)
             {
-                trace("-+-+-+" + frame.script.fileName + " " +  frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT) + " " + frame.pc);
+                trace(this.isStopped + " -+-+-+" + frame.script.fileName + " " +  frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT) + " " + frame.pc);
+                if (frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT) == 12 && frame.pc == 15)
+                {
+                        refValue = null;
+                        result = {};
+                        try{
+                            frame.eval("myObject", "", 1, result)
+                            refValue = result.value;
+                        }catch(e)
+                        {
+                        }
+                        trace("<<<<<<<<", refValue.getWrappedValue());
+                }
+                if (frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT) == 19 && frame.pc == 35)
+                {
+                    this.stop();
+                }
                 this.lastScriptTag = frame.script.tag;
                 this.lastPC = frame.pc;
-                this.steppingDriver.step(0, this.lastScriptTag, 0, this.lastPC );
+                if (!this.isStopped){
+                    this.steppingDriver.step(this, 3, this.lastScriptTag, 0, this.lastPC );
+                }
             },
 
 //            //to find new created objects in a line

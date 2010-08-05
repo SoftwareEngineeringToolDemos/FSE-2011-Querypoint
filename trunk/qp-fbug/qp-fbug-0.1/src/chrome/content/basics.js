@@ -4,5 +4,5 @@ QPFBUG = {};
 
 QPFBUG.Classes = {};
 
-QPFBUG.contexts = [];
+QPFBUG.contexts = {}; // a map(context.uid, context)
 
