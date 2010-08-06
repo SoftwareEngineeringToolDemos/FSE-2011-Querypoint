@@ -1,0 +1,38 @@
+<html>
+    <head>
+        <title>
+            Querypoint UI test page
+        </title>
+        <script type="text/javascript">
+
+        <!--
+            myObject = {
+                myProperty : 0
+            }
+            increaseMyProperty = function(){
+                myObject.myProperty++;
+                updatePage();
+            }
+            updatePage = function(){
+                var myParagraph = document.getElementById("myParagraph");
+                myParagraph.innerHTML = "myObject.myProperty = " + myObject.myProperty;
+            }
+        -->
+        </script>
+
+    </head>
+
+    <body id="myBody" onclick="increaseMyProperty()">
+    <p>
+      This page contains an object "myObject",
+      whenever user clicks, "myObject.myProperty" value increases.
+    </P>
+    <button id="myParagraph">
+      myObject.myProperty = 0;
+    </button>
+    <p id>
+
+    </p>
+    </body>
+
+</html>
