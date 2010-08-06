@@ -15,7 +15,28 @@ FBL.ns(function() { with (FBL) {
  
  
 Firebug.Querypoint = {};
+
+Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
+{
+    dispatchName: "qpModule",
+    
+    initContext: function(context, persistedState)
+    {
+		context.querypoint = {reproducer: "local"};
+		context.Firebug = Firebug; // I guess.
+		Firebug.Debugger.addListener(this);
+    },
+    
+    //********** Firebug.Debugger Listener *************************
+    
+    onStartDebugging: function(context)
+    {
+    	Firebug.chrome.selectSupportingPanel(context.qpfbug.debugSession.debugModel, context, true);
+    },
+    
 	
+});
+
 Firebug.Querypoint.QPSourceViewPanel = function QPSourceViewPanel() {};
 
 // Instance definition
@@ -27,19 +48,22 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 	breakable: false,
 	enableA11y: true,
 	deriveA11yFrom: "script",   
+	activable: false,  // work around
 	
     initialize: function(context, doc)
     {
         this.panelSplitter = $("fbPanelSplitter");
         this.sidePanelDeck = $("fbSidePanelDeck");
 
+        context.querypoint.reproducer = "local";
+        
         Firebug.SourceBoxPanel.initialize.apply(this, arguments);
     },
     
     supportsObject: function(object, type)
     {
-        if( object instanceof QPFBUG.Classes.TracePoint)
-        	return 1;
+        if( object instanceof QPFBUG.Classes.DebugModel)
+        	return 10;
         else return 0;
     },
     
@@ -52,9 +76,33 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         }
         
         FBTrace.sysout("QPSourceViewPanel.updateLocation ", tracePoint);
-        debugger;
+         
     },
 	
+    getLocationList: function()
+    {
+    	var querypoints = context.qpfbug.debugSession.debugModel.tracePoints;
+    	var list = [];
+    	for (var p in querypoints)
+    	{
+    		if (querypoints.hasOwnProperty(p))
+    			list.push(querypoints[p]);
+    	}
+    	return list;
+    },
+    
+    getDefaultLocation: function(context)
+    {
+    	var querypoints = context.qpfbug.debugSession.debugModel.tracePoints;
+    	return querypoints.getLastTracePoint();
+    },
+
+    getDefaultSelection: function(context)
+    {
+        return this.getDefaultLocation(context);
+    },
+
+    
 	// ****************************************************************************
     warningTag:
         DIV({"class": "disabledPanelBox"},
@@ -310,6 +358,7 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
 
 });
 
+Firebug.registerModule(Firebug.Querypoint.QPModule);
 Firebug.registerStylesheet("chrome://qpfbug/content/ui/querypoints.css");
 Firebug.registerPreference("querypoints.enableSites", false);
 Firebug.registerPanel(Firebug.Querypoint.QPSourceViewPanel);
