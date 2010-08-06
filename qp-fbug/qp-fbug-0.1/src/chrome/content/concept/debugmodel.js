@@ -5,7 +5,7 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
     var owner = QPFBUG.Classes;
-    
+
     //--------------------------------- DebugModel --------------------------------
     owner.DebugModel =
         function(){
@@ -57,10 +57,22 @@ with (Lang){
                     this.tracePoints[this.nextTracePointId] = tracePoint;
                     return tracePoint;
                 },
-                
+
                 getLastTracePoint: function()
                 {
-                	return this.tracePoints[this.nextTracePointId - 1];  // TODO The next is one ahead of the current
+                    return this.tracePoints[this.nextTracePointId - 1];  // TODO The next is one ahead of the current
+                },
+
+                getTracePoints: function()
+                {
+                    var list = [];
+                    for (var p in this.tracePoints)
+                    {
+                        if (p !== (this.nextTracePointId - 1) && this.tracePoints.hasOwnProperty(p))
+                            list.push(this.tracePoints[p]);
+                    }
+                    list.push(this.tracePoints[this.nextTracePointId - 1]);  // I guess this one has to exist ?
+                    return list;
                 },
 
             };
@@ -87,11 +99,11 @@ with (Lang){
                 //lastCondition
                 // ref point object
                 this.refPoint = refPoint;
-                
+
                 // lastChange
                 // what we are looking for its last change
                 this.globalObjectRef = globalObjectRef;
-                           
+
                 // breakpoint
                 this.url = url;
                 this.lineNo = lineNo;
@@ -130,7 +142,7 @@ with (Lang){
             constructor.prototype = {
                 // no fuctions
             };
-            
+
             return constructor;
         }();
 
@@ -154,7 +166,7 @@ with (Lang){
             constructor.prototype = {
                 // no fuctions
             };
-            
+
             constructor.TYPES = {
                 PARENT_NOTHING: 0,
                 PARENT_CREATIONDATA: 1,
@@ -163,7 +175,7 @@ with (Lang){
                 OBJECT_VALUE: 8,
                 ALL:127,
             }
-            
+
             return constructor;
         }();
 
