@@ -18,42 +18,40 @@ owner.Reproducer = function(){
         {
             initialize : function()
             {
-//                with(this.win){
-
-                    //added code to make FBTest usable
-                    // However it is not stil usable.
-                    // TODO, it doesn't work when Firebug is detached.
-//                    var testListURI="C:\\salmir\\work\\epfl\\projects\\43_querypoint-debugging\\trunk\\qp-fbug\\qp-fbug-0.1\\test\\testList.html";
-//                    var args = {
-//                        firebugWindow: window,
-//                        testListURI: testListURI
-//                    };
-//                    window.arguments[0] = args;
-//
-//                    var FBTest = FBTestApp.FBTest = {};
-//                    FBTestApp.TestConsole =
-//                    {
-//                       initialize : function(){},
-//                       shutdown : function(){},
-//                    };
-//                }
+                fbTestReproducer.initialize();
+                
+                this.reproducer = this.hardWiredReproducer;  // back wards compat for Salman
             },
-
-            reproduce : function (win, debugSessionId, reproductionId)
+ 
+            reproduce : function (context, debugSessionId, reproductionId)
             {
-                  with(win){
-                  with(FBL){
-
-//                   if I wanted to use FBTest
-//                   try{
-//                    TestRunner.browser = getBrowser();
-//                    TestRunner.loadTestFrame({group: "qp-fbug",  uri: "test/test.js", path:"test/test.js" });
-//                    }catch(exc){
-//                    FBTrace.sysout("Exception ", exc);
-//                    }
-
-
-                    var url = "file:///C:/salmir/work/epfl/projects/43_querypoint-debugging/trunk/qp-fbug/qp-fbug-0.1/test/page_simple.html";
+                if (context.querypoint.reproducer)
+                   this.select(context.querypoint.reproducer);
+                   
+                FBTrace.sysout("reproduce "+this.reproducer, {context: context, debugSessionId: debugSessionId, reproductionId: reproductionId});
+                
+                this.reproducer.reproduce(context, debugSessionId, reproductionId);
+            },
+            
+            select: function(kind)
+            {
+                if (kind === "hardwire") this.reproducer = this.hardWiredReproducer;
+                else if (kind === "fbtest") this.reproducer = fbTestReproducer;
+                else if (kind === "local") this.reproducer = localReproducer;
+            },
+            
+            hardWiredReproducer: 
+            { 
+                reproduce: function (context, debugSessionId, reproductionId)
+                {
+                  with(context.qpfbug.FirebugWindow.FBL){
+                  
+                    Firebug.Debugger.resume(context);
+                    var  win = context.qpfbug.FirebugWindow;
+                    var tabBrowser = win.FBL.$("content");
+                    tabBrowser.removeTab(context.qpfbug.tab);
+                    
+                    var url = "file:///C:/Users/johnjbarton/firebug/querypoint-debugging/qp-fbug/qp-fbug-0.1/test/page_simple.html";
 
                     var openNewTab = function(url, callback)
                     {
@@ -145,8 +143,8 @@ owner.Reproducer = function(){
                 //----- the start of the second phase: after the next line the context will change
 
                     Firebug.Console.log("The end of reproduction " + reproductionId + ".");
-                }}
-            }
+                }
+            }}
 
         };
 
@@ -161,6 +159,58 @@ owner.Reproducer = function(){
 
         return constructor;
     }();
+    
+    var fbTestReproducer =
+    {   
+        reproduce: function(context, debugSessionId, reproductionId)
+        {
+            fbTestReproducer.trackFBTest.replay();
+        },
+            
+        initialize: function()
+        {
+            if (!this.obseverService)
+            {
+                this.observerService = QPFBUG.loadScript("resource://firebug/observer-service.js", QPFBUG);
+                this.observerService = QPFBUG.observerService;  
+            }
+             
+            this.trackFBTest = 
+            {
+                observe: function(subject, topic, data)
+                {
+                    if (topic === "fbtest-start-case")
+                    {
+                        this.lastTest = data;
+                        this.fbTest = subject;
+                    }
+                },
+                
+                replay: function()
+                {
+                    if (this.fbTest && this.lastTest)
+                        fbTest.replay(this.lastTest);
+                },
+            };
+                
+            this.observerService.addObserver(this.trackFBTest, "fbtest-start-case");
+        },
+        
+        destroy: function()
+        {
+            if (this.observerService)
+                this.observerService.removeObserver(this.trackFBTest, "fbtest-start-case");
+        },        
+    }
+    
+    var localReproducer = 
+    {
+        reproduce: function (context, debugSessionId, reproductionId)
+        {
+            var Firebug = context.Firebug; // we are in a module and don't have access to Firebug in this scope.
+            Firebug.Debugger.rerun(context);
+        },
+    };
 }}
 
 };

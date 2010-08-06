@@ -190,12 +190,15 @@ with (Lang){
 //                                                      null, context.qpfbug.debugger);
                     }
 
-                    Firebug.Debugger.resume(context);
                     var newReproduction = this.getReproduction(debugSession);
-
-                    var tabBrowser = win.FBL.$("content");
-                    QPFBUG.reproducer.reproduce(win, debugSession.id, newReproduction.id); //TODO changeit
-                    tabBrowser.removeTab(context.qpfbug.tab);
+                    QPFBUG.reproducer.reproduce(context, debugSession.id, newReproduction.id);  
+                    
+                    // XXXjjb it needs to be up to the reproducer to remove tabs
+                    //var tabBrowser = win.FBL.$("content");
+                    //tabBrowser.removeTab(context.qpfbug.tab);
+                    
+                    // Show results
+                    context.dispatch(context.qpfbug.debugSession.debugModel);                   
                 }
 
             },
