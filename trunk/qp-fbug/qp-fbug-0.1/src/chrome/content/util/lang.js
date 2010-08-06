@@ -88,6 +88,8 @@ loadModule = function(QPFBUG)
         getRootWindow : QPFBUG.FBL.getRootWindow,
 
         normalizeURL : QPFBUG.FBL.normalizeURL,
+        
+        FBTrace: QPFBUG.FBTrace,
 
     };
 

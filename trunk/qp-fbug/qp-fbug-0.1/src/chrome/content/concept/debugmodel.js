@@ -56,7 +56,12 @@ with (Lang){
 
                     this.tracePoints[this.nextTracePointId] = tracePoint;
                     return tracePoint;
-                }
+                },
+                
+                getLastTracePoint: function()
+                {
+                	return this.tracePoints[this.nextTracePointId - 1];  // TODO The next is one ahead of the current
+                },
 
             };
 
