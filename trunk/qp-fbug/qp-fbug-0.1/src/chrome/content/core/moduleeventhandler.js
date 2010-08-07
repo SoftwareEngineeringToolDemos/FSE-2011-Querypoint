@@ -36,7 +36,8 @@ with (Lang){
                 // source file is created or changed
                 onSourceFileCreated: function(context, sourceFile)
                 {
-                    DebugService.getInstance().onSourceFileCreated(context, sourceFile);
+                    if (context.qpfbug.enabled)
+                        DebugService.getInstance().onSourceFileCreated(context, sourceFile);
                 },
 
                 destroyContext: function(context, persistedState)
