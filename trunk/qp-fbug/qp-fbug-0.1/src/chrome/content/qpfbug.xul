@@ -5,6 +5,6 @@
     <!-- qpfbug -->
     <script src="chrome://qpfbug/content/scripts.js" type="application/x-javascript"/>
     <script src="chrome://qpfbug/content/init.js" type="application/x-javascript"/>
-    <script src="chrome://qpfbug/content/ui/querypoints.js" type="application/x-javascript"/>
+    <!--<script src="chrome://qpfbug/content/ui/querypoints.js" type="application/x-javascript"/>-->
 </overlay>
 

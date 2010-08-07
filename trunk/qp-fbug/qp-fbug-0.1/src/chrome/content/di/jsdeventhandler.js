@@ -135,6 +135,7 @@ owner.JSDEventHandler = function(){
 
             // jsd.breakpointHook
             onBreakpoint: function(frame, type, rv){
+                trace("onBreakpoint, "+ frame.script.fileName + ", " +frame.line , frame);
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
@@ -283,7 +284,6 @@ owner.JSDEventHandler = function(){
                 }else{
                     jsdEventHandler.fbs_hooksState.functionHook = true;
                 }
-                trace("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
                 jsdEventHandler.fbs_hookFunctions.apply(fbs, arguments);
             },
             
@@ -316,11 +316,15 @@ owner.JSDEventHandler = function(){
             // but for each executionContext.tag there is only one context;
             getContextFromFrame: function(frame)
             {
-                var contextUID = this.cachedContexts[frame.executionContext.tag];
-                if (contextUID)
-                    return QPFBUG.contexts[contextUID];
-
                 var context = null;
+
+                var contextUID = this.cachedContexts[frame.executionContext.tag];
+                if (contextUID){
+                    context = QPFBUG.contexts[contextUID];
+                    if (!context.qpfbug.enabled)
+                        return null;
+                    return context;
+                }
 
                 if (QPFBUG.contexts.length == 0)//there is no context
                     return null;
@@ -340,13 +344,16 @@ owner.JSDEventHandler = function(){
 
                 if (rootWindow)
                 {
-                    for (var i = 0; i < QPFBUG.contexts.length; ++i)
+                    for (var uid in QPFBUG.contexts)
                     {
-                        var context = QPFBUG.contexts[i];
+                        var context = QPFBUG.contexts[uid];
                         if (context.window == rootWindow)
                         {
+                            trace(frame.executionContext.tag +" >>>>" + context.uid);
                             this.cachedContexts[frame.executionContext.tag] = context.uid;
-                            return context;
+                            if (!context.qpfbug.enabled)
+                                return null;
+                            return context;    
                         }
                     }
                 }

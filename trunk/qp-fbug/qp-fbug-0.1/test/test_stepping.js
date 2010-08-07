@@ -1,32 +1,50 @@
 function runTest()
 {
-    var QPFBUG = FBTest.FirebugWindow.QPFBUG;
-    var Firebug = FBTest.FirebugWindow.Firebug;
-    var qpfbug = Firebug.qpfbug;
-    // were QPFBUG loaded
-    FBTest.ok(QPFBUG, "QPFBUG");
-    FBTest.ok(QPFBUG.Classes, "QPFBUG.Classes");
-    var classesNo = 0;
-    for (var i in QPFBUG.Classes)
-        classesNo++;
-    FBTest.compare( 27, classesNo, "Number of classes");
-    FBTest.ok(QPFBUG.debugService, "QPFBUG.debugService");
-    FBTest.ok(QPFBUG.manager, "QPFBUG.manager");
-    FBTest.ok(QPFBUG.jsdEventHandler, "QPFBUG.jsdEventHandler");
-    FBTest.ok(qpfbug.moduleEventHandler, "Firebug.qpfbug.moduleEventHandler");
-    FBTest.ok(qpfbug.uiEventHandler, "Firebug.qpfbug.uiEventHandler");
-    FBTest.testDone("QPFBUG was loaded successfully!");
-
     var firstTabLoaded = function(win)
     {
-        testData.firstTabWin = win;
-        FBTestFirebug.openFirebug();
-        FBTestFirebug.selectPanel("script");
-        FBTestFirebug.enableScriptPanel(scriptPanelEnabled)
+//        testData.firstTabWin = win;
+//        FBTestFirebug.openFirebug();
+//        FBTestFirebug.selectPanel("script");
+//        FBTestFirebug.enableScriptPanel(scriptPanelEnabled)
     };
 
-    var testData = {};
-    testData.bp_lineNo = 17;
-    FBTestFirebug.openNewTab(basePath + "test/page_simple.html", firstTabLoaded);
 
+    var win = FBTest.FirebugWindow;
+    var QPFBUG = win.QPFBUG;
+    var Firebug = win.Firebug;
+    var qpfbug = Firebug.qpfbug;
+    QPFBUG.testData = {};
+    var myModule = QPFBUG.testData.myModule;
+
+    with (QPFBUG.Classes){
+    with (Lang){
+        if (!myModule){
+            trace("=================================", myModule);
+            myModule = win.FBL.extend(Firebug.Module, {});
+            QPFBUG.testData.myModule = myModule;
+            Firebug.registerModule(myModule);
+        }
+        myModule.initialize = function(){
+            trace(":::::::::::::::::::;");
+        };
+
+        myModule.initContext = function(context, persistedState){
+            trace("xxxxxxxxxxxxxxxxxxxx " + context.uid);
+            this.steppingDriver = DebugService.getInstance().getSteppingDriver(this, context);
+            this.steppingDriver.start();
+        };
+
+        myModule.destroyContext = function(context, persistedState){
+        },
+
+        myModule.onStep = function(steppingDriver, stepMode, context, frame, type, rv){
+            trace("JJJJJJJJJJJJJJJJJJJJ ");
+            trace(this.isStopped + " -+-+-+" + frame.script.fileName + " " +  frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT) + " " + frame.pc + "------- " + context.uid);
+//                this.steppingDriver.start();
+        },
+
+        FBTestFirebug.openNewTab(basePath + "test/page_simple.html", firstTabLoaded);
+        FBTest.openFirebug();
+        FBTest.enableAllPanels();
+    }}
 };

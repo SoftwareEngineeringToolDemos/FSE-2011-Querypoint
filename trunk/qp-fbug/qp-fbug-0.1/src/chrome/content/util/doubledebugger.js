@@ -34,12 +34,9 @@ with (Lang){
 
 
     QPFBUG.Classes.DoubleDebugger =
-
         function(){
             var constructor = function(fbs){
                 this.fbs = fbs;
-                this.fbs_onBreakpoint = this.fbs.onBreakpoint;
-                this.fbs_registerDebugger = this.fbs.registerDebugger;
 
                 this.stopped = 0;
                 var jsdIFilter = Ci.jsdIFilter;
@@ -76,104 +73,169 @@ with (Lang){
                      };
                 this.filters.push(filter);
 
+                this.makeWrappedFunctions();
             };
 
             constructor.prototype = {
 
-                enableDoubleDebugging : function() {
-                    if (QPFBUG.doubleDebugger.enabled)
+                toggleDoubleDebugging : function(enabled) {
+                    if (QPFBUG.doubleDebugger.enabled && enabled)
                         return;
-                    QPFBUG.doubleDebugger.enabled = true;
-                        // --------------------------- update fbs -----------------------------------
-                         var fbs = this.fbs;
-                         fbs.onBreakpoint = function(frame, type, val){
-                            if (DBG_DOUBLEDEBUGGER)
-                                trace("Execution hook, "+ frame.script.fileName + ", " +frame.line , frame);
 
-                            if (QPFBUG.doubleDebugger.stopped == 2) // we let 2 pauses and therefore 2 debuggers at a time
-                                return Ci.jsdIExecutionHook.RETURN_CONTINUE;
+//                    this.replaceFBSFunction("onDebugger", enabled);
+//                    this.replaceFBSFunction("onDebug", enabled);
+                    this.replaceFBSFunction("onBreakpoint", enabled);
+//                    this.replaceFBSFunction("onThrow", enabled);
+//                    this.replaceFBSFunction("onError", enabled);
+//                    this.replaceFBSFunction("onTopLevel", enabled);
+//                    this.replaceFBSFunction("onInterrupt", enabled);
+//                    this.replaceFBSFunction("onFunction", enabled);
+//                    this.replaceFBSFunction("registerDebugger", enabled);
 
-                            QPFBUG.doubleDebugger.stopped++;
+                    // rehook with new functions
+                    this.fbs.hookScripts();
 
-                            if (DBG_DOUBLEDEBUGGER)
-                                trace("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<, stopped: " + QPFBUG.doubleDebugger.stopped);
-                            //because debugFrame may not exist later due to our artificial
-                            // changes by calling unPause() we keep
-                            // execution context reference.
-                            QPFBUG.doubleDebugger.executionContext = frame.executionContext;
-
-                            if (QPFBUG.doubleDebugger.stopped == 1)
-                            {
-                                for (let i=0 ; i<QPFBUG.doubleDebugger.filters.length; i++)
-                                {
-                                    fbs.getJSD().appendFilter(QPFBUG.doubleDebugger.filters[i]);
-                                }
-
-                                // by calling unPause we let other bp hooks happen.
-                                fbs.getJSD().unPause();
-                            }
-
-                            var rv = Components.interfaces.jsdIExecutionHook.RETURN_CONTINUE;
-                            try{
-                                rv =  QPFBUG.doubleDebugger.fbs_onBreakpoint.apply(fbs,arguments);
-                            }catch(e)
-                            {
-                                trace("FBS onBreakpoint Exception! : " + e, e)
-                            }
-
-                            if (QPFBUG.doubleDebugger.stopped == 1)
-                            {
-                                // we increase the pauseDepth to compensate our earlier
-                                // unPause;
-                                fbs.getJSD().pause();
-                                for (let i=0 ; i<QPFBUG.doubleDebugger.filters.length; i++)
-                                {
-                                    fbs.getJSD().removeFilter(QPFBUG.doubleDebugger.filters[i]);
-                                }
-                            }
-
-                            QPFBUG.doubleDebugger.stopped--;
-
-                            return rv;
-                        };
-
-                        // to make sure that new hook will be applied.
-                        fbs.hookScripts();
-
-                        // ---------------------------- update debuggers ---------------------------
-                        fbs.registerDebugger = function(debuggerWrapper){
-
-                            var debuggr = debuggerWrapper.wrappedJSObject;
-
-                            // to not update debugger more than once
-                            if (!debuggr.qpfbugUpdated)
-                            {
-                                var old_thaw = debuggr.thaw;
-                                debuggr.thaw = function(context)
-                                {
-                                    try{
-                                        old_thaw.apply(debuggr, arguments);
-                                    }catch(e){}
-                                    // this part is added because of possible exception
-                                    // in debugger thow function due to invalid stackframe.
-                                    if (QPFBUG.doubleDebugger.executionContext.isValid)
-                                    {
-                                        this.unsuppressEventHandling(context);
-                                        QPFBUG.doubleDebugger.executionContext.scriptsEnabled = true;
-                                    }
-                                }
-                                debuggr.qpfbugUpdated = true;
-                            }
-                            return QPFBUG.doubleDebugger.fbs_registerDebugger.apply(fbs, arguments);
-                        }
-
+                    QPFBUG.doubleDebugger.enabled = enabled;
                 },
 
-                disableDoubleDebugging : function() {
-                    this.fbs.onBreakpoint = this.fbs_onBreakpoint;
-                    this.fbs.registerDebugger = this.fbs_registerDebugger;
-                    QPFBUG.doubleDebugger.enabled = false;
-                }
+                makeWrappedFunctions: function(){
+                    this.makeWrappedFunction("onDebugger");
+//                    this.makeWrappedFunction("onDebug");
+                    this.makeWrappedFunction("onBreakpoint");
+//                    this.makeWrappedFunction("onThrow");
+//                    this.makeWrappedFunction("onError");
+//                    this.makeWrappedFunction("onTopLevel");
+//                    this.makeWrappedFunction("onInterrupt");
+//                    this.makeWrappedFunction("onFunction");
+                    this.fbs_registerDebugger = this.fbs.registerDebugger;
+
+                    // ---------------------------- update debuggers ---------------------------
+                    this.registerDebugger = function(debuggerWrapper){
+                        var fbs = this.fbs;
+                        var debuggr = debuggerWrapper.wrappedJSObject;
+
+                        // to not update debugger more than once
+                        if (!debuggr.qpfbugUpdated)
+                        {
+                            var old_thaw = debuggr.thaw;
+                            debuggr.thaw = function(context)
+                            {
+                                try{
+                                    old_thaw.apply(debuggr, arguments);
+                                }catch(e){}
+                                // this part is added because of possible exception
+                                // in debugger thow function due to invalid stackframe.
+                                if (QPFBUG.doubleDebugger.executionContext.isValid)
+                                {
+                                    this.unsuppressEventHandling(context);
+                                    QPFBUG.doubleDebugger.executionContext.scriptsEnabled = true;
+                                }
+                            }
+                            debuggr.qpfbugUpdated = true;
+                        }
+                        return QPFBUG.doubleDebugger.fbs_registerDebugger.apply(fbs, arguments);
+                    }
+                },
+
+                makeWrappedFunction: function(functionName){
+                    this["fbs_"+functionName] = this.fbs[functionName]; //original one
+                    this[functionName] = this.wrapBreakFunction(this.fbs[functionName]); //wrapped one
+                },
+
+                replaceFBSFunction: function(functionName, enabled){
+                    if (enabled)
+                        this.fbs[functionName] = this[functionName];//wrapped one
+                    else
+                        this.fbs[functionName] = this["fbs_"+functionName]; //original one
+                },
+
+
+                wrapBreakFunction: function(fn){
+                    var fbs = this.fbs;
+                    return function(frame, type, val){
+                         if (DBG_DOUBLEDEBUGGER)
+                             trace("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<, stopped: " + QPFBUG.doubleDebugger.stopped);
+//                         if (DBG_DOUBLEDEBUGGER)
+//                             trace("Execution hook, "+ frame.script.fileName + ", " +frame.line , frame);
+
+                         if (QPFBUG.doubleDebugger.stopped == 2) // we let 2 pauses and therefore 2 debuggers at a time
+                             return Ci.jsdIExecutionHook.RETURN_CONTINUE;
+
+//                         if (QPFBUG.doubleDebugger.stopped == 1) // we let it go if it is a breakpoint or debugger keyword
+//                            if (type != Ci.jsdIExecutionHook.TYPE_BREAKPOINT && type != Ci.jsdIExecutionHook.TYPE_DEBUGGER_KEYWORD)
+//                                return Ci.jsdIExecutionHook.RETURN_CONTINUE;
+
+                         QPFBUG.doubleDebugger.stopped++;
+                         //unhook all except breakpoints & debugger;
+
+
+//                         fbs.getJSD().debuggerHook = null;
+//                         fbs.getJSD().debugHook = null;
+//                         fbs.getJSD().throwHook = null;
+//                         fbs.getJSD().errorHook = null;
+//                         fbs.getJSD().topLevelHook = null;
+//                         fbs.unhookInterrupts();
+//                         fbs.unhookFunctions();
+
+                         if (DBG_DOUBLEDEBUGGER)
+                             trace("----------------------------------, stopped: " + QPFBUG.doubleDebugger.stopped);
+                         //because debugFrame may not exist later due to our artificial
+                         // changes by calling unPause() we keep
+                         // execution context reference.
+                         QPFBUG.doubleDebugger.executionContext = frame.executionContext;
+
+                         if (QPFBUG.doubleDebugger.stopped == 1
+                                 && (type == Ci.jsdIExecutionHook.TYPE_BREAKPOINT
+                                || type == Ci.jsdIExecutionHook.TYPE_DEBUGGER_KEYWORD) //only in these cases we let another stop
+                            )
+                         {
+                             for (let i=0 ; i<QPFBUG.doubleDebugger.filters.length; i++)
+                             {
+                                 fbs.getJSD().appendFilter(QPFBUG.doubleDebugger.filters[i]);
+                             }
+
+
+                             // by calling unPause we let other bp hooks happen.
+                             fbs.getJSD().unPause();
+
+                         }
+
+                         var rv = Ci.jsdIExecutionHook.RETURN_CONTINUE;
+                         try{
+                             rv =  fn.apply(fbs, arguments);
+                         }catch(e)
+                         {
+                             trace("FBS onBreakpoint Exception! : " + e, e)
+                         }
+
+                         if (QPFBUG.doubleDebugger.stopped == 1 
+                                 && (type == Ci.jsdIExecutionHook.TYPE_BREAKPOINT
+                                || type == Ci.jsdIExecutionHook.TYPE_DEBUGGER_KEYWORD) //only in these cases we let another stop
+                            )
+                         {
+                             //hook all others;
+//                             fbs.hookScripts();
+//                             fbs.hookInterrupts();
+//                             fbs.hookFunctions();
+
+                             // we increase the pauseDepth to compensate our earlier
+                             // unPause;
+                             fbs.getJSD().pause();
+                             for (let i=0 ; i<QPFBUG.doubleDebugger.filters.length; i++)
+                             {
+                                 fbs.getJSD().removeFilter(QPFBUG.doubleDebugger.filters[i]);
+                             }
+                         }
+
+                         QPFBUG.doubleDebugger.stopped--;
+
+                         if (DBG_DOUBLEDEBUGGER)
+                             trace(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>, stopped: " + QPFBUG.doubleDebugger.stopped);
+                         return rv;
+
+                    }
+                },
+
             };
 
             constructor.getInstance = function(){

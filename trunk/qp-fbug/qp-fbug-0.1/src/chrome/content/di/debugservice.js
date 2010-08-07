@@ -64,8 +64,12 @@ with (Lang){
             },
 
             //--------------------------------- getSteppingDriver ----------------------------
-            getSteppingDriver: function(){
-                return new SteppingDriver(this);
+            getSteppingDriver: function(stepHandler, context){
+                return new SteppingDriver(this, stepHandler, context);
+            },
+
+            releaseSteppingDriver: function(steppingDriver){
+                steppingDriver.stop();
             },
 
             //--------------------------------- register/unregister listeners ----------------------------
@@ -181,6 +185,7 @@ with (Lang){
                                         //todo monitor should be saved in a list
                                         executionMonitor = new ExecutionMonitor(context, this.getSteppingDriver());
                                         eventRequest.executionMonitors.push(executionMonitor);
+                                        debugger;
                                         executionMonitor.start(frame, type, rv);
 
                                     }
