@@ -10,9 +10,11 @@ with (Lang){
     //--------------------------- Stepping Driver ----------------------
     owner.SteppingDriver = function(){
 
-        var constructor = function(debugService){
+        var constructor = function(debugService, stepHandler, context){
             this.steppingMode = SteppingDriver.STEP_MODES.STEP_MIN; //default
             this.debugService = debugService;
+            this.stepHandler = stepHandler;
+            this.context = context;
             this.registeredForInterrupts = false;
             this.registeredForFunctions = false;
             this.stepRecursion = 0;
@@ -21,9 +23,13 @@ with (Lang){
 
         constructor.prototype = {
 
-            step: function(stepHandler, context, steppingMode, startScriptTag, startLineNo, startPC){
-                this.stepHandler = stepHandler;
-                this.context = context;
+            //stops at the first interrupt in this context
+            start: function(){
+                this.steppingMode = SteppingDriver.STEP_MODES.STEP_MIN; //default
+                this.registerAsInterruptListener();
+            },
+
+            step: function(steppingMode, startScriptTag, startLineNo, startPC){
                 this.steppingMode = steppingMode;
                 this.startScriptTag = startScriptTag;
                 this.startLineNo = startLineNo;
@@ -144,11 +150,11 @@ with (Lang){
                         break;
                     }
                     case STEP_OVER: {
+                        trace("/////////////////");
                         switch (type)
                         {
                             case TYPE_TOPLEVEL_START:
                             case TYPE_FUNCTION_CALL:{
-                                trace("/////////////////");
                                 if (frame.callingFrame && frame.callingFrame.script.tag === this.startScriptTag)
                                 {
                                     if (!this.stepRecursion){
@@ -156,7 +162,6 @@ with (Lang){
                                     }
                                     this.stepRecursion++;
                                 }
-                                trace("+++++++++++++");
                                 this.unRegisterAsInterruptListener();
                                 break;
                             }
@@ -174,7 +179,6 @@ with (Lang){
                                     if (!this.stepRecursion) // then we've rolled back to the step-call
                                         this.registerAsInterruptListener();  // so halt on the next PC
                                 }
-                                trace("------------");
                                 break;
                             }
                         }

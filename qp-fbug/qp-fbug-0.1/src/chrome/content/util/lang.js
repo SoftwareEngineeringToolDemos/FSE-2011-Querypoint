@@ -47,19 +47,20 @@ loadModule = function(QPFBUG)
             };
         },
 
-        traceFunctionCalls: function(objName, obj)
+        traceFunctionCalls: function(objName, obj, functionName) //todo instead of getting one function name get a list
         {
             for (var p in obj)
             {
                 if (typeof(obj[p]) == "function" && obj[p] )
                 {
                     var obj_p = obj[p];           //p & obj_p changes in the loop
-                    obj[p] = function(fName, f){ // so by calling another function we fix them for the internal function
-                        return function(){
-                                QPFBUG.Classes.Lang.trace(objName + "-" + fName , arguments);
-                                return f.apply(this, arguments);
-                        }
-                    }(p, obj_p);
+                    if (!functionName || functionName == p)
+                        obj[p] = function(fName, f){ // so by calling another function we fix them for the internal function
+                            return function(){
+                                    QPFBUG.Classes.Lang.trace(objName + "-" + fName , arguments);
+                                    return f.apply(this, arguments);
+                            }
+                        }(p, obj_p);
                 };
             };
         },

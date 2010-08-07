@@ -35,92 +35,102 @@ with (Lang){
             initContext: function(win, context, persistedState)
             {
                 with (win){
-                    QPFBUG.contexts[context.uid] = context;
-                    //set qpfbug data holder for the context
-                    context.qpfbug = {
-                        firefoxWindow : win,
-                        breakpoints : {},
-                        breakpointURLs : [],
-                        debugger : {debuggerName:"QPFBUG"},
-                        eventRequests : [],
-                    };
+                    this.initContextForQPFBUG(win, context);
+                }
 
-
-                    //get reproductionId passed to this tab
-                    var tabBrowser = FBL.$("content");
-                    var selectedTab = tabBrowser.selectedTab;
-                    var reproductionId = selectedTab.getAttribute("reproductionId");
-
-                    //get reproduction for this tab;
-                    var reproduction = this.getReproduction(null, reproductionId);
-
-                    // set reproduction and debugSession for the context
-                    context.qpfbug.reproduction = reproduction;
-                    context.qpfbug.debugSession = reproduction.debugSession;
-                    context.qpfbug.tab = selectedTab;
-
-                    //to select this context
-                    Firebug.selectContext(context);
-
-
-                    //------------------------ create event requests -----------------
-
-                    var tracePoints = context.qpfbug.debugSession.debugModel.tracePoints;
-
-                    for (i in tracePoints){
-
-                        var tracePoint = tracePoints[i];
-                        var eventRequest = null;
-
-                        if (tracePoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT){
-//                            if (tracePoint.url == sourceFile.href){
-                                //todo set execution context tag
-                                eventRequest = DebugService.getInstance().createBreakpointRequest(
-                                   context, bind(this.onBreakpointEvent, this), tracePoint.url, tracePoint.lineNo);
-//                            }
-
-                        }
-
-                        if (tracePoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE){
-                            var traceObjectLog = context.qpfbug.debugSession.getLastTraceObjectLog(
-                                         tracePoint.globalObjectRef.refPoint,
-                                         tracePoint.globalObjectRef.frameNo,
-                                         tracePoint.globalObjectRef.ref
-                                         );
-
-                            if (traceObjectLog){
-                                var url = traceObjectLog.parentCreatorURL;
-                                var lineNo = traceObjectLog.parentCreatorLine;
-
-                                if (!url){
-                                    url = traceObjectLog.parentConstructorURL;
-                                    lineNo = traceObjectLog.parentConstructorLine;
-                                }
-
-                                if (url){
-                                    url = normalizeURL(url);
-                                    eventRequest = DebugService.getInstance().createModificationWatchpointRequest(
-                                        context, bind(this.onModificationWatchpointEvent, this), url, lineNo, tracePoint.globalObjectRef.propertyName);
-                                }
-
-                            }
-
-                        }
-                        if (eventRequest){
-                            eventRequest.tracePoint = tracePoint;
-                            eventRequest.context = context;
-                        }
-                    }
-                };
             },
 
             destroyContext: function(win, context, persistedState)
             {
                 //todo store debugModel in the persistedState
                 // remove all breakpoints
-                DebugService.getInstance().removeEventRequestsForContext(context);
+                if (context.qpfbug.enabled)
+                    DebugService.getInstance().removeEventRequestsForContext(context); //todo is it necessary?
                 delete context.qpfbug;
                 delete QPFBUG.contexts[context.uid];
+            },
+
+            initContextForQPFBUG: function(win, context){
+                //get reproductionId passed to this tab
+                var tabBrowser = win.FBL.$("content");
+                var selectedTab = tabBrowser.selectedTab;
+                var reproductionId = selectedTab.getAttribute("reproductionId");
+
+                //get reproduction for this tab;
+                var reproduction = this.getReproduction(null, reproductionId);
+
+                QPFBUG.contexts[context.uid] = context;
+                //set qpfbug data holder for the context
+                context.qpfbug = {
+                    enabled : false,
+                    firefoxWindow : win,
+                    breakpoints : {},
+                    breakpointURLs : [],
+                    debugger : {debuggerName:"QPFBUG"},
+                    eventRequests : [],
+                    reproduction : reproduction,
+                    debugSession : reproduction.debugSession,
+                    tab : selectedTab,
+                };
+
+                //to select this context TODO  do we need this?
+                win.Firebug.selectContext(context);
+
+                //------------------------ create event requests -----------------
+                var tracePoints = context.qpfbug.debugSession.debugModel.tracePoints;
+
+                var anyTracePoint = false;
+                for (var i in tracePoints){
+                    anyTracePoint = true;
+                    var tracePoint = tracePoints[i];
+                    var eventRequest = null;
+
+                    if (tracePoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT){
+//                            if (tracePoint.url == sourceFile.href){
+                            //todo set execution context tag
+                            eventRequest = DebugService.getInstance().createBreakpointRequest(
+                               context, bind(this.onBreakpointEvent, this), tracePoint.url, tracePoint.lineNo);
+//                            }
+
+                    }
+
+                    if (tracePoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE){
+                        var traceObjectLog = context.qpfbug.debugSession.getLastTraceObjectLog(
+                                     tracePoint.globalObjectRef.refPoint,
+                                     tracePoint.globalObjectRef.frameNo,
+                                     tracePoint.globalObjectRef.ref
+                                     );
+
+                        if (traceObjectLog){
+                            var url = traceObjectLog.parentCreatorURL;
+                            var lineNo = traceObjectLog.parentCreatorLine;
+
+                            if (!url){
+                                url = traceObjectLog.parentConstructorURL;
+                                lineNo = traceObjectLog.parentConstructorLine;
+                            }
+
+                            if (url){
+                                url = normalizeURL(url);
+                                eventRequest = DebugService.getInstance().createModificationWatchpointRequest(
+                                    context, bind(this.onModificationWatchpointEvent, this), url, lineNo, tracePoint.globalObjectRef.propertyName);
+                            }
+
+                        }
+
+                    }
+                    if (eventRequest){
+                        eventRequest.tracePoint = tracePoint;
+                        eventRequest.context = context;
+                    }
+                }
+
+                if (anyTracePoint)
+                    this.enableQPFBUG(context);
+            },
+
+            enableQPFBUG: function(context){
+                context.qpfbug.enabled = true;
             },
 
             //------------------------------- call backs ---------------------------------------
@@ -143,6 +153,7 @@ with (Lang){
 
             //------------------------------- actions ---------------------------------------
             addLastChange: function(context, owner, propertyPath){
+                this.enableQPFBUG(context);
                 var win = context.qpfbug.firefoxWindow;
                 with(win){
                     var debugSession = context.qpfbug.debugSession;
@@ -190,6 +201,12 @@ with (Lang){
 //                                                      null, context.qpfbug.debugger);
                     }
 
+//                    Firebug.Debugger.resume(context);
+//                    var newReproduction = this.getReproduction(debugSession);
+//
+//                    var tabBrowser = win.FBL.$("content");
+//                    QPFBUG.reproducer.reproduce(win, debugSession.id, newReproduction.id); //TODO changeit
+//                    tabBrowser.removeTab(context.qpfbug.tab);
                     var newReproduction = this.getReproduction(debugSession);
                     QPFBUG.reproducer.reproduce(context, debugSession.id, newReproduction.id);  
                     
