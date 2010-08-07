@@ -198,7 +198,7 @@ with (Lang){
                     //tabBrowser.removeTab(context.qpfbug.tab);
                     
                     // Show results
-                    context.dispatch(context.qpfbug.debugSession.debugModel);                   
+                    //context.dispatch(context.qpfbug.debugSession.debugModel);                   
                 }
 
             },
