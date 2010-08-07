@@ -74,6 +74,11 @@ with (Lang){
                     list.push(this.tracePoints[this.nextTracePointId - 1]);  // I guess this one has to exist ?
                     return list;
                 },
+                
+                toString: function()
+                {
+                	return "[DebugModel]";
+                },
 
             };
 
@@ -117,6 +122,11 @@ with (Lang){
                 addTraceObject : function(traceObject){
                     this.traceObjects.push(traceObject);
                     return traceObject;
+                },
+                
+                toString: function()
+                {
+                	return "[LastChange Tracepoint "+this.url+"@"+this.lineNo+"]";
                 }
             };
             return constructor;
@@ -140,7 +150,10 @@ with (Lang){
             };
 
             constructor.prototype = {
-                // no fuctions
+                toString: function()
+                {
+            		return "[ObjectAtPoint]";
+                }
             };
 
             return constructor;
@@ -164,7 +177,10 @@ with (Lang){
             };
 
             constructor.prototype = {
-                // no fuctions
+                toString: function()
+                {
+            		return "[TraceObject "+this.propertyName+"]";
+                }
             };
 
             constructor.TYPES = {
