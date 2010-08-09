@@ -34,7 +34,7 @@ Manager contains
         QueryPoints contains
           url
           lineNo
-          traceObjects contains
+          queryObjects contains
             // three fields I don't understand
       Reproductions
     Reproductions  // why are reproductions in two places?

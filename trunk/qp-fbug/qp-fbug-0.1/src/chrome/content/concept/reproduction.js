@@ -27,7 +27,7 @@ owner.Reproduction =
                this.breakRequests = {}; //active breakpoints
                this.nextBreakRequestsId = 0;
                this.breakRequests_queryPoints = [];
-               this.executionLog = new ExecutionLog();
+               this.trace = new Trace();
             };
 
             constructor.prototype = {
