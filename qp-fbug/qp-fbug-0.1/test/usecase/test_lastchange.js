@@ -92,7 +92,7 @@ function runTest()
 
     var testData = {};
     testData.bp_lineNo = 17;
-    FBTestFirebug.openNewTab(basePath + "test/page_simple.html", firstTabLoaded);
+    FBTestFirebug.openNewTab(basePath + "test/usecase/page_simple.html", firstTabLoaded);
     
 };
 

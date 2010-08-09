@@ -10,9 +10,10 @@ with (Lang){
     //--------------------------- Stepping Driver ----------------------
     owner.SteppingDriver = function(){
 
-        var constructor = function(debugService, stepHandler, context){
+        var constructor = function(id, stepHandler, context){
+            this.id = id;
             this.steppingMode = SteppingDriver.STEP_MODES.STEP_MIN; //default
-            this.debugService = debugService;
+            this.debugService = DebugService.getInstance();
             this.stepHandler = stepHandler;
             this.context = context;
             this.registeredForInterrupts = false;
@@ -25,16 +26,21 @@ with (Lang){
 
             //stops at the first interrupt in this context
             start: function(){
-                this.steppingMode = SteppingDriver.STEP_MODES.STEP_MIN; //default
+                this.isStopped = false;
+                this.steppingMode = SteppingDriver.STEP_MODES.STEP_MIN; 
                 this.registerAsInterruptListener();
+                this.registerAsFunctionListener();
+                this.startScriptTag = null;
+                this.startLineNo = -1;
+                this.startPC = -1;
             },
 
             step: function(steppingMode, startScriptTag, startLineNo, startPC){
+                this.isStopped = false;
                 this.steppingMode = steppingMode;
                 this.startScriptTag = startScriptTag;
                 this.startLineNo = startLineNo;
                 this.startPC = startPC;
-                this.isStopped = false;
 
                 with(SteppingDriver.STEP_MODES){
                 switch (this.steppingMode){
@@ -95,7 +101,7 @@ with (Lang){
             
             onStep: function(context, frame, type, rv){
                 this.stop();
-                this.stepHandler.onStep(this.steppingMode, this, context, frame, type, rv);
+                this.stepHandler.onStep(frame, type, rv);
             },
 
             // ------------------------------ functions called by debug service -------------
@@ -110,7 +116,9 @@ with (Lang){
                     }
                     //todo change it. It should check and if we are still in the same line just let the execution continue
                     case STEP_LINE: {
-                        this.onStep(context, frame, type, rv);
+                        if (frame.line != this.startLineNo){ //only if it is a new line
+                            this.onStep(context, frame, type, rv);
+                        }
                         break;
                     }
                     case STEP_INTO: {
@@ -142,7 +150,9 @@ with (Lang){
                     }
                     //todo change it. It should check and if we are still in the same line just let the execution continue
                     case STEP_LINE: {
-                        this.onStep(context, frame, type, rv);
+                        if (frame.line != this.startLineNo){ //only if it is a new line
+                            this.onStep(context, frame, type, rv);
+                        }
                         break;
                     }
                     case STEP_INTO: {
@@ -150,7 +160,6 @@ with (Lang){
                         break;
                     }
                     case STEP_OVER: {
-                        trace("/////////////////");
                         switch (type)
                         {
                             case TYPE_TOPLEVEL_START:
@@ -173,7 +182,7 @@ with (Lang){
                                         this.registerAsInterruptListener();  // so halt on the next PC
                                     }
 
-                                }else if (frame.callingFrame.script.tag === this.startScriptTag){ //then we could be in the step call
+                                }else if (frame.callingFrame && frame.callingFrame.script.tag === this.startScriptTag){ //then we could be in the step call
                                     this.stepRecursion--;
 
                                     if (!this.stepRecursion) // then we've rolled back to the step-call
@@ -191,7 +200,7 @@ with (Lang){
                             case TYPE_FUNCTION_CALL:{
                                 if (frame.callingFrame && frame.callingFrame.script.tag === this.startScriptTag)
                                     this.stepRecursion++;
-                                unRegisterAsInterruptListener();
+                                this.unRegisterAsInterruptListener();
                                 break;
                             }
                             case TYPE_TOPLEVEL_END:
@@ -201,7 +210,7 @@ with (Lang){
                                         this.onStep(context, frame, type, rv);
                                         this.registerAsInterruptListener();  // so halt on the next PC
                                     }
-                                }else if (frame.callingFrame.script.tag === this.startScriptTag){ //then we could be in the step call
+                                }else if (frame.callingFrame && frame.callingFrame.script.tag === this.startScriptTag){ //then we could be in the step call
                                     this.stepRecursion--;
                                 }
                                 break;

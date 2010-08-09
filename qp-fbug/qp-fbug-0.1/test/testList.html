@@ -40,12 +40,13 @@ var serverURI = driverBaseURI;
  *                              Test, which is not targeted for the current OS is marked as "fails".
  */
 var testList = [
-    {group: "sample",  uri: "test/test_sample.js",         desc: "Sample Test"},
-    {group: "qpfbug",  uri: "test/test_basics.js",         desc: "QPFBUG loading Test"},
-    {group: "qpfbug",  uri: "test/test_scriptanalyzer.js",         desc: "Script Analyzer Test" },
+    //{group: "sample",  uri: "test/test_sample.js",         desc: "Sample Test"},
+    {group: "qpfbug",  uri: "test/basics/test_basics.js",         desc: "QPFBUG loading Test"},
     {group: "qpfbug-ui",  uri: "test/ui/tracePoints.js",         desc: "UI: tracepoints", testPage: "test/ui/testPage.html" },
-    {group: "qpfbug-di",  uri: "test/test_stepping.js",         desc: "DI: stepping" },
-    {group: "dev",  uri: "test/hot_deploy.js",         desc: "Hot Deploy" },
+    {group: "qpfbug-di",  uri: "test/di/test_scriptanalyzer.js",         desc: "Script Analyzer Test" },
+    {group: "qpfbug-di",  uri: "test/di/test_steppingdriver.js",         desc: "DI: stepping" },
+    {group: "qpfbug-lastchange",  uri: "test/test_lastchange.js",         desc: "LastChange Test" },
+    {group: "dev",  uri: "test/dev/hot_deploy.js",         desc: "Hot Deploy" },
     {group: "dev",  uri: "test/test_lastchange.js",         desc: "LastChange Test" },
 ];
 </script>
