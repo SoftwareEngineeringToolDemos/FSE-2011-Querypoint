@@ -8,7 +8,7 @@ with (Lang){
 
     //------------------------------- QueryObject ----------------------------------
     // This object uniquely specifies an object at a point.
-    owner.GlobalObjectRef =
+    owner.QueryObjectRef =
         function(){
             var constructor = function(refPoint, frameNo, ref){
                 this.refPoint = refPoint;

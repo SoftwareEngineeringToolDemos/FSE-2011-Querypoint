@@ -14,7 +14,7 @@ function runTest()
 //        pref("extensions.firebug.alwaysOpenTraceConsole", true);       /*@explore*/
 //        pref("extensions.firebug.alwaysOpenTestConsole", true);       /*@explore*/
         //Enable double debugger
-//        DoubleDebugger.getInstance().toggleDoubleDebugging(true);
+        DoubleDebugger.getInstance().toggleDoubleDebugging(false);
 //        DoubleDebugger.getInstance().disableDoubleDebugging();
 //        traceFunctionCalls("jsdEventHandler", QPFBUG.jsdEventHandler.fbs);
 //        traceFunctionCalls("fbs", QPFBUG.jsdEventHandler.fbs);

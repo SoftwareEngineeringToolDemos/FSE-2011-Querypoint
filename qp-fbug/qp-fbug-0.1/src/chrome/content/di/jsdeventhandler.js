@@ -37,7 +37,7 @@ owner.JSDEventHandler = function(){
                 // ----- jsd hooks -----
                 //this.replaceFBSFunction("onScriptCreated");
                 //this.replaceFBSFunction("onScriptDestroyed");
-                //this.replaceFBSFunction("onDebugger");
+                this.replaceFBSFunction("onDebugger");
                 //this.replaceFBSFunction("onDebug");
                 this.replaceFBSFunction("onBreakpoint");
                 //this.replaceFBSFunction("onThrow");
@@ -120,6 +120,12 @@ owner.JSDEventHandler = function(){
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
+
+                var returnValue = Ci.jsdIExecutionHook.RETURN_CONTINUE;
+
+                if (frame.thisValue && frame.thisValue.getWrappedValue() instanceof HaltObject)
+                    return ds.onDebugger(frame, type, rv);
+
                 var returnValue = jsdEventHandler.fbs_onDebugger.apply(fbs, arguments);
                 return returnValue;
             },
@@ -139,7 +145,7 @@ owner.JSDEventHandler = function(){
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
 
-                var returnValue = Components.interfaces.jsdIExecutionHook.RETURN_CONTINUE;
+                var returnValue = Ci.jsdIExecutionHook.RETURN_CONTINUE;
 
                 var context = jsdEventHandler.getContextFromFrame(frame);
                 if (context)
@@ -193,7 +199,7 @@ owner.JSDEventHandler = function(){
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
-                var returnValue = Components.interfaces.jsdIExecutionHook.RETURN_CONTINUE;
+                var returnValue = Ci.jsdIExecutionHook.RETURN_CONTINUE;
 
                 if (jsdEventHandler.ds_hooksState.interruptHook){
                     var context = jsdEventHandler.getContextFromFrame(frame);
@@ -213,7 +219,7 @@ owner.JSDEventHandler = function(){
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
-                var returnValue = Components.interfaces.jsdIExecutionHook.RETURN_CONTINUE;
+                var returnValue = Ci.jsdIExecutionHook.RETURN_CONTINUE;
 
                 if (jsdEventHandler.ds_hooksState.functionHook){
                     var context = jsdEventHandler.getContextFromFrame(frame);
