@@ -1,6 +1,6 @@
 function runTest()
 {
-    FBTest.sysout("tracePoints");
+    FBTest.sysout("queryPoints");
 
     // 1) Load test case page
     FBTest.openNewTab(basePath + "test/ui/testPage.html", function(win)
@@ -21,11 +21,11 @@ function runTest()
                 var debugSession = new DebugSession(1);
                 var href = win.location.toString();
                 var line = 18;
-                var tracePointA = debugSession.debugModel.addTracePoint_Breakpoint(href, line, 0);
+                var queryPointA = debugSession.debugModel.addQueryPoint_Breakpoint(href, line, 0);
                 FW.Firebug.chrome.select(debugSession);
 
             }
-            FBTest.testDone("tracePoints.DONE");
+            FBTest.testDone("queryPoints.DONE");
 
         });
     });

@@ -77,28 +77,28 @@ with (Lang){
                 win.Firebug.selectContext(context);
 
                 //------------------------ create event requests -----------------
-                var tracePoints = context.qpfbug.debugSession.debugModel.tracePoints;
+                var queryPoints = context.qpfbug.debugSession.debugModel.queryPoints;
 
-                var anyTracePoint = false;
-                for (var i in tracePoints){
-                    anyTracePoint = true;
-                    var tracePoint = tracePoints[i];
+                var anyQueryPoint = false;
+                for (var i in queryPoints){
+                    anyQueryPoint = true;
+                    var queryPoint = queryPoints[i];
                     var eventRequest = null;
 
-                    if (tracePoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT){
-//                            if (tracePoint.url == sourceFile.href){
+                    if (queryPoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT){
+//                            if (queryPoint.url == sourceFile.href){
                             //todo set execution context tag
                             eventRequest = DebugService.getInstance().createBreakpointRequest(
-                               context, bind(this.onBreakpointEvent, this), tracePoint.url, tracePoint.lineNo);
+                               context, bind(this.onBreakpointEvent, this), queryPoint.url, queryPoint.lineNo);
 //                            }
 
                     }
 
-                    if (tracePoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE){
+                    if (queryPoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE){
                         var traceObjectLog = context.qpfbug.debugSession.getLastTraceObjectLog(
-                                     tracePoint.globalObjectRef.refPoint,
-                                     tracePoint.globalObjectRef.frameNo,
-                                     tracePoint.globalObjectRef.ref
+                                     queryPoint.globalObjectRef.refPoint,
+                                     queryPoint.globalObjectRef.frameNo,
+                                     queryPoint.globalObjectRef.ref
                                      );
 
                         if (traceObjectLog){
@@ -113,19 +113,19 @@ with (Lang){
                             if (url){
                                 url = normalizeURL(url);
                                 eventRequest = DebugService.getInstance().createModificationWatchpointRequest(
-                                    context, bind(this.onModificationWatchpointEvent, this), url, lineNo, tracePoint.globalObjectRef.propertyName);
+                                    context, bind(this.onModificationWatchpointEvent, this), url, lineNo, queryPoint.globalObjectRef.propertyName);
                             }
 
                         }
 
                     }
                     if (eventRequest){
-                        eventRequest.tracePoint = tracePoint;
+                        eventRequest.queryPoint = queryPoint;
                         eventRequest.context = context;
                     }
                 }
 
-                if (anyTracePoint)
+                if (anyQueryPoint)
                     this.enableQPFBUG(context);
             },
 
@@ -140,13 +140,13 @@ with (Lang){
 
             onBreakpointEvent: function(eventRequest, frame, type ,rv){
                 var context = eventRequest.context;
-                var tracePoint = eventRequest.tracePoint;
+                var queryPoint = eventRequest.queryPoint;
                 trace("000000000000000000");
-                var tracePointLog;
-                if (tracePoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT)
+                var tracePoint;
+                if (queryPoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT)
                 {
                     trace("11111111111111");
-                    tracePointLog = context.qpfbug.reproduction.executionLog.addTracePointLog(tracePoint, frame);
+                    tracePoint = context.qpfbug.reproduction.executionLog.addTracePoint(queryPoint, frame);
                 }
 
             },
@@ -173,20 +173,20 @@ with (Lang){
                     var line = context.stoppedFrame.line;
                     var fileName = context.stoppedFrame.script.fileName;
                     var bp = FBL.fbs.findBreakpoint(href, line);
-                    var tracePointA, tracePointB;
+                    var queryPointA, queryPointB;
                     if (bp)
                     {
                         //todo set the correct hit count
-                        tracePointA = debugModel.addTracePoint_Breakpoint(href, line, 0);
+                        queryPointA = debugModel.addQueryPoint_Breakpoint(href, line, 0);
 
                         //todo set the correct frame number
-                        tracepointB = debugModel.addTracePoint_LastChange(tracePointA, 0, propertyPath);
+                        queryPointB = debugModel.addQueryPoint_LastChange(queryPointA, 0, propertyPath);
 
                         // collect data
-                        var tracePointLog = reproduction.executionLog.addTracePointLog(tracePointA, context.stoppedFrame);
-                        reproduction.executionLog.assignTracePointLog(tracePointA, tracePointLog);
+                        var tracePoint = reproduction.executionLog.addTracePoint(queryPointA, context.stoppedFrame);
+                        reproduction.executionLog.assignTracePoint(queryPointA, tracePoint);
 
-                        //todo add current traceobj  data to the tracePointAlog in reproduction
+                        //todo add current traceobj  data to the queryPointAlog in reproduction
                         // we keep parent creation url as information in traceobjlog
                         //getRealObject
                         owner = FBL.unwrapObject(owner);
