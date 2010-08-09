@@ -15,11 +15,11 @@ var owner = QPFBUG.Classes;
     }
 
     owner.DebugSession.prototype = {
-        getLastTraceObjectLog: function(pointRef, frameNo, objRef)
+        getLastTraceObject: function(pointRef, frameNo, objRef)
         {
             var reproductions = this.reproductions;
             if (reproductions.length > 1)
-                return reproductions[reproductions.length - 2].executionLog.getTraceObjectLog(pointRef, frameNo, objRef);
+                return reproductions[reproductions.length - 2].trace.getTraceObject(pointRef, frameNo, objRef);
             return null;
         }
 

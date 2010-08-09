@@ -203,7 +203,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
 
 /*
- * Q-State, shows objects of type QPFBUG.Classes.TraceObjectLog
+ * Q-State, shows objects of type QPFBUG.Classes.TraceObject
  */
 Firebug.Querypoint.QueryStatePanel = function QueryStatePanel() {}
 
@@ -229,7 +229,7 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
     		this.currentQueryPoint = queryPoint;
     	}
     	
-    	var members = queryPoint.traceObjects;
+    	var members = queryPoint.queryObjects;
         this.expandMembers(members, this.toggles, 0, 0, this.context);
         this.showMembers(members, !newQueryPoint);
     },

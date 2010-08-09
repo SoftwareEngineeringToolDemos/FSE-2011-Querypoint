@@ -95,19 +95,19 @@ with (Lang){
                     }
 
                     if (queryPoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE){
-                        var traceObjectLog = context.qpfbug.debugSession.getLastTraceObjectLog(
+                        var traceObject = context.qpfbug.debugSession.getLastTraceObject(
                                      queryPoint.globalObjectRef.refPoint,
                                      queryPoint.globalObjectRef.frameNo,
                                      queryPoint.globalObjectRef.ref
                                      );
 
-                        if (traceObjectLog){
-                            var url = traceObjectLog.parentCreatorURL;
-                            var lineNo = traceObjectLog.parentCreatorLine;
+                        if (traceObject){
+                            var url = traceObject.parentCreatorURL;
+                            var lineNo = traceObject.parentCreatorLine;
 
                             if (!url){
-                                url = traceObjectLog.parentConstructorURL;
-                                lineNo = traceObjectLog.parentConstructorLine;
+                                url = traceObject.parentConstructorURL;
+                                lineNo = traceObject.parentConstructorLine;
                             }
 
                             if (url){
@@ -146,7 +146,7 @@ with (Lang){
                 if (queryPoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT)
                 {
                     trace("11111111111111");
-                    tracePoint = context.qpfbug.reproduction.executionLog.addTracePoint(queryPoint, frame);
+                    tracePoint = context.qpfbug.reproduction.trace.addTracePoint(queryPoint, frame);
                 }
 
             },
@@ -183,8 +183,8 @@ with (Lang){
                         queryPointB = debugModel.addQueryPoint_LastChange(queryPointA, 0, propertyPath);
 
                         // collect data
-                        var tracePoint = reproduction.executionLog.addTracePoint(queryPointA, context.stoppedFrame);
-                        reproduction.executionLog.assignTracePoint(queryPointA, tracePoint);
+                        var tracePoint = reproduction.trace.addTracePoint(queryPointA, context.stoppedFrame);
+                        reproduction.trace.assignTracePoint(queryPointA, tracePoint);
 
                         //todo add current traceobj  data to the queryPointAlog in reproduction
                         // we keep parent creation url as information in traceobjlog
