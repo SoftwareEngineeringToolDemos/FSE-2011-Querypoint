@@ -140,6 +140,11 @@ with (Lang){
                 }
             },
 
+            //------------------------------------------ dom changes -----------------------------------------------
+            onPropertyChanged: function(propertyName, oldValue, newValue, eventRequest){
+                eventRequest.callBack(eventRequest, oldValue, newValue);//, frame, type, rv);
+            },
+            
             //------------------------------------------ jsd hooks -------------------------------------------------
             onInterrupt: function(context, frame, type, rv){
                 var copy = cloneObject(this.interruptListeners);
@@ -193,8 +198,7 @@ with (Lang){
                                         //todo monitor should be saved in a list
                                         executionMonitor = new ExecutionMonitor(context);
                                         eventRequest.executionMonitors.push(executionMonitor);
-                                        debugger;
-                                        executionMonitor.start(frame, type, rv);
+                                        executionMonitor.start(bind(this.onPropertyChanged, this, eventRequest), eventRequest.w_propertyName, frame, type, rv);
 
                                     }
                                 }
