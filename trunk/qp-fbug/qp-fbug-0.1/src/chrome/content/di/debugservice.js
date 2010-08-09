@@ -14,10 +14,11 @@ with (Lang){
             this.fbs = fbs;
             this.nextEventRequestId = 0;
             this.nextBreakpointId = 0;
-            this.interruptListeners = [];
-            this.functionListeners = [];
-            this.listeningToInterrupts = false;
-            this.listeningToFunctions = false;
+            this.interruptListeners = {};
+            this.functionListeners = {};
+            this.listeningToInterrupts = 0;
+            this.listeningToFunctions = 0;
+            this.nextListenerId = 0;
         };
 
         constructor.prototype =
@@ -65,7 +66,7 @@ with (Lang){
 
             //--------------------------------- getSteppingDriver ----------------------------
             getSteppingDriver: function(stepHandler, context){
-                return new SteppingDriver(this, stepHandler, context);
+                return new SteppingDriver(this.nextListenerId++, stepHandler, context);
             },
 
             releaseSteppingDriver: function(steppingDriver){
@@ -75,35 +76,35 @@ with (Lang){
             //--------------------------------- register/unregister listeners ----------------------------
             // interrupt
             registerInterruptListener: function(interruptListener){
-                this.interruptListeners.push(interruptListener);
-                if (this.listeningToInterrupts == false){
+                this.interruptListeners[interruptListener.id] = interruptListener;
+                this.listeningToInterrupts++;
+                if (this.listeningToInterrupts > 0){
                     JSDEventHandler.getInstance().hookInterrupts();
-                    this.listeningToInterrupts == true;
                 }
             },
             
             unRegisterInterruptListener: function(interruptListener){
-                arrayRemoveObject(this.interruptListeners, interruptListener);
-                if (this.interruptListeners.length == 0){
+                delete this.interruptListeners[interruptListener.id];
+                this.listeningToInterrupts--;
+                if (!this.listeningToInterrupts){
                     JSDEventHandler.getInstance().unhookInterrupts();
-                    this.listeningToInterrupts == false;
                 }
             },
             
             //function
             registerFunctionListener: function(functionListener){
-                this.functionListeners.push(functionListener);
-                if (this.listeningToFunctions == false){
+                this.functionListeners[functionListener.id] = functionListener;
+                this.listeningToFunctions++;
+                if (this.listeningToFunctions > 0){
                     JSDEventHandler.getInstance().hookFunctions();
-                    this.listeningToFunctions == true;
                 }
             },
 
             unRegisterFunctionListener: function(functionListener){
-                arrayRemoveObject(this.functionListeners, functionListener);
-                if (this.functionListeners.length == 0){
+                delete this.functionListeners[functionListener.id];
+                this.listeningToFunctions--;
+                if (!this.listeningToFunctions){
                     JSDEventHandler.getInstance().unhookFunctions();
-                    this.listeningToFunctions == false;
                 }
             },
 
@@ -141,17 +142,24 @@ with (Lang){
 
             //------------------------------------------ jsd hooks -------------------------------------------------
             onInterrupt: function(context, frame, type, rv){
-
-                for (var i=0 ; i<this.interruptListeners.length ; i++){
-                    this.interruptListeners[i].onInterrupt(context, frame, type, rv);
+                var copy = cloneObject(this.interruptListeners);
+                for (var i in copy){
+                    var interruptListener = copy[i];
+                    if (interruptListener){
+                        interruptListener.onInterrupt(context, frame, type, rv);
+                    }
                 }            
 
                 return Ci.jsdIExecutionHook.RETURN_CONTINUE;
             },
 
             onFunction: function(context, frame, type, rv){
-                for (var i=0 ; i<this.functionListeners.length ; i++){
-                    this.functionListeners[i].onFunction(context, frame, type, rv);
+                var copy = cloneObject(this.functionListeners);
+                for (var i in copy){
+                    var functionListener = copy[i]; 
+                    if (functionListener){
+                        functionListener.onFunction(context, frame, type, rv);
+                    }
                 }            
 
                 return Ci.jsdIExecutionHook.RETURN_CONTINUE;
@@ -183,7 +191,7 @@ with (Lang){
                                     {
                                         trace("--------------------------");
                                         //todo monitor should be saved in a list
-                                        executionMonitor = new ExecutionMonitor(context, this.getSteppingDriver());
+                                        executionMonitor = new ExecutionMonitor(context);
                                         eventRequest.executionMonitors.push(executionMonitor);
                                         debugger;
                                         executionMonitor.start(frame, type, rv);

@@ -135,7 +135,6 @@ owner.JSDEventHandler = function(){
 
             // jsd.breakpointHook
             onBreakpoint: function(frame, type, rv){
-                trace("onBreakpoint, "+ frame.script.fileName + ", " +frame.line , frame);
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
@@ -198,6 +197,7 @@ owner.JSDEventHandler = function(){
 
                 if (jsdEventHandler.ds_hooksState.interruptHook){
                     var context = jsdEventHandler.getContextFromFrame(frame);
+
                     if (context)
                         returnValue = ds.onInterrupt(context, frame, type, rv);
                 }
@@ -318,13 +318,15 @@ owner.JSDEventHandler = function(){
             {
                 var context = null;
 
-                var contextUID = this.cachedContexts[frame.executionContext.tag];
-                if (contextUID){
-                    context = QPFBUG.contexts[contextUID];
-                    if (!context.qpfbug.enabled)
-                        return null;
-                    return context;
-                }
+                  //todo contextexecution tag is not a safe way to recognize context
+                  // the outer scope should also considreed
+//                var contextUID = this.cachedContexts[frame.executionContext.tag];
+//                if (contextUID){
+//                    context = QPFBUG.contexts[contextUID];
+//                    if (!context || !context.qpfbug.enabled)  //if context is is not any longer available (e.g., firebug disabled and it is deleted for this tab) or qp is not enabled.
+//                        return null;
+//                    return context;
+//                }
 
                 if (QPFBUG.contexts.length == 0)//there is no context
                     return null;
@@ -349,8 +351,7 @@ owner.JSDEventHandler = function(){
                         var context = QPFBUG.contexts[uid];
                         if (context.window == rootWindow)
                         {
-                            trace(frame.executionContext.tag +" >>>>" + context.uid);
-                            this.cachedContexts[frame.executionContext.tag] = context.uid;
+//                            this.cachedContexts[frame.executionContext.tag] = context.uid;
                             if (!context.qpfbug.enabled)
                                 return null;
                             return context;    

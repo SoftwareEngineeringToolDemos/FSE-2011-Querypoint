@@ -10,7 +10,7 @@ with (Lang){
     //--------------------------- ExecutionMonitor ----------------------
     owner.ExecutionMonitor = function(){
 
-        var constructor = function(debugService, context){
+        var constructor = function(context){
             this.context = context;
             this.isStopped = false;
             this.isMonitoring = false;
@@ -19,21 +19,21 @@ with (Lang){
         constructor.prototype = {
 
             start: function(frame, type, rv){
-                this.steppingDriver = debugService.getSteppingDriver(this, context);
+                this.steppingDriver = DebugService.getInstance().getSteppingDriver(this, this.context);
                 this.startScriptTag = frame.script.tag;
                 this.startPC = frame.pc;
-                this.steppingDriver.step(this, this.context, 3, this.startScriptTag, 0, this.startPC); //todo correct line number
+                this.steppingDriver.step(3, this.startScriptTag, 0, this.startPC); //todo correct line number
                 this.isStopped = false;
             },
 
             stop: function(){
                 this.isStopped = true;
-                debugService.releaseSteppingDriver(this.steppingDriver);
+                DebugService.getInstance().releaseSteppingDriver(this.steppingDriver);
             },
 
-            onStep: function(steppingDriver, stepMode, context, frame, type, rv)
+            onStep: function(frame, type, rv)
             {
-                trace(this.isStopped + " -+-+-+" + frame.script.fileName + " " +  frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT) + " " + frame.pc + "------- " + context.uid);
+                trace(this.isStopped + " -+-+-+" + frame.script.fileName + " " +  frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT) + " " + frame.pc + "------- " + this.context.uid);
                 if (frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT) == 12 && frame.pc == 15)
                 {
                         refValue = null;
@@ -53,7 +53,7 @@ with (Lang){
                 this.lastScriptTag = frame.script.tag;
                 this.lastPC = frame.pc;
                 if (!this.isStopped){
-                    this.steppingDriver.step(this, this.context, 3, this.lastScriptTag, 0, this.lastPC );
+                    this.steppingDriver.step(3, this.lastScriptTag, 0, this.lastPC );
                 }
             },
 

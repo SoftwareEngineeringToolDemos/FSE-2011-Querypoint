@@ -75,6 +75,24 @@ loadModule = function(QPFBUG)
             }
         },
 
+        cloneObject: function(object){
+            var copy = {};
+            for (var i in object){
+                copy[i] = object[i];
+            }
+            return copy;
+        },
+
+        numberOfObjectProperties: function(object){
+            if (!object)
+                return 0;
+            var size = 0;
+            for (var i in object){
+                size++;
+            }
+            return size;
+        },
+
         //--------------------------------- from firebug lib.js -----------------------------
         bind: QPFBUG.FBL.bind,
 
