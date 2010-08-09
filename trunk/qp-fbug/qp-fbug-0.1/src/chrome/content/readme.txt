@@ -31,7 +31,7 @@ Manager contains
   Datastore contains  // why so generic?
     DebugSession contains
       DebugModel contains
-        TracePoints contains
+        QueryPoints contains
           url
           lineNo
           traceObjects contains

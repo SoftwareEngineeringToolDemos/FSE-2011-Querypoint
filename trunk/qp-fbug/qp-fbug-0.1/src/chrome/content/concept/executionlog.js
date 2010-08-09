@@ -13,25 +13,25 @@ with (Lang){
         function(){
 
             var constructor = function(){
-                this.nextTracePointLogId = 0;
-                this.tracePointLogs = {}; //<int tracePointId, [] tracePointLogs>
-                this.tracePointId_tracePointLog = {};
+                this.nextTracePointId = 0;
+                this.tracePoints = {}; //<int queryPointId, [] tracePoints>
+                this.queryPointId_tracePoint = {};
             };
 
             constructor.prototype = {
-                addTracePointLog: function(tracePoint, frame)
+                addTracePoint: function(queryPoint, frame)
                 {
-                    var tracePointId = tracePoint.id;
-                    if (!this.tracePointLogs[tracePointId]){
-                        this.tracePointLogs[tracePointId] = [];
+                    var queryPointId = queryPoint.id;
+                    if (!this.tracePoints[queryPointId]){
+                        this.tracePoints[queryPointId] = [];
                     }
 
                     var stackFrameLog = new StackFrameLog(frame);
-                    var tracePointLog = new TracePointLog(++this.nextTracePointLogId, tracePoint, stackFrameLog);
+                    var tracePoint = new TracePoint(++this.nextTracePointId, queryPoint, stackFrameLog);
 
-                    for (let i=0 ; i<tracePoint.traceObjects.length ; i++)
+                    for (let i=0 ; i<queryPoint.traceObjects.length ; i++)
                     {
-                        var traceObject = tracePoint.traceObjects[i];
+                        var traceObject = queryPoint.traceObjects[i];
                         var result;
                         if (traceObject.ref == ".owner")
                         {
@@ -66,25 +66,25 @@ with (Lang){
                                 traceObjectLog.parentConstructorLine = parentJSDIObject.constructorLine;
                             }
 
-                            tracePointLog.addTraceObjectLog(traceObjectLog);
+                            tracePoint.addTraceObjectLog(traceObjectLog);
                         }
 
                     }
 
-                    this.tracePointLogs[tracePointId].push(tracePointLog);
-                    return tracePointLog;
+                    this.tracePoints[queryPointId].push(tracePoint);
+                    return tracePoint;
                 },
 
-                assignTracePointLog: function(tracePoint, tracePointLog)
+                assignTracePoint: function(queryPoint, tracePoint)
                 {
-                    this.tracePointId_tracePointLog[tracePoint.id] = tracePointLog;
+                    this.queryPointId_tracePoint[queryPoint.id] = tracePoint;
                 },
 
                 getTraceObjectLog: function(pointRef, frameNo, objectRef)
                 {
-                    var tracePointLog = this.tracePointId_tracePointLog[pointRef.id];
-                    if (tracePointLog)
-                        return tracePointLog.getTraceObjectLog(frameNo, objectRef);
+                    var tracePoint = this.queryPointId_tracePoint[pointRef.id];
+                    if (tracePoint)
+                        return tracePoint.getTraceObjectLog(frameNo, objectRef);
                     return null;
                 }
 
@@ -94,13 +94,13 @@ with (Lang){
         }();
 
 
-    //------------------------------- TracePointLog ----------------------------------
+    //------------------------------- TracePoint ----------------------------------
     // trace point is kept in debug model.
-    owner.TracePointLog =
+    owner.TracePoint =
         function(){
-            var constructor = function(id, tracePoint, stackFrameLog){
+            var constructor = function(id, queryPoint, stackFrameLog){
                 this.id = id;
-                this.tracePoint = tracePoint;
+                this.queryPoint = queryPoint;
                 this.stackFrameLog = stackFrameLog;
                 this.traceObjectLogs = [];
             };

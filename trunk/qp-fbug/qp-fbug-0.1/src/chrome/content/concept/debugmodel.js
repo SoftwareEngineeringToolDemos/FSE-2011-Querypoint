@@ -10,68 +10,68 @@ with (Lang){
     owner.DebugModel =
         function(){
             var constructor = function(){
-                 this.tracePoints = {};
-                 this.nextTracePointId = 0;
+                 this.queryPoints = {};
+                 this.nextQueryPointId = 0;
             };
 
             constructor.prototype = {
-                addTracePoint_Breakpoint : function(url, lineNumber, hitCount){
-                    var tracePoint = new TracePoint(++this.nextTracePointId, DebugModel.QUERY_TYPES.BREAKPOINT,
+                addQueryPoint_Breakpoint : function(url, lineNumber, hitCount){
+                    var queryPoint = new QueryPoint(++this.nextQueryPointId, DebugModel.QUERY_TYPES.BREAKPOINT,
                                                     null, null,
                                                     url, lineNumber, hitCount);
 
-                    this.tracePoints[this.nextTracePointId] = tracePoint;
+                    this.queryPoints[this.nextQueryPointId] = queryPoint;
 
-                    return tracePoint;
+                    return queryPoint;
                 },
 
-                addTracePoint_LastChange : function(refPoint, valueFrameNo, valueRef){
+                addQueryPoint_LastChange : function(refPoint, valueFrameNo, valueRef){
 
                     // updates refPoint traceObjects
                     var type = TraceObject.TYPES.PARENT_CREATIONDATA | TraceObject.TYPES.PARENT_VALUE;
                     var traceObject = new TraceObject(type, valueFrameNo, valueRef);
                     refPoint.addTraceObject(traceObject);
 
-                    // makes tracePoint
+                    // makes queryPoint
                     var globalObjectRef = new GlobalObjectRef(refPoint, valueFrameNo, valueRef);
-                    var tracePoint = new TracePoint(++this.nextTracePointId, DebugModel.QUERY_TYPES.LASTCHANGE,
+                    var queryPoint = new QueryPoint(++this.nextQueryPointId, DebugModel.QUERY_TYPES.LASTCHANGE,
                                                     null, globalObjectRef,
                                                     null, null, null);
 
-                    // updates tracePoint traceObjects
+                    // updates queryPoint traceObjects
                     type = TraceObject.TYPES.PARENT_CREATIONDATA | TraceObject.TYPES.PARENT_VALUE;
                     traceObject = new TraceObject(type, 0, ".owner" );
-                    tracePoint.addTraceObject(traceObject)
+                    queryPoint.addTraceObject(traceObject)
 
                     // add trace point to the list
-                    this.tracePoints[this.nextTracePointId] = tracePoint;
+                    this.queryPoints[this.nextQueryPointId] = queryPoint;
 
-                    return tracePoint;
+                    return queryPoint;
                 },
 
-                addTracePoint_LastCondition : function(refPoint){
-                    var tracePoint = new TracePoint(++this.nextTracePointId, DebugModel.QUERY_TYPES.LASTCONDITION,
+                addQueryPoint_LastCondition : function(refPoint){
+                    var queryPoint = new QueryPoint(++this.nextQueryPointId, DebugModel.QUERY_TYPES.LASTCONDITION,
                                                     refPoint, null,
                                                     null, null, null);
 
-                    this.tracePoints[this.nextTracePointId] = tracePoint;
-                    return tracePoint;
+                    this.queryPoints[this.nextQueryPointId] = queryPoint;
+                    return queryPoint;
                 },
 
-                getLastTracePoint: function()
+                getLastQueryPoint: function()
                 {
-                    return this.tracePoints[this.nextTracePointId - 1];  // TODO The next is one ahead of the current
+                    return this.queryPoints[this.nextQueryPointId - 1];  // TODO The next is one ahead of the current
                 },
 
-                getTracePoints: function()
+                getQueryPoints: function()
                 {
                     var list = [];
-                    for (var p in this.tracePoints)
+                    for (var p in this.queryPoints)
                     {
-                        if (p !== (this.nextTracePointId - 1) && this.tracePoints.hasOwnProperty(p))
-                            list.push(this.tracePoints[p]);
+                        if (p !== (this.nextQueryPointId - 1) && this.queryPoints.hasOwnProperty(p))
+                            list.push(this.queryPoints[p]);
                     }
-                    list.push(this.tracePoints[this.nextTracePointId - 1]);  // I guess this one has to exist ?
+                    list.push(this.queryPoints[this.nextQueryPointId - 1]);  // I guess this one has to exist ?
                     return list;
                 },
                 
@@ -93,9 +93,9 @@ with (Lang){
         }();
 
 
-    //------------------------------- TracePoint ----------------------------------
+    //------------------------------- QueryPoint ----------------------------------
     // trace point is kept in debug model.
-    owner.TracePoint =
+    owner.QueryPoint =
         function(){
             var constructor = function(id, queryType, refPoint, globalObjectRef, url, lineNo, hitCount){
                 this.id = id;
@@ -126,7 +126,7 @@ with (Lang){
                 
                 toString: function()
                 {
-                	return "[LastChange Tracepoint "+this.url+"@"+this.lineNo+"]";
+                	return "[LastChange QueryPoint "+this.url+"@"+this.lineNo+"]";
                 }
             };
             return constructor;

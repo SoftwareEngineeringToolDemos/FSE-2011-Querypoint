@@ -52,7 +52,7 @@ owner.Reproducer = function(){
                         var tabBrowser = win.FBL.$("content");
                         tabBrowser.removeTab(context.qpfbug.tab);
 
-                        var url = "file:///C:/salmir/work/epfl/projects/43_querypoint-debugging/trunk/qp-fbug/qp-fbug-0.1/test/page_simple.html";
+                        var url = "file:///C:/salmir/work/epfl/projects/43_querypoint-debugging/trunk/qp-fbug/qp-fbug-0.1/test/usecase/page_simple.html";
 
                         var openNewTab = function(url, callback)
                         {

@@ -120,7 +120,7 @@ with (Lang){
                     if (sourceFile.href == eventRequest.bp_url){
                         var bp = {type: 1, href: sourceFile.href, lineNo: eventRequest.bp_lineNo, disabled: 0,
                                   debuggerName: "QPFBUG",
-                                  condition: "", onTrue: true, hitCount: -1, hit: 0, tracePoints : []};
+                                  condition: "", onTrue: true, hitCount: -1, hit: 0, queryPoints : []};
                         bp.id = this.nextBreakpointId++;
                         eventRequest.breakpoints=[];
                         eventRequest.breakpoints.push(bp);
@@ -130,7 +130,7 @@ with (Lang){
                     if (sourceFile.href == eventRequest.w_ownerCreationUrl){
                         var bp = {type: 1, href: sourceFile.href, lineNo: eventRequest.w_ownerCreationLineNo, disabled: 0,
                                   debuggerName: "QPFBUG",
-                                  condition: "", onTrue: true, hitCount: -1, hit: 0, tracePoints : []};
+                                  condition: "", onTrue: true, hitCount: -1, hit: 0, queryPoints : []};
                         bp.id = this.nextBreakpointId++;
                         eventRequest.breakpoints=[];
                         eventRequest.breakpoints.push(bp);

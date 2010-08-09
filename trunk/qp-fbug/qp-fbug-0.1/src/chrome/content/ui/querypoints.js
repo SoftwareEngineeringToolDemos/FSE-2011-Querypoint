@@ -10,7 +10,7 @@ FBL.ns(function() { with (FBL) {
  * @panel A Firebug panel that displays and controls Querypoint functionality. It looks like the script panel but act
  * differently.
  *
- * location objects are QPFBUG.Classes.TracePoint objects.
+ * location objects are QPFBUG.Classes.QueryPoint objects.
  */
 
 
@@ -63,7 +63,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
     {
         if( object instanceof QPFBUG.Classes.DebugModel)
             return 10;
-        if( object instanceof QPFBUG.Classes.TracePoint)
+        if( object instanceof QPFBUG.Classes.QueryPoint)
             return 10;
         else return 0;
     },
@@ -74,7 +74,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
     	if( object instanceof QPFBUG.Classes.DebugModel)
     		this.showDebugModel(object);
     		
-    	if( object instanceof QPFBUG.Classes.TracePoint)
+    	if( object instanceof QPFBUG.Classes.QueryPoint)
     		this.navigate(object);    		
     },
     
@@ -86,27 +86,27 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
     	this.navigate(this.getDefaultLocation()); 
     },
     // ***********************************************
-    // --- Querypoint locations are "TracePoints" ---
+    // --- Querypoint locations are "QueryPoints" ---
 
-    updateLocation: function(tracePoint)
+    updateLocation: function(queryPoint)
     {
-        if (!tracePoint)
+        if (!queryPoint)
         {
             this.showWarningTag();
             return;
         }
 
-        var sourceFile = getSourceFileByHref(tracePoint.url, this.context);
+        var sourceFile = getSourceFileByHref(queryPoint.url, this.context);
         if (sourceFile)
         {
         	this.showSourceFile(sourceFile);
-        	this.scrollToLine(tracePoint.url, tracePoint.lineNo, this.jumpHighlightFactory(tracePoint.lineNo, this.context));
+        	this.scrollToLine(queryPoint.url, queryPoint.lineNo, this.jumpHighlightFactory(queryPoint.lineNo, this.context));
         }
 
-        FBTrace.sysout("queryPoints.updateLocation "+tracePoint, tracePoint);
+        FBTrace.sysout("queryPoints.updateLocation "+queryPoint, queryPoint);
         var qstate = this.context.getPanel("QueryState", false);
         if (qstate)
-        	qstate.updateSelection(tracePoint);
+        	qstate.updateSelection(queryPoint);
     },
     /*
      * Framework connection
@@ -116,22 +116,22 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         return "js";
     },
     
-    getObjectLocation: function(tracePoint)
+    getObjectLocation: function(queryPoint)
     {
-    	FBTrace.sysout("queryPoints.getObjectDescription "+tracePoint, tracePoint);
-        return tracePoint.url+"@"+tracePoint.lineNo;
+    	FBTrace.sysout("queryPoints.getObjectDescription "+queryPoint, queryPoint);
+        return queryPoint.url+"@"+queryPoint.lineNo;
     },
 
     // return.path: group/category label, return.name: item label
-    getObjectDescription: function(tracePoint)
+    getObjectDescription: function(queryPoint)
     {
-    	FBTrace.sysout("queryPoints.getObjectDescription "+tracePoint, tracePoint);
-        return {path: "Last Change", name: this.getObjectLocation(tracePoint)};
+    	FBTrace.sysout("queryPoints.getObjectDescription "+queryPoint, queryPoint);
+        return {path: "Last Change", name: this.getObjectLocation(queryPoint)};
     },
 
     getLocationList: function()
     {
-        return this.context.qpfbug.debugSession.debugModel.getTracePoints();
+        return this.context.qpfbug.debugSession.debugModel.getQueryPoints();
     },
 
     getDefaultLocation: function()
@@ -216,22 +216,22 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
         this.updateSelection(this.selection);
     },
 
-    updateSelection: function(tracePoint)
+    updateSelection: function(queryPoint)
     {
-    	FBTrace.sysout("QueryStatePanel.updateSelection "+tracePoint, tracePoint);
-    	if( ! (tracePoint instanceof QPFBUG.Classes.TracePoint) )
+    	FBTrace.sysout("QueryStatePanel.updateSelection "+queryPoint, queryPoint);
+    	if( ! (queryPoint instanceof QPFBUG.Classes.QueryPoint) )
     		return;
     	
-    	var newTracePoint = (tracePoint !== this.currentTracePoint);
-    	if (newTracePoint)
+    	var newQueryPoint = (queryPoint !== this.currentQueryPoint);
+    	if (newQueryPoint)
     	{
     		this.toggles = new ToggleBranch();
-    		this.currentTracePoint = tracePoint;
+    		this.currentQueryPoint = queryPoint;
     	}
     	
-    	var members = tracePoint.traceObjects;
+    	var members = queryPoint.traceObjects;
         this.expandMembers(members, this.toggles, 0, 0, this.context);
-        this.showMembers(members, !newTracePoint);
+        this.showMembers(members, !newQueryPoint);
     },
 
     showEmptyMembers: function()
