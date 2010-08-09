@@ -96,9 +96,9 @@ with (Lang){
 
                     if (queryPoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE){
                         var traceObject = context.qpfbug.debugSession.getLastTraceObject(
-                                     queryPoint.globalObjectRef.refPoint,
-                                     queryPoint.globalObjectRef.frameNo,
-                                     queryPoint.globalObjectRef.ref
+                                     queryPoint.queryObjectRef.refPoint,
+                                     queryPoint.queryObjectRef.frameNo,
+                                     queryPoint.queryObjectRef.ref
                                      );
 
                         if (traceObject){
@@ -113,7 +113,7 @@ with (Lang){
                             if (url){
                                 url = normalizeURL(url);
                                 eventRequest = DebugService.getInstance().createModificationWatchpointRequest(
-                                    context, bind(this.onModificationWatchpointEvent, this), url, lineNo, queryPoint.globalObjectRef.propertyName);
+                                    context, bind(this.onModificationWatchpointEvent, this), url, lineNo, queryPoint.queryObjectRef.propertyName);
                             }
 
                         }
@@ -134,14 +134,9 @@ with (Lang){
             },
 
             //------------------------------- call backs ---------------------------------------
-            onModificationWatchpointEvent: function(eventRequest, oldValue, newValue){
-                trace(eventRequest.w_propertyName + " " + oldValue + " " + newValue);
-                try{
-                    throw new Error();
-                }catch(e)
-                {
-                    trace("Error", e);
-                }
+            onModificationWatchpointEvent: function(eventRequest,  frame, type, rv, object, propertyName, oldValue, newValue){
+                trace(frame.script.fileName+ " " +frame.line);
+                trace(eventRequest.w_propertyName + " " + oldValue + " " + newValue, object);
             },
 
             onBreakpointEvent: function(eventRequest, frame, type ,rv){

@@ -64,7 +64,17 @@ with (Lang){
                 context.qpfbug.eventRequests = null;
             },
 
-            //--------------------------------- getSteppingDriver ----------------------------
+            onModificationWatchpointEvent: function(eventRequest, frame, type, rv, object, propertyName, oldValue, newValue){
+                eventRequest.callBack(eventRequest,  frame, type, rv, object, propertyName, oldValue, newValue);
+            },
+
+            onBreakpointEvent: function(eventRequest, frame, type, rv){
+                eventRequest.callBack(eventRequest, frame, type, rv);
+            },
+
+
+
+            //--------------------------------- SteppingDriver ----------------------------
             getSteppingDriver: function(stepHandler, context){
                 return new SteppingDriver(this.nextListenerId++, stepHandler, context);
             },
@@ -108,7 +118,6 @@ with (Lang){
                 }
             },
 
-
             //--------------------------------- changes to loaded scripts --------------------------------
             // source file is created or changed so update breakpoints
             onSourceFileCreated: function(context, sourceFile){
@@ -140,11 +149,31 @@ with (Lang){
                 }
             },
 
-            //------------------------------------------ dom changes -----------------------------------------------
-            onPropertyChanged: function(propertyName, oldValue, newValue, eventRequest){
-                eventRequest.callBack(eventRequest, oldValue, newValue);//, frame, type, rv);
+            //----------------------------------------- halt functions ---------------------------------------------
+            halt: function(context, callBack){
+                var haltObject = new HaltObject(context, callBack);
+                haltObject.halt();
             },
-            
+
+            // halt made by this object
+            onHalt: function(haltObject, frame, type, rv){
+
+                // To remove halting functions from the stack five stepOut steps needed.
+                // Here, by restricting stepping driver to debugging context, only one stepMin
+                // is enough for removing halting function from the top of the stack.
+                var stepHandler = {
+                    start: function(context, frame, type, rv){
+                        this.steppingDriver = DebugService.getInstance().getSteppingDriver(this, context);
+                        this.steppingDriver.step(0, frame.script.tag, frame.line, frame.pc);
+                    },
+                    onStep: function(frame, type, rv){
+                        haltObject.callBack(frame, type, rv);
+                        DebugService.getInstance().releaseSteppingDriver(this.steppingDriver);
+                    },
+                }
+                stepHandler.start(haltObject.context, frame, type, rv);
+            },
+
             //------------------------------------------ jsd hooks -------------------------------------------------
             onInterrupt: function(context, frame, type, rv){
                 var copy = cloneObject(this.interruptListeners);
@@ -190,7 +219,7 @@ with (Lang){
                                    trace("On Breakpoint : " + bp.href +  ": " + bp.lineNo);
                                     if (eventRequest.isBreakpoint())
                                     {
-                                        eventRequest.callBack(eventRequest, frame, type, rv);
+                                        this.onBreakpointEvent(eventRequest, frame, type, rv);
                                     }
                                     if (eventRequest.isWatchpoint()) 
                                     {
@@ -199,7 +228,6 @@ with (Lang){
                                         executionMonitor = new ExecutionMonitor(context);
                                         eventRequest.executionMonitors.push(executionMonitor);
                                         executionMonitor.start(bind(this.onPropertyChanged, this, eventRequest), eventRequest.w_propertyName, frame, type, rv);
-
                                     }
                                 }
                             }
@@ -210,6 +238,26 @@ with (Lang){
                 //find eventRequests related to this breakpoint
                 return Ci.jsdIExecutionHook.RETURN_CONTINUE;
             },
+
+            onDebugger: function(frame, type, rv){
+                var thisValue;
+                if (frame.thisValue){
+                    thisValue = frame.thisValue.getWrappedValue();
+                    if (thisValue instanceof HaltObject)
+                        this.onHalt(thisValue, frame, type, rv);
+                }
+                return Ci.jsdIExecutionHook.RETURN_CONTINUE;
+            },
+
+            onPropertyChanged: function(propertyName, oldValue, newValue, object, eventRequest){
+                var onModificationWatchpointEvent = this.onModificationWatchpointEvent;
+                var callBack = function(frame, type, rv){
+                    onModificationWatchpointEvent(eventRequest, frame, type, rv, object, propertyName, oldValue, newValue);
+                }
+                this.halt(eventRequest.context, callBack);
+            },
+
+            //------------------------------ internal functions ---------------------------
 
             //TODO improve it
             // set breakpoint

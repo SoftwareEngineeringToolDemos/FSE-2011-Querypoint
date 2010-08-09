@@ -33,9 +33,9 @@ with (Lang){
                     refPoint.addQueryObject(queryObject);
 
                     // makes queryPoint
-                    var globalObjectRef = new GlobalObjectRef(refPoint, valueFrameNo, valueRef);
+                    var queryObjectRef = new QueryObjectRef(refPoint, valueFrameNo, valueRef);
                     var queryPoint = new QueryPoint(++this.nextQueryPointId, DebugModel.QUERY_TYPES.LASTCHANGE,
-                                                    null, globalObjectRef,
+                                                    null, queryObjectRef,
                                                     null, null, null);
 
                     // updates queryPoint queryObjects

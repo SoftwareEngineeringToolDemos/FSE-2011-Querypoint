@@ -10,7 +10,7 @@ with (Lang){
     // trace point is kept in debug model.
     owner.QueryPoint =
         function(){
-            var constructor = function(id, queryType, refPoint, globalObjectRef, url, lineNo, hitCount){
+            var constructor = function(id, queryType, refPoint, queryObjectRef, url, lineNo, hitCount){
                 this.id = id;
                 this.queryType = queryType;
 
@@ -20,7 +20,7 @@ with (Lang){
 
                 // lastChange
                 // what we are looking for its last change
-                this.globalObjectRef = globalObjectRef;
+                this.queryObjectRef = queryObjectRef;
 
                 // breakpoint
                 this.url = url;
@@ -47,7 +47,7 @@ with (Lang){
 
     //------------------------------- QueryObject ----------------------------------
     // This object uniquely specifies an object at a point.
-    owner.GlobalObjectRef =
+    owner.QueryObjectRef =
         function(){
             var constructor = function(refPoint, frameNo, ref){
                 this.refPoint = refPoint;

@@ -19,13 +19,13 @@ with (Lang){
 
         constructor.prototype = {
 
-            start: function(callback, propertyName, frame, type, rv){
+            start: function(callBack, propertyName, frame, type, rv){
                 this.steppingDriver = DebugService.getInstance().getSteppingDriver(this, this.context);
                 this.startScriptTag = frame.script.tag;
                 this.startPC = frame.pc;
                 this.scriptAnalyzer = new ScriptAnalyzer(frame.script.functionSource);
                 var refs = this.scriptAnalyzer.getRefsToCreatedObjects(true);
-                this.callback = callback;
+                this.callBack = callBack;
                 this.propertyName = propertyName;
                 debugger;
                 if (!refs[0])
@@ -57,7 +57,7 @@ with (Lang){
                         trace("Error!" , refValue)
                     }else{
                         trace("<<<<<<<<", refValue.getWrappedValue());
-                        refValue.getWrappedValue().watch(this.propertyName, this.callback);
+                        refValue.getWrappedValue().watch(this.propertyName, bind(this.callBack, this, refValue));
                     }
                 }
 

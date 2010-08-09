@@ -36,7 +36,7 @@ loadScript("resource://qpfbug/util/timer.js");
 
 loadScript("resource://qpfbug/concept/debugmodel.js");
 loadScript("resource://qpfbug/concept/querypoint.js");
-loadScript("resource://qpfbug/concept/globalobjectref.js");
+loadScript("resource://qpfbug/concept/queryobjectref.js");
 loadScript("resource://qpfbug/concept/queryobject.js");
 loadScript("resource://qpfbug/concept/trace.js");
 loadScript("resource://qpfbug/concept/tracepoint.js");
@@ -54,9 +54,11 @@ loadScript("resource://qpfbug/di/jsdconstants.js");
 loadScript("resource://qpfbug/di/jsdeventhandler.js");
 loadScript("resource://qpfbug/di/eventrequest.js");
 loadScript("resource://qpfbug/di/debugservice.js");
+loadScript("resource://qpfbug/di/haltobject.js");
 loadScript("resource://qpfbug/di/executionmonitor.js");
 loadScript("resource://qpfbug/di/steppingdriver.js");
 loadScript("resource://qpfbug/di/scriptanalyzer.js");
+
 loadScript("resource://qpfbug/parser/jsparser.js");
 
 loadScript("resource://qpfbug/ui/uieventhandler.js");
