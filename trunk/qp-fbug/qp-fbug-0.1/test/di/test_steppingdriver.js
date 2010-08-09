@@ -98,7 +98,7 @@ function runTest()
             stop: function(){
                 if (DBG)
                     trace("Step handler step count " + this.steppingMode + " : " + this.stepCount);
-                this.steppingDriver.stop();
+                DebugService.getInstance().releaseSteppingDriver(this.steppingDriver);
             },
 
             onStep: function(frame, type, rv){

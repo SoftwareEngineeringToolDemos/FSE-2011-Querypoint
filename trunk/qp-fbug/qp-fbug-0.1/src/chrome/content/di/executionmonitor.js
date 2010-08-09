@@ -8,6 +8,7 @@ with (Lang){
     var owner = QPFBUG.Classes;
 
     //--------------------------- ExecutionMonitor ----------------------
+    // an object creation execution monitor
     owner.ExecutionMonitor = function(){
 
         var constructor = function(context){
@@ -18,12 +19,21 @@ with (Lang){
 
         constructor.prototype = {
 
-            start: function(frame, type, rv){
+            start: function(callback, propertyName, frame, type, rv){
                 this.steppingDriver = DebugService.getInstance().getSteppingDriver(this, this.context);
                 this.startScriptTag = frame.script.tag;
                 this.startPC = frame.pc;
-                this.steppingDriver.step(3, this.startScriptTag, 0, this.startPC); //todo correct line number
+                this.scriptAnalyzer = new ScriptAnalyzer(frame.script.functionSource);
+                var refs = this.scriptAnalyzer.getRefsToCreatedObjects(true);
+                this.callback = callback;
+                this.propertyName = propertyName;
+                debugger;
+                if (!refs[0])
+                    trace("Error");
+                this.monitorRef = refs[0];
                 this.isStopped = false;
+                trace("-----------------------------------" + this.monitorRef +" "+this.propertyName);
+                this.steppingDriver.step(3, this.startScriptTag, frame.line, this.startPC); //todo correct line number
             },
 
             stop: function(){
@@ -34,18 +44,23 @@ with (Lang){
             onStep: function(frame, type, rv)
             {
                 trace(this.isStopped + " -+-+-+" + frame.script.fileName + " " +  frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT) + " " + frame.pc + "------- " + this.context.uid);
-                if (frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT) == 12 && frame.pc == 15)
+                var refValue = null;
+                var result = {};
+                try{
+                    frame.eval(this.monitorRef, "", 1, result)
+                    refValue = result.value;
+                }catch(e)
                 {
-                        refValue = null;
-                        result = {};
-                        try{
-                            refValue = result.value;
-                        }catch(e)
-                        {
-                        }
-                        if (refValue)
-                            trace("<<<<<<<<", refValue.getWrappedValue());
                 }
+                if (refValue){
+                    if (refValue instanceof Error){
+                        trace("Error!" , refValue)
+                    }else{
+                        trace("<<<<<<<<", refValue.getWrappedValue());
+                        refValue.getWrappedValue().watch(this.propertyName, this.callback);
+                    }
+                }
+
                 if (frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT) == 19 && frame.pc == 35)
                 {
                     this.stop();

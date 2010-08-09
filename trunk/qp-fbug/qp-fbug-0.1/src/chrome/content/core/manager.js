@@ -134,8 +134,14 @@ with (Lang){
             },
 
             //------------------------------- call backs ---------------------------------------
-            onModificationWathpointEvent: function(eventRequest, oldValue, newValue){
-
+            onModificationWatchpointEvent: function(eventRequest, oldValue, newValue){
+                trace(eventRequest.w_propertyName + " " + oldValue + " " + newValue);
+                try{
+                    throw new Error();
+                }catch(e)
+                {
+                    trace("Error", e);
+                }
             },
 
             onBreakpointEvent: function(eventRequest, frame, type ,rv){

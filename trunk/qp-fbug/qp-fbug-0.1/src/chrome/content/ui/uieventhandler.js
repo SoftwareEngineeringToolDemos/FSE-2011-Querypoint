@@ -79,8 +79,8 @@ owner.UIEventHandler = function(){
              //this : is a uiEventHandler object as expected.
              lastChangeAction : function(domPanel, row)
              {
-                  with(this.win){
-                  with(FBL){
+                 with(this.win){
+                 with(FBL){
                      //--------------- local functions --------------------------------
                      // We have to define these functions because they are kind of private
                      // in dom.js .
