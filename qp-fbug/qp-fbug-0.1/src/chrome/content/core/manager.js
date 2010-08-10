@@ -12,24 +12,31 @@ with (Lang){
 
         var constructor = function(fbs){
             this.fbs = fbs;
-            this.dataStore = new DataStore();
+            this.debugSessions = [];
+            this.reproductions = [];
+            this.nextDebugSessionId = 0;
         };
 
         constructor.prototype =
         {
-            getReproduction: function(debugSession, reproductionId){
-                var reproduction;
-                if (reproductionId){
-                    reproduction = this.dataStore.getReproduction(reproductionId);
-                }
+            newDebugSession : function(){
+                var id = this.nextDebugSessionId++;
+                var debugSession = new DebugSession(id);
+                this.debugSessions.push(debugSession);
+                return debugSession;
+            },
 
-                if (!reproduction){
-                    if (!debugSession)
-                        debugSession = this.dataStore.newDebugSession();
-                    reproduction = this.dataStore.newReproduction(debugSession);
-                    debugSession.reproductions.push(reproduction);
+            getDebugSession : function(id){
+                if (!id)
+                    return this.newDebugSession();
+                for (i=0 ; i < this.debugSessions.length ; i++)
+                {
+                    if (this.debugSessions[i].id == id)
+                    {
+                        return this.debugSessions[i];
+                    }
                 }
-                return reproduction;
+                return null;
             },
 
             initContext: function(win, context, persistedState)
@@ -54,10 +61,12 @@ with (Lang){
                 //get reproductionId passed to this tab
                 var tabBrowser = win.FBL.$("content");
                 var selectedTab = tabBrowser.selectedTab;
+                var debugSessionId = selectedTab.getAttribute("debugSessionId");
                 var reproductionId = selectedTab.getAttribute("reproductionId");
 
                 //get reproduction for this tab;
-                var reproduction = this.getReproduction(null, reproductionId);
+                var debugSession = this.getDebugSession(debugSessionId);
+                var reproduction = debugSession.getReproduction(reproductionId);
 
                 QPFBUG.contexts[context.uid] = context;
                 //set qpfbug data holder for the context
@@ -211,7 +220,7 @@ with (Lang){
                      //todo move this tag to another place
                      context.qpfbug.inQuery = true;
 
-                    var newReproduction = this.getReproduction(debugSession);
+                    var newReproduction = debugSession.getReproduction();
                     context.qpfbug.reproducer = "hardwired";
 
                     Reproducer.getInstance().reproduce(context, debugSession.id, newReproduction.id);
@@ -219,19 +228,6 @@ with (Lang){
                 }
 
             },
-
-            //---------------------------------- internal functions --------------------------------
-
-            getCallStackDepth: function(frame)
-            {
-                var depth = 0;
-                while (frame){
-                    depth++;
-                    frame = frame.callingFrame;
-                }
-                return depth;
-            },
-
 
         };
 

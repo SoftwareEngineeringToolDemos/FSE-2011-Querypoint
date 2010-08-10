@@ -23,7 +23,7 @@ with (Lang){
                 this.steppingDriver = DebugService.getInstance().getSteppingDriver(this, this.context);
                 this.startScriptTag = frame.script.tag;
                 this.startPC = frame.pc;
-                this.startStackFrameDepth = this.getFrameDepth(frame);
+                this.startStackFrameDepth = callStackDepth(frame);
                 this.callBack = callBack;
                 this.propertyName = propertyName;
                 this.isStopped = false;
@@ -58,7 +58,7 @@ with (Lang){
             // in the creation line are not supported.
             onStep: function(frame, type, rv, stackDepthChange)
             {
-                //trace(this.isStopped + " -+-+-+" + frame.script.fileName + " " +  frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT) + " " + frame.pc + "------- " + this.context.uid +"----" + "  "+ stackDepthChange + " "+ this.getFrameDepth(frame));
+                //trace(this.isStopped + " -+-+-+" + frame.script.fileName + " " +  frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT) + " " + frame.pc + "------- " + this.context.uid +"----" + "  "+ stackDepthChange + " "+ callStackDepth(frame));
                 if (stackDepthChange<0){
                     this.stop();
                     return;
@@ -98,15 +98,6 @@ with (Lang){
                 if (!this.isStopped){ //is this check necessary?
                     this.steppingDriver.step(3, this.lastScriptTag, 0, this.lastPC );
                 }
-            },
-
-            getFrameDepth: function(frame){
-                var depth = 0;
-                while (frame){
-                    depth++;
-                    frame = frame.callingFrame;
-                }
-                return depth;
             },
 
         };

@@ -11,10 +11,33 @@ var owner = QPFBUG.Classes;
     owner.DebugSession = function(id){
         this.id = id;
         this.reproductions = [];
+        this.nextReproductionId = 0;
         this.debugModel = new DebugModel();
     }
 
     owner.DebugSession.prototype = {
+
+        newReproduction : function(){
+            var id = this.nextReproductionId++;
+            var reproduction = new Reproduction(id, this);
+            this.reproductions.push(reproduction);
+            return reproduction;
+        },
+
+        getReproduction : function(id){
+            if (!id)
+                return this.newReproduction();
+            for (i=0 ; i < this.reproductions.length ; i++)
+            {
+                if (this.reproductions[i].id == id)
+                {
+                    return this.reproductions[i];
+                }
+            }
+            return null;
+        },
+
+
         getLastTraceObject: function(pointRef, frameNo, objRef)
         {
             var reproductions = this.reproductions;
