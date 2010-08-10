@@ -208,16 +208,14 @@ with (Lang){
                     }
 
 
+                     //todo move this tag to another place
+                     context.qpfbug.inQuery = true;
+
                     var newReproduction = this.getReproduction(debugSession);
                     context.qpfbug.reproducer = "hardwired";
+
                     Reproducer.getInstance().reproduce(context, debugSession.id, newReproduction.id);
 
-                    // XXXjjb it needs to be up to the reproducer to remove tabs
-                    //var tabBrowser = win.FBL.$("content");
-                    //tabBrowser.removeTab(context.qpfbug.tab);
-
-                    // Show results
-                    //context.dispatch(context.qpfbug.debugSession.debugModel);
                 }
 
             },

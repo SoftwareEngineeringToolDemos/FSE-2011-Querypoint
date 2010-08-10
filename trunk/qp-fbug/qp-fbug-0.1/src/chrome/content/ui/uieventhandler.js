@@ -161,10 +161,6 @@ owner.UIEventHandler = function(){
                          propertyPath = propertyPath.substring(valueRef.indexOf("].")+2, propertyPath.length);
                      }
 
-                     //todo move this tag to another place
-                     var context = domPanel.context;
-                     context.inQuery = true;
-                     
                      Manager.getInstance().addLastChange(domPanel.context, owner, propertyPath);
                   }}
              }
