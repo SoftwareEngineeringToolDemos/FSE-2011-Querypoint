@@ -16,6 +16,7 @@ with (Lang){
                 this.nextTracePointId = 0;
                 this.tracePoints = {}; //<int queryPointId, [] tracePoints>
                 this.queryPointId_tracePoint = {};
+                this.results_queryPointId_tracePoint = {};
             };
 
             constructor.prototype = {
@@ -90,6 +91,8 @@ with (Lang){
                         // by other modules/extenstions
                         // var xpSafeWrappedValue = XPCSafeJSObjectWrapper(jsValue);
 
+                        // Gecko2 (firefox 4)
+                        // var parentId = Object.getProperty(object, "__QPFBUG_ID");
                         var traceObject = new TraceObject(queryObject, parent, parent[propertyName])
 
                         var parentJSDIObject = parentJSDIValue.objectValue;

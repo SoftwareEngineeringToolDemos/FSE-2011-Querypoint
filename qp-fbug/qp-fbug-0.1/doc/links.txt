@@ -1,4 +1,5 @@
-
+ECMAScript
+http://www.ecmascript.org/
 
 Firefox browser, tab browser
 https://developer.mozilla.org/en/Code_snippets/Tabbed_browser
@@ -8,6 +9,9 @@ http://www.jibbering.com/faq/notes/closures/
 
 subscriptloader
 https://developer.mozilla.org/en/mozIJSSubScriptLoader
+
+Object functions (It includes Gecko 2 (firefox 4) features)
+https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object
 
 Components.utils.import()
 https://developer.mozilla.org/en/Using_JavaScript_code_modules

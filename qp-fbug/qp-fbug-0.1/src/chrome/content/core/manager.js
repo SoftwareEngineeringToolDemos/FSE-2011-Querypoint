@@ -137,6 +137,7 @@ with (Lang){
             onModificationWatchpointEvent: function(eventRequest,  frame, type, rv, object, propertyName, oldValue, newValue){
                 trace(frame.script.fileName+ " " +frame.line);
                 trace(eventRequest.w_propertyName + " " + oldValue + " " + newValue, object);
+
                 var context = eventRequest.context;
                 var queryPoint = eventRequest.queryPoint;
                 var tracePoint;

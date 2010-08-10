@@ -19,6 +19,7 @@ with (Lang){
             this.listeningToInterrupts = 0;
             this.listeningToFunctions = 0;
             this.nextListenerId = 0;
+            this.nextJSObjectId = 0;
         };
 
         constructor.prototype =
@@ -83,6 +84,10 @@ with (Lang){
                 steppingDriver.stop();
             },
 
+            //----------------------------------JSObject id getter-----------------------------------
+            getNextJSObjectId: function(){
+                return ++this.nextJSObjectId;
+            },
             //--------------------------------- register/unregister listeners ----------------------------
             // interrupt
             registerInterruptListener: function(interruptListener){

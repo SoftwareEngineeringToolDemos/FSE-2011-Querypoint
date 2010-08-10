@@ -1,0 +1,7 @@
+
+
+Firefox 4.0 (Gecko 2) feature
+    new functions for Object
+        Object.defineProperty
+        Object.create
+    can be used for setting "id" for objects.     
