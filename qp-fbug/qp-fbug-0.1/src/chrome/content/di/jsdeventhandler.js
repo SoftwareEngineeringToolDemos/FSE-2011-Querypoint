@@ -215,7 +215,7 @@ owner.JSDEventHandler = function(){
             },
 
             // jsd.functionHook
-            onFunction: function(frame, type, rv){
+            onFunction: function(frame, type){
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
@@ -223,8 +223,9 @@ owner.JSDEventHandler = function(){
 
                 if (jsdEventHandler.ds_hooksState.functionHook){
                     var context = jsdEventHandler.getContextFromFrame(frame);
+//                    var context = jsdEventHandler.getContextFromExecutionTag(frame);
                     if (context)
-                    returnValue = ds.onFunction(context, frame, type, rv);
+                    returnValue = ds.onFunction(context, frame, type);
                 }
 
                 if (jsdEventHandler.fbs_hooksState.functionHook)
@@ -318,21 +319,31 @@ owner.JSDEventHandler = function(){
             },
 
             //---------------------------------- internal functions --------------------------------
+            //Todo this method may not be a reliable approach for relating an execution tag to a context
+            // This function is useful for tracking an execution even after it goes out of a context.
+            //
             // I assumed that different executionContext.tag may assigned to a context
             // but for each executionContext.tag there is only one context;
+            // This assumption needs some proof.
+            getContextFromExecutionTag: function(frame){
+                var context = null;
+                var contextUID = this.cachedContexts[frame.executionContext.tag];
+                if (contextUID){
+                    context = QPFBUG.contexts[contextUID];
+                    if (context && context.qpfbug.enabled)  //if context is is not any longer available (e.g., firebug disabled and it is deleted for this tab) or qp is not enabled.
+                        return context;
+                }
+
+                //try to get context from frame
+                return this.getContextFromFrame(frame);
+            },
+
             getContextFromFrame: function(frame)
             {
                 var context = null;
 
                   //todo contextexecution tag is not a safe way to recognize context
                   // the outer scope should also considreed
-//                var contextUID = this.cachedContexts[frame.executionContext.tag];
-//                if (contextUID){
-//                    context = QPFBUG.contexts[contextUID];
-//                    if (!context || !context.qpfbug.enabled)  //if context is is not any longer available (e.g., firebug disabled and it is deleted for this tab) or qp is not enabled.
-//                        return null;
-//                    return context;
-//                }
 
                 if (QPFBUG.contexts.length == 0)//there is no context
                     return null;
@@ -357,7 +368,7 @@ owner.JSDEventHandler = function(){
                         var context = QPFBUG.contexts[uid];
                         if (context.window == rootWindow)
                         {
-//                            this.cachedContexts[frame.executionContext.tag] = context.uid;
+                            this.cachedContexts[frame.executionContext.tag] = context.uid;
                             if (!context.qpfbug.enabled)
                                 return null;
                             return context;    

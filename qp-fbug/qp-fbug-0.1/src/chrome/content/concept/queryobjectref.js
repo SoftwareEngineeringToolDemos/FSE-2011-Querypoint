@@ -6,7 +6,7 @@ with (QPFBUG.Classes){
 with (Lang){
     var owner = QPFBUG.Classes;
 
-    //------------------------------- QueryObject ----------------------------------
+    //------------------------------- QueryObjectRef ----------------------------------
     // This object uniquely specifies an object at a point.
     owner.QueryObjectRef =
         function(){

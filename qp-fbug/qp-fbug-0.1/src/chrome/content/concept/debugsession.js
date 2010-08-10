@@ -25,8 +25,9 @@ var owner = QPFBUG.Classes;
 
         getNewestTrace: function()
         {
-            if (this.reproductions.length > 1) // What is reproductions[0]?
-                return this.reproductions[this.reproductions.length - 2].trace;
+            var reproductions = this.reproductions;
+        	if (reproductions.length > 1) // What is reproductions[0]?
+        		return reproductions[reproductions.length - 2].trace; 
         },
 
     }

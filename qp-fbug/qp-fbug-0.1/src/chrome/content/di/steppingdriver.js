@@ -99,9 +99,12 @@ with (Lang){
                 }
             },
             
-            onStep: function(context, frame, type, rv){
+            onStep: function(context, frame, type, rv, stackDepthChange){
                 this.stop();
-                this.stepHandler.onStep(frame, type, rv);
+                if (!stackDepthChange)
+                    stackDepthChange = 0;
+
+                this.stepHandler.onStep(frame, type, rv, stackDepthChange);
             },
 
             // ------------------------------ functions called by debug service -------------
@@ -138,88 +141,106 @@ with (Lang){
 
             },
 
-            onFunction: function(context, frame, type, rv){
+            onFunction: function(context, frame, type){
+                var rv = null;
+                var stackDepthChange = 0;
+
                 if (context != this.context)
                     return;
                 with(SteppingDriver.STEP_MODES){
                 with(JSDConstants){
-                switch (this.steppingMode){
-                    case STEP_MIN: {
-                        this.onStep(context, frame, type, rv);
-                        break;
-                    }
-                    //todo change it. It should check and if we are still in the same line just let the execution continue
-                    case STEP_LINE: {
-                        if (frame.line != this.startLineNo){ //only if it is a new line
-                            this.onStep(context, frame, type, rv);
+                    switch (type)
+                    {
+                        case TYPE_TOPLEVEL_START:
+                        case TYPE_FUNCTION_CALL:{
+                            stackDepthChange = 1;
+                            break;
                         }
-                        break;
-                    }
-                    case STEP_INTO: {
-                        this.onStep(context, frame, type, rv);
-                        break;
-                    }
-                    case STEP_OVER: {
-                        switch (type)
-                        {
-                            case TYPE_TOPLEVEL_START:
-                            case TYPE_FUNCTION_CALL:{
-                                if (frame.callingFrame && frame.callingFrame.script.tag === this.startScriptTag)
-                                {
-                                    if (!this.stepRecursion){
-                                        this.onStep(context, frame, type, rv);
-                                    }
-                                    this.stepRecursion++;
-                                }
-                                this.unRegisterAsInterruptListener();
-                                break;
-                            }
-                            case TYPE_TOPLEVEL_END:
-                            case TYPE_FUNCTION_RETURN:{
-                                if (!this.stepRecursion){ // then we never hit FUNCTION_CALL or we rolled back after we hit it
-                                    if (frame.script.tag === this.startScriptTag){// We are in the stepping frame,
-                                        this.onStep(context, frame, type, rv);
-                                        this.registerAsInterruptListener();  // so halt on the next PC
-                                    }
-
-                                }else if (frame.callingFrame && frame.callingFrame.script.tag === this.startScriptTag){ //then we could be in the step call
-                                    this.stepRecursion--;
-
-                                    if (!this.stepRecursion) // then we've rolled back to the step-call
-                                        this.registerAsInterruptListener();  // so halt on the next PC
-                                }
-                                break;
-                            }
+                        case TYPE_TOPLEVEL_END:
+                        case TYPE_FUNCTION_RETURN:{
+                            stackDepthChange = -1;
+                            break;
                         }
-                        break;
-                    }
-                    case STEP_OUT: {
-                        switch (type)
-                        {
-                            case TYPE_TOPLEVEL_START:
-                            case TYPE_FUNCTION_CALL:{
-                                if (frame.callingFrame && frame.callingFrame.script.tag === this.startScriptTag)
-                                    this.stepRecursion++;
-                                this.unRegisterAsInterruptListener();
-                                break;
-                            }
-                            case TYPE_TOPLEVEL_END:
-                            case TYPE_FUNCTION_RETURN:{
-                                if (!this.stepRecursion){ // then we never hit FUNCTION_CALL or we rolled back after we hit it
-                                    if (frame.script.tag === this.startScriptTag){// We are in the stepping frame,
-                                        this.onStep(context, frame, type, rv);
-                                        this.registerAsInterruptListener();  // so halt on the next PC
-                                    }
-                                }else if (frame.callingFrame && frame.callingFrame.script.tag === this.startScriptTag){ //then we could be in the step call
-                                    this.stepRecursion--;
-                                }
-                                break;
-                            }
-                        }
-                        break;
                     }
 
-                }}}
+                    switch (this.steppingMode){
+                        case STEP_MIN: {
+                            this.onStep(context, frame, type, rv, stackDepthChange);
+                            break;
+                        }
+                        //todo change it. It should check and if we are still in the same line just let the execution continue
+                        case STEP_LINE: {
+                            if (frame.line != this.startLineNo){ //only if it is a new line
+                                this.onStep(context, frame, type, rv, stackDepthChange);
+                            }
+                            break;
+                        }
+                        case STEP_INTO: {
+                            this.onStep(context, frame, type, rv, stackDepthChange);
+                            break;
+                        }
+                        case STEP_OVER: {
+                            switch (type)
+                            {
+                                case TYPE_TOPLEVEL_START:
+                                case TYPE_FUNCTION_CALL:{
+                                    if (frame.callingFrame && frame.callingFrame.script.tag === this.startScriptTag)
+                                    {
+                                        if (!this.stepRecursion){
+                                            this.onStep(context, frame, type, rv, stackDepthChange);
+                                        }
+                                        this.stepRecursion++;
+                                    }
+                                    this.unRegisterAsInterruptListener();
+                                    break;
+                                }
+                                case TYPE_TOPLEVEL_END:
+                                case TYPE_FUNCTION_RETURN:{
+                                    if (!this.stepRecursion){ // then we never hit FUNCTION_CALL or we rolled back after we hit it
+                                        if (frame.script.tag === this.startScriptTag){// We are in the stepping frame,
+                                            this.onStep(context, frame, type, rv, stackDepthChange);
+                                            this.registerAsInterruptListener();  // so halt on the next PC
+                                        }
+
+                                    }else if (frame.callingFrame && frame.callingFrame.script.tag === this.startScriptTag){ //then we could be in the step call
+                                        this.stepRecursion--;
+
+                                        if (!this.stepRecursion) // then we've rolled back to the step-call
+                                            this.registerAsInterruptListener();  // so halt on the next PC
+                                    }
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                        case STEP_OUT: {
+                            switch (type)
+                            {
+                                case TYPE_TOPLEVEL_START:
+                                case TYPE_FUNCTION_CALL:{
+                                    if (frame.callingFrame && frame.callingFrame.script.tag === this.startScriptTag)
+                                        this.stepRecursion++;
+                                    this.unRegisterAsInterruptListener();
+                                    break;
+                                }
+                                case TYPE_TOPLEVEL_END:
+                                case TYPE_FUNCTION_RETURN:{
+                                    if (!this.stepRecursion){ // then we never hit FUNCTION_CALL or we rolled back after we hit it
+                                        if (frame.script.tag === this.startScriptTag){// We are in the stepping frame,
+                                            this.onStep(context, frame, type, rv, stackDepthChange);
+                                            this.registerAsInterruptListener();  // so halt on the next PC
+                                        }
+                                    }else if (frame.callingFrame && frame.callingFrame.script.tag === this.startScriptTag){ //then we could be in the step call
+                                        this.stepRecursion--;
+                                    }
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+
+                }}
 
             },
 
@@ -232,6 +253,12 @@ with (Lang){
             STEP_OVER : 3,
             STEP_OUT : 4,
         };
+
+        constructor.STEP_TYPE = {
+            IN: 1,
+            OVER: 0,
+            OUT: -1,
+        }
         
         return constructor;
     }();

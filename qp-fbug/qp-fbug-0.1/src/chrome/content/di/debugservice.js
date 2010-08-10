@@ -156,7 +156,13 @@ with (Lang){
             },
 
             // halt made by this object
-            onHalt: function(haltObject, frame, type, rv){
+            onHalt: function(frame, type, rv){
+                var haltObject;
+                if (!frame.thisValue || !(frame.thisValue.getWrappedValue() instanceof HaltObject)){
+                    return Ci.jsdIExecutionHook.RETURN_CONTINUE;
+                }
+
+                haltObject = frame.thisValue.getWrappedValue() ;
 
                 // To remove halting functions from the stack five stepOut steps needed.
                 // Here, by restricting stepping driver to debugging context, only one stepMin
@@ -166,12 +172,14 @@ with (Lang){
                         this.steppingDriver = DebugService.getInstance().getSteppingDriver(this, context);
                         this.steppingDriver.step(0, frame.script.tag, frame.line, frame.pc);
                     },
-                    onStep: function(frame, type, rv){
+                    onStep: function(frame, type, rv, stackDepthChange){
                         haltObject.callBack(frame, type, rv);
                         DebugService.getInstance().releaseSteppingDriver(this.steppingDriver);
                     },
                 }
                 stepHandler.start(haltObject.context, frame, type, rv);
+
+                return Ci.jsdIExecutionHook.RETURN_CONTINUE;
             },
 
             //------------------------------------------ jsd hooks -------------------------------------------------
@@ -187,12 +195,12 @@ with (Lang){
                 return Ci.jsdIExecutionHook.RETURN_CONTINUE;
             },
 
-            onFunction: function(context, frame, type, rv){
+            onFunction: function(context, frame, type){
                 var copy = cloneObject(this.functionListeners);
                 for (var i in copy){
                     var functionListener = copy[i]; 
                     if (functionListener){
-                        functionListener.onFunction(context, frame, type, rv);
+                        functionListener.onFunction(context, frame, type);
                     }
                 }            
 
@@ -240,13 +248,7 @@ with (Lang){
             },
 
             onDebugger: function(frame, type, rv){
-                var thisValue;
-                if (frame.thisValue){
-                    thisValue = frame.thisValue.getWrappedValue();
-                    if (thisValue instanceof HaltObject)
-                        this.onHalt(thisValue, frame, type, rv);
-                }
-                return Ci.jsdIExecutionHook.RETURN_CONTINUE;
+                return this.onHalt(frame, type, rv);
             },
 
             onPropertyChanged: function(propertyName, oldValue, newValue, object, eventRequest){
