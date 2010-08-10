@@ -39,6 +39,7 @@ owner.HardWiredReproducer = function(){
 
                             // Open new tab and mark as 'test' so it can be closed automatically.
                             var newTab = tabbrowser.addTab(url);
+                            newTab.setAttribute("debugSessionId", debugSessionId);
                             newTab.setAttribute("reproductionId", reproductionId);
                             tabbrowser.selectedTab = newTab;
 

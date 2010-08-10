@@ -109,6 +109,16 @@ loadModule = function(QPFBUG)
             return value;
         },
 
+        callStackDepth: function(frame)
+        {
+            var depth = 0;
+            while (frame){
+                depth++;
+                frame = frame.callingFrame;
+            }
+            return depth;
+        },
+
         //--------------------------------- from firebug lib.js -----------------------------
         bind: QPFBUG.FBL.bind,
 

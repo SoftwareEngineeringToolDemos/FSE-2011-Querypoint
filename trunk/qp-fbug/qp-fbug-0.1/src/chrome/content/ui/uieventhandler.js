@@ -116,43 +116,19 @@ owner.UIEventHandler = function(){
                      var rowValue = getRowValue(row);
 
                      // getting the owner;
-                     var owner;
+                     var rowOwnerObject;
 
 
-                     var owner = getRowOwnerObject(row);
+                     var rowOwnerObject = getRowOwnerObject(row);
 
-                     //domPanel.selection is the whole object which is shown in dom panel
-                     // so if row is at top level the owner will be the whole object of
+                     //domPanel.selection is the whole object which is shown in the dom panel
+                     // so if row is at top level the rowOwnerObject will be the whole object of
                      // dom panel.
-                     owner = owner ? owner : domPanel.selection;
-
-                     var type = typeof(rowValue);
-
-                     if (type == "object")
-                     {
-
-                     }else if(type == "string")
-                     {
-
-                     }else if(type == "number")
-                     {
-
-                     }else if (type == "undefined")
-                     {
-
-                     }else if (type == "boolean")
-                     {
-
-                     }else if (type == "xml")
-                     {
-
-                     }else if (type == "function")
-                     {
-
-                     }
+                     rowOwnerObject = rowOwnerObject ? rowOwnerObject : domPanel.selection;
 
                      var propertyPath = domPanel.getPropertyPath(row).join("");
                      var propertyName = domPanel.getRowPathName(row);
+
                      // value is something like  [., name] so we ignore the separator(dot).
                      propertyName = propertyName[1];
 
@@ -161,7 +137,7 @@ owner.UIEventHandler = function(){
                          propertyPath = propertyPath.substring(valueRef.indexOf("].")+2, propertyPath.length);
                      }
 
-                     Manager.getInstance().addLastChange(domPanel.context, owner, propertyPath);
+                     Manager.getInstance().addLastChange(domPanel.context, rowOwnerObject, propertyPath);
                   }}
              }
 

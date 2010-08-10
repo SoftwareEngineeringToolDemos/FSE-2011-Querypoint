@@ -45,7 +45,6 @@ loadScript("resource://qpfbug/concept/stackframelog.js");
 loadScript("resource://qpfbug/concept/debugsession.js");
 loadScript("resource://qpfbug/concept/reproduction.js");
 
-loadScript("resource://qpfbug/core/datastore.js");
 loadScript("resource://qpfbug/core/manager.js");
 loadScript("resource://qpfbug/core/moduleeventhandler.js");
 
