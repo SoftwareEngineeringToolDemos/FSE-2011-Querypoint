@@ -68,9 +68,18 @@ with (Lang){
                     var monitorRef = this.monitorRefs[i];
                     var refValue = evalInFrame(frame, monitorRef);
                     if (refValue != this.monitorRefValues[i]){
-                        this.monitorRefGotNewValue[i] = true;
                         this.monitorRefValues[i] = refValue;
-                        refValue.watch(this.propertyName, bind(this.callBack, this, refValue));
+                        if (typeof(refValue) == "object")
+                        {
+                            var objectId = DebugService.getInstance().getNextJSObjectId();
+                            // Code for Gecko 2 (fireforx 4)
+                            //trace(Object.getOwnPropertyNames(Object).sort().join(","));
+                            //Object.defineProperty(refValue, "__QPFBUG_ID", { value: objectId });
+                            // code for firefox 3.5+
+                            //refValue.__defineGetter__("__QPFBUG_ID", function(){return objectId;})
+                            this.monitorRefGotNewValue[i] = true;
+                            refValue.watch(this.propertyName, bind(this.callBack, this, refValue));
+                        }
                     }
                 }
                 var shouldContinue = false;
