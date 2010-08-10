@@ -209,9 +209,8 @@ with (Lang){
 
 
                     var newReproduction = this.getReproduction(debugSession);
-                    context.querypoint.reproducer = "hardwire";
-//                    context.querypoint.reproducer = "local";
-                    QPFBUG.reproducer.reproduce(context, debugSession.id, newReproduction.id);
+                    context.qpfbug.reproducer = "hardwired";
+                    Reproducer.getInstance().reproduce(context, debugSession.id, newReproduction.id);
 
                     // XXXjjb it needs to be up to the reproducer to remove tabs
                     //var tabBrowser = win.FBL.$("content");

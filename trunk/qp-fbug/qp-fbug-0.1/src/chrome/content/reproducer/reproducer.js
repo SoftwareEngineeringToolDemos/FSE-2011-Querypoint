@@ -31,8 +31,8 @@ owner.Reproducer = function(){
 
             reproduce : function (context, debugSessionId, reproductionId)
             {
-                if (context.querypoint.reproducer)
-                   this.select(context.querypoint.reproducer);
+                if (context.qpfbug.reproducer)
+                   this.select(context.qpfbug.reproducer);
 
                 FBTrace.sysout("reproduce "+this.reproducer, {context: context, debugSessionId: debugSessionId, reproductionId: reproductionId});
 
@@ -41,7 +41,7 @@ owner.Reproducer = function(){
 
             select: function(kind)
             {
-                if (kind === "hardwire") this.reproducer = this.hardWiredReproducer;
+                if (kind === "hardwired") this.reproducer = this.hardWiredReproducer;
                 else if (kind === "fbtest") this.reproducer = fbTestReproducer;
                 else if (kind === "local") this.reproducer = localReproducer;
             },
