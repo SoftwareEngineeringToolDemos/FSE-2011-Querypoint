@@ -86,7 +86,14 @@ with (Lang){
                     if (tracePoint)
                         return tracePoint.getTraceObject(frameNo, objectRef);
                     return null;
-                }
+                },
+                
+                getLastTracePointByQueryPoint: function(queryPoint)
+                {
+                	var points = this.tracePoints[queryPoint.id];
+                	if (points)
+                		return points[points.length - 1];
+                },
 
             };
 
