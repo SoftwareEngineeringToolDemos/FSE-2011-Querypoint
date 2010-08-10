@@ -1,6 +1,6 @@
 function runTest()
 {
-    var DBG = false;
+    var DBG = true;
     var win = FBTest.FirebugWindow;
     var QPFBUG = win.QPFBUG;
     var Firebug = win.Firebug;
@@ -101,9 +101,9 @@ function runTest()
                 DebugService.getInstance().releaseSteppingDriver(this.steppingDriver);
             },
 
-            onStep: function(frame, type, rv){
+            onStep: function(frame, type, rv, stackDepthChange){
                 if (DBG)
-                    trace("onStep : " + this.steppingMode + " : " + frame.script.fileName + ":" +frame.line);
+                    trace("onStep : " + this.steppingMode + " : " + frame.script.fileName + ":  " +frame.line + " type: " + type + " stackDepthChange: " + stackDepthChange + " "+this.getFrameDepth(frame), frame);
                 if (!this.countingStarted){
                     if (frame.line == this.startCountingLine){
                         this.countingStarted = true;
@@ -122,6 +122,14 @@ function runTest()
                 }
             },
 
+            getFrameDepth: function(frame){
+                var depth = 0;
+                while (frame){
+                    depth++;
+                    frame = frame.callingFrame;
+                }
+                return depth;
+            },
         };
 
         if (DBG)

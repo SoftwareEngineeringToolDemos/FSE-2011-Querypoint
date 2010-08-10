@@ -23,7 +23,10 @@ with (Lang){
             };
 
             constructor.prototype = {
-                // no fuctions
+                toString: function()
+                {
+                    return "[TraceObject]";
+                }
             };
 
             return constructor;

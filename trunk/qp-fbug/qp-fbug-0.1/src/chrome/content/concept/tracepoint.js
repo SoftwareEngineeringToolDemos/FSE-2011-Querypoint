@@ -51,49 +51,6 @@ with (Lang){
 
             return constructor;
         }();
-
-    //------------------------------- TraceObject ----------------------------------
-    // This object keeps collected data from an objects.
-
-    owner.TraceObject =
-        function(){
-            var constructor = function(queryObject, parentValue, value){
-                this.queryObject = queryObject;
-                this.parentValue = parentValue ;
-                this.value = value;
-                this.parentCreatorURL = null;
-                this.parentCreatorLine = 0;
-                this.parentConstructorURL = null;
-                this.parentConstructorLine = 0;
-            };
-
-            constructor.prototype = {
-                    toString: function()
-                    {
-                        return "[TraceObject]";
-                    }
-                // no fuctions
-            };
-
-            return constructor;
-        }();
-
-    //------------------------------- StackFrameLog ----------------------------------
-    // StackFrameLog
-        /* Which one? This or the one in stackframelog.js
-    owner.StackFrameLog =
-        function(){
-            var constructor = function(frame){
-                //init
-            };
-
-            constructor.prototype = {
-                // no fuctions
-            };
-
-            return constructor;
-        }();
-*/
 }}
 
 };

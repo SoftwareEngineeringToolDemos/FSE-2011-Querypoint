@@ -137,19 +137,23 @@ with (Lang){
             onModificationWatchpointEvent: function(eventRequest,  frame, type, rv, object, propertyName, oldValue, newValue){
                 trace(frame.script.fileName+ " " +frame.line);
                 trace(eventRequest.w_propertyName + " " + oldValue + " " + newValue, object);
+                var context = eventRequest.context;
+                var queryPoint = eventRequest.queryPoint;
+                var tracePoint;
+                if (queryPoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE)
+                {
+                    tracePoint = context.qpfbug.reproduction.trace.addLastChangeTracePoint(queryPoint, context, frame, object, oldValue, newValue);
+                }
             },
 
             onBreakpointEvent: function(eventRequest, frame, type ,rv){
                 var context = eventRequest.context;
                 var queryPoint = eventRequest.queryPoint;
-                trace("000000000000000000");
                 var tracePoint;
                 if (queryPoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT)
                 {
-                    trace("11111111111111");
-                    tracePoint = context.qpfbug.reproduction.trace.addTracePoint(queryPoint, context, frame);
+                    tracePoint = context.qpfbug.reproduction.trace.addBreakpointTracePoint(queryPoint, context, frame);
                 }
-
             },
 
             //------------------------------- actions ---------------------------------------
@@ -184,7 +188,7 @@ with (Lang){
                         queryPointB = debugModel.addQueryPoint_LastChange(queryPointA, 0, propertyPath);
 
                         // collect data
-                        var tracePoint = reproduction.trace.addTracePoint(queryPointA, context, context.stoppedFrame);
+                        var tracePoint = reproduction.trace.addBreakpointTracePoint(queryPointA, context, context.stoppedFrame);
                         reproduction.trace.assignTracePoint(queryPointA, tracePoint);
 
                         //todo add current traceobj  data to the queryPointAlog in reproduction
@@ -205,6 +209,7 @@ with (Lang){
 
                     var newReproduction = this.getReproduction(debugSession);
                     context.querypoint.reproducer = "hardwire";
+//                    context.querypoint.reproducer = "local";
                     QPFBUG.reproducer.reproduce(context, debugSession.id, newReproduction.id);
 
                     // XXXjjb it needs to be up to the reproducer to remove tabs
