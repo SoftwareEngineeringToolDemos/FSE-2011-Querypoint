@@ -157,11 +157,11 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
     getObjectDescription: function(tracePoint)
     {
         FBTrace.sysout("queryPoints.getObjectDescription "+tracePoint, tracePoint);
-        if (tracePoint.queryType == QPFBUG.Classes.DebugModel.QUERY_TYPES.BREAKPOINT)
+        if (tracePoint.getQueryType() == 'breakpoint')
         {
             return {path: "Breakpoint", name: this.getObjectLocation(tracePoint)};
         }
-        if (tracePoint.queryType == QPFBUG.Classes.DebugModel.QUERY_TYPES.LASTCHANGE)
+        if (tracePoint.getQueryType() == 'lastChange')
         {
             return {path: "Last Change", name: this.getObjectLocation(tracePoint)};
         }
