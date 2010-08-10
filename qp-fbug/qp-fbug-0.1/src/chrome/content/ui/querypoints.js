@@ -70,7 +70,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
             return 10;
         if( object instanceof QPFBUG.Classes.DebugSession)
             return 10;
-        if( object instanceof QPFBUG.Classes.QueryPoint)
+        if( object instanceof QPFBUG.Classes.TracePoint)
             return 10;
         else return 0;
     },
@@ -78,13 +78,13 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
     updateSelection: function(object)
     {
         FBTrace.sysout("queryPoints.updateSelection "+object, object);
-        if( object instanceof QPFBUG.Classes.DebugModel)
+        if( object instanceof QPFBUG.Classes.DebugSession)
             this.showDebugModel(object.debugModel);
 
         if( object instanceof QPFBUG.Classes.DebugModel)
             this.showDebugModel(object);
 
-        if( object instanceof QPFBUG.Classes.QueryPoint)
+        if( object instanceof QPFBUG.Classes.TracePoint)
             this.navigate(object);
     },
 
@@ -96,11 +96,11 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         this.navigate(this.getDefaultLocation());
     },
     // ***********************************************
-    // --- Querypoint locations are "QueryPoints" ---
+    // --- Querypoint locations are "TracePoint" objects ---
 
-    updateLocation: function(queryPoint)
+    updateLocation: function(tracePoint)
     {
-        if (!queryPoint)
+        if (!tracePoint)
         {
             this.showWarningTag();
             return;
@@ -118,17 +118,17 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         }
 
 
-        var sourceFile = getSourceFileByHref(queryPoint.url, this.context);
+        var sourceFile = getSourceFileByHref(tracePoint.url, this.context);
         if (sourceFile)
         {
             this.showSourceFile(sourceFile);
-            this.scrollToLine(queryPoint.url, queryPoint.lineNo, this.jumpHighlightFactory(queryPoint.lineNo, this.context));
+            this.scrollToLine(tracePoint.url, tracePoint.lineNo, bind(this.highlightExecutionLine, this, tracePoint.lineNo, "tracepoint_line"));
         }
 
-        FBTrace.sysout("queryPoints.updateLocation "+queryPoint, queryPoint);
+        FBTrace.sysout("queryPoints.updateLocation "+tracePoint, tracePoint);
         var qstate = this.context.getPanel("QueryState", false);
         if (qstate)
-            qstate.updateSelection(queryPoint);
+            qstate.updateSelection(tracePoint);
     },
     /*
      * Framework connection
@@ -138,22 +138,36 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         return "js";
     },
 
-    getObjectLocation: function(queryPoint)
+    getObjectLocation: function(tracePoint)
     {
-        FBTrace.sysout("queryPoints.getObjectDescription "+queryPoint, queryPoint);
-        return queryPoint.url+"@"+queryPoint.lineNo;
+        FBTrace.sysout("queryPoints.getObjectDescription "+tracePoint, tracePoint);
+        return tracePoint.url+"@"+tracePoint.lineNo;
     },
 
     // return.path: group/category label, return.name: item label
-    getObjectDescription: function(queryPoint)
+    getObjectDescription: function(tracePoint)
     {
-        FBTrace.sysout("queryPoints.getObjectDescription "+queryPoint, queryPoint);
-        return {path: "Last Change", name: this.getObjectLocation(queryPoint)};
+        FBTrace.sysout("queryPoints.getObjectDescription "+tracePoint, tracePoint);
+        if (tracePoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT)
+        {
+        	return {path: "Breakpoint", name: this.getObjectLocation(tracePoint)};	
+        }	
+        if (tracePoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE)
+        {
+        	return {path: "Last Change", name: this.getObjectLocation(tracePoint)};
+        }
     },
 
     getLocationList: function()
     {
-        return this.context.qpfbug.debugSession.debugModel.getQueryPoints();
+    	var list = [];
+    	var trace = this.context.qpfbug.debugSession.getNewestTrace();
+    	if (trace)
+    	{
+    		
+    		list.push(trace.getLastTracePointByQueryPoint(qp));
+    	}
+    	return list;
     },
 
     getDefaultLocation: function()
@@ -238,22 +252,22 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
         this.updateSelection(this.selection);
     },
 
-    updateSelection: function(queryPoint)
+    updateSelection: function(tracePoint)
     {
-        FBTrace.sysout("QueryStatePanel.updateSelection "+queryPoint, queryPoint);
-        if( ! (queryPoint instanceof QPFBUG.Classes.QueryPoint) )
+        FBTrace.sysout("QueryStatePanel.updateSelection "+tracePoint, tracePoint);
+        if( ! (tracePoint instanceof QPFBUG.Classes.tracePoint) )
             return;
 
-        var newQueryPoint = (queryPoint !== this.currentQueryPoint);
-        if (newQueryPoint)
+        var newTracePoint = (tracePoint !== this.currentTracePoint);
+        if (newTracePoint)
         {
             this.toggles = new ToggleBranch();
-            this.currentQueryPoint = queryPoint;
+            this.currentTracePoint = tracePoint;
         }
 
-        var members = queryPoint.queryObjects;
+        var members = tracePoint.queryObjects;
         this.expandMembers(members, this.toggles, 0, 0, this.context);
-        this.showMembers(members, !newQueryPoint);
+        this.showMembers(members, !newTracePoint);
     },
 
     showEmptyMembers: function()
