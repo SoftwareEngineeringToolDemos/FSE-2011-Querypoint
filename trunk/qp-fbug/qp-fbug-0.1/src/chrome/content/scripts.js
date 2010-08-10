@@ -47,8 +47,12 @@ loadScript("resource://qpfbug/concept/reproduction.js");
 
 loadScript("resource://qpfbug/core/datastore.js");
 loadScript("resource://qpfbug/core/manager.js");
-loadScript("resource://qpfbug/core/reproducer.js");
 loadScript("resource://qpfbug/core/moduleeventhandler.js");
+
+loadScript("resource://qpfbug/reproducer/reproducer.js");
+loadScript("resource://qpfbug/reproducer/localreproducer.js");
+loadScript("resource://qpfbug/reproducer/fbtestreproducer.js");
+loadScript("resource://qpfbug/reproducer/hardwiredreproducer.js");
 
 loadScript("resource://qpfbug/di/jsdconstants.js");
 loadScript("resource://qpfbug/di/jsdeventhandler.js");
