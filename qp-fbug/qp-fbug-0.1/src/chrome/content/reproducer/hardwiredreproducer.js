@@ -9,39 +9,13 @@ var owner = QPFBUG.Classes;
 
 //--------------------------------- Reproducer --------------------------------
 
-owner.Reproducer = function(){
+owner.HardWiredReproducer = function(){
 
         var constructor = function(){
         };
 
         constructor.prototype =
         {
-            initialize : function()
-            {
-                fbTestReproducer.initialize();
-
-                this.reproducer = this.hardWiredReproducer;  // back wards compat for Salman
-            },
-
-            reproduce : function (context, debugSessionId, reproductionId)
-            {
-                if (context.querypoint.reproducer)
-                   this.select(context.querypoint.reproducer);
-
-                FBTrace.sysout("reproduce "+this.reproducer, {context: context, debugSessionId: debugSessionId, reproductionId: reproductionId});
-
-                this.reproducer.reproduce(context, debugSessionId, reproductionId);
-            },
-
-            select: function(kind)
-            {
-                if (kind === "hardwire") this.reproducer = this.hardWiredReproducer;
-                else if (kind === "fbtest") this.reproducer = fbTestReproducer;
-                else if (kind === "local") this.reproducer = localReproducer;
-            },
-
-            hardWiredReproducer:
-            {
                 toString: function()
                 {
                     return "[HardWiredReproducer]";
@@ -150,84 +124,13 @@ owner.Reproducer = function(){
 
                         Firebug.Console.log("The end of reproduction " + reproductionId + ".");
                     }}
-                }
-            }
+                },
 
-        };
-
-        constructor.getInstance = function(){
-            if (!QPFBUG.reproducer)
-            {
-                QPFBUG.reproducer = new Reproducer();
-                QPFBUG.reproducer.initialize();
-            }
-            return QPFBUG.reproducer;
         };
 
         return constructor;
     }();
 
-    var fbTestReproducer =
-    {
-            toString: function()
-            {
-                return "[FBTestReproducer]";
-            },
-
-        reproduce: function(context, debugSessionId, reproductionId)
-        {
-            fbTestReproducer.trackFBTest.replay();
-        },
-
-        initialize: function()
-        {
-            if (!this.obseverService)
-            {
-                this.observerService = QPFBUG.loadScript("resource://firebug/observer-service.js", QPFBUG);
-                this.observerService = QPFBUG.observerService;
-            }
-
-            this.trackFBTest =
-            {
-                observe: function(subject, topic, data)
-                {
-                    if (topic === "fbtest-start-case")
-                    {
-                        this.lastTest = data;
-                        this.fbTest = subject;
-                    }
-                },
-
-                replay: function()
-                {
-                    if (this.fbTest && this.lastTest)
-                        fbTest.replay(this.lastTest);
-                },
-            };
-
-            this.observerService.addObserver(this.trackFBTest, "fbtest-start-case");
-        },
-
-        destroy: function()
-        {
-            if (this.observerService)
-                this.observerService.removeObserver(this.trackFBTest, "fbtest-start-case");
-        },
-    }
-
-    var localReproducer =
-    {
-            toString: function()
-            {
-                return "[CallStackReproducer]";
-            },
-
-        reproduce: function (context, debugSessionId, reproductionId)
-        {
-            var Firebug = context.Firebug; // we are in a module and don't have access to Firebug in this scope.
-            Firebug.Debugger.rerun(context);
-        },
-    };
 }}
 
 };
