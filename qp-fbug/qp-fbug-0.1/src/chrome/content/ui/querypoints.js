@@ -32,10 +32,10 @@ Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
 
     onStartDebugging: function(context)
     {
-        if (context.inQuery)
+        if (context.qpfbug.inQuery)
         {
             Firebug.chrome.selectSupportingPanel(context.qpfbug.debugSession.debugModel, context, true);
-            delete context.inQuery;
+            delete context.qpfbug.inQuery;
         }
 
     },
