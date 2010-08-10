@@ -31,8 +31,22 @@ with (Lang){
                             return this.traceObjects[i];
                     }
                     return null;
-                }
+                },
 
+                getTraceObjects: function()
+                {
+                    return this.traceObjects;
+                },
+
+                getStackFrames: function()
+                {
+                    return this.stackFrameLog.stackTraceXB;
+                },
+
+                toString: function()
+                {
+                    return "["+DebugModel.queryTypes[this.queryPoint.queryType]+" TracePoint]";
+                }
             };
 
             return constructor;
@@ -54,6 +68,10 @@ with (Lang){
             };
 
             constructor.prototype = {
+                    toString: function()
+                    {
+                        return "[TraceObject]";
+                    }
                 // no fuctions
             };
 
@@ -62,6 +80,7 @@ with (Lang){
 
     //------------------------------- StackFrameLog ----------------------------------
     // StackFrameLog
+        /* Which one? This or the one in stackframelog.js
     owner.StackFrameLog =
         function(){
             var constructor = function(frame){
@@ -74,7 +93,7 @@ with (Lang){
 
             return constructor;
         }();
-
+*/
 }}
 
 };

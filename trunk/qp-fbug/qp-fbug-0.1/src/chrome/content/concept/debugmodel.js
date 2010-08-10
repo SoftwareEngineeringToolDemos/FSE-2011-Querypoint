@@ -74,10 +74,10 @@ with (Lang){
                     list.push(this.queryPoints[this.nextQueryPointId - 1]);  // I guess this one has to exist ?
                     return list;
                 },
-                
+
                 toString: function()
                 {
-                	return "[DebugModel]";
+                    return "[DebugModel]";
                 },
 
             };
@@ -88,6 +88,8 @@ with (Lang){
                  LASTCHANGE : 1,
                  LASTCONDITION : 2
             };
+
+            constructor.queryTypes = ["breakpoint", "lastChange", "lastCondition"];
 
             return constructor;
         }();

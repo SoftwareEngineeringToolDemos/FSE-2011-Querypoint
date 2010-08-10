@@ -147,7 +147,7 @@ with (Lang){
                 if (queryPoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT)
                 {
                     trace("11111111111111");
-                    tracePoint = context.qpfbug.reproduction.trace.addTracePoint(queryPoint, frame);
+                    tracePoint = context.qpfbug.reproduction.trace.addTracePoint(queryPoint, context, frame);
                 }
 
             },
@@ -184,7 +184,7 @@ with (Lang){
                         queryPointB = debugModel.addQueryPoint_LastChange(queryPointA, 0, propertyPath);
 
                         // collect data
-                        var tracePoint = reproduction.trace.addTracePoint(queryPointA, context.stoppedFrame);
+                        var tracePoint = reproduction.trace.addTracePoint(queryPointA, context, context.stoppedFrame);
                         reproduction.trace.assignTracePoint(queryPointA, tracePoint);
 
                         //todo add current traceobj  data to the queryPointAlog in reproduction
@@ -210,9 +210,9 @@ with (Lang){
                     // XXXjjb it needs to be up to the reproducer to remove tabs
                     //var tabBrowser = win.FBL.$("content");
                     //tabBrowser.removeTab(context.qpfbug.tab);
-                    
+
                     // Show results
-                    //context.dispatch(context.qpfbug.debugSession.debugModel);                   
+                    //context.dispatch(context.qpfbug.debugSession.debugModel);
                 }
 
             },

@@ -19,14 +19,14 @@ with (Lang){
             };
 
             constructor.prototype = {
-                addTracePoint: function(queryPoint, frame)
+                addTracePoint: function(queryPoint, context, frame)
                 {
                     var queryPointId = queryPoint.id;
                     if (!this.tracePoints[queryPointId]){
                         this.tracePoints[queryPointId] = [];
                     }
 
-                    var stackFrameLog = new StackFrameLog(frame);
+                    var stackFrameLog = new StackFrameLog(frame, context);
                     var tracePoint = new TracePoint(++this.nextTracePointId, queryPoint, stackFrameLog);
 
                     for (let i=0 ; i<queryPoint.queryObjects.length ; i++)
@@ -87,12 +87,12 @@ with (Lang){
                         return tracePoint.getTraceObject(frameNo, objectRef);
                     return null;
                 },
-                
+
                 getLastTracePointByQueryPoint: function(queryPoint)
                 {
-                	var points = this.tracePoints[queryPoint.id];
-                	if (points)
-                		return points[points.length - 1];
+                    var points = this.tracePoints[queryPoint.id];
+                    if (points)
+                        return points[points.length - 1];
                 },
 
             };

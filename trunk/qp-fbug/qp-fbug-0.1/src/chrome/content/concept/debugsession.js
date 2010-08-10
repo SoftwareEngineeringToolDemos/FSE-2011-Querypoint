@@ -22,11 +22,11 @@ var owner = QPFBUG.Classes;
                 return reproductions[reproductions.length - 2].trace.getTraceObject(pointRef, frameNo, objRef);
             return null;
         },
-        
+
         getNewestTrace: function()
         {
-        	if (reproductions.length > 1) // What is reproductions[0]?
-        		return reproductions[reproductions.length - 2].trace; 
+            if (this.reproductions.length > 1) // What is reproductions[0]?
+                return this.reproductions[this.reproductions.length - 2].trace;
         },
 
     }

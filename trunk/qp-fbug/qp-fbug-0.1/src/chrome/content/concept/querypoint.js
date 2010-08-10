@@ -39,7 +39,7 @@ with (Lang){
 
                 toString: function()
                 {
-                	return "[LastChange QueryPoint "+this.url+"@"+this.lineNo+"]";
+                    return "["+DebugModel.queryTypes[this.queryType]+" QueryPoint "+this.url+"@"+this.lineNo+"]";
                 }
             };
             return constructor;
@@ -65,7 +65,7 @@ with (Lang){
             constructor.prototype = {
                 toString: function()
                 {
-            		return "[ObjectAtPoint]";
+                    return "[ObjectAtPoint]";
                 }
             };
 

@@ -11,12 +11,16 @@ with (Lang){
     // StackFrameLog
     owner.StackFrameLog =
         function(){
-            var constructor = function(frame){
-                //init
+            var constructor = function(frame, context){
+                // We need the context to interpret frames
+                this.stackTraceXB = QPFBUG.FBL.getCorrectedStackTrace(frame, context);
             };
 
             constructor.prototype = {
-                // no fuctions
+                getNewestFrame: function()
+                {
+                    return this.stackTraceXB[0];
+                }
             };
 
             return constructor;
