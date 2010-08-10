@@ -43,9 +43,14 @@ with (Lang){
                     return this.stackFrameLog.stackTraceXB;
                 },
 
+                getQueryType: function()
+                {
+                    return DebugModel.queryTypes[this.queryPoint.queryType];
+                },
+
                 toString: function()
                 {
-                    return "["+DebugModel.queryTypes[this.queryPoint.queryType]+" TracePoint]";
+                    return "["+this.getQueryType()+" TracePoint]";
                 }
             };
 
