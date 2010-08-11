@@ -28,7 +28,6 @@ or commonly
 
 
 Manager contains
-  Datastore contains  // why so generic?
     DebugSession contains
       DebugModel contains
         QueryPoints contains
@@ -37,4 +36,3 @@ Manager contains
           queryObjects contains
             // three fields I don't understand
       Reproductions
-    Reproductions  // why are reproductions in two places?

@@ -51,8 +51,7 @@ with (Lang){
             {
                 //todo store debugModel in the persistedState
                 // remove all breakpoints
-                if (context.qpfbug.enabled)
-                    DebugService.getInstance().removeEventRequestsForContext(context); //todo is it necessary?
+                this.disableQP(context);
                 delete context.qpfbug;
                 delete QPFBUG.contexts[context.uid];
             },
@@ -86,8 +85,13 @@ with (Lang){
                 win.Firebug.selectContext(context);
 
                 //------------------------ create event requests -----------------
-                var queryPoints = context.qpfbug.debugSession.debugModel.queryPoints;
+                this.enableQP(context);
 
+            },
+
+            enableQP: function(context){
+
+                var queryPoints = context.qpfbug.debugSession.debugModel.queryPoints;
                 var anyQueryPoint = false;
                 for (var i in queryPoints){
                     anyQueryPoint = true;
@@ -135,11 +139,13 @@ with (Lang){
                 }
 
                 if (anyQueryPoint)
-                    this.enableQPFBUG(context);
+                    context.qpfbug.enabled = true;
             },
 
-            enableQPFBUG: function(context){
-                context.qpfbug.enabled = true;
+            disableQP: function(context){
+                if (context.qpfbug.enabled)
+                    DebugService.getInstance().removeEventRequestsForContext(context); //todo is it necessary?
+                context.qpfbug.enabled = false;
             },
 
             //------------------------------- call backs ---------------------------------------
@@ -168,7 +174,7 @@ with (Lang){
 
             //------------------------------- actions ---------------------------------------
             addLastChange: function(context, owner, propertyPath){
-                this.enableQPFBUG(context);
+                //this.enableQPFBUG(context);
                 var win = context.qpfbug.firefoxWindow;
                 with(win){
                     var debugSession = context.qpfbug.debugSession;
@@ -218,11 +224,11 @@ with (Lang){
 
 
                      //todo move this tag to another place
-                     context.qpfbug.inQuery = true;
+                    context.qpfbug.inQuery = true;
 
                     var newReproduction = debugSession.getReproduction();
                     context.qpfbug.reproducer = "hardwired";
-
+                    this.disableQP(context);
                     Reproducer.getInstance().reproduce(context, debugSession.id, newReproduction.id);
 
                 }
