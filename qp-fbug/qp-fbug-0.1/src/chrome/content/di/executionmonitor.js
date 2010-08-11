@@ -28,7 +28,7 @@ with (Lang){
                 this.propertyName = propertyName;
                 this.isStopped = false;
 
-                trace("source: " + frame.script.functionSource);
+                //trace("source: " + frame.script.functionSource);
                 this.scriptAnalyzer = new ScriptAnalyzer(frame.script.functionSource);
                 this.monitorRefs = this.scriptAnalyzer.getRefsToCreatedObjects(true);
 
