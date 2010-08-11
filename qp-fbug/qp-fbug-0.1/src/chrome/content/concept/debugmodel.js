@@ -71,7 +71,9 @@ with (Lang){
                         if (p !== (this.nextQueryPointId - 1) && this.queryPoints.hasOwnProperty(p))
                             list.push(this.queryPoints[p]);
                     }
-                    list.push(this.queryPoints[this.nextQueryPointId - 1]);  // I guess this one has to exist ?
+                    var iDontUnderstandThisDataStructure = this.queryPoints[this.nextQueryPointId - 1];  // I guess this one has to exist ?
+                    if (iDontUnderstandThisDataStructure)
+                    	list.push(iDontUnderstandThisDataStructure);
                     return list;
                 },
 
