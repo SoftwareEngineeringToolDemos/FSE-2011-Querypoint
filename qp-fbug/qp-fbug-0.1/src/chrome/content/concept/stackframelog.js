@@ -19,7 +19,15 @@ with (Lang){
             constructor.prototype = {
                 getNewestFrame: function()
                 {
-                    return this.stackTraceXB[0];
+                    return this.stackTraceXB.frames[0];
+                },
+                getFrames: function()
+                {
+                	return this.stackTraceXB.frames;
+                },
+                setFrames: function(frameXBs)
+                {
+                	this.stackTraceXB.frames = frameXBs;
                 }
             };
 
