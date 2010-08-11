@@ -77,7 +77,8 @@ with (Lang){
                     debugger : {debuggerName:"QPFBUG"},
                     eventRequests : [],
                     reproduction : reproduction,
-                    debugSession : reproduction.debugSession,
+                    debugSession : debugSession,
+                    trace: reproduction.trace,
                     tab : selectedTab,
                 };
 
