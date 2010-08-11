@@ -25,27 +25,23 @@ owner.Reproducer = function(){
                 this.localReproducer = new LocalReproducer();
 
                 this.hardWiredReproducer = new HardWiredReproducer();
-
-                this.reproducer = this.hardWiredReproducer;  // back wards compat for Salman
             },
 
-            reproduce : function (context, debugSessionId, reproductionId)
+            reproduce : function (reproducerKind, context, debugSessionId, reproductionId)
             {
-                if (context.qpfbug.reproducer)
-                   this.select(context.qpfbug.reproducer);
+            	var reproducer = this.getReproducer(reproducerKind);
+            	
+                FBTrace.sysout("reproduce "+reproducerKind, {context: context, debugSessionId: debugSessionId, reproductionId: reproductionId});
 
-                FBTrace.sysout("reproduce "+this.reproducer, {context: context, debugSessionId: debugSessionId, reproductionId: reproductionId});
-
-                this.reproducer.reproduce(context, debugSessionId, reproductionId);
+                reproducer.reproduce(context, debugSessionId, reproductionId);
             },
 
-            select: function(kind)
+            getReproducer: function(kind)
             {
-                if (kind === "hardwired") this.reproducer = this.hardWiredReproducer;
-                else if (kind === "fbtest") this.reproducer = fbTestReproducer;
-                else if (kind === "local") this.reproducer = localReproducer;
+                if (kind === "hardwired") return this.hardWiredReproducer;
+                else if (kind === "fbtest") return this.fbTestReproducer;
+                else if (kind === "local") return this.localReproducer;
             },
-
 
         };
 

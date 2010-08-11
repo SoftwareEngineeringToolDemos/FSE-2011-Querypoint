@@ -49,8 +49,21 @@ var owner = QPFBUG.Classes;
         getNewestTrace: function()
         {
             var reproductions = this.reproductions;
-        	if (reproductions.length > 1) // What is reproductions[0]?
-        		return reproductions[reproductions.length - 2].trace; 
+        	if (reproductions.length)  
+        		return reproductions[reproductions.length - 1].trace; 
+        },
+        
+        getTracePoints: function()
+        {
+        	var tps = [];
+        	var trace = this.getNewestTrace();
+        	FBTrace.sysout("getTracePoints "+trace, trace);
+        	if (trace)
+        	{
+        		var qps = this.debugModel.getQueryPoints();
+        		for (var i = 0; i < qps.length; i++)
+        			tps.push(trace.getLastTracePointByQueryPoint(qps[i]));
+        	}
         },
 
     }

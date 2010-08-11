@@ -34,7 +34,7 @@ with (Lang){
                     if (this.debugSessions[i].id == id)
                     {
                         return this.debugSessions[i];
-                    }
+                }
                 }
                 return null;
             },
@@ -82,7 +82,7 @@ with (Lang){
                     tab : selectedTab,
                 };
 
-                //to select this context TODO  do we need this?
+                //to select this context TODO  do we need this?  no. XXXjjb
                 win.Firebug.selectContext(context);
 
                 //------------------------ create event requests -----------------
@@ -228,9 +228,8 @@ with (Lang){
                     context.qpfbug.inQuery = true;
 
                     var newReproduction = debugSession.getReproduction();
-                    context.qpfbug.reproducer = "hardwired";
                     this.disableQP(context);
-                    Reproducer.getInstance().reproduce(context, debugSession.id, newReproduction.id);
+                    Reproducer.getInstance().reproduce(context.qpfbug.reproducer, context, debugSession.id, newReproduction.id);
 
                 }
 

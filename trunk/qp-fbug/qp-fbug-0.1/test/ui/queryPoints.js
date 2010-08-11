@@ -30,24 +30,33 @@ function runTest()
                 FBTest.ok(queryPointA, "Created a breakpoint querypoint");
 
                 var jsdTrace = FW.FBL.getCurrentJSDStackDump();
-                var stackFrameLogA = new StackFrameLog(jsdTrace);
+                FBTest.sysout("jsdTrace ", jsdTrace);
+                var stackFrameLogA = new StackFrameLog(jsdTrace, FW.Firebug.currentContext);
+                var fakeFrames = [];
+                fakeFrames[0] = new FW.FBL.StackFrame(FW.FBL.getSourceFileByHref(href, FW.Firebug.currentContext), line, "foo");
+                stackFrameLogA.setFrames(fakeFrames);
 
                 var tracePointA = new TracePoint(1, queryPointA, stackFrameLogA);
 
                 FW.Firebug.chrome.select(tracePointA);
                 FBTest.compare("querypoints", FW.Firebug.chrome.getSelectedPanel().name, "The querypoints panel should be selected");
-                FBTest.compare(href, FW.Firebug.chrome.getSelectedPanel().location, "The location should be correct");
+                FBTest.compare(tracePointA, FW.Firebug.chrome.getSelectedPanel().location, "The location should be correct");
                 var sourceRow = FBTestFirebug.getSourceLineNode(line);
                 FBTest.progress("The sourceRow ", sourceRow);
 
                 var propertyPath = "myObject.myProperty";
                 var queryPointB = debugSession.debugModel.addQueryPoint_LastChange(queryPointA, 0, propertyPath);
 
-                var stackFrameLogB = new StackFrameLog(jsdTrace);
+                var stackFrameLogB = new StackFrameLog(jsdTrace, FW.Firebug.currentContext);
+                var fakeFrames = [];
+                var line = 13;
+                fakeFrames[0] = new FW.FBL.StackFrame(FW.FBL.getSourceFileByHref(href, FW.Firebug.currentContext), line, "bar");
+                stackFrameLogB.setFrames(fakeFrames);
+                
                 var tracePointB = new TracePoint(2, queryPointB, stackFrameLogB);
                 FW.Firebug.chrome.select(tracePointB);
             }
-            debugger;
+             
             FBTest.testDone("queryPoints.DONE");
 
         });

@@ -40,7 +40,7 @@ with (Lang){
 
                 getStackFrames: function()
                 {
-                    return this.stackFrameLog.stackTraceXB;
+                    return this.stackFrameLog.getFrames();
                 },
 
                 getQueryType: function()

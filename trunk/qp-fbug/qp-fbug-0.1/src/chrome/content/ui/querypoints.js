@@ -22,10 +22,10 @@ Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
 
     initContext: function(context, persistedState)
     {
-        context.qpfbug.reproducer = "local";
         context.Firebug = Firebug; // I guess.
         Firebug.Debugger.addListener(this);
-        FBTrace.sysout("QPModule initContext "+context.getName()+": "+context.qpfbug.reproducer);
+        context.qpfbug.reproducer = 'local';
+        FBTrace.sysout("QPModule initContext "+context.getName());
     },
 
     //********** Firebug.Debugger Listener *************************
@@ -117,25 +117,37 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
             this.removeAllSourceBoxes();
         }
 
-
-        var sourceFile = getSourceFileByHref(tracePoint.url, this.context);
-        if (sourceFile)
-        {
-            this.showSourceFile(sourceFile);
-            this.scrollToLine(tracePoint.url, tracePoint.lineNo, bind(this.highlightExecutionLine, this, tracePoint.lineNo, "tracepoint_line"));
-        }
+        var frame = this.getFrameByTracePoint(tracePoint); 
+        FBTrace.sysout("querypoints frame"+frame, frame);
+        this.showSourceFile(frame.sourceFile);
+        
+        var lineNumber = frame.line;
+        this.scrollToLine(null, lineNumber, bind(this.highlightExecutionLine, this, lineNumber, "tracepoint_line"));
 
         FBTrace.sysout("queryPoints.updateLocation "+tracePoint, tracePoint);
         var qstate = this.context.getPanel("QueryState", false);
         if (qstate)
             qstate.updateSelection(tracePoint);
     },
+    
+    getFrameByTracePoint: function(tracepoint)
+    {
+    	FBTrace.sysout("getSourceLinkByTracePoint "+tracepoint, tracepoint)
+    	var frame = tracepoint.getStackFrames()[0];
+    	return frame;
+    },
+
     /*
      * Framework connection
      */
     getSourceType: function()
     {
         return "js";
+    },
+    
+    showSourceLink: function(sourceLink)
+    {
+    	// HACK
     },
 
     getObjectLocation: function(tracePoint)
@@ -145,7 +157,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         {
             var frameXBs =  tracePoint.getStackFrames();
             FBTrace.sysout("queryPoints.getObjectDescription frame "+frameXBs, frameXBs);
-            return framesXB[0];
+            return frameXBs[0].href;
         }
         catch(exc)
         {
@@ -169,14 +181,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
     getLocationList: function()
     {
-        var list = [];
-        var trace = this.context.qpfbug.debugSession.getNewestTrace();
-        if (trace)
-        {
-
-            list.push(trace.getLastTracePointByQueryPoint(qp));
-        }
-        return list;
+        return this.context.qpfbug.trace.getTracePoints();
     },
 
     getDefaultLocation: function()
@@ -242,6 +247,23 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         FBL.hide(panelStatus, false);
 
         delete this.infoTipExpr;
+    },
+    
+    //***************************************************************************
+    getOptionsMenuItems: function()
+    {
+    	var items = [];
+
+        items.push(
+                {label: "Callstack Reproducer", command: bindFixed(this.selectReproducer, this, "local") },
+                {label: "Scripted Reproducer", command: bindFixed(this.selectReproducer, this, "hardwired") },
+                {label: "FBTest Reproducer", command: bindFixed(this.selectReproducer, this, "fbtest") }
+            );
+    },
+    
+    selectReproducer: function(name)
+    {
+    	QPFBUG.Classes.Reproducer.getInstance().select(name);
     },
 
 });
