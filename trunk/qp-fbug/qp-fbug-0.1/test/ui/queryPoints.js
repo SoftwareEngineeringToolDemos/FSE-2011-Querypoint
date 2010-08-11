@@ -11,7 +11,7 @@ function runTest()
         FBTest.enableScriptPanel(function(win)
         {
             // 3) Select the Script panel
-            var panel = FW.FirebugChrome.selectPanel("querypoints");
+            var panel = FW.FirebugChrome.selectPanel("tracepoints");
 
             var QPFBUG = FBTest.FirebugWindow.QPFBUG;
             FBTest.ok(QPFBUG, "FBTest.FirebugWindow.QPFBUG exists");
@@ -22,7 +22,7 @@ function runTest()
                 var debugSession = new DebugSession(1);
                 FBTest.ok(debugSession, "Created a debugSession");
                 FW.Firebug.chrome.select(debugSession);
-                FBTest.compare("querypoints", FW.Firebug.chrome.getSelectedPanel().name, "The querypoints panel should be selected");
+                FBTest.compare("tracepoints", FW.Firebug.chrome.getSelectedPanel().name, "The tracepoints panel should be selected");
 
                 var href = win.location.toString();
                 var line = 18;
@@ -39,7 +39,7 @@ function runTest()
                 var tracePointA = new TracePoint(1, queryPointA, stackFrameLogA);
 
                 FW.Firebug.chrome.select(tracePointA);
-                FBTest.compare("querypoints", FW.Firebug.chrome.getSelectedPanel().name, "The querypoints panel should be selected");
+                FBTest.compare("tracepoints", FW.Firebug.chrome.getSelectedPanel().name, "The tracepoints panel should be selected");
                 FBTest.compare(tracePointA, FW.Firebug.chrome.getSelectedPanel().location, "The location should be correct");
                 var sourceRow = FBTestFirebug.getSourceLineNode(line);
                 FBTest.progress("The sourceRow ", sourceRow);

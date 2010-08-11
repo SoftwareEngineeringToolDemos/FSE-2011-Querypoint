@@ -128,7 +128,8 @@ with (Lang){
                 getLastTracePointByQueryPoint: function(queryPoint)
                 {
                     var points = this.tracePoints[queryPoint.id];
-                    if (points)
+                    FBTrace.sysout("getLastTracePointByQueryPoint "+points, {queryPoint: queryPoint, tracePoints: this.tracePoints});
+                    if (points && points.length)
                         return points[points.length - 1];
                 },
 

@@ -34,6 +34,7 @@ Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
     {
         if (context.qpfbug.inQuery)
         {
+        	context.qpfbug.inSession = true;  // I don't know how we will get out of this state
             Firebug.chrome.selectSupportingPanel(context.qpfbug.debugSession.debugModel, context, true);
             delete context.qpfbug.inQuery;
         }
@@ -48,7 +49,7 @@ Firebug.Querypoint.QPSourceViewPanel = function QPSourceViewPanel() {};
 // Instance definition
 Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 {
-    name: "querypoints",
+    name: "tracepoints",
     title: "QP",
     parentPanel: null,
     breakable: false,
@@ -152,7 +153,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
     getObjectLocation: function(tracePoint)
     {
-        FBTrace.sysout("queryPoints.getObjectDescription from tracePoint"+tracePoint, tracePoint);
+        FBTrace.sysout("queryPoints.getObjectDescription from tracePoint "+tracePoint, tracePoint);
         try
         {
             var frameXBs =  tracePoint.getStackFrames();
@@ -181,12 +182,17 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
     getLocationList: function()
     {
-        return this.context.qpfbug.trace.getTracePoints();
+        var tps = this.context.qpfbug.debugSession.getTracePoints(this.context.qpfbug.reproduction.id);
+        if (tps)
+        	return tps;
+        else
+        	this.showWarningTag();
     },
 
     getDefaultLocation: function()
     {
         var list = this.getLocationList()
+        FBTrace.sysout("getDefaultLocation "+list, list);
         if (list)
             return list.pop();
     },
@@ -218,7 +224,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
     show: function(state)
     {
-        var enabled = Firebug.Debugger.isAlwaysEnabled(); // TODO
+        var enabled = this.context.qpfbug.inSession;
 
         // These buttons are visible only if debugger is enabled.
         //this.showToolbarButtons("fbLocationSeparator", enabled);
@@ -229,12 +235,13 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         this.panelSplitter.collapsed = !enabled;
         this.sidePanelDeck.collapsed = !enabled;
 
-        this.highlight(this.context.stopped);
-
-        if (!this.location)
-            this.showWarningTag();
+        if (enabled)
+        {
+            this.highlight(this.context.stopped);
+        	this.navigate(this.location);
+        }
         else
-            this.navigate(this.location);
+        	this.showWarningTag();
     },
 
     hide: function(state)
@@ -268,7 +275,6 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
 });
 
-
 /*
  * Q-State, shows objects of type QPFBUG.Classes.TraceObject
  */
@@ -283,8 +289,11 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
         this.updateSelection(this.selection);
     },
 
-    updateSelection: function(tracePoint)
+    updateSelection: function(ignore)
     {
+    	var mainPanel =  this.context.getPanel("tracepoints", false);
+    	var tracePoint = mainPanel.location;
+    	
         FBTrace.sysout("QueryStatePanel.updateSelection "+tracePoint, tracePoint);
         if( ! (tracePoint instanceof QPFBUG.Classes.TracePoint) )
             return;
@@ -303,168 +312,121 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
 
     showEmptyMembers: function()
     {
-        this.tag.replace({domPanel: this, toggles: new ToggleBranch()}, this.panelNode);
+    	FirebugReps.Warning.tag.replace({object: "NoMembersWarning"}, this.panelNode);
     },
 
-    addWatch: function(expression)
-    {
-        if (!this.watches)
-            this.watches = [];
-
-        for (var i = 0; i < this.watches.length; i++)
-        {
-            if (expression == this.watches[i])
-                return;
-        }
-
-        this.watches.splice(0, 0, expression);
-        this.rebuild(true);
-    },
-
-    removeWatch: function(expression)
-    {
-        if (!this.watches)
-            return;
-
-        var index = this.watches.indexOf(expression);
-        if (index != -1)
-            this.watches.splice(index, 1);
-    },
-
-    editNewWatch: function(value)
-    {
-        var watchNewRow = this.panelNode.getElementsByClassName("watchNewRow").item(0);
-        if (watchNewRow)
-            this.editProperty(watchNewRow, value);
-    },
-
-    setWatchValue: function(row, value)
-    {
-        var rowIndex = getWatchRowIndex(row);
-        this.watches[rowIndex] = value;
-        this.rebuild(true);
-    },
-
-    deleteWatch: function(row)
-    {
-        var rowIndex = getWatchRowIndex(row);
-        this.watches.splice(rowIndex, 1);
-        this.rebuild(true);
-
-        this.context.setTimeout(bindFixed(function()
-        {
-            this.showToolbox(null);
-        }, this));
-    },
-
-    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-    showToolbox: function(row)
-    {
-        var toolbox = this.getToolbox();
-        if (row)
-        {
-            if (hasClass(row, "editing"))
-                return;
-
-            toolbox.watchRow = row;
-
-            var offset = getClientOffset(row);
-            toolbox.style.top = offset.y + "px";
-            this.panelNode.appendChild(toolbox);
-        }
-        else
-        {
-            delete toolbox.watchRow;
-            if (toolbox.parentNode)
-                toolbox.parentNode.removeChild(toolbox);
-        }
-    },
-
-    getToolbox: function()
-    {
-        if (!this.toolbox)
-            this.toolbox = Firebug.DOMBasePanel.ToolboxPlate.tag.replace({domPanel: this}, this.document);
-
-        return this.toolbox;
-    },
-
-    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-    onMouseDown: function(event)
-    {
-        var watchNewRow = getAncestorByClass(event.target, "watchNewRow");
-        if (watchNewRow)
-        {
-            this.editProperty(watchNewRow);
-            cancelEvent(event);
-        }
-    },
-
-    onMouseOver: function(event)
-    {
-        var watchRow = getAncestorByClass(event.target, "watchRow");
-        if (watchRow)
-            this.showToolbox(watchRow);
-    },
-
-    onMouseOut: function(event)
-    {
-        if (isAncestor(event.relatedTarget, this.getToolbox()))
-            return;
-
-        var watchRow = getAncestorByClass(event.relatedTarget, "watchRow");
-        if (!watchRow)
-            this.showToolbox(null);
-    },
-
+    
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
     // extends Panel
 
     name: "QueryState",
     title: "QState",
     order: 0,
-    parentPanel: "querypoints",
+    parentPanel: "tracepoints",
     enableA11y: true,
     deriveA11yFrom: "console",
 
     initialize: function()
     {
-        this.onMouseDown = bind(this.onMouseDown, this);
-        this.onMouseOver = bind(this.onMouseOver, this);
-        this.onMouseOut = bind(this.onMouseOut, this);
-
         Firebug.DOMBasePanel.prototype.initialize.apply(this, arguments);
     },
 
     destroy: function(state)
     {
-        state.watches = this.watches;
-
         Firebug.DOMBasePanel.prototype.destroy.apply(this, arguments);
     },
 
     show: function(state)
     {
-        if (state && state.qp)
-            this.watches = state.watches;
     },
 
     initializeNode: function(oldPanelNode)
     {
-        this.panelNode.addEventListener("mousedown", this.onMouseDown, false);
-        this.panelNode.addEventListener("mouseover", this.onMouseOver, false);
-        this.panelNode.addEventListener("mouseout", this.onMouseOut, false);
-
         Firebug.DOMBasePanel.prototype.initializeNode.apply(this, arguments);
     },
 
     destroyNode: function()
     {
-        this.panelNode.removeEventListener("mousedown", this.onMouseDown, false);
-        this.panelNode.removeEventListener("mouseover", this.onMouseOver, false);
-        this.panelNode.removeEventListener("mouseout", this.onMouseOut, false);
+        Firebug.DOMBasePanel.prototype.destroyNode.apply(this, arguments);
+    },
 
+    refresh: function()
+    {
+        this.rebuild(true);
+    },
+
+});
+
+/*
+ * Querypoints, shows objects of type QPFBUG.Classes.Querypoint
+ */
+Firebug.Querypoint.QueryPointPanel = function QueryPointPanel() {}
+
+Firebug.Querypoint.QueryPointPanel.prototype = extend(Firebug.DOMBasePanel.prototype,
+{
+    tag: Firebug.DOMPanel.DirTable.watchTag,
+
+    rebuild: function()
+    {
+        this.updateSelection(this.selection);
+    },
+
+    updateSelection: function(ignore)
+    {
+    	var mainPanel =  this.context.getPanel("tracepoints", false);
+    	var qps = this.context.qpfbug.debugSession.debugModel.getQueryPoints();
+    	
+        FBTrace.sysout("QueryPointPanel.updateSelection "+qps.length, qps);
+
+        var newQuerypoints = (qps !== this.currentQueryPoints);
+        if (newQuerypoints)
+        {
+            this.toggles = new ToggleBranch();
+            this.currentQueryPoints = qps;
+        }
+
+        var members = qps;
+        this.expandMembers(members, this.toggles, 0, 0, this.context);
+        this.showMembers(members, !newQuerypoints);
+    },
+
+    showEmptyMembers: function()
+    {
+    	FirebugReps.Warning.tag.replace({object: "NoMembersWarning"}, this.panelNode);
+    },
+
+    
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    // extends Panel
+
+    name: "QueryPoints",
+    title: "QueryPoints",
+    order: 0,
+    parentPanel: "tracepoints",
+    enableA11y: true,
+    deriveA11yFrom: "console",
+
+    initialize: function()
+    {
+        Firebug.DOMBasePanel.prototype.initialize.apply(this, arguments);
+    },
+
+    destroy: function(state)
+    {
+        Firebug.DOMBasePanel.prototype.destroy.apply(this, arguments);
+    },
+
+    show: function(state)
+    {
+    },
+
+    initializeNode: function(oldPanelNode)
+    {
+        Firebug.DOMBasePanel.prototype.initializeNode.apply(this, arguments);
+    },
+
+    destroyNode: function()
+    {
         Firebug.DOMBasePanel.prototype.destroyNode.apply(this, arguments);
     },
 
@@ -480,5 +442,6 @@ Firebug.registerStylesheet("chrome://qpfbug/content/ui/querypoints.css");
 Firebug.registerPreference("querypoints.enableSites", false);
 Firebug.registerPanel(Firebug.Querypoint.QPSourceViewPanel);
 Firebug.registerPanel(Firebug.Querypoint.QueryStatePanel);
+Firebug.registerPanel(Firebug.Querypoint.QueryPointPanel);
 
 }});
