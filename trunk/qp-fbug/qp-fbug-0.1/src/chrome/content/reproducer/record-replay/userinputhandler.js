@@ -38,7 +38,7 @@ owner.UserInputHandler = function(){
 
             onEvent : function(originalEvent){
                 trace(" on user input event : " + originalEvent.toString(), originalEvent);
-        		var evt = new UserInputEvent("UI", originalEvent);
+        		var evt = new RecordedEvent("UI", originalEvent);
                 if(originalEvent.type == "resize") {
 //                    evt.oldWidth = this.innerDimensions.width;
 //                    evt.oldHeight = this.innerDimensions.height;
