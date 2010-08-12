@@ -57,13 +57,13 @@ owner.ReplayUtils = {
                 // Execute callback after 100ms timout (the inspector tests need it for now),
                 // but this shoud be set to 0.
                 if (loaded && painted)
-                    setTimeout(executeCallback, 100);
+                     browser.contentWindow.setTimeout(executeCallback, 100);
             }
 
             // All expected events have been fired, execute the callback.
             var executeCallback = function()
             {
-                try
+                try         
                 {
                     var win = browser.contentWindow;
 
@@ -88,6 +88,7 @@ owner.ReplayUtils = {
         },
 
         fireEvent : function(document, element, event){
+            trace("-------------------------------");
             var evt = document.createEvent("HTMLEvents");
             evt.initEvent(event, true, true ); // event type,bubbling,cancelable
             return !element.dispatchEvent(evt);

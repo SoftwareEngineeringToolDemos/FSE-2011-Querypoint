@@ -64,6 +64,10 @@ with (Lang){
                 //todo store debugModel in the persistedState
                 // remove all breakpoints
                 this.disableQP(context);
+                if (context.qpfbug.recorder){
+                    context.qpfbug.recorder.stop();
+                    context.qpfbug.debugSession.record = context.qpfbug.recorder.record;
+                }
                 delete context.qpfbug;
                 delete QPFBUG.contexts[context.uid];
             },
@@ -96,7 +100,7 @@ with (Lang){
                     tab : selectedTab,
                     inSession : false,
                     inQuery : false, //tod
-                    reproducer: "local",
+                    reproducer: "replay", //win.Firebug.getPref("extensions.firebug", "querypoints.reproducer"),
                     recorder: null,
                 };
 

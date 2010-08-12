@@ -37,7 +37,7 @@ owner.UserInputHandler = function(){
             },
 
             onEvent : function(originalEvent){
-                trace(" on user input event : " + originalEvent.toString(), originalEvent);
+                trace(" on user input event : " + originalEvent.type, originalEvent);
         		var evt = new RecordedEvent("UI", originalEvent);
                 if(originalEvent.type == "resize") {
 //                    evt.oldWidth = this.innerDimensions.width;
@@ -46,7 +46,7 @@ owner.UserInputHandler = function(){
 //                    evt.newWidth = this.innerDimensions.width;
 //                    evt.newHeight = this.innerDimensions.height;
                 }
-        		this.recorder.onEvent(originalEvent);
+        		this.recorder.onEvent(evt);
             }
         };
 

@@ -53,6 +53,7 @@ var owner = QPFBUG.Classes;
         		return reproductions[reproductions.length - 1].trace; 
         },
         
+        //getTracePoints
         getTracePoints: function(reproductionId)
         {
         	var tps = [];

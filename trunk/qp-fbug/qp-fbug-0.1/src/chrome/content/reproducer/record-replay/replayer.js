@@ -12,15 +12,19 @@ owner.Replayer = function(){
 
         var constructor = function(record){
             this.record = record;
-            trace("record", record);
         };
 
         constructor.prototype =
         {
             start : function(win) {
-                for (var i ; i<this.record.length ; i++){
-                    trace(this.record[i].source);
-                    fireEvent(win.document, win.document, record[i]);
+                trace("record items: " + this.record.length ,this.record);
+                trace("win: " ,win);
+                for (var i=0 ; i<this.record.length ; i++){
+                    trace("replayer: " + this.record[i].originalEvent.type);
+                    if (this.record[i].originalEvent.type != "resize")
+                        ReplayUtils.fireEvent(win.document, win.document, this.record[i]);
+                    trace("**************");
+                    
                 }
             },
             

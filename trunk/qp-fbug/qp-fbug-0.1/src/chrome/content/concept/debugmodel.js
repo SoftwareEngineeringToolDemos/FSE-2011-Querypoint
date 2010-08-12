@@ -68,12 +68,11 @@ with (Lang){
                     var list = [];
                     for (var p in this.queryPoints)
                     {
-                        if (p !== (this.nextQueryPointId - 1) && this.queryPoints.hasOwnProperty(p))
-                            list.push(this.queryPoints[p]);
+                        list.push(this.queryPoints[p]);
                     }
-                    var iDontUnderstandThisDataStructure = this.queryPoints[this.nextQueryPointId - 1];  // I guess this one has to exist ?
-                    if (iDontUnderstandThisDataStructure)
-                    	list.push(iDontUnderstandThisDataStructure);
+//                    var iDontUnderstandThisDataStructure = this.queryPoints[this.nextQueryPointId - 1];  // I guess this one has to exist ?
+//                    if (iDontUnderstandThisDataStructure)
+//                    	list.push(iDontUnderstandThisDataStructure);
                     FBTrace.sysout("getQueryPoints "+list.length, {list: list, list0: list[0], list1: list[1]});
                     return list;
                 },
