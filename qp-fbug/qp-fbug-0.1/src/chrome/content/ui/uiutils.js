@@ -16,15 +16,14 @@ with (Lang){
          },
 
          getReproduction: function(context){
-            return context.reproduction;
+            return context.qpfbug.reproduction;
          },
 
          getDebugSession: function(context){
-            return context.debugSession;
+            return context.qpfbug.debugSession;
          },
 
          getTracePoints: function(context){
-            trace("....................." + tps.length, tps);
             return UIUtils.getDebugSession(context).getTracePoints(context.qpfbug.reproduction.id);
          },
 
