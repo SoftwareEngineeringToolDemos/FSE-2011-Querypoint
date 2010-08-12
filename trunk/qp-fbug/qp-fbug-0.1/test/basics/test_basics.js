@@ -9,7 +9,7 @@ function runTest()
         var classesNo = 0;
         for (var i in QPFBUG.Classes)
             classesNo++;
-        FBTest.compare( 30, classesNo, "Number of classes");
+        FBTest.compare( 37, classesNo, "Number of classes");
         FBTest.ok(QPFBUG.debugService, "QPFBUG.debugService");
         FBTest.ok(QPFBUG.manager, "QPFBUG.manager");
         FBTest.ok(QPFBUG.jsdEventHandler, "QPFBUG.jsdEventHandler");

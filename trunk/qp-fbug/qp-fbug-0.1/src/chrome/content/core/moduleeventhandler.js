@@ -31,12 +31,13 @@ with (Lang){
 
                 loadedContext: function(context)
                 {
+                    Manager.getInstance().loadedContext(this.win, context);
                 },
 
                 // source file is created or changed
                 onSourceFileCreated: function(context, sourceFile)
                 {
-                    if (context.qpfbug.enabled)
+                    if (context.qpfbug.listeningToJSDEvents)
                         DebugService.getInstance().onSourceFileCreated(context, sourceFile);
                 },
 

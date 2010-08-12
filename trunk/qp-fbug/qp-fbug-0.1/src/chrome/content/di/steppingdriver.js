@@ -7,6 +7,11 @@ with (Lang){
 
     var owner = QPFBUG.Classes;
 
+    //Note: There is one assumption behind current Stepping Driver implementation:
+    //  It supports only one thread's interrupts/functions during one step.
+    //  Considering restricting events to a context if we assumet that
+    //  a context only has one running thread, we can have the above assumption.
+    //
     //--------------------------- Stepping Driver ----------------------
     owner.SteppingDriver = function(){
 
