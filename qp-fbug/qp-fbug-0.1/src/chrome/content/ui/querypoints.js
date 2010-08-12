@@ -85,7 +85,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
     updateSelection: function(object)
     {
-        FBTrace.sysout("queryPoints.updateSelection "+object, object);
+        FBTrace.sysout("QPSourceViewPanel.updateSelection "+object, object);
         if( object instanceof DebugSession)
             this.showDebugModel(object.debugModel);
 
@@ -98,8 +98,8 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
     showDebugModel: function(debugModel)
     {
-        if (debugModel !== UIUtils.getDebugModel(context))
-            FBTrace.sysout("querypoints.showDebugModel OUT OF SYNC ");
+        if (debugModel !== UIUtils.getDebugModel(this.context))
+            FBTrace.sysout("QPSourceViewPanel.showDebugModel OUT OF SYNC ");
 
         this.navigate(this.getDefaultLocation());
     },
@@ -132,7 +132,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         var lineNumber = frame.line;
         this.scrollToLine(null, lineNumber, bind(this.highlightExecutionLine, this, lineNumber, "tracepoint_line"));
 
-        FBTrace.sysout("queryPoints.updateLocation "+tracePoint, tracePoint);
+        FBTrace.sysout("QPSourceViewPanel.updateLocation "+tracePoint, tracePoint);
         var qstate = this.context.getPanel("QueryState", false);
         if (qstate)
             qstate.updateSelection(tracePoint);
@@ -160,7 +160,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
     getObjectLocation: function(tracePoint)
     {
-        FBTrace.sysout("queryPoints.getObjectDescription from tracePoint "+tracePoint, tracePoint);
+        FBTrace.sysout("QPSourceViewPanel.getObjectDescription from tracePoint "+tracePoint, tracePoint);
         try
         {
             var frameXBs =  tracePoint.getStackFrames();
@@ -169,14 +169,14 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         }
         catch(exc)
         {
-            FBTrace.sysout("queryPoints.getObjectDescription FAILS "+exc, exc);
+            FBTrace.sysout("QPSourceViewPanel.getObjectDescription FAILS "+exc, exc);
         }
     },
 
     // return.path: group/category label, return.name: item label
     getObjectDescription: function(tracePoint)
     {
-        FBTrace.sysout("queryPoints.getObjectDescription "+tracePoint, tracePoint);
+        FBTrace.sysout("QPSourceViewPanel.getObjectDescription "+tracePoint, tracePoint);
         if (tracePoint.getQueryType() == 'breakpoint')
         {
             return {path: "Breakpoint", name: this.getObjectLocation(tracePoint)};
@@ -189,7 +189,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
     getLocationList: function()
     {
-        var tps = UIUtils.getTracePoints(context);
+        var tps = UIUtils.getTracePoints(this.context);
         if (tps)
         	return tps;
         else
@@ -368,6 +368,10 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
 /*
  * Querypoints, shows objects of type QPFBUG.Classes.Querypoint
  */
+
+/*
+ * Querypoints, shows objects of type QPFBUG.Classes.Querypoint
+ */
 Firebug.Querypoint.QueryPointPanel = function QueryPointPanel() {}
 
 Firebug.Querypoint.QueryPointPanel.prototype = extend(Firebug.DOMBasePanel.prototype,
@@ -382,7 +386,7 @@ Firebug.Querypoint.QueryPointPanel.prototype = extend(Firebug.DOMBasePanel.proto
     updateSelection: function(ignore)
     {
     	var mainPanel =  this.context.getPanel("tracepoints", false);
-    	var qps = UIUtils.getQueryPoints(context);
+    	var qps = UIUtils.getQueryPoints(this.context);
     	
         FBTrace.sysout("QueryPointPanel.updateSelection "+qps.length, {qps: qps, qp0: qps[0], qp1: qps[1]});
 
@@ -393,7 +397,7 @@ Firebug.Querypoint.QueryPointPanel.prototype = extend(Firebug.DOMBasePanel.proto
             this.currentQueryPoints = qps;
         }
 
-        var members = cloneArray(qps);
+        var members = this.getMembers(qps, 0, this.context);
         this.expandMembers(members, this.toggles, 0, 0, this.context);
         this.showMembers(members, !newQuerypoints);
     },
@@ -426,6 +430,7 @@ Firebug.Querypoint.QueryPointPanel.prototype = extend(Firebug.DOMBasePanel.proto
 
     show: function(state)
     {
+    	this.rebuild();
     },
 
     initializeNode: function(oldPanelNode)
