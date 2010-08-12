@@ -2,7 +2,7 @@
 function runTest()
 {
 
-	FW.Firebug.setPref("extensions.firebug", "querypoints.reproducer", 'replay');
+	FW.Firebug.setPref("extensions.firebug", "querypoints.reproducer", 'hardwired');
 	var reproducer = FW.Firebug.getPref("extensions.firebug", "querypoints.reproducer");
 	FBTest.progress("Set extensions.firebug.querypoints.reproducer to "+reproducer);
 	
