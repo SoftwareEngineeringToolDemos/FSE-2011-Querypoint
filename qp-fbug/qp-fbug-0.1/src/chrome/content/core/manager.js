@@ -100,7 +100,7 @@ with (Lang){
                     tab : selectedTab,
                     inSession : false,
                     inQuery : false, //tod
-                    reproducer: "replay", //win.Firebug.getPref("extensions.firebug", "querypoints.reproducer"),
+                    reproducer: win.Firebug.getPref("extensions.firebug", "querypoints.reproducer"),
                     recorder: null,
                 };
 
