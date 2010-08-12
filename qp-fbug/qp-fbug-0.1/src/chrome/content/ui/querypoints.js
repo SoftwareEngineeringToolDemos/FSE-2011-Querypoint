@@ -24,7 +24,7 @@ Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
     {
         context.Firebug = Firebug; // I guess.
         Firebug.Debugger.addListener(this);
-        context.qpfbug.reproducer = 'local';
+//        context.qpfbug.reproducer = 'local';
         FBTrace.sysout("QPModule initContext "+context.getName());
     },
 

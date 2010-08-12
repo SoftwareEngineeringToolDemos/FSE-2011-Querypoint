@@ -52,6 +52,14 @@ loadScript("resource://qpfbug/reproducer/reproducer.js");
 loadScript("resource://qpfbug/reproducer/localreproducer.js");
 loadScript("resource://qpfbug/reproducer/fbtestreproducer.js");
 loadScript("resource://qpfbug/reproducer/hardwiredreproducer.js");
+loadScript("resource://qpfbug/reproducer/replayreproducer.js");
+
+loadScript("resource://qpfbug/reproducer/record-replay/recordedevent.js");
+loadScript("resource://qpfbug/reproducer/record-replay/recorder.js");
+loadScript("resource://qpfbug/reproducer/record-replay/recordreplayconstants.js");
+loadScript("resource://qpfbug/reproducer/record-replay/replayer.js");
+loadScript("resource://qpfbug/reproducer/record-replay/replayutils.js");
+loadScript("resource://qpfbug/reproducer/record-replay/userinputhandler.js");
 
 loadScript("resource://qpfbug/di/jsdconstants.js");
 loadScript("resource://qpfbug/di/jsdeventhandler.js");

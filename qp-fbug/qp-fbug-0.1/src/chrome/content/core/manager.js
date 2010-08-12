@@ -34,7 +34,7 @@ with (Lang){
                     if (this.debugSessions[i].id == id)
                     {
                         return this.debugSessions[i];
-                }
+                    }
                 }
                 return null;
             },
@@ -47,6 +47,18 @@ with (Lang){
 
             },
 
+            loadedContext: function(win, context)
+            {
+                var debugSession = context.qpfbug.debugSession;
+                //todo change it
+                if (!debugSession.record)
+                {
+                    var recorder = new Recorder(context.window);
+                    context.qpfbug.recorder = recorder;
+                    recorder.start();
+                }
+            },
+
             destroyContext: function(win, context, persistedState)
             {
                 //todo store debugModel in the persistedState
@@ -56,12 +68,16 @@ with (Lang){
                 delete QPFBUG.contexts[context.uid];
             },
 
-            initContextForQPFBUG: function(win, context){
+            initContextForQPFBUG: function(win, context, debugSessionId, reproductionId){
                 //get reproductionId passed to this tab
                 var tabBrowser = win.FBL.$("content");
                 var selectedTab = tabBrowser.selectedTab;
-                var debugSessionId = selectedTab.getAttribute("debugSessionId");
-                var reproductionId = selectedTab.getAttribute("reproductionId");
+
+                if (!debugSessionId)
+                    debugSessionId = selectedTab.getAttribute("debugSessionId");
+
+                if (!reproductionId)
+                    reproductionId = selectedTab.getAttribute("reproductionId");
 
                 //get reproduction for this tab;
                 var debugSession = this.getDebugSession(debugSessionId);
@@ -70,7 +86,7 @@ with (Lang){
                 QPFBUG.contexts[context.uid] = context;
                 //set qpfbug data holder for the context
                 context.qpfbug = {
-                    enabled : false,
+                    listeningToJSDEvents : false,
                     firefoxWindow : win,
                     //debugger : {debuggerName:"QPFBUG"},
                     eventRequests : [],
@@ -78,12 +94,15 @@ with (Lang){
                     debugSession : debugSession,
                     trace: reproduction.trace,
                     tab : selectedTab,
+                    inSession : false,
+                    inQuery : false, //tod
+                    reproducer: "local",
+                    recorder: null,
                 };
 
                 //to select this context TODO  do we need this?  no. XXXjjb
-                win.Firebug.selectContext(context);
+                //win.Firebug.selectContext(context);
 
-                //------------------------ create event requests -----------------
                 this.enableQP(context);
 
             },
@@ -137,14 +156,17 @@ with (Lang){
                     }
                 }
 
-                if (anyQueryPoint)
-                    context.qpfbug.enabled = true;
+                if (anyQueryPoint){
+                    context.qpfbug.listeningToJSDEvents = true;
+                    context.qpfbug.inSession = true;
+                    context.qpfbug.inQuery = true;
+                }
             },
 
             disableQP: function(context){
-                if (context.qpfbug.enabled)
+                if (context.qpfbug.listeningToJSDEvents)
                     DebugService.getInstance().removeEventRequestsForContext(context); //todo is it necessary?
-                context.qpfbug.enabled = false;
+                context.qpfbug.listeningToJSDEvents = false;
             },
 
             //------------------------------- call backs ---------------------------------------

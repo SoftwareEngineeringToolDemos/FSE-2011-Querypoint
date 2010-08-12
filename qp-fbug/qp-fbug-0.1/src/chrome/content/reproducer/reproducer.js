@@ -25,6 +25,8 @@ owner.Reproducer = function(){
                 this.localReproducer = new LocalReproducer();
 
                 this.hardWiredReproducer = new HardWiredReproducer();
+
+                this.replayReproducer = new ReplayReproducer();
             },
 
             reproduce : function (reproducerKind, context, debugSessionId, reproductionId)
@@ -39,6 +41,7 @@ owner.Reproducer = function(){
             getReproducer: function(kind)
             {
                 if (kind === "hardwired") return this.hardWiredReproducer;
+                if (kind === "replay") return this.replayReproducer;
                 else if (kind === "fbtest") return this.fbTestReproducer;
                 else if (kind === "local") return this.localReproducer;
             },

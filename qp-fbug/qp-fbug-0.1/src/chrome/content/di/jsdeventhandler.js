@@ -330,7 +330,7 @@ owner.JSDEventHandler = function(){
                 var contextUID = this.cachedContexts[frame.executionContext.tag];
                 if (contextUID){
                     context = QPFBUG.contexts[contextUID];
-                    if (context && context.qpfbug.enabled)  //if context is is not any longer available (e.g., firebug disabled and it is deleted for this tab) or qp is not enabled.
+                    if (context && context.qpfbug.listeningToJSDEvents)  //if context is is not any longer available (e.g., firebug disabled and it is deleted for this tab) or qp is not listening.
                         return context;
                 }
 
@@ -369,7 +369,7 @@ owner.JSDEventHandler = function(){
                         if (context.window == rootWindow)
                         {
                             this.cachedContexts[frame.executionContext.tag] = context.uid;
-                            if (!context.qpfbug.enabled)
+                            if (!context.qpfbug.listeningToJSDEvents)
                                 return null;
                             return context;    
                         }
