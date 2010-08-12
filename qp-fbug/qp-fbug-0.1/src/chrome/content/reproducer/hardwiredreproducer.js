@@ -29,9 +29,8 @@ owner.HardWiredReproducer = function(){
 
                         var url = context.window.location.toString();
 
-                        win.Firebug.Debugger.resume(context);
                         var tabBrowser = win.FBL.$("content");
-                        tabBrowser.removeTab(context.qpfbug.tab);
+                        tabBrowser.removeTab(context.qpfbug.tab);  // this will stop debugging the context for sure
 
 
                         var openNewTab = function(url, callback)
