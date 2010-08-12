@@ -24,14 +24,23 @@ Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
     {
         context.Firebug = Firebug; // I guess.
         Firebug.Debugger.addListener(this);
-//        context.qpfbug.reproducer = 'local';
-        FBTrace.sysout("QPModule initContext "+context.getName());
+        context.qpfbug.reproducer = Firebug.getPref("extensions.firebug", "querypoints.reproducer");
+        FBTrace.sysout("QPModule initContext context.qpfbug.reproducer "+context.qpfbug.reproducer+' in context '+context.getName());
+        if (!context.qpfbug.reproducer)
+        	context.qpfbug.reproducer = "hardwired";
+        
     },
 
+    onQueryPointHit: function(context)
+    {
+    	
+    },
+    
     //********** Firebug.Debugger Listener *************************
 
     onStartDebugging: function(context)
     {
+    	FBTrace.sysout("onStartDebugging tracepoints.show "+context.qpfbug.inQuery);
         if (context.qpfbug.inQuery)
         {
         	context.qpfbug.inSession = true;  // I don't know how we will get out of this state
@@ -225,7 +234,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
     show: function(state)
     {
         var enabled = this.context.qpfbug.inSession;
-
+        FBTrace.sysout("tracepoints.show "+enabled, this.context);
         // These buttons are visible only if debugger is enabled.
         //this.showToolbarButtons("fbLocationSeparator", enabled);
         this.showToolbarButtons("fbLocationList", enabled);
@@ -376,7 +385,7 @@ Firebug.Querypoint.QueryPointPanel.prototype = extend(Firebug.DOMBasePanel.proto
     	var mainPanel =  this.context.getPanel("tracepoints", false);
     	var qps = this.context.qpfbug.debugSession.debugModel.getQueryPoints();
     	
-        FBTrace.sysout("QueryPointPanel.updateSelection "+qps.length, qps);
+        FBTrace.sysout("QueryPointPanel.updateSelection "+qps.length, {qps: qps, qp0: qps[0], qp1: qps[1]});
 
         var newQuerypoints = (qps !== this.currentQueryPoints);
         if (newQuerypoints)
@@ -385,7 +394,7 @@ Firebug.Querypoint.QueryPointPanel.prototype = extend(Firebug.DOMBasePanel.proto
             this.currentQueryPoints = qps;
         }
 
-        var members = qps;
+        var members = cloneArray(qps);
         this.expandMembers(members, this.toggles, 0, 0, this.context);
         this.showMembers(members, !newQuerypoints);
     },
@@ -440,6 +449,7 @@ Firebug.Querypoint.QueryPointPanel.prototype = extend(Firebug.DOMBasePanel.proto
 Firebug.registerModule(Firebug.Querypoint.QPModule);
 Firebug.registerStylesheet("chrome://qpfbug/content/ui/querypoints.css");
 Firebug.registerPreference("querypoints.enableSites", false);
+Firebug.registerPreference("querypoints.reproducer", "local");
 Firebug.registerPanel(Firebug.Querypoint.QPSourceViewPanel);
 Firebug.registerPanel(Firebug.Querypoint.QueryStatePanel);
 Firebug.registerPanel(Firebug.Querypoint.QueryPointPanel);
