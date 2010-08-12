@@ -50,7 +50,7 @@ owner.ReplayReproducer = function(){
                         var newTab = openNewTab(win, url, attributes, 
                                 callback = function(win)
                                 {
-                                    replayer.start(win);
+                                    replayer.start(unwrapObject(win));
                                 }
                         );
 

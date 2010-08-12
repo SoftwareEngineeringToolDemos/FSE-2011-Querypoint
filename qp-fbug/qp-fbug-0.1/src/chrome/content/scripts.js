@@ -73,6 +73,7 @@ loadScript("resource://qpfbug/di/scriptanalyzer.js");
 loadScript("resource://qpfbug/parser/jsparser.js");
 
 loadScript("resource://qpfbug/ui/uieventhandler.js");
+loadScript("resource://qpfbug/ui/uiutils.js");
 
 loadScript("resource://qpfbug/dev/doubledebugger.js");
 

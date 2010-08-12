@@ -11,8 +11,8 @@ var owner = QPFBUG.Classes;
 
 owner.RecordedEvent = function(){
 
-        var constructor = function(target, type, originalEvent){
-            this.target = target;
+        var constructor = function(type, originalEvent){
+//            this.target = target;
             this.type = type;
             this.originalEvent = originalEvent;
         };

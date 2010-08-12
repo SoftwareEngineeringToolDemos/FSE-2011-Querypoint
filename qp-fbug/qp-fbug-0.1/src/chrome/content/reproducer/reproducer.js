@@ -41,9 +41,12 @@ owner.Reproducer = function(){
             getReproducer: function(kind)
             {
                 if (kind === "hardwired") return this.hardWiredReproducer;
-                if (kind === "replay") return this.replayReproducer;
+                else if (kind === "replay") return this.replayReproducer;
                 else if (kind === "fbtest") return this.fbTestReproducer;
                 else if (kind === "local") return this.localReproducer;
+                //default
+//                return this.replayReproducer;
+                return this.localReproducer; 
             },
 
         };

@@ -1,6 +1,6 @@
 /* See license.txt for terms of usage */
 
-FBL.ns(function() { with (FBL) {
+FBL.ns(function() { with (FBL)  {with(QPFBUG.Classes){
 
 
 // ************************************************************************************************
@@ -26,9 +26,7 @@ Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
         Firebug.Debugger.addListener(this);
         context.qpfbug.reproducer = Firebug.getPref("extensions.firebug", "querypoints.reproducer");
         FBTrace.sysout("QPModule initContext context.qpfbug.reproducer "+context.qpfbug.reproducer+' in context '+context.getName());
-        if (!context.qpfbug.reproducer)
-        	context.qpfbug.reproducer = "hardwired";
-        
+
     },
 
     onQueryPointHit: function(context)
@@ -44,7 +42,7 @@ Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
         if (context.qpfbug.inQuery)
         {
         	context.qpfbug.inSession = true;  // I don't know how we will get out of this state
-            Firebug.chrome.selectSupportingPanel(context.qpfbug.debugSession.debugModel, context, true);
+            Firebug.chrome.selectSupportingPanel(UIUtils.getDebugModel(context), context, true);
             delete context.qpfbug.inQuery;
         }
 
@@ -76,11 +74,11 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
     supportsObject: function(object, type)
     {
-        if( object instanceof QPFBUG.Classes.DebugModel)
+        if( object instanceof DebugModel)
             return 10;
-        if( object instanceof QPFBUG.Classes.DebugSession)
+        if( object instanceof DebugSession)
             return 10;
-        if( object instanceof QPFBUG.Classes.TracePoint)
+        if( object instanceof TracePoint)
             return 10;
         else return 0;
     },
@@ -88,19 +86,19 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
     updateSelection: function(object)
     {
         FBTrace.sysout("queryPoints.updateSelection "+object, object);
-        if( object instanceof QPFBUG.Classes.DebugSession)
+        if( object instanceof DebugSession)
             this.showDebugModel(object.debugModel);
 
-        if( object instanceof QPFBUG.Classes.DebugModel)
+        if( object instanceof DebugModel)
             this.showDebugModel(object);
 
-        if( object instanceof QPFBUG.Classes.TracePoint)
+        if( object instanceof TracePoint)
             this.navigate(object);
     },
 
     showDebugModel: function(debugModel)
     {
-        if (debugModel !== this.context.qpfbug.debugSession.debugModel)
+        if (debugModel !== UIUtils.getDebugModel(context))
             FBTrace.sysout("querypoints.showDebugModel OUT OF SYNC ");
 
         this.navigate(this.getDefaultLocation());
@@ -191,7 +189,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
     getLocationList: function()
     {
-        var tps = this.context.qpfbug.debugSession.getTracePoints(this.context.qpfbug.reproduction.id);
+        var tps = UIUtils.getTracePoints(context);
         if (tps)
         	return tps;
         else
@@ -273,13 +271,14 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         items.push(
                 {label: "Callstack Reproducer", command: bindFixed(this.selectReproducer, this, "local") },
                 {label: "Scripted Reproducer", command: bindFixed(this.selectReproducer, this, "hardwired") },
+                {label: "Replay Reproducer", command: bindFixed(this.selectReproducer, this, "replay") },
                 {label: "FBTest Reproducer", command: bindFixed(this.selectReproducer, this, "fbtest") }
             );
     },
     
     selectReproducer: function(name)
     {
-    	QPFBUG.Classes.Reproducer.getInstance().select(name);
+    	Reproducer.getInstance().select(name);
     },
 
 });
@@ -304,7 +303,7 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
     	var tracePoint = mainPanel.location;
     	
         FBTrace.sysout("QueryStatePanel.updateSelection "+tracePoint, tracePoint);
-        if( ! (tracePoint instanceof QPFBUG.Classes.TracePoint) )
+        if( ! (tracePoint instanceof TracePoint) )
             return;
 
         var newTracePoint = (tracePoint !== this.currentTracePoint);
@@ -383,7 +382,7 @@ Firebug.Querypoint.QueryPointPanel.prototype = extend(Firebug.DOMBasePanel.proto
     updateSelection: function(ignore)
     {
     	var mainPanel =  this.context.getPanel("tracepoints", false);
-    	var qps = this.context.qpfbug.debugSession.debugModel.getQueryPoints();
+    	var qps = UIUtils.getQueryPoints(context);
     	
         FBTrace.sysout("QueryPointPanel.updateSelection "+qps.length, {qps: qps, qp0: qps[0], qp1: qps[1]});
 
@@ -454,4 +453,4 @@ Firebug.registerPanel(Firebug.Querypoint.QPSourceViewPanel);
 Firebug.registerPanel(Firebug.Querypoint.QueryStatePanel);
 Firebug.registerPanel(Firebug.Querypoint.QueryPointPanel);
 
-}});
+}}});
