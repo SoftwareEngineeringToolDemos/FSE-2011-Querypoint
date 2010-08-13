@@ -146,16 +146,14 @@ with (Lang){
                     parentTraceScope = this.getTraceScope(scope.jsParent);
                     jsClassName = scope.jsClassName;
                     unWrapped  = unwrapIValueObject(scope);
-                    variables = [];
-                    values = [];
+                    variableValues = {};
                     for (var prop in unWrapped){
-                        variables.push(prop);
                         if (unWrapped[prop])
-                            values.push(unWrapped[prop].toSource());
+                            variableValues[prop] = unWrapped[prop].toSource();
                         else
-                            values.push(null);
+                            variableValues[prop] = unWrapped[prop];
                     }
-                    traceScope = new TraceScope(parentTraceScope, jsClassName, variables, values);
+                    traceScope = new TraceScope(parentTraceScope, jsClassName, variableValues);
 
                     return traceScope;
                 },
