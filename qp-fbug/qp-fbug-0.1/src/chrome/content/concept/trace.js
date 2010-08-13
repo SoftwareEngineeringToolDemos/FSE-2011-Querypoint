@@ -67,7 +67,6 @@ with (Lang){
                     }
 
                     var stackTraceXB = QPFBUG.FBL.getCorrectedStackTrace(frame, context);
-
                     var traceFrame = new TraceFrame(stackTraceXB, this.getTraceScope(frame.scope));
                     var tracePoint = new TracePoint(++this.nextTracePointId, queryPoint, traceFrame);
 

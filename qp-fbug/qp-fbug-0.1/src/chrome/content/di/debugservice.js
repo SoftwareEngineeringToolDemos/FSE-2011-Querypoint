@@ -74,6 +74,7 @@ with (Lang){
             },
 
             onModificationWatchpointEvent: function(eventRequest, frame, type, rv, object, propertyName, oldValue, newValue){
+                trace("::::::::::::::::::::::::::::::::::::   " + frame.line);
                 eventRequest.callBack(eventRequest,  frame, type, rv, object, propertyName, oldValue, newValue);
             },
 
@@ -190,18 +191,19 @@ with (Lang){
                 // To remove halting functions from the stack five stepOut steps needed.
                 // Here, by restricting stepping driver to debugging context, only one stepMin
                 // is enough for removing halting function from the top of the stack.
-                var stepHandler = {
-                    start: function(context, frame, type, rv){
-                        this.steppingDriver = DebugService.getInstance().getSteppingDriver(this, context);
-                        this.steppingDriver.step(0, frame.script.tag, frame.line, frame.pc);
-                    },
-                    onStep: function(frame, type, rv, stackDepthChange){
-                        haltObject.callBack(frame, type, rv);
-                        DebugService.getInstance().releaseSteppingDriver(this.steppingDriver);
-                    },
-                }
-                stepHandler.start(haltObject.context, frame, type, rv);
+//                var stepHandler = {
+//                    start: function(context, frame, type, rv){
+//                        this.steppingDriver = DebugService.getInstance().getSteppingDriver(this, context);
+//                        this.steppingDriver.step(0, frame.script.tag, frame.line, frame.pc);
+//                    },
+//                    onStep: function(frame, type, rv, stackDepthChange){
+//                        DebugService.getInstance().releaseSteppingDriver(this.steppingDriver);
+//                        haltObject.callBack(frame, type, rv);
+//                    },
+//                }
+//                stepHandler.start(haltObject.context, frame, type, rv);
 
+                haltObject.callBack(frame.callingFrame.callingFrame.callingFrame.callingFrame.callingFrame, type, rv);
                 return Ci.jsdIExecutionHook.RETURN_CONTINUE;
             },
 
