@@ -45,8 +45,8 @@ owner.Reproducer = function(){
                 else if (kind === "fbtest") return this.fbTestReproducer;
                 else if (kind === "local") return this.localReproducer;
                 //default
-//                return this.replayReproducer;
-                return this.localReproducer; 
+                return this.hardWiredReproducer;
+//                return this.localReproducer;
             },
 
         };

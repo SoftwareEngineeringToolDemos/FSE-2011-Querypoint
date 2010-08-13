@@ -136,6 +136,8 @@ loadModule = function(QPFBUG)
 
         unwrapObject : QPFBUG.FBL.unwrapObject,
 
+        unwrapIValueObject : QPFBUG.FBL.unwrapIValueObject,
+
         FBTrace: QPFBUG.FBTrace,
 
     };
