@@ -39,7 +39,12 @@ with (Lang){
 
                 toString: function()
                 {
-                    return "["+DebugModel.queryTypes[this.queryType]+" QueryPoint "+this.url+"@"+this.lineNo+"]";
+                    return "["+this.getQueryType()+" QueryPoint "+this.url+"@"+this.lineNo+"]";
+                },
+                
+                getQueryType: function()
+                {
+                	return DebugModel.queryTypes[this.queryType];
                 }
             };
             return constructor;
