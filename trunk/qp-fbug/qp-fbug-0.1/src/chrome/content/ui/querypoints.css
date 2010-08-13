@@ -18,3 +18,7 @@
 .querypoint {
     padding-left: 5px;
 }
+
+.sourceRow[tracepoint="true"] > .sourceLine {
+     background-image: url(chrome://qpfbug/content/ui/tracepoint.png);
+}

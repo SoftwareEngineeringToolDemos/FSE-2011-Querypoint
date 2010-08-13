@@ -32,7 +32,7 @@ with (Lang){
             var tps = this.getTracePoints(context);
             try
             {
-            for(var i = i; i < tps.length; i++)
+            for(var i = 0; i < tps.length; i++)
             {
                 FBTrace.sysout("qp.eachTracePoint "+i+"/"+tps.length, tps[i]);
 
