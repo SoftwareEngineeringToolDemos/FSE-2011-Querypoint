@@ -18,7 +18,9 @@ with (Lang){
                 return;
             }
 
-            TraceUtils.traceObjectFunctionCalls(className, class.prototype);
+            TraceUtils.traceObjectFunctionCalls(className, class);
+            if (class.prototype)
+                TraceUtils.traceObjectFunctionCalls(className, class.prototype);
         },
 
         traceObjectFunctionCalls: function(objName, obj, functionName) //todo instead of getting one function name get a list
@@ -30,13 +32,16 @@ with (Lang){
                     var obj_p = obj[p];           //p & obj_p changes in the loop
                     if (!functionName || functionName == p)
                         obj[p] = function(fName, f){ // so by calling another function we fix them for the internal function
+                                                     //todo parse f.toSource() and pass arguments names
                             return function(){
                                     var caller = arguments.callee.caller;
                                     var thread = TraceUtils.enterThread(caller, f);
                                     var space = TraceUtils.getPre(thread);
-                                    QPFBUG.Classes.Lang.trace(space + objName + " - " + fName , arguments);
-                                    return f.apply(this, arguments);
+                                    var argumentsCopy = cloneArray(arguments); //because "arguments" is not longer available when function returns
+                                    QPFBUG.Classes.Lang.trace(space + objName + " - " + fName , argumentsCopy);
+                                    var rv = f.apply(this, arguments);
                                     TraceUtils.exitThread(thread, caller);
+                                    return rv;
                             }
                         }(p, obj_p);
                 };
@@ -73,7 +78,7 @@ with (Lang){
 
         exitThread: function(thread, caller){
             thread.depth --;
-            if (depth == 0 || !caller)
+            if (thread.depth == 0 || !caller)
             {
                 arrayRemoveObject(TraceUtils.threads, thread);
                 return;
@@ -88,10 +93,13 @@ with (Lang){
             var depth = thread.depth;
             if (depth>100)  //larger spaces won't be useful
                 depth = 100;
+
+            if (thread.messageNo == 1)
+                return "->[1]";
             if (!TraceUtils.spaces[depth]){
                 var space = "";
-                for (var i=0 ; i<depth ; i++){
-                    space +="----";
+                for (var i=0 ; i<depth-1 ; i++){
+                    space +="---|";
                 }
                 TraceUtils.spaces[depth] = space;
             }
