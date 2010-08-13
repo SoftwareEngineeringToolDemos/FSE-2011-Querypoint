@@ -66,8 +66,10 @@ with (Lang){
                         this.tracePoints[queryPointId] = [];
                     }
 
-                    var stackFrameLog = new StackFrameLog(frame, context);
-                    var tracePoint = new TracePoint(++this.nextTracePointId, queryPoint, stackFrameLog);
+                    var stackTraceXB = QPFBUG.FBL.getCorrectedStackTrace(frame, context);
+
+                    var traceFrame = new TraceFrame(stackTraceXB, this.getTraceScope(frame.scope));
+                    var tracePoint = new TracePoint(++this.nextTracePointId, queryPoint, traceFrame);
 
                     for (let i=0 ; i<queryPoint.queryObjects.length ; i++)
                     {
@@ -131,6 +133,27 @@ with (Lang){
                     FBTrace.sysout("getLastTracePointByQueryPoint "+points, {queryPoint: queryPoint, tracePoints: this.tracePoints});
                     if (points && points.length)
                         return points[points.length - 1];
+                },
+
+                getTraceScope: function (scope)
+                {
+                    if (!scope)
+                        return null;
+
+                    var traceScope;
+                    var parentScope, jsClassName, variables, values;
+
+                    var unWrapped;
+                    parentTraceScope = this.getTraceScope(scope.jsParent);
+                    jsClassName = scope.jsClassName;
+                    unWrapped  = unwrapIValueObject(scope);
+                    variables = [];
+                    for (var prop in unWrapped){
+                        variables.push(prop);
+                    }
+                    traceScope = new TraceScope(parentTraceScope, jsClassName, variables, []);
+
+                    return traceScope;
                 },
 
             };

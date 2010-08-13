@@ -7,13 +7,12 @@ with (Lang){
 
     var owner = QPFBUG.Classes;
 
-    //------------------------------- StackFrameLog ----------------------------------
-    // StackFrameLog
-    owner.StackFrameLog =
+    //------------------------------- TraceFrame ----------------------------------
+    owner.TraceFrame =
         function(){
-            var constructor = function(frame, context){
-                // We need the context to interpret frames
-                this.stackTraceXB = QPFBUG.FBL.getCorrectedStackTrace(frame, context);
+            var constructor = function(stackTraceXB, traceScope){
+                this.stackTraceXB = stackTraceXB;
+                this.traceScope = traceScope;
             };
 
             constructor.prototype = {

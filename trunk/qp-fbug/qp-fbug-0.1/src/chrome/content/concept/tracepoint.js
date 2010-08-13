@@ -11,10 +11,10 @@ with (Lang){
     // trace point is kept in debug model.
     owner.TracePoint =
         function(){
-            var constructor = function(id, queryPoint, stackFrameLog){
+            var constructor = function(id, queryPoint, traceFrame){
                 this.id = id;
                 this.queryPoint = queryPoint;
-                this.stackFrameLog = stackFrameLog;
+                this.traceFrame = traceFrame;
                 this.traceObjects = [];
             };
 
@@ -40,7 +40,7 @@ with (Lang){
 
                 getStackFrames: function()
                 {
-                    return this.stackFrameLog.getFrames();
+                    return this.traceFrame.getFrames();
                 },
 
                 getQueryType: function()
