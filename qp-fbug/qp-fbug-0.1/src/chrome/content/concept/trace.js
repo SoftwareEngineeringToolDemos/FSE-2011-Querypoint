@@ -29,7 +29,7 @@ with (Lang){
 
                     //add .owner trace object
                     var queryObject;
-                    for (let i=0 ; i<queryPoint.queryObjects.length ; i++){
+                    for (var i=0 ; i<queryPoint.queryObjects.length ; i++){
                         if (queryPoint.queryObjects[i].ref == ".owner"){
                             queryObject = queryPoint.queryObjects[i];
                             break;
@@ -70,7 +70,7 @@ with (Lang){
                     var traceFrame = new TraceFrame(stackTraceXB, this.getTraceScope(frame.scope));
                     var tracePoint = new TracePoint(++this.nextTracePointId, queryPoint, traceFrame);
 
-                    for (let i=0 ; i<queryPoint.queryObjects.length ; i++)
+                    for (var i=0 ; i<queryPoint.queryObjects.length ; i++)
                     {
                         var queryObject = queryPoint.queryObjects[i];
 
@@ -129,7 +129,7 @@ with (Lang){
                 getLastTracePointByQueryPoint: function(queryPoint)
                 {
                     var points = this.tracePoints[queryPoint.id];
-                    FBTrace.sysout("getLastTracePointByQueryPoint "+points, {queryPoint: queryPoint, tracePoints: this.tracePoints});
+                    trace("getLastTracePointByQueryPoint "+points, {queryPoint: queryPoint, tracePoints: this.tracePoints});
                     if (points && points.length)
                         return points[points.length - 1];
                 },

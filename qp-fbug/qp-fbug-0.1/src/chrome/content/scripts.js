@@ -33,6 +33,7 @@ QPFBUG.FBL = FBL; //FBL is created once per window, one of them is enough
 loadScript("resource://qpfbug/util/lang.js");
 loadScript("resource://qpfbug/util/statemachine.js");
 loadScript("resource://qpfbug/util/timer.js");
+loadScript("resource://qpfbug/util/traceutils.js");
 
 loadScript("resource://qpfbug/concept/debugmodel.js");
 loadScript("resource://qpfbug/concept/querypoint.js");

@@ -31,7 +31,7 @@ with (Lang){
 
                 //map<String,[3]String> transitions: all transitions
                 this.transitions = {};
-                for (i = 0; i < transitions.length; i++) {
+                for (var i = 0; i < transitions.length; i++) {
                     //both from and to states should be in the list of states
                     assert(states.indexOf(transitions[i][1]!=-1));
                     assert(states.indexOf(transitions[i][2])!=-1);

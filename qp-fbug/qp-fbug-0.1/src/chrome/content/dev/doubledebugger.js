@@ -189,7 +189,7 @@ with (Lang){
                                 || type == Ci.jsdIExecutionHook.TYPE_DEBUGGER_KEYWORD) //only in these cases we let another stop
                             )
                          {
-                             for (let i=0 ; i<QPFBUG.doubleDebugger.filters.length; i++)
+                             for (var i=0 ; i<QPFBUG.doubleDebugger.filters.length; i++)
                              {
                                  fbs.getJSD().appendFilter(QPFBUG.doubleDebugger.filters[i]);
                              }
@@ -221,7 +221,7 @@ with (Lang){
                              // we increase the pauseDepth to compensate our earlier
                              // unPause;
                              fbs.getJSD().pause();
-                             for (let i=0 ; i<QPFBUG.doubleDebugger.filters.length; i++)
+                             for (var i=0 ; i<QPFBUG.doubleDebugger.filters.length; i++)
                              {
                                  fbs.getJSD().removeFilter(QPFBUG.doubleDebugger.filters[i]);
                              }
