@@ -209,6 +209,43 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         return this.getDefaultLocation();
     },
 
+    getDecorator: function(sourceBox)
+    {
+        return this.decorator.setPanel(this);
+    },
+
+    decorator: extend(new Firebug.SourceBoxDecorator,
+        {
+            setPanel: function(panel)
+            {
+                this.panel = panel;
+                return this;
+            },
+
+            decorate: function(sourceBox, sourceFile)
+            {
+                FBTrace.sysout("qp.decorator called for "+sourceFile.href);
+                var min = sourceBox.firstViewableLine;
+                var max = sourceBox.lastViewableLine;
+                UIUtils.eachTracePoint(this.panel.context, function decorateTracePoint(tp)
+                {
+                    var frameXB = getFrameByTracePoint(tp);
+                    FBTrace.sysout("qp.decorateTracePoint frameXB "+frameXB, {tp:tp, frameXB:frameXB});
+                    if (frameXB.href === sourceFile.href)
+                    {
+                        FBTrace.sysout("qp.decorator found match "+sourceFile.href);
+                        var lineNo = frameXB.lineNo;
+                        if (lineNo >= min && lineNo <= max)
+                        {
+                            var node = sourceBox.getLineNode(lineNo);
+                            FBTrace.sysout("qp.decorator found line "+node);
+                        }
+                    }
+                });;
+
+            },
+           }),
+
     // ****************************************************************************
     warningTag:
         DIV({"class": "disabledPanelBox"},
@@ -418,9 +455,7 @@ Firebug.Querypoint.QueryPointPanel.prototype = extend(Firebug.DOMBasePanel.proto
         var qps = UIUtils.getQueryPoints(this.context);
 
         FBTrace.sysout("QueryPointPanel.updateSelection "+qps.length, {qps: qps, tag: Firebug.Querypoint.QuerypointsTag});
-FBTrace.DBG_DOMPLATE = true;
         Firebug.Querypoint.QuerypointsTag.tag.replace({object:qps}, this.panelNode);
-FBTrace.DBG_DOMPLATE = false;
     },
 
     showEmptyMembers: function()
