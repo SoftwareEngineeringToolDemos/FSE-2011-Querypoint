@@ -12,11 +12,10 @@ with (Lang){
 
     owner.TraceScope =
         function(){
-            var constructor = function(parentScope, jsClassName, variables, values){
+            var constructor = function(parentScope, jsClassName, variableValues){
                 this.parentScope = parentScope;
                 this.jsClassName = jsClassName;
-                this.variables = variables;
-                this.values = values;
+                this.variableValues = variableValues;
             };
 
             constructor.prototype = {
