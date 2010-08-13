@@ -125,7 +125,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
             this.removeAllSourceBoxes();
         }
 
-        var frame = this.getFrameByTracePoint(tracePoint);
+        var frame = UIUtils.getFrameByTracePoint(tracePoint);
         FBTrace.sysout("querypoints frame"+frame, frame);
         this.showSourceFile(frame.sourceFile);
 
@@ -136,13 +136,6 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         var qstate = this.context.getPanel("QueryState", false);
         if (qstate)
             qstate.updateSelection(tracePoint);
-    },
-
-    getFrameByTracePoint: function(tracepoint)
-    {
-        FBTrace.sysout("getSourceLinkByTracePoint "+tracepoint, tracepoint)
-        var frame = tracepoint.getStackFrames()[0];
-        return frame;
     },
 
     /*
@@ -225,20 +218,20 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
             decorate: function(sourceBox, sourceFile)
             {
                 FBTrace.sysout("qp.decorator called for "+sourceFile.href);
-                var min = sourceBox.firstViewableLine;
-                var max = sourceBox.lastViewableLine;
                 UIUtils.eachTracePoint(this.panel.context, function decorateTracePoint(tp)
                 {
-                    var frameXB = getFrameByTracePoint(tp);
+                    var frameXB = UIUtils.getFrameByTracePoint(tp);
                     FBTrace.sysout("qp.decorateTracePoint frameXB "+frameXB, {tp:tp, frameXB:frameXB});
                     if (frameXB.href === sourceFile.href)
                     {
                         FBTrace.sysout("qp.decorator found match "+sourceFile.href);
-                        var lineNo = frameXB.lineNo;
-                        if (lineNo >= min && lineNo <= max)
+                        var lineNo = frameXB.line;
+                        if (lineNo >= sourceBox.firstViewableLine && lineNo <= sourceBox.lastViewableLine)
                         {
-                            var node = sourceBox.getLineNode(lineNo);
-                            FBTrace.sysout("qp.decorator found line "+node);
+                            var row = sourceBox.getLineNode(lineNo);
+                            FBTrace.sysout("qp.decorator found line "+row);
+                            if (row) // we *should* only be called for lines in the viewport...
+                            	row.setAttribute("tracepoint", "true");
                         }
                     }
                 });;
@@ -351,6 +344,7 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
         }
 
         var members = tracePoint.getTraceObjects();
+        FBTrace.sysout("QueryStatePanel.updateSelection traceObjects: "+members.length, members);
         this.expandMembers(members, this.toggles, 0, 0, this.context);
         this.showMembers(members, !newTracePoint);
     },
@@ -365,7 +359,7 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
     // extends Panel
 
     name: "QueryState",
-    title: "QState",
+    title: "TraceObjects",
     order: 0,
     parentPanel: "tracepoints",
     enableA11y: true,
@@ -418,11 +412,6 @@ Firebug.Querypoint.QuerypointsTag = domplate(Firebug.Rep,
         FBTrace.sysout("querypoint.iterator "+qps.length, qps[i]);
         var members = [];
 
-        if (!qps.length)
-        {
-            this.showEmptyMembers();
-            return members;
-        }
         for (var i = 0; i < qps.length; i++)
         {
             var rep = Firebug.getRep(qps[i]);
@@ -453,7 +442,13 @@ Firebug.Querypoint.QueryPointPanel.prototype = extend(Firebug.DOMBasePanel.proto
     {
         var mainPanel =  this.context.getPanel("tracepoints", false);
         var qps = UIUtils.getQueryPoints(this.context);
-
+        
+        if (!qps.length)
+        {
+            this.showEmptyMembers();
+            return;
+        }
+        
         FBTrace.sysout("QueryPointPanel.updateSelection "+qps.length, {qps: qps, tag: Firebug.Querypoint.QuerypointsTag});
         Firebug.Querypoint.QuerypointsTag.tag.replace({object:qps}, this.panelNode);
     },
