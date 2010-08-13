@@ -2,7 +2,8 @@ var EXPORTED_SYMBOLS = ["loadModule"];
 
 loadModule = function(QPFBUG)
 {
-    QPFBUG.FBTrace = QPFBUG.traceConsoleService.getTracer("extensions.firebug");
+
+with (QPFBUG.Classes){
 
     //--------------------------------- Lang --------------------------------
     //this class contains basic needed functions at language level
@@ -24,7 +25,7 @@ loadModule = function(QPFBUG)
 
         trace: function(message, obj)
         {
-            QPFBUG.FBTrace.sysout(message, obj);
+            TraceUtils.trace(arguments.callee.caller, message, obj);
         },
 
         wrapFunctionsWithTryCatch: function(obj)
@@ -43,24 +44,6 @@ loadModule = function(QPFBUG)
                             }
                         }
                     }(p, obj_p);
-                };
-            };
-        },
-
-        traceFunctionCalls: function(objName, obj, functionName) //todo instead of getting one function name get a list
-        {
-            for (var p in obj)
-            {
-                if (typeof(obj[p]) == "function" && obj[p] )
-                {
-                    var obj_p = obj[p];           //p & obj_p changes in the loop
-                    if (!functionName || functionName == p)
-                        obj[p] = function(fName, f){ // so by calling another function we fix them for the internal function
-                            return function(){
-                                    QPFBUG.Classes.Lang.trace(objName + "-" + fName , arguments);
-                                    return f.apply(this, arguments);
-                            }
-                        }(p, obj_p);
                 };
             };
         },
@@ -138,9 +121,8 @@ loadModule = function(QPFBUG)
 
         unwrapIValueObject : QPFBUG.FBL.unwrapIValueObject,
 
-        FBTrace: QPFBUG.FBTrace,
-
+        FBTrace: QPFBUG.traceConsoleService.getTracer("extensions.firebug"),
     };
-
+}
 }
 

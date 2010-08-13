@@ -27,7 +27,7 @@ var owner = QPFBUG.Classes;
         getReproduction : function(id){
             if (!id)
                 return this.newReproduction();
-            for (i=0 ; i < this.reproductions.length ; i++)
+            for (var i=0 ; i < this.reproductions.length ; i++)
             {
                 if (this.reproductions[i].id == id)
                 {
@@ -58,11 +58,11 @@ var owner = QPFBUG.Classes;
         {
         	var tps = [];
         	var trace = this.reproductions[reproductionId].trace;
-        	FBTrace.sysout("getTracePoints "+trace, trace);
+        	trace("getTracePoints "+trace, trace);
         	if (trace)
         	{
         		var qps = this.debugModel.getQueryPoints();
-        		FBTrace.sysout("getTracePoints qps "+qps.length, qps);
+        		trace("getTracePoints qps "+qps.length, qps);
         		for (var i = 0; i < qps.length; i++)
         		{
         			var tp = trace.getLastTracePointByQueryPoint(qps[i]);

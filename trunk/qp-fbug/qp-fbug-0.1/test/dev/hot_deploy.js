@@ -16,7 +16,8 @@ function runTest()
         //Enable double debugger
         DoubleDebugger.getInstance().toggleDoubleDebugging(false);
 //        DoubleDebugger.getInstance().disableDoubleDebugging();
-//        traceFunctionCalls("jsdEventHandler", QPFBUG.jsdEventHandler.fbs);
+//        TraceUtils.traceClassFunctionCalls("Manager");
+//        TraceUtils.traceClassFunctionCalls("Trace");
 //        traceFunctionCalls("fbs", QPFBUG.jsdEventHandler.fbs);
 //        traceFunctionCalls("DebugService", QPFBUG.debugService);
 //        traceFunctionCalls("moduleEventHandler", Firebug.qpfbug.moduleEventHandler);

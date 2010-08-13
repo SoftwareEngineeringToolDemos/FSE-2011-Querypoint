@@ -33,7 +33,7 @@ owner.Reproducer = function(){
             {
             	var reproducer = this.getReproducer(reproducerKind);
             	
-                FBTrace.sysout("reproduce "+reproducerKind, {context: context, debugSessionId: debugSessionId, reproductionId: reproductionId});
+                trace("reproduce "+reproducerKind, {context: context, debugSessionId: debugSessionId, reproductionId: reproductionId});
 
                 reproducer.reproduce(context, debugSessionId, reproductionId);
             },

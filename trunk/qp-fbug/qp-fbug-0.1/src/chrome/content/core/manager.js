@@ -29,7 +29,7 @@ with (Lang){
             getDebugSession : function(id){
                 if (!id)
                     return this.newDebugSession();
-                for (i=0 ; i < this.debugSessions.length ; i++)
+                for (var i=0 ; i < this.debugSessions.length ; i++)
                 {
                     if (this.debugSessions[i].id == id)
                     {
@@ -271,6 +271,7 @@ with (Lang){
             },
             
             resume: function(context){
+                trace("context", context);
                 this.collectData(context);
 
                 var debugSession = context.qpfbug.debugSession;

@@ -243,15 +243,15 @@ with (Lang){
                 var eventRequest;
                 var script = frame.script;
                 var pc = frame.pc;
-                for (let i=0 ; i<eventRequests.length ; i++){
+                for (var i=0 ; i<eventRequests.length ; i++){
 
                     eventRequest = eventRequests[i];
-                    for (let j=0 ; j<eventRequest.breakpoints.length ; j++){ //there is only one
+                    for (var j=0 ; j<eventRequest.breakpoints.length ; j++){ //there is only one
 
                         var bp = eventRequest.breakpoints[j];
                         if (bp.scriptsWithBreakpoint)
                         {
-                            for (let iScript = 0; iScript < bp.scriptsWithBreakpoint.length; iScript++)
+                            for (var iScript = 0; iScript < bp.scriptsWithBreakpoint.length; iScript++)
                             {
                                 if ( bp.scriptsWithBreakpoint[iScript] && (bp.scriptsWithBreakpoint[iScript].tag == script.tag) && (bp.pc[iScript] == pc) )
                                 {
@@ -316,7 +316,7 @@ with (Lang){
                     }
 
                     var haveScript = false;
-                    for (let j = 0; j < bp.scriptsWithBreakpoint.length; j++)
+                    for (var j = 0; j < bp.scriptsWithBreakpoint.length; j++)
                     {
                         if (bp.scriptsWithBreakpoint[j].tag === script.tag)
                            {

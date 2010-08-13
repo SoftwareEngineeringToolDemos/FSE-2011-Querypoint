@@ -97,7 +97,7 @@ owner.UIEventHandler = function(){
                      {
                          var level = parseInt(row.getAttribute("level"))-1;
                          // If it's top level object the level is now set to -1, is that a problem?
-                         for (row = row.previousSibling; row; row = row.previousSibling)
+                         for (var row = row.previousSibling; row; row = row.previousSibling)
                          {
                              if (parseInt(row.getAttribute("level")) == level)
                                  return row;
