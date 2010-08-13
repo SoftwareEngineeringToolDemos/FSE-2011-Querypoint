@@ -39,8 +39,11 @@ owner.Reproduction =
                     this.stateMachine.transit("pause");
                 },
                 resume : function(){
-                    this.stateMachine.transit("resume");
+                    this.stateMachine.startTransit("resume");
+                    //collect data before resume
+                    this.stateMachine.endTransit();
                 },
+
                 stop : function(){
                     this.stateMachine.transit("stop");
                 },

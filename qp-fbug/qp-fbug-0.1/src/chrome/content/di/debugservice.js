@@ -74,7 +74,6 @@ with (Lang){
             },
 
             onModificationWatchpointEvent: function(eventRequest, frame, type, rv, object, propertyName, oldValue, newValue){
-                trace("::::::::::::::::::::::::::::::::::::   " + frame.line);
                 eventRequest.callBack(eventRequest,  frame, type, rv, object, propertyName, oldValue, newValue);
             },
 
@@ -203,6 +202,7 @@ with (Lang){
 //                }
 //                stepHandler.start(haltObject.context, frame, type, rv);
 
+                //todo recursively search for the first parent frame that is in the context
                 haltObject.callBack(frame.callingFrame.callingFrame.callingFrame.callingFrame.callingFrame, type, rv);
                 return Ci.jsdIExecutionHook.RETURN_CONTINUE;
             },

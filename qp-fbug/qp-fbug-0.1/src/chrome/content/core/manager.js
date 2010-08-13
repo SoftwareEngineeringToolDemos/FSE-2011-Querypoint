@@ -99,13 +99,11 @@ with (Lang){
                     trace: reproduction.trace,
                     tab : selectedTab,
                     inSession : false,
-                    inQuery : false, //tod
+                    inQuery : false, //todo
                     reproducer: win.Firebug.getPref("extensions.firebug", "querypoints.reproducer"),
                     recorder: null,
                 };
 
-                //to select this context TODO  do we need this?  no. XXXjjb
-                //win.Firebug.selectContext(context);
 
                 this.enableQP(context);
 
@@ -175,9 +173,8 @@ with (Lang){
 
             //------------------------------- call backs ---------------------------------------
             onModificationWatchpointEvent: function(eventRequest,  frame, type, rv, object, propertyName, oldValue, newValue){
-                trace("----------------");
-                trace(frame.script.fileName+ " " +frame.line);
-                //trace(eventRequest.w_propertyName + " " + oldValue + " " + newValue, object);
+//                trace(frame.script.fileName+ " " +frame.line);
+//                trace(eventRequest.w_propertyName + " " + oldValue + " " + newValue, object);
 
                 var context = eventRequest.context;
                 var queryPoint = eventRequest.queryPoint;
@@ -199,8 +196,24 @@ with (Lang){
             },
 
             //------------------------------- actions ---------------------------------------
-            addLastChange: function(context, owner, propertyPath){
-                //this.enableQPFBUG(context);
+            findLastChangeFromQueryPoint: function(context, queryPoint, owner, propertyPath){
+                var win = context.qpfbug.firefoxWindow;
+                with(win){
+                    var debugSession = context.qpfbug.debugSession;
+                    var reproduction = context.qpfbug.reproduction;
+                    var debugModel = debugSession.debugModel;
+
+                    //todo set the correct frame number
+                    var queryPointB = debugModel.addQueryPoint_LastChange(queryPoint, 0, propertyPath);
+
+                    //todo move this tag to another place
+                    context.qpfbug.inQuery = true;
+
+                    this.resume(context);
+                }
+            },
+
+            findLastChangeFromBreakpoint: function(context, owner, propertyPath){
                 var win = context.qpfbug.firefoxWindow;
                 with(win){
                     var debugSession = context.qpfbug.debugSession;
@@ -224,42 +237,50 @@ with (Lang){
                     if (bp)
                     {
                         //todo set the correct hit count
-                        queryPointA = debugModel.addQueryPoint_Breakpoint(href, line, 0);
+                        queryPoint = debugModel.addQueryPoint_Breakpoint(href, line, 0);
 
-                        //todo set the correct frame number
-                        queryPointB = debugModel.addQueryPoint_LastChange(queryPointA, 0, propertyPath);
+                        context.qpfbug.toBeCollected = [];
+                        context.qpfbug.toBeCollected.push(queryPoint);
+                        context.qpfbug.stoppedFrame = context.stoppedFrame;
 
-                        // collect data
-                        var tracePoint = reproduction.trace.addBreakpointTracePoint(queryPointA, context, context.stoppedFrame);
-                        reproduction.trace.assignTracePoint(queryPointA, tracePoint);
-
-                        //todo add current traceobj  data to the queryPointAlog in reproduction
-                        // we keep parent creation url as information in traceobjlog
-                        //getRealObject
-                        owner = FBL.unwrapObject(owner);
-
-                        var wrappedJSDValue = FBL.jsd.wrapValue(owner);
-                        // NO good reason for getting js parent only because it works
-                        wrappedJSDValue = wrappedJSDValue.jsParent;
-
-
-                        var sourceFile = context.sourceFileMap[wrappedJSDValue.objectValue.creatorURL];
-//                        FBL.fbs.addBreakpoint(1, sourceFile, wrappedJSDValue.objectValue.creatorLine,
-//                                                      null, context.qpfbug.debugger);
+                        this.findLastChangeFromQueryPoint(context, queryPoint, owner, propertyPath);
                     }
-
-
-                     //todo move this tag to another place
-                    context.qpfbug.inQuery = true;
-
-                    var newReproduction = debugSession.getReproduction();
-                    this.disableQP(context);
-                    Reproducer.getInstance().reproduce(context.qpfbug.reproducer, context, debugSession.id, newReproduction.id);
-//                    Reproducer.getInstance().reproduce("hardwired", context, debugSession.id, newReproduction.id);
-
                 }
+            },
+
+            collectData: function(context){
+                var queryPoints = context.qpfbug.toBeCollected;
+                var debugSession = context.qpfbug.debugSession;
+                var reproduction = context.qpfbug.reproduction;
+
+                var frame = context.qpfbug.stoppedFrame;
+                if (!frame)
+                    return;
+                var queryPoint;
+                for (var i=0 ; i<queryPoints.length ; i++){
+                    queryPoint = queryPoints[i];
+                    // collect data
+                    var tracePoint = reproduction.trace.addBreakpointTracePoint(queryPoint, context, frame);
+                    if (queryPoint.queryType == 0){ //breakpoint todo change it
+                        reproduction.trace.assignTracePoint(queryPoint, tracePoint);
+                        //todo assign other tracepoints
+                    }
+                }
+                context.qpfbug.toBeCollected = [];
 
             },
+            
+            resume: function(context){
+                this.collectData(context);
+
+                var debugSession = context.qpfbug.debugSession;
+                var reproduction = context.qpfbug.reproduction;
+
+                context.qpfbug.stoppedFrame = null;
+                var newReproduction = debugSession.getReproduction();
+                this.disableQP(context);
+                Reproducer.getInstance().reproduce(context.qpfbug.reproducer, context, debugSession.id, newReproduction.id);
+            }
 
         };
 
