@@ -27,15 +27,35 @@ with (Lang){
             return UIUtils.getDebugSession(context).getTracePoints(context.qpfbug.reproduction.id);
          },
 
+         eachTracePoint: function(context, fnOfTracePoint)
+         {
+            var tps = this.getTracePoints(context);
+            try
+            {
+            for(var i = i; i < tps.length; i++)
+            {
+                FBTrace.sysout("qp.eachTracePoint "+i+"/"+tps.length, tps[i]);
+
+                fnOfTracePoint(tps[i]);
+            }
+            }catch(exc)
+            {
+                FBTrace.sysout("qp.eachTracepoint FAILS at "+i+" with "+exc, exc);
+            }
+         },
+
          getQueryPoints: function(context){
             return context.qpfbug.debugSession.debugModel.getQueryPoints();
          },
 
-//         getQueryPoints: function(context){
-//            return context.qpfbug.debugSession.debugModel.getQueryPoints();
-//         },
-
-    };
+         getFrameByTracePoint: function(tracepoint)
+         {
+             if (FBTrace.DBG_QP_TRACEPOINTS)
+                 FBTrace.sysout("getFrameByTracePoint "+tracepoint, tracepoint)
+             var frame = tracepoint.getStackFrames()[0];
+             return frame;
+         },
+     };
 }}
 
 };
