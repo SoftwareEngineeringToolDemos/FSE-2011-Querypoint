@@ -41,11 +41,19 @@ with (Lang){
                 {
                     return "["+this.getQueryType()+" QueryPoint "+this.url+"@"+this.lineNo+"]";
                 },
-                
+
                 getQueryType: function()
                 {
-                	return DebugModel.queryTypes[this.queryType];
-                }
+                    return DebugModel.queryTypes[this.queryType];
+                },
+
+                getQueryObjectExpression: function()
+                {
+                    if (this.getQueryType() === "lastChange")
+                    {
+                        return this.queryObjectRef.ref;
+                    }
+                },
             };
             return constructor;
         }();
