@@ -31,17 +31,17 @@ Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
 
     onQueryPointHit: function(context)
     {
-    	
+
     },
-    
+
     //********** Firebug.Debugger Listener *************************
 
     onStartDebugging: function(context)
     {
-    	FBTrace.sysout("onStartDebugging tracepoints.show "+context.qpfbug.inQuery);
+        FBTrace.sysout("onStartDebugging tracepoints.show "+context.qpfbug.inQuery);
         if (context.qpfbug.inQuery)
         {
-        	context.qpfbug.inSession = true;  // I don't know how we will get out of this state
+            context.qpfbug.inSession = true;  // I don't know how we will get out of this state
             Firebug.chrome.selectSupportingPanel(UIUtils.getDebugModel(context), context, true);
             delete context.qpfbug.inQuery;
         }
@@ -125,10 +125,10 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
             this.removeAllSourceBoxes();
         }
 
-        var frame = this.getFrameByTracePoint(tracePoint); 
+        var frame = this.getFrameByTracePoint(tracePoint);
         FBTrace.sysout("querypoints frame"+frame, frame);
         this.showSourceFile(frame.sourceFile);
-        
+
         var lineNumber = frame.line;
         this.scrollToLine(null, lineNumber, bind(this.highlightExecutionLine, this, lineNumber, "tracepoint_line"));
 
@@ -137,12 +137,12 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         if (qstate)
             qstate.updateSelection(tracePoint);
     },
-    
+
     getFrameByTracePoint: function(tracepoint)
     {
-    	FBTrace.sysout("getSourceLinkByTracePoint "+tracepoint, tracepoint)
-    	var frame = tracepoint.getStackFrames()[0];
-    	return frame;
+        FBTrace.sysout("getSourceLinkByTracePoint "+tracepoint, tracepoint)
+        var frame = tracepoint.getStackFrames()[0];
+        return frame;
     },
 
     /*
@@ -152,10 +152,10 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
     {
         return "js";
     },
-    
+
     showSourceLink: function(sourceLink)
     {
-    	// HACK
+        // HACK
     },
 
     getObjectLocation: function(tracePoint)
@@ -191,9 +191,9 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
     {
         var tps = UIUtils.getTracePoints(this.context);
         if (tps)
-        	return tps;
+            return tps;
         else
-        	this.showWarningTag();
+            this.showWarningTag();
     },
 
     getDefaultLocation: function()
@@ -245,10 +245,10 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         if (enabled)
         {
             this.highlight(this.context.stopped);
-        	this.navigate(this.location);
+            this.navigate(this.location);
         }
         else
-        	this.showWarningTag();
+            this.showWarningTag();
     },
 
     hide: function(state)
@@ -262,11 +262,11 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
         delete this.infoTipExpr;
     },
-    
+
     //***************************************************************************
     getOptionsMenuItems: function()
     {
-    	var items = [];
+        var items = [];
 
         items.push(
                 {label: "Callstack Reproducer", command: bindFixed(this.selectReproducer, this, "local") },
@@ -275,10 +275,10 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
                 {label: "FBTest Reproducer", command: bindFixed(this.selectReproducer, this, "fbtest") }
             );
     },
-    
+
     selectReproducer: function(name)
     {
-    	Reproducer.getInstance().select(name);
+        Reproducer.getInstance().select(name);
     },
 
 });
@@ -299,9 +299,9 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
 
     updateSelection: function(ignore)
     {
-    	var mainPanel =  this.context.getPanel("tracepoints", false);
-    	var tracePoint = mainPanel.location;
-    	
+        var mainPanel =  this.context.getPanel("tracepoints", false);
+        var tracePoint = mainPanel.location;
+
         FBTrace.sysout("QueryStatePanel.updateSelection "+tracePoint, tracePoint);
         if( ! (tracePoint instanceof TracePoint) )
             return;
@@ -320,10 +320,10 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
 
     showEmptyMembers: function()
     {
-    	FirebugReps.Warning.tag.replace({object: "NoMembersWarning"}, this.panelNode);
+        FirebugReps.Warning.tag.replace({object: "NoMembersWarning"}, this.panelNode);
     },
 
-    
+
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
     // extends Panel
 
@@ -346,6 +346,7 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
 
     show: function(state)
     {
+        this.rebuild();
     },
 
     initializeNode: function(oldPanelNode)
@@ -365,9 +366,38 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
 
 });
 
-/*
- * Querypoints, shows objects of type QPFBUG.Classes.Querypoint
- */
+Firebug.Querypoint.QuerypointsTag = domplate(Firebug.Rep,
+{
+    tag: FirebugReps.OBJECTBOX(
+            FOR("qp", "$object|iterator",
+                TAG("$qp.tag", {object: "$qp.object"})
+            )
+        ),
+
+    className: "querypoints",
+
+    iterator: function(qps)
+    {
+        FBTrace.sysout("querypoint.iterator "+qps.length, qps[i]);
+        var members = [];
+
+        if (!qps.length)
+        {
+            this.showEmptyMembers();
+            return members;
+        }
+        for (var i = 0; i < qps.length; i++)
+        {
+            var rep = Firebug.getRep(qps[i]);
+            if (rep)
+                members.push({object: qps[i], tag: rep.tag});
+            else
+                FBTrace.sysout("querypoint.iterator no rep for "+qps[i], qps[i]);
+        }
+        return members;
+    },
+
+});
 
 /*
  * Querypoints, shows objects of type QPFBUG.Classes.Querypoint
@@ -376,24 +406,6 @@ Firebug.Querypoint.QueryPointPanel = function QueryPointPanel() {}
 
 Firebug.Querypoint.QueryPointPanel.prototype = extend(Firebug.DOMBasePanel.prototype,
 {
-    tag: FirebugReps.OBJECTBOX(
-            FOR("qp", "$object|iterator",
-                TAG("$prop.tag", {object: "$prop.object"})
-            )
-        ),
-        
-    iterator: function(qps)
-    {
-    	var members = [];
-    	for (var i = 0; i < qps.length; i++)
-    	{
-    		var rep = Firebug.getRep(qps[i]);
-    		if (rep)
-    			members.push({object: qps[i], tag: rep.tag});
-    		else
-    			FBTrace.sysout("querypoint iterator no rep for "+qps[i], qps[i]);
-    	}
-    },
 
     rebuild: function()
     {
@@ -402,21 +414,22 @@ Firebug.Querypoint.QueryPointPanel.prototype = extend(Firebug.DOMBasePanel.proto
 
     updateSelection: function(ignore)
     {
-    	var mainPanel =  this.context.getPanel("tracepoints", false);
-    	var qps = UIUtils.getQueryPoints(this.context);
-    	
-        FBTrace.sysout("QueryPointPanel.updateSelection "+qps.length, {qps: qps, qp0: qps[0], qp1: qps[1]});
+        var mainPanel =  this.context.getPanel("tracepoints", false);
+        var qps = UIUtils.getQueryPoints(this.context);
 
-        this.tag.replace({object:qps}, this.panelNode);
+        FBTrace.sysout("QueryPointPanel.updateSelection "+qps.length, {qps: qps, tag: Firebug.Querypoint.QuerypointsTag});
+FBTrace.DBG_DOMPLATE = true;
+        Firebug.Querypoint.QuerypointsTag.tag.replace({object:qps}, this.panelNode);
+FBTrace.DBG_DOMPLATE = false;
     },
 
     showEmptyMembers: function()
     {
-    	FirebugReps.Warning.tag.replace({object: "NoMembersWarning"}, this.panelNode);
+        FirebugReps.Warning.tag.replace({object: "NoMembersWarning"}, this.panelNode);
     },
 
 
-    
+
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
     // extends Panel
 
@@ -439,7 +452,7 @@ Firebug.Querypoint.QueryPointPanel.prototype = extend(Firebug.DOMBasePanel.proto
 
     show: function(state)
     {
-    	this.rebuild();
+        this.rebuild();
     },
 
     initializeNode: function(oldPanelNode)
@@ -463,32 +476,32 @@ Firebug.Querypoint.QueryPointPanel.prototype = extend(Firebug.DOMBasePanel.proto
 Firebug.Querypoint.BreakPointRep = domplate(Firebug.Rep,
 {
     tag:
-    	FirebugReps.OBJECTLINK(
-    		 SPAN({"class": "objectTitle"}, "$object|getTitle "),
-    		 SPAN({"class": "objectLink-sourceLink objectLink a11yFocus",
+        FirebugReps.OBJECTLINK({"class":"querypoint"},
+             SPAN({"class": "userLabel objectTitle"}, "$object|getTitle "),
+             SPAN({"class": "objectLink-sourceLink objectLink  a11yFocus",
                 _repObject: "$object|getSourceLink",
                 role: "link"},
                 "$object|getSourceLinkTitle")
         ),
 
     titleTag:
-    	 SPAN({"class": "objectTitle"}, "$object|getTitle"),
+         SPAN({"class": "objectTitle"}, "$object|getTitle"),
 
     getTitle: function(object)
     {
-		return "Breakpoint";
+        return "Breakpoint";
     },
 
     getSourceLink: function (object)
     {
-    	return new SourceLink(object.url, object.lineNo, "js");
+        return new SourceLink(object.url, object.lineNo, "js");
     },
-    
+
     getSourceLinkTitle: function(object)
     {
-    	var segments = object.url.split('/');
-    	var leaf = segments.pop();
-    	return leaf+"@"+object.lineNo+"*"+object.hitCount;
+        var segments = object.url.split('/');
+        var leaf = segments.pop();
+        return leaf+"@"+object.lineNo+"*"+object.hitCount;
     },
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -499,24 +512,40 @@ Firebug.Querypoint.BreakPointRep = domplate(Firebug.Rep,
     {
         return (object instanceof QueryPoint) && (object.getQueryType() == "breakpoint");
     },
-    
-    getAsMember: function(object)
-    {
-        var member = {
-                object: object,
-                name: this.getTitle(),
-                value: this.getSourceLinkTitle(object),
-                type: user,
-                rowClass: "memberRow-"+user,
-                open: "",
-                level: 0,
-                indent: level*16,
-                hasChildren: false,
-                tag: this.tag
-            };
-        return member;
-    },
+
 });
+
+Firebug.Querypoint.LastChangeQPRep = domplate(Firebug.Rep,
+{
+    tag:
+        DIV({"class":"querypoint"},
+                 SPAN({"class": "userLabel objectTitle"}, "$object|getTitle "),
+                 TAG(FirebugReps.String.tag, {object: "$object|getQueryObjectRef"})
+            ),
+
+        titleTag:
+             SPAN({"class": "objectTitle"}, "$object|getTitle"),
+
+        getTitle: function(object)
+        {
+            return "Last Change";
+        },
+
+        getQueryObjectRef: function (object)
+        {
+            return object.getQueryObjectExpression();
+        },
+
+        // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+        className: "QueryPointLastChange",
+
+        supportsObject: function(object, type)
+        {
+            return (object instanceof QueryPoint) && (object.getQueryType() == "lastChange");
+        },
+
+    });
 
 Firebug.registerModule(Firebug.Querypoint.QPModule);
 Firebug.registerStylesheet("chrome://qpfbug/content/ui/querypoints.css");
@@ -527,5 +556,6 @@ Firebug.registerPanel(Firebug.Querypoint.QueryStatePanel);
 Firebug.registerPanel(Firebug.Querypoint.QueryPointPanel);
 
 Firebug.registerRep(Firebug.Querypoint.BreakPointRep);
+Firebug.registerRep(Firebug.Querypoint.LastChangeQPRep);
 
 }}});
