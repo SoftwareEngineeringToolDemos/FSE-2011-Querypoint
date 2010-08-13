@@ -137,7 +137,7 @@ owner.UIEventHandler = function(){
                          propertyPath = propertyPath.substring(valueRef.indexOf("].")+2, propertyPath.length);
                      }
 
-                     Manager.getInstance().addLastChange(domPanel.context, rowOwnerObject, propertyPath);
+                     Manager.getInstance().findLastChangeFromBreakpoint(domPanel.context, rowOwnerObject, propertyPath);
                   }}
              }
 
