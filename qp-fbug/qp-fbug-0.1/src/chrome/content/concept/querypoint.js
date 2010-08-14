@@ -6,9 +6,9 @@ with (QPFBUG.Classes){
 with (Lang){
     var owner = QPFBUG.Classes;
 
-    //------------------------------- QueryPoint ----------------------------------
+    //------------------------------- Querypoint ----------------------------------
     // trace point is kept in debug model.
-    owner.QueryPoint =
+    owner.Querypoint =
         function(){
             var constructor = function(id, queryType, refPoint, queryObjectRef, url, lineNo, hitCount){
                 this.id = id;
@@ -39,7 +39,7 @@ with (Lang){
 
                 toString: function()
                 {
-                    return "["+this.getQueryType()+" QueryPoint "+this.url+"@"+this.lineNo+"]";
+                    return "["+this.getQueryType()+" Querypoint "+this.url+"@"+this.lineNo+"]";
                 },
 
                 getQueryType: function()

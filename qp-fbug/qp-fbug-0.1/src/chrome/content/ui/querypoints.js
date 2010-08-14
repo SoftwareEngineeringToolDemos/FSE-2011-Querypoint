@@ -10,7 +10,7 @@ FBL.ns(function() { with (FBL)  {with(QPFBUG.Classes){
  * @panel A Firebug panel that displays and controls Querypoint functionality. It looks like the script panel but act
  * differently.
  *
- * location objects are QPFBUG.Classes.QueryPoint objects.
+ * location objects are QPFBUG.Classes.Querypoint objects.
  */
 
 
@@ -28,7 +28,7 @@ Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
         FBTrace.sysout("QPModule initContext context.qpfbug.reproducer "+context.qpfbug.reproducer+' in context '+context.getName());
     },
 
-    onQueryPointHit: function(context)
+    onQuerypointHit: function(context)
     {
 
     },
@@ -77,7 +77,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
             return 10;
         if( object instanceof DebugSession)
             return 10;
-        if( object instanceof TracePoint)
+        if( object instanceof Tracepoint)
             return 10;
         else return 0;
     },
@@ -91,7 +91,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         if( object instanceof DebugModel)
             this.showDebugModel(object);
 
-        if( object instanceof TracePoint)
+        if( object instanceof Tracepoint)
             this.navigate(object);
     },
 
@@ -124,7 +124,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
             this.removeAllSourceBoxes();
         }
 
-        var frame = UIUtils.getFrameByTracePoint(tracepoint);
+        var frame = UIUtils.getFrameByTracepoint(tracepoint);
         FBTrace.sysout("querypoints frame "+frame, frame);
         this.showSourceFile(frame.sourceFile);
 
@@ -161,7 +161,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         try
         {
             var frameXBs =  tracepoint.getStackFrames();
-            FBTrace.sysout("queryPoints.getObjectDescription frame "+frameXBs, frameXBs);
+            FBTrace.sysout("querypoints.getObjectDescription frame "+frameXBs, frameXBs);
             return frameXBs[0].href;
         }
         catch(exc)
@@ -182,7 +182,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
     getLocationList: function()
     {
-        var tps = UIUtils.getTracePoints(this.context);
+        var tps = UIUtils.getTracepoints(this.context);
         if (tps)
             return tps;
         else
@@ -236,9 +236,9 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
             decorate: function(sourceBox, sourceFile)
             {
                 FBTrace.sysout("qp.decorator called for "+sourceFile.href);
-                UIUtils.eachTracePoint(this.panel.context, function decorateTracepoint(tp)
+                UIUtils.eachTracepoint(this.panel.context, function decorateTracepoint(tp)
                 {
-                    var frameXB = UIUtils.getFrameByTracePoint(tp);
+                    var frameXB = UIUtils.getFrameByTracepoint(tp);
                     FBTrace.sysout("qp.decorateTracepoint frameXB "+frameXB, {tp:tp, frameXB:frameXB});
                     if (frameXB.href === sourceFile.href)
                     {
@@ -352,7 +352,7 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
         var tracepoint = mainPanel.location;
 
         FBTrace.sysout("QueryStatePanel.updateSelection "+tracepoint, tracepoint);
-        if( ! (tracepoint instanceof TracePoint) )
+        if( ! (tracepoint instanceof Tracepoint) )
             return;
 
         var newTracepoint = (tracepoint !== this.currentTracepoint);
@@ -460,7 +460,7 @@ Firebug.Querypoint.ReproductionsPanel.prototype = extend(Firebug.DOMBasePanel.pr
     updateSelection: function(ignore)
     {
         var mainPanel =  this.context.getPanel("tracepoints", false);
-        var tracepoints = UIUtils.getTracePoints(this.context);
+        var tracepoints = UIUtils.getTracepoints(this.context);
 
         if (!tracepoints.length)
         {
@@ -525,7 +525,7 @@ Firebug.Querypoint.TracepointRep = extend(Firebug.Rep,
 {
     getLocationName: function(tracepoint)
     {
-        var frame = UIUtils.getFrameByTracePoint(tracepoint);
+        var frame = UIUtils.getFrameByTracepoint(tracepoint);
         var url = frame.sourceFile.href;
         var segments = url.split('/');
         var leaf = segments.pop();
@@ -574,7 +574,7 @@ Firebug.Querypoint.BreakpointTracepointRep = domplate(Firebug.Querypoint.Tracepo
 
     supportsObject: function(object, type)
     {
-        return (object instanceof QPFBUG.Classes.TracePoint) && (object.getQueryType() == "breakpoint");
+        return (object instanceof QPFBUG.Classes.Tracepoint) && (object.getQueryType() == "breakpoint");
     },
 
 });
@@ -597,7 +597,7 @@ Firebug.Querypoint.LastChangeTracepointRep = domplate(Firebug.Querypoint.Tracepo
 
         getQueryObjectRef: function (object)
         {
-            return object.queryPoint.getQueryObjectExpression();
+            return object.querypoint.getQueryObjectExpression();
         },
 
         getLocationContent: function(object)
@@ -610,7 +610,7 @@ Firebug.Querypoint.LastChangeTracepointRep = domplate(Firebug.Querypoint.Tracepo
 
         supportsObject: function(object, type)
         {
-            return (object instanceof QPFBUG.Classes.TracePoint) && (object.getQueryType() == "lastChange");
+            return (object instanceof QPFBUG.Classes.Tracepoint) && (object.getQueryType() == "lastChange");
         },
 
     });

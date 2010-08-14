@@ -26,7 +26,7 @@ owner.Reproduction =
                this.debugSession = debugSession;
                this.breakRequests = {}; //active breakpoints
                this.nextBreakRequestsId = 0;
-               this.breakRequests_queryPoints = [];
+               this.breakRequests_querypoints = [];
                this.trace = new Trace();
             };
 

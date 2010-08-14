@@ -13,25 +13,25 @@ with (Lang){
         function(){
 
             var constructor = function(){
-                this.nextTracePointId = 0;
-                this.tracePoints = {}; //<int queryPointId, [] tracePoints>
-                this.queryPointId_tracePoint = {};
-                this.results_queryPointId_tracePoint = {};
+                this.nextTracepointId = 0;
+                this.tracepoints = {}; //<int querypointId, [] tracepoints>
+                this.querypointId_tracepoint = {};
+                this.results_querypointId_tracepoint = {};
             };
 
             constructor.prototype = {
 
-                addLastChangeTracePoint: function(queryPoint, context, frame, parent, oldValue, newValue){
+                addLastChangeTracepoint: function(querypoint, context, frame, parent, oldValue, newValue){
 
-                    var tracePoint = this.addTracePoint(queryPoint, context, frame);
+                    var tracepoint = this.addTracepoint(querypoint, context, frame);
 
 
 
                     //add .owner trace object
                     var queryObject;
-                    for (var i=0 ; i<queryPoint.queryObjects.length ; i++){
-                        if (queryPoint.queryObjects[i].ref == ".owner"){
-                            queryObject = queryPoint.queryObjects[i];
+                    for (var i=0 ; i<querypoint.queryObjects.length ; i++){
+                        if (querypoint.queryObjects[i].ref == ".owner"){
+                            queryObject = querypoint.queryObjects[i];
                             break;
                         }
                     }
@@ -48,31 +48,31 @@ with (Lang){
                         traceObject.parentConstructorLine = parentJSDIObject.constructorLine;
                     }
 
-                    tracePoint.addTraceObject(traceObject);
-                    trace("LastChange TracePoint", tracePoint);
-                    return tracePoint;
+                    tracepoint.addTraceObject(traceObject);
+                    trace("LastChange Tracepoint", tracepoint);
+                    return tracepoint;
                 },
 
-                addBreakpointTracePoint: function(queryPoint, context, frame){
-                    var tracePoint = this.addTracePoint(queryPoint, context, frame);
-                    trace("Breakpoint TracePoint", tracePoint);
-                    return tracePoint;
+                addBreakpointTracepoint: function(querypoint, context, frame){
+                    var tracepoint = this.addTracepoint(querypoint, context, frame);
+                    trace("Breakpoint Tracepoint", tracepoint);
+                    return tracepoint;
                 },
 
-                addTracePoint: function(queryPoint, context, frame)
+                addTracepoint: function(querypoint, context, frame)
                 {
-                    var queryPointId = queryPoint.id;
-                    if (!this.tracePoints[queryPointId]){
-                        this.tracePoints[queryPointId] = [];
+                    var querypointId = querypoint.id;
+                    if (!this.tracepoints[querypointId]){
+                        this.tracepoints[querypointId] = [];
                     }
 
                     var stackTraceXB = QPFBUG.FBL.getCorrectedStackTrace(frame, context);
                     var traceFrame = new TraceFrame(stackTraceXB, this.getTraceScope(frame.scope));
-                    var tracePoint = new TracePoint(++this.nextTracePointId, queryPoint, traceFrame);
+                    var tracepoint = new Tracepoint(++this.nextTracepointId, querypoint, traceFrame);
 
-                    for (var i=0 ; i<queryPoint.queryObjects.length ; i++)
+                    for (var i=0 ; i<querypoint.queryObjects.length ; i++)
                     {
-                        var queryObject = queryPoint.queryObjects[i];
+                        var queryObject = querypoint.queryObjects[i];
 
                         //todo find the right frame based on queryObject.frameNo
                         var valueRef = queryObject.ref;
@@ -105,31 +105,31 @@ with (Lang){
                             traceObject.parentConstructorLine = parentJSDIObject.constructorLine;
                         }
 
-                        tracePoint.addTraceObject(traceObject);
+                        tracepoint.addTraceObject(traceObject);
 
                     }
 
-                    this.tracePoints[queryPointId].push(tracePoint);
-                    return tracePoint;
+                    this.tracepoints[querypointId].push(tracepoint);
+                    return tracepoint;
                 },
 
-                assignTracePoint: function(queryPoint, tracePoint)
+                assignTracepoint: function(querypoint, tracepoint)
                 {
-                    this.queryPointId_tracePoint[queryPoint.id] = tracePoint;
+                    this.querypointId_tracepoint[querypoint.id] = tracepoint;
                 },
 
                 getTraceObject: function(pointRef, frameNo, objectRef)
                 {
-                    var tracePoint = this.queryPointId_tracePoint[pointRef.id];
-                    if (tracePoint)
-                        return tracePoint.getTraceObject(frameNo, objectRef);
+                    var tracepoint = this.querypointId_tracepoint[pointRef.id];
+                    if (tracepoint)
+                        return tracepoint.getTraceObject(frameNo, objectRef);
                     return null;
                 },
 
-                getLastTracePointByQueryPoint: function(queryPoint)
+                getLastTracepointByQuerypoint: function(querypoint)
                 {
-                    var points = this.tracePoints[queryPoint.id];
-                    trace("getLastTracePointByQueryPoint "+points, {queryPoint: queryPoint, tracePoints: this.tracePoints});
+                    var points = this.tracepoints[querypoint.id];
+                    trace("getLastTracepointByQuerypoint "+points, {querypoint: querypoint, tracepoints: this.tracepoints});
                     if (points && points.length)
                         return points[points.length - 1];
                 },

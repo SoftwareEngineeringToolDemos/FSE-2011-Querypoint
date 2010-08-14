@@ -53,19 +53,19 @@ var owner = QPFBUG.Classes;
         		return reproductions[reproductions.length - 1].trace; 
         },
         
-        //getTracePoints
-        getTracePoints: function(reproductionId)
+        //getTracepoints
+        getTracepoints: function(reproductionId)
         {
         	var tps = [];
         	var trace = this.reproductions[reproductionId].trace;
-        	Lang.trace("getTracePoints "+trace, trace);
+        	Lang.trace("getTracepoints "+trace, trace);
         	if (trace)
         	{
-        		var qps = this.debugModel.getQueryPoints();
-        		Lang.trace("getTracePoints qps "+qps.length, qps);
+        		var qps = this.debugModel.getQuerypoints();
+        		Lang.trace("getTracepoints qps "+qps.length, qps);
         		for (var i = 0; i < qps.length; i++)
         		{
-        			var tp = trace.getLastTracePointByQueryPoint(qps[i]);
+        			var tp = trace.getLastTracepointByQuerypoint(qps[i]);
         			if (tp)
         				tps.push(tp);
         		}

@@ -21,7 +21,7 @@ Index: querypoints.js
 -
      },
  
-     onQueryPointHit: function(context)
+     onQuerypointHit: function(context)
 @@ -51,6 +56,56 @@
  
  });
@@ -83,9 +83,9 @@ Index: querypoints.js
              this.removeAllSourceBoxes();
          }
  
-+        this.setLocation(tracePoint);
++        this.setLocation(tracepoint);
 +        
-         var frame = UIUtils.getFrameByTracePoint(tracePoint);
+         var frame = UIUtils.getFrameByTracepoint(tracepoint);
          FBTrace.sysout("querypoints frame"+frame, frame);
          this.showSourceFile(frame.sourceFile);
 @@ -259,14 +316,32 @@
@@ -137,21 +137,21 @@ Index: querypoints.js
      updateSelection: function(ignore)
      {
          var mainPanel =  this.context.getPanel("tracepoints", false);
--        var tracePoint = mainPanel.location;
-+        var tracePoint = mainPanel.getLocation();
+-        var tracepoint = mainPanel.location;
++        var tracepoint = mainPanel.getLocation();
  
-         FBTrace.sysout("QueryStatePanel.updateSelection "+tracePoint, tracePoint);
-         if( ! (tracePoint instanceof TracePoint) )
+         FBTrace.sysout("QueryStatePanel.updateSelection "+tracepoint, tracepoint);
+         if( ! (tracepoint instanceof Tracepoint) )
              return;
  
--        var newTracePoint = (tracePoint !== this.currentTracePoint);
--        if (newTracePoint)
+-        var newTracepoint = (tracepoint !== this.currentTracepoint);
+-        if (newTracepoint)
 -        {
 -            this.toggles = new ToggleBranch();
--            this.currentTracePoint = tracePoint;
+-            this.currentTracepoint = tracepoint;
 -        }
 -
-         var members = tracePoint.getTraceObjects();
+         var members = tracepoint.getTraceObjects();
          FBTrace.sysout("QueryStatePanel.updateSelection traceObjects: "+members.length, members);
          this.expandMembers(members, this.toggles, 0, 0, this.context);
 @@ -425,6 +493,7 @@
