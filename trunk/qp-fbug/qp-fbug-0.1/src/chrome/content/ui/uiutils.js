@@ -55,6 +55,11 @@ with (Lang){
              var frame = tracepoint.getStackFrames()[0];
              return frame;
          },
+
+         getQueryPointByTracePoint: function(tracepoint)
+         {
+            return tracepoint.queryPoint;
+         },
      };
 }}
 
