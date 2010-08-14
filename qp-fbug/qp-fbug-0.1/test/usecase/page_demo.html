@@ -1,0 +1,67 @@
+<html>
+    <head>
+        <title>
+            PAGE_SIMPLE
+        </title>
+        <script type="text/javascript">
+
+        <!--
+            var map = {
+                B:{random:100, special:"'B", value:14},
+                H:{random:77, special:"H", value:45},
+                K:{random:64, specials:"K", value:36},
+                Y:{random:77, special:"Y", value: 17},
+            };
+
+            conf = false;
+            
+            compute = function(){
+                console.log("start");
+                step1();
+                step2();
+            }
+
+            step1 = function(){
+                for (var p in map){
+                    var record = map[p];
+                    record.bar = true;
+                    try{
+                       record.special.length;
+                       record.bar = false;
+                    }catch(exc){
+                       //ignore
+                    }
+                }
+            }
+
+            step2 = function(){
+                var foo;
+                for (var p in map){
+                    var record = map[p];
+                    var baz = record.random;
+                    if (record.bar || conf){
+                        record.bar = false;
+                        foo = baz*2
+                    }else{
+                        foo = record.random;
+                    }
+                    if (foo>100)
+                        alert("foo value is not correct : " + foo);
+                }
+            }
+        -->
+        </script>
+
+    </head>
+
+    <body id="myBody" onclick="compute()">
+    <p>
+    </P>
+    <p id="myParagraph">
+    </P>
+    <p id>
+
+    </p>
+    </body>
+
+</html>
