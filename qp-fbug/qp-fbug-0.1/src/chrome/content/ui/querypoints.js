@@ -22,10 +22,10 @@ Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
 
     initializeUI: function()
     {
-		var locationList = $('fbLocationList');
-		Firebug.Querypoint.QuerypointToolbar.initialize(locationList);
+        var locationList = $('fbLocationList');
+        Firebug.Querypoint.QuerypointToolbar.initialize(locationList.popup);
     },
-    
+
     initContext: function(context, persistedState)
     {
         context.Firebug = Firebug; // I guess.
@@ -59,51 +59,55 @@ Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
 /*
  * There is one Toolbar for all panels. Encapsulates implementation of the container of Querypoints
  */
-Firebug.Querypoint.QuerypointToolbar = 
+Firebug.Querypoint.QuerypointToolbar =
 {
-	initialize: function(insertBefore)
-	{
-		var doc = insertBefore.ownerDocument;
-		this.panel = doc.createElement('panel');
-		this.panel.setAttribute("id","qpLocationList"); 
-		this.panel.setAttribute("noautohide", "true");
-		this.panel.setAttribute("noautofocus","true");
-		insertBefore.parentNode.insertBefore(this.panel, insertBefore);
-		
-		this.button = doc.createElement('toolbarbutton');
-		this.button.setAttribute("id","qpLocationListButton");
-		this.button.setAttribute("tooltip", "fbTooltip");
-		this.button.setAttribute("contextmenu", "fbContextMenu");
-		this.button.setAttribute("flex", "1");
-		this.button.setAttribute("collapsed", "true");
-		this.button.setAttribute("class", "noTabStop");
-		this.button.setAttribute("role", "button");
-		this.button.setAttribute("aria-haspopup", "true");
-		this.button.setAttribute("aria-label", "a11y.labels.file selector");
-		insertBefore.parentNode.insertBefore(this.button, insertBefore);
-	},
-	
-	getNode: function()
-	{
-		return this.panel;
-	},
-	
-	show: function()
-	{
-		var anchor = this.panel.previousSibling;
-		this.panel.openPopup(anchor, "before_start", 0, 0, false, false);
-	},
-	
-	hide: function()
-	{
-		this.panel.hidePopup();
+    initialize: function(insertBefore)
+    {
+        // create a panel#qpLocationList and insert into DOM
+        var doc = insertBefore.ownerDocument;
+        this.panel = doc.createElement('panel');
+        this.panel.setAttribute("id","qpLocationList");
+        this.panel.setAttribute("noautohide", "true");
+        this.panel.setAttribute("noautofocus","true");
+
+        FBTrace.sysout("QuerypointToolbar this.panel "+this.panel+" insertBefore "+insertBefore,{panel: this.panel, insertBefore: insertBefore});
+        insertBefore.parentNode.appendChild(this.panel);//, insertBefore);
+        /*
+        this.button = doc.createElement('toolbarbutton');
+        this.button.setAttribute("id","qpLocationListButton");
+        this.button.setAttribute("tooltip", "fbTooltip");
+        this.button.setAttribute("contextmenu", "fbContextMenu");
+        this.button.setAttribute("flex", "1");
+        this.button.setAttribute("collapsed", "true");
+        this.button.setAttribute("class", "noTabStop");
+        this.button.setAttribute("role", "button");
+        this.button.setAttribute("aria-haspopup", "true");
+        this.button.setAttribute("aria-label", "a11y.labels.file selector");
+        insertBefore.parentNode.insertBefore(this.button, insertBefore);
+        */
+    },
+
+    getNode: function()
+    {
+        return this.panel;
+    },
+
+    show: function()
+    {
+        var anchor = this.panel.previousSibling;
+        this.panel.openPopup(anchor, "before_start", 0, 0, false, false);
+    },
+
+    hide: function()
+    {
+        this.panel.hidePopup();
         return true;
-	},
-	
-	destroy: function()
-	{
-		this.panel.parentNode.removeElement(this.panel);
-	},
+    },
+
+    destroy: function()
+    {
+        this.panel.parentNode.removeElement(this.panel);
+    },
 };
 
 Firebug.Querypoint.QPSourceViewPanel = function QPSourceViewPanel() {};
@@ -180,8 +184,8 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
             this.removeAllSourceBoxes();
         }
 
-        this.setLocation(tracePoint);
-        
+        this.location = tracePoint;
+
         var frame = UIUtils.getFrameByTracePoint(tracePoint);
         FBTrace.sysout("querypoints frame"+frame, frame);
         this.showSourceFile(frame.sourceFile);
@@ -288,7 +292,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
                             var row = sourceBox.getLineNode(lineNo);
                             FBTrace.sysout("qp.decorator found line "+row);
                             if (row) // we *should* only be called for lines in the viewport...
-                            	row.setAttribute("tracepoint", "true");
+                                row.setAttribute("tracepoint", "true");
                         }
                     }
                 });;
@@ -316,31 +320,18 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         this.activeWarningTag = this.warningTag.replace(args, this.panelNode, this);
     },
 
-    /* These function override panelfilelist */
-    getLocation: function() 
-    {
-    	return this.currentTracepoint;
-    },
-    
-    setLocation: function(tracepoint)
-    {
-    	this.currentTracepoint = tracepoint;
-    	if (this.currentTracepoint)
-    	{
-    		FBTrace.sysout("Querypoints setLocation "+this.currentTracepoint);
-    		$('qpLocationListButton').setAttribute('label', "Foo");
-    	}
-    },
-    
     show: function(state)
     {
         var enabled = this.context.qpfbug.inSession;
         FBTrace.sysout("tracepoints.show "+enabled, this.context);
 
-        this.showToolbarButtons("fbLocationSeparator", false);
-        this.showToolbarButtons("fbLocationList", false);
-        this.showToolbarButtons("qpLocationListButton", enabled);
-        
+        this.showToolbarButtons("fbLocationSeparator", enabled);
+        this.showToolbarButtons("fbLocationList", enabled);
+
+        var locationList = $('fbLocationList')
+        locationList.popup = Firebug.Querypoint.QuerypointToolbar.getNode();
+        eraseNode(locationList.popup);
+        //locationList.popup.showPopup(locationList, -1, -1, "popup", "bottomleft", "topleft");
 
         // Additional debugger panels are visible only if debugger
         // is enabled.
@@ -350,7 +341,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         if (enabled)
         {
             this.highlight(this.context.stopped);
-            this.navigate(this.getLocation());
+            this.navigate(this.location);
         }
         else
             this.showWarningTag();
@@ -405,7 +396,7 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
     updateSelection: function(ignore)
     {
         var mainPanel =  this.context.getPanel("tracepoints", false);
-        var tracePoint = mainPanel.getLocation();
+        var tracePoint = mainPanel.location;
 
         FBTrace.sysout("QueryStatePanel.updateSelection "+tracePoint, tracePoint);
         if( ! (tracePoint instanceof TracePoint) )
@@ -511,13 +502,13 @@ Firebug.Querypoint.QueryPointPanel.prototype = extend(Firebug.DOMBasePanel.proto
     {
         var mainPanel =  this.context.getPanel("tracepoints", false);
         var qps = UIUtils.getQueryPoints(this.context);
-        
+
         if (!qps.length)
         {
             this.showEmptyMembers();
             return;
         }
-        
+
         FBTrace.sysout("QueryPointPanel.updateSelection "+qps.length, {qps: qps, tag: Firebug.Querypoint.QuerypointsTag});
         Firebug.Querypoint.QuerypointsTag.tag.replace({object:qps}, this.panelNode);
     },
