@@ -7,13 +7,13 @@ with (Lang){
 
     var owner = QPFBUG.Classes;
 
-    //------------------------------- TracePoint ----------------------------------
+    //------------------------------- Tracepoint ----------------------------------
     // trace point is kept in debug model.
-    owner.TracePoint =
+    owner.Tracepoint =
         function(){
-            var constructor = function(id, queryPoint, traceFrame){
+            var constructor = function(id, querypoint, traceFrame){
                 this.id = id;
-                this.queryPoint = queryPoint;
+                this.querypoint = querypoint;
                 this.traceFrame = traceFrame;
                 this.traceObjects = [];
             };
@@ -45,12 +45,12 @@ with (Lang){
 
                 getQueryType: function()
                 {
-                    return DebugModel.queryTypes[this.queryPoint.queryType];
+                    return DebugModel.queryTypes[this.querypoint.queryType];
                 },
 
                 toString: function()
                 {
-                    return "["+this.getQueryType()+" TracePoint]";
+                    return "["+this.getQueryType()+" Tracepoint]";
                 }
             };
 

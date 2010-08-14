@@ -23,20 +23,20 @@ with (Lang){
             return context.qpfbug.debugSession;
          },
 
-         getTracePoints: function(context){
-            return UIUtils.getDebugSession(context).getTracePoints(context.qpfbug.reproduction.id);
+         getTracepoints: function(context){
+            return UIUtils.getDebugSession(context).getTracepoints(context.qpfbug.reproduction.id);
          },
 
-         eachTracePoint: function(context, fnOfTracePoint)
+         eachTracepoint: function(context, fnOfTracepoint)
          {
-            var tps = this.getTracePoints(context);
+            var tps = this.getTracepoints(context);
             try
             {
             for(var i = 0; i < tps.length; i++)
             {
-                FBTrace.sysout("qp.eachTracePoint "+i+"/"+tps.length, tps[i]);
+                FBTrace.sysout("qp.eachTracepoint "+i+"/"+tps.length, tps[i]);
 
-                fnOfTracePoint(tps[i]);
+                fnOfTracepoint(tps[i]);
             }
             }catch(exc)
             {
@@ -44,21 +44,21 @@ with (Lang){
             }
          },
 
-         getQueryPoints: function(context){
-            return context.qpfbug.debugSession.debugModel.getQueryPoints();
+         getQuerypoints: function(context){
+            return context.qpfbug.debugSession.debugModel.getQuerypoints();
          },
 
-         getFrameByTracePoint: function(tracepoint)
+         getFrameByTracepoint: function(tracepoint)
          {
              if (FBTrace.DBG_QP_TRACEPOINTS)
-                 FBTrace.sysout("getFrameByTracePoint "+tracepoint, tracepoint)
+                 FBTrace.sysout("getFrameByTracepoint "+tracepoint, tracepoint)
              var frame = tracepoint.getStackFrames()[0];
              return frame;
          },
 
-         getQueryPointByTracePoint: function(tracepoint)
+         getQuerypointByTracepoint: function(tracepoint)
          {
-            return tracepoint.queryPoint;
+            return tracepoint.querypoint;
          },
      };
 }}

@@ -7,7 +7,7 @@ with (Lang){
 
     var owner = QPFBUG.Classes;
 
-    //--------------------------- QueryPoint Debugging Manager ----------------------
+    //--------------------------- Querypoint Debugging Manager ----------------------
     owner.Manager = function(){
 
         var constructor = function(fbs){
@@ -111,27 +111,27 @@ with (Lang){
 
             enableQP: function(context){
 
-                var queryPoints = context.qpfbug.debugSession.debugModel.queryPoints;
-                var anyQueryPoint = false;
-                for (var i in queryPoints){
-                    anyQueryPoint = true;
-                    var queryPoint = queryPoints[i];
+                var querypoints = context.qpfbug.debugSession.debugModel.querypoints;
+                var anyQuerypoint = false;
+                for (var i in querypoints){
+                    anyQuerypoint = true;
+                    var querypoint = querypoints[i];
                     var eventRequest = null;
 
-                    if (queryPoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT){
-//                            if (queryPoint.url == sourceFile.href){
+                    if (querypoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT){
+//                            if (querypoint.url == sourceFile.href){
                             //todo set execution context tag
                             eventRequest = DebugService.getInstance().createBreakpointRequest(
-                               context, bind(this.onBreakpointEvent, this), queryPoint.url, queryPoint.lineNo);
+                               context, bind(this.onBreakpointEvent, this), querypoint.url, querypoint.lineNo);
 //                            }
 
                     }
 
-                    if (queryPoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE){
+                    if (querypoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE){
                         var traceObject = context.qpfbug.debugSession.getLastTraceObject(
-                                     queryPoint.queryObjectRef.refPoint,
-                                     queryPoint.queryObjectRef.frameNo,
-                                     queryPoint.queryObjectRef.ref
+                                     querypoint.queryObjectRef.refPoint,
+                                     querypoint.queryObjectRef.frameNo,
+                                     querypoint.queryObjectRef.ref
                                      );
 
                         if (traceObject){
@@ -146,19 +146,19 @@ with (Lang){
                             if (url){
                                 url = normalizeURL(url);
                                 eventRequest = DebugService.getInstance().createModificationWatchpointRequest(
-                                    context, bind(this.onModificationWatchpointEvent, this), url, lineNo, queryPoint.queryObjectRef.propertyName);
+                                    context, bind(this.onModificationWatchpointEvent, this), url, lineNo, querypoint.queryObjectRef.propertyName);
                             }
 
                         }
 
                     }
                     if (eventRequest){
-                        eventRequest.queryPoint = queryPoint;
+                        eventRequest.querypoint = querypoint;
                         eventRequest.context = context;
                     }
                 }
 
-                if (anyQueryPoint){
+                if (anyQuerypoint){
                     context.qpfbug.listeningToJSDEvents = true;
                     context.qpfbug.inSession = true;
                     context.qpfbug.inQuery = true;
@@ -177,26 +177,26 @@ with (Lang){
 //                trace(eventRequest.w_propertyName + " " + oldValue + " " + newValue, object);
 
                 var context = eventRequest.context;
-                var queryPoint = eventRequest.queryPoint;
-                var tracePoint;
-                if (queryPoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE)
+                var querypoint = eventRequest.querypoint;
+                var tracepoint;
+                if (querypoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE)
                 {
-                    tracePoint = context.qpfbug.reproduction.trace.addLastChangeTracePoint(queryPoint, context, frame, object, oldValue, newValue);
+                    tracepoint = context.qpfbug.reproduction.trace.addLastChangeTracepoint(querypoint, context, frame, object, oldValue, newValue);
                 }
             },
 
             onBreakpointEvent: function(eventRequest, frame, type ,rv){
                 var context = eventRequest.context;
-                var queryPoint = eventRequest.queryPoint;
-                var tracePoint;
-                if (queryPoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT)
+                var querypoint = eventRequest.querypoint;
+                var tracepoint;
+                if (querypoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT)
                 {
-                    tracePoint = context.qpfbug.reproduction.trace.addBreakpointTracePoint(queryPoint, context, frame);
+                    tracepoint = context.qpfbug.reproduction.trace.addBreakpointTracepoint(querypoint, context, frame);
                 }
             },
 
             //------------------------------- actions ---------------------------------------
-            findLastChangeFromQueryPoint: function(context, queryPoint, owner, propertyPath){
+            findLastChangeFromQuerypoint: function(context, querypoint, owner, propertyPath){
                 var win = context.qpfbug.firefoxWindow;
                 with(win){
                     var debugSession = context.qpfbug.debugSession;
@@ -204,7 +204,7 @@ with (Lang){
                     var debugModel = debugSession.debugModel;
 
                     //todo set the correct frame number
-                    var queryPointB = debugModel.addQueryPoint_LastChange(queryPoint, 0, propertyPath);
+                    var querypointB = debugModel.addQuerypoint_LastChange(querypoint, 0, propertyPath);
 
                     //todo move this tag to another place
                     context.qpfbug.inQuery = true;
@@ -233,36 +233,36 @@ with (Lang){
                     var line = context.stoppedFrame.line;
                     var fileName = context.stoppedFrame.script.fileName;
                     var bp = FBL.fbs.findBreakpoint(href, line);
-                    var queryPointA, queryPointB;
+                    var querypointA, querypointB;
                     if (bp)
                     {
                         //todo set the correct hit count
-                        queryPoint = debugModel.addQueryPoint_Breakpoint(href, line, 0);
+                        querypoint = debugModel.addQuerypoint_Breakpoint(href, line, 0);
 
                         context.qpfbug.toBeCollected = [];
-                        context.qpfbug.toBeCollected.push(queryPoint);
+                        context.qpfbug.toBeCollected.push(querypoint);
                         context.qpfbug.stoppedFrame = context.stoppedFrame;
 
-                        this.findLastChangeFromQueryPoint(context, queryPoint, owner, propertyPath);
+                        this.findLastChangeFromQuerypoint(context, querypoint, owner, propertyPath);
                     }
                 }
             },
 
             collectData: function(context){
-                var queryPoints = context.qpfbug.toBeCollected;
+                var querypoints = context.qpfbug.toBeCollected;
                 var debugSession = context.qpfbug.debugSession;
                 var reproduction = context.qpfbug.reproduction;
 
                 var frame = context.qpfbug.stoppedFrame;
                 if (!frame)
                     return;
-                var queryPoint;
-                for (var i=0 ; i<queryPoints.length ; i++){
-                    queryPoint = queryPoints[i];
+                var querypoint;
+                for (var i=0 ; i<querypoints.length ; i++){
+                    querypoint = querypoints[i];
                     // collect data
-                    var tracePoint = reproduction.trace.addBreakpointTracePoint(queryPoint, context, frame);
-                    if (queryPoint.queryType == 0){ //breakpoint todo change it
-                        reproduction.trace.assignTracePoint(queryPoint, tracePoint);
+                    var tracepoint = reproduction.trace.addBreakpointTracepoint(querypoint, context, frame);
+                    if (querypoint.queryType == 0){ //breakpoint todo change it
+                        reproduction.trace.assignTracepoint(querypoint, tracepoint);
                         //todo assign other tracepoints
                     }
                 }

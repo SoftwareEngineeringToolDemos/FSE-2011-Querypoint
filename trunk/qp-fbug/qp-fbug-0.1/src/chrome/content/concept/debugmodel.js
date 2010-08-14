@@ -10,70 +10,70 @@ with (Lang){
     owner.DebugModel =
         function(){
             var constructor = function(){
-                 this.queryPoints = {};
-                 this.nextQueryPointId = 0;
+                 this.querypoints = {};
+                 this.nextQuerypointId = 0;
             };
 
             constructor.prototype = {
-                addQueryPoint_Breakpoint : function(url, lineNumber, hitCount){
-                    var queryPoint = new QueryPoint(++this.nextQueryPointId, DebugModel.QUERY_TYPES.BREAKPOINT,
+                addQuerypoint_Breakpoint : function(url, lineNumber, hitCount){
+                    var querypoint = new Querypoint(++this.nextQuerypointId, DebugModel.QUERY_TYPES.BREAKPOINT,
                                                     null, null,
                                                     url, lineNumber, hitCount);
 
-                    this.queryPoints[this.nextQueryPointId] = queryPoint;
+                    this.querypoints[this.nextQuerypointId] = querypoint;
 
-                    return queryPoint;
+                    return querypoint;
                 },
 
-                addQueryPoint_LastChange : function(refPoint, valueFrameNo, valueRef){
+                addQuerypoint_LastChange : function(refPoint, valueFrameNo, valueRef){
 
                     // updates refPoint queryObjects
                     var type = QueryObject.TYPES.PARENT_CREATIONDATA | QueryObject.TYPES.PARENT_VALUE;
                     var queryObject = new QueryObject(type, valueFrameNo, valueRef);
                     refPoint.addQueryObject(queryObject);
 
-                    // makes queryPoint
+                    // makes querypoint
                     var queryObjectRef = new QueryObjectRef(refPoint, valueFrameNo, valueRef);
-                    var queryPoint = new QueryPoint(++this.nextQueryPointId, DebugModel.QUERY_TYPES.LASTCHANGE,
+                    var querypoint = new Querypoint(++this.nextQuerypointId, DebugModel.QUERY_TYPES.LASTCHANGE,
                                                     null, queryObjectRef,
                                                     null, null, null);
 
-                    // updates queryPoint queryObjects
+                    // updates querypoint queryObjects
                     type = QueryObject.TYPES.PARENT_CREATIONDATA | QueryObject.TYPES.PARENT_VALUE;
                     queryObject = new QueryObject(type, 0, ".owner" );
-                    queryPoint.addQueryObject(queryObject)
+                    querypoint.addQueryObject(queryObject)
 
                     // add trace point to the list
-                    this.queryPoints[this.nextQueryPointId] = queryPoint;
+                    this.querypoints[this.nextQuerypointId] = querypoint;
 
-                    return queryPoint;
+                    return querypoint;
                 },
 
-                addQueryPoint_LastCondition : function(refPoint){
-                    var queryPoint = new QueryPoint(++this.nextQueryPointId, DebugModel.QUERY_TYPES.LASTCONDITION,
+                addQuerypoint_LastCondition : function(refPoint){
+                    var querypoint = new Querypoint(++this.nextQuerypointId, DebugModel.QUERY_TYPES.LASTCONDITION,
                                                     refPoint, null,
                                                     null, null, null);
 
-                    this.queryPoints[this.nextQueryPointId] = queryPoint;
-                    return queryPoint;
+                    this.querypoints[this.nextQuerypointId] = querypoint;
+                    return querypoint;
                 },
 
-                getLastQueryPoint: function()
+                getLastQuerypoint: function()
                 {
-                    return this.queryPoints[this.nextQueryPointId - 1];  // TODO The next is one ahead of the current
+                    return this.querypoints[this.nextQuerypointId - 1];  // TODO The next is one ahead of the current
                 },
 
-                getQueryPoints: function()
+                getQuerypoints: function()
                 {
                     var list = [];
-                    for (var p in this.queryPoints)
+                    for (var p in this.querypoints)
                     {
-                        list.push(this.queryPoints[p]);
+                        list.push(this.querypoints[p]);
                     }
-//                    var iDontUnderstandThisDataStructure = this.queryPoints[this.nextQueryPointId - 1];  // I guess this one has to exist ?
+//                    var iDontUnderstandThisDataStructure = this.querypoints[this.nextQuerypointId - 1];  // I guess this one has to exist ?
 //                    if (iDontUnderstandThisDataStructure)
 //                    	list.push(iDontUnderstandThisDataStructure);
-                    trace("getQueryPoints "+list.length, {list: list, list0: list[0], list1: list[1]});
+                    trace("getQuerypoints "+list.length, {list: list, list0: list[0], list1: list[1]});
                     return list;
                 },
 

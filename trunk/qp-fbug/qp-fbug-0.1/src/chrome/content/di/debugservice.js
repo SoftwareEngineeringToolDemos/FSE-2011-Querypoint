@@ -38,7 +38,7 @@ with (Lang){
                 eventRequest.id = this.nextEventRequestId++;
                 context.qpfbug.eventRequests.push(eventRequest);
 
-                this.enableEventRequestForAllSourceFiles(context, eventRequest);
+                this.enableEventRequests(context, eventRequest);
 
                 return eventRequest;
             },
@@ -52,7 +52,7 @@ with (Lang){
                 eventRequest.id = this.nextEventRequestId++;
                 context.qpfbug.eventRequests.push(eventRequest);
 
-                this.enableEventRequestForAllSourceFiles(context, eventRequest);
+                this.enableEventRequests(context, eventRequest);
 
                 return eventRequest;
             },
@@ -133,7 +133,21 @@ with (Lang){
             },
 
             //--------------------------------- EventRequest-SourceFile --------------------------------
-            enableAllEventRequestsForSourceFiles: function(context, sourceFile){
+            enableEventRequests: function(context, eventRequest){
+
+//                if (eventRequest.type == EventRequest.TYPES.WATCHPOINT && eventRequest.w_ownerCreationUrl == ""){ //todo improve it
+//                    trace(":::::::" + context.window);
+//                    context.window.watch(bind(this.onPropertyChanged, this, context.window, eventRequest));
+//                };
+
+                //set hooks for already loaded sourcefiles
+                for (var i in context.sourceFileMap){
+                    this.enableEventRequestForSourceFile(context, context.sourceFileMap[i], eventRequest);
+
+                }
+            },
+
+            enableAllEventRequestsForSourceFile: function(context, sourceFile){
                 var eventRequests = context.qpfbug.eventRequests;
 
                 for (var i=0 ; i<eventRequests.length ; i++)
@@ -143,18 +157,11 @@ with (Lang){
                 }
             },
 
-            enableEventRequestForAllSourceFiles: function(context, eventRequest){
-                //set hooks for already loaded sourcefiles
-                for (var i in context.sourceFileMap){
-                    this.enableEventRequestForSourceFile(context, context.sourceFileMap[i], eventRequest);
-                }
-            },
-
             enableEventRequestForSourceFile: function(context, sourceFile, eventRequest){
                 if (sourceFile.href == eventRequest.bp_url){
                     var bp = {type: 1, href: sourceFile.href, lineNo: eventRequest.bp_lineNo, disabled: 0,
                               debuggerName: "QPFBUG",
-                              condition: "", onTrue: true, hitCount: -1, hit: 0, queryPoints : []};
+                              condition: "", onTrue: true, hitCount: -1, hit: 0, querypoints : []};
                     bp.id = this.nextBreakpointId++;
                     eventRequest.breakpoints=[];
                     eventRequest.breakpoints.push(bp);
@@ -164,7 +171,7 @@ with (Lang){
                 if (sourceFile.href == eventRequest.w_ownerCreationUrl){
                     var bp = {type: 1, href: sourceFile.href, lineNo: eventRequest.w_ownerCreationLineNo, disabled: 0,
                               debuggerName: "QPFBUG",
-                              condition: "", onTrue: true, hitCount: -1, hit: 0, queryPoints : []};
+                              condition: "", onTrue: true, hitCount: -1, hit: 0, querypoints : []};
                     bp.id = this.nextBreakpointId++;
                     eventRequest.breakpoints=[];
                     eventRequest.breakpoints.push(bp);
@@ -210,7 +217,7 @@ with (Lang){
             //--------------------------------- new/changed script --------------------------------
             // source file is created or changed so update breakpoints
             onSourceFileCreated: function(context, sourceFile){
-                this.enableAllEventRequestsForSourceFiles(context, sourceFile);
+                this.enableAllEventRequestsForSourceFile(context, sourceFile);
             },
 
             //------------------------------------------ jsd hooks -------------------------------------------------
