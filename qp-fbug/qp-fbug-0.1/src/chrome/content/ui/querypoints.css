@@ -11,11 +11,11 @@
     background-color: #D9D9B6;
 }
 
-.querypoint .objectLink {
+.tracepoint .objectLink {
     position: static;
 }
 
-.querypoint {
+.tracepoint {
     padding-left: 5px;
 }
 
