@@ -10,17 +10,17 @@ with (Lang){
     // trace point is kept in debug model.
     owner.Querypoint =
         function(){
-            var constructor = function(id, queryType, refPoint, queryObjectRef, url, lineNo, hitCount){
+            var constructor = function(id, queryType, refQuerypoint, refQueryobject, url, lineNo, hitCount){
                 this.id = id;
                 this.queryType = queryType;
 
-                //lastCondition
+                //lastCondition && //lastChange
                 // ref point object
-                this.refPoint = refPoint;
+                this.refQuerypoint = refQuerypoint;
 
                 // lastChange
                 // what we are looking for its last change
-                this.queryObjectRef = queryObjectRef;
+                this.refQueryobject = refQueryobject;
 
                 // breakpoint
                 this.url = url;
@@ -28,13 +28,13 @@ with (Lang){
                 this.hitCount = hitCount;
 
                 //obj should be traced at this point
-                this.queryObjects = [];
+                this.queryDatas = [];
             };
 
             constructor.prototype = {
-                addQueryObject : function(queryObject){
-                    this.queryObjects.push(queryObject);
-                    return queryObject;
+                addQueryData : function(queryData){
+                    this.queryDatas.push(queryData);
+                    return queryData;
                 },
 
                 toString: function()
@@ -51,7 +51,7 @@ with (Lang){
                 {
                     if (this.getQueryType() === "lastChange")
                     {
-                        return this.queryObjectRef.ref;
+                        return this.refQueryobject.expr;
                     }
                 },
             };

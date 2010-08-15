@@ -584,7 +584,7 @@ Firebug.Querypoint.LastChangeTracepointRep = domplate(Firebug.Querypoint.Tracepo
     tag:
         DIV({"class":"tracepoint"},
                  SPAN({"class": "userLabel objectTitle"}, "$object|getTitle "),
-                 TAG(FirebugReps.String.tag, {object: "$object|getQueryObjectRef"})
+                 TAG(FirebugReps.String.tag, {object: "$object|getQueryExpr"})
             ),
 
         titleTag:
@@ -595,14 +595,14 @@ Firebug.Querypoint.LastChangeTracepointRep = domplate(Firebug.Querypoint.Tracepo
             return "Last Change";
         },
 
-        getQueryObjectRef: function (object)
+        getQueryExpr: function (object)
         {
             return object.querypoint.getQueryObjectExpression();
         },
 
         getLocationContent: function(object)
         {
-            return this.getTitle()+" "+this.getQueryObjectRef(object)+" "+this.getLocationName(object);
+            return this.getTitle()+" "+this.getQueryExpr(object)+" "+this.getLocationName(object);
         },
         // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

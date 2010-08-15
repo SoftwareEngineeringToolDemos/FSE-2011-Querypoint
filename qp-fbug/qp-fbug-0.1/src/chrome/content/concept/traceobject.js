@@ -12,8 +12,8 @@ with (Lang){
 
     owner.TraceObject =
         function(){
-            var constructor = function(queryObject, parentValue, value){
-                this.queryObject = queryObject;
+            var constructor = function(queryData, parentValue, value){
+                this.queryData = queryData;
                 this.parentValue = parentValue ;
                 this.value = value;
                 this.parentCreatorURL = null;

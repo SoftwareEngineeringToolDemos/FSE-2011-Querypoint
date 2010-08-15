@@ -41,8 +41,8 @@ owner.ReplayReproducer = function(){
                     var replayer = new Replayer(record);
 
                     with(ReplayUtils){
-                        win.Firebug.Debugger.resume(context); //is it necessary?
-                        var tabBrowser = win.FBL.$("content");
+//                        win.Firebug.Debugger.resume(context); //is it necessary?
+                        var tabBrowser = $("content");
                         tabBrowser.removeTab(context.qpfbug.tab);
                         var attributes = {debugSessionId:debugSessionId,
                                          reproductionId:reproductionId};

@@ -74,7 +74,7 @@ with (Lang){
 
             initContextForQPFBUG: function(win, context, debugSessionId, reproductionId){
                 //get reproductionId passed to this tab
-                var tabBrowser = win.FBL.$("content");
+                var tabBrowser = $("content");
                 var selectedTab = tabBrowser.selectedTab;
 
                 if (!debugSessionId)
@@ -119,19 +119,17 @@ with (Lang){
                     var eventRequest = null;
 
                     if (querypoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT){
-//                            if (querypoint.url == sourceFile.href){
-                            //todo set execution context tag
-                            eventRequest = DebugService.getInstance().createBreakpointRequest(
-                               context, bind(this.onBreakpointEvent, this), querypoint.url, querypoint.lineNo);
-//                            }
+                        //todo set execution context tag
+                        eventRequest = DebugService.getInstance().createBreakpointRequest(
+                           context, bind(this.onBreakpointEvent, this), querypoint.url, querypoint.lineNo);
 
                     }
 
                     if (querypoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE){
                         var traceObject = context.qpfbug.debugSession.getLastTraceObject(
-                                     querypoint.queryObjectRef.refPoint,
-                                     querypoint.queryObjectRef.frameNo,
-                                     querypoint.queryObjectRef.ref
+                                     querypoint.refQuerypoint,
+                                     querypoint.refQueryobject.frameNo,
+                                     querypoint.refQueryobject.expr
                                      );
 
                         if (traceObject){
@@ -142,11 +140,10 @@ with (Lang){
                                 url = traceObject.parentConstructorURL;
                                 lineNo = traceObject.parentConstructorLine;
                             }
-
-                            if (url){
+                            if (url){    //todo
                                 url = normalizeURL(url);
                                 eventRequest = DebugService.getInstance().createModificationWatchpointRequest(
-                                    context, bind(this.onModificationWatchpointEvent, this), url, lineNo, querypoint.queryObjectRef.propertyName);
+                                    context, bind(this.onModificationWatchpointEvent, this), url, lineNo, querypoint.refQueryobject.propertyName);
                             }
 
                         }
@@ -232,7 +229,7 @@ with (Lang){
                     var href = context.executingSourceFile.href;
                     var line = context.stoppedFrame.line;
                     var fileName = context.stoppedFrame.script.fileName;
-                    var bp = FBL.fbs.findBreakpoint(href, line);
+                    var bp = getFirebugService().findBreakpoint(href, line);
                     var querypointA, querypointB;
                     if (bp)
                     {
@@ -271,7 +268,6 @@ with (Lang){
             },
             
             resume: function(context){
-                trace("context", context);
                 this.collectData(context);
 
                 var debugSession = context.qpfbug.debugSession;

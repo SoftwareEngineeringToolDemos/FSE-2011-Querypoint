@@ -3,12 +3,15 @@
 FBL.ns(function() { with (FBL)
 {
     with(QPFBUG.Classes){
+
+        if (QPFBUG.DBG)
+            TraceUtils.traceClassesFunctionCalls(QPFBUG.DBG_Filter);
+
+        //initializes JSDEventHandler
+        JSDEventHandler.getInstance();
+
         // it keeps qpfbug data for this window
         Firebug.qpfbug = {};
-
-        var manager = Manager.getInstance();
-
-        var jsdEventHandler = JSDEventHandler.getInstance();
 
         // A new Module event handler is created for every new firefox window
         Firebug.registerModule(ModuleEventHandler.getInstance(window));
