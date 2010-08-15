@@ -362,8 +362,8 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
             this.currentTracepoint = tracepoint;
         }
 
-        var members = tracepoint.getTraceDatas();
-        FBTrace.sysout("QueryStatePanel.updateSelection traceDatas: "+members.length, members);
+        var members = tracepoint.getTraceData();
+        FBTrace.sysout("QueryStatePanel.updateSelection traceData: "+members.length, members);
         this.expandMembers(members, this.toggles, 0, 0, this.context);
         this.showMembers(members, !newTracepoint);
     },
@@ -378,7 +378,7 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
     // extends Panel
 
     name: "QueryState",
-    title: "TraceDatas",
+    title: "TraceData",
     order: 0,
     parentPanel: "tracepoints",
     enableA11y: true,
