@@ -26,8 +26,8 @@ with (Lang){
                 getTraceObject: function(frameNo, ref){
                     for (var i=0; i<this.traceObjects.length ; i++)
                     {
-                        if (this.traceObjects[i].queryObject.frameNo == frameNo &&
-                            this.traceObjects[i].queryObject.ref == ref)
+                        if (this.traceObjects[i].queryData.frameNo == frameNo &&
+                            this.traceObjects[i].queryData.expr == ref)
                             return this.traceObjects[i];
                     }
                     return null;

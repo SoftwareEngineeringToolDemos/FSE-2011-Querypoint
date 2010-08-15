@@ -10,8 +10,18 @@ with (Lang){
 
     QPFBUG.Classes.TraceUtils = {
 
+        wrappedClasses : [],
+
+        traceClassesFunctionCalls: function(list){
+            for (var i=0 ; i<list.length ; i++){
+                    TraceUtils.traceClassFunctionCalls(list[i]);
+            }
+        },
+
         traceClassFunctionCalls: function(className)
         {
+            if (arrayContainsObject(TraceUtils.wrappedClasses, className))
+                return;
             var class = QPFBUG.Classes[className];
             if (!class){
                 trace("there is no class with this name : " + className);
@@ -21,6 +31,8 @@ with (Lang){
             TraceUtils.traceObjectFunctionCalls(className, class);
             if (class.prototype)
                 TraceUtils.traceObjectFunctionCalls(className, class.prototype);
+
+            TraceUtils.wrappedClasses.push(className);
         },
 
         traceObjectFunctionCalls: function(objName, obj, functionName) //todo instead of getting one function name get a list

@@ -30,7 +30,7 @@ owner.HardWiredReproducer = function(){
                         var url = context.window.location.toString();
 
 //                        win.Firebug.Debugger.resume(context);
-                        var tabBrowser = win.FBL.$("content");
+                        var tabBrowser = $("content");
                         tabBrowser.removeTab(context.qpfbug.tab);
 
 

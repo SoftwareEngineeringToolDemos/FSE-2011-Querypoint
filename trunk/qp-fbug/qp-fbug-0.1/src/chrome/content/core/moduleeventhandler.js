@@ -12,44 +12,44 @@ with (Lang){
     owner.ModuleEventHandler = function(){
 
         var constructor = function(win){
+            extendFromParent(this, win.Firebug.Module); //TODO change it to activeModule
+            this.win = win;
 
-            var module = win.FBL.extend(win.Firebug.Module,  //TODO change it to activeModule
+            return this;
+        };
+
+        constructor.prototype = {
+
+            initialize: function(){
+            },
+
+            initializeUI: function(){
+                //initialize UIEventHandler for this firefox window
+                UIEventHandler.getInstance(this.win).init();
+            },
+
+            initContext: function(context, persistedState)
             {
-                initialize: function(){
+                Manager.getInstance().initContext(this.win, context, persistedState);
+            },
 
-                },
+            loadedContext: function(context)
+            {
+                Manager.getInstance().loadedContext(this.win, context);
+            },
 
-                initializeUI: function(){
-                    //initialize UIEventHandler for this firefox window
-                    UIEventHandler.getInstance(this.win).init();
-                },
+            // source file is created or changed
+            onSourceFileCreated: function(context, sourceFile)
+            {
+                if (context.qpfbug.listeningToJSDEvents)
+                    DebugService.getInstance().onSourceFileCreated(context, sourceFile);
+            },
 
-                initContext: function(context, persistedState)
-                {
-                    Manager.getInstance().initContext(this.win, context, persistedState);
-                },
+            destroyContext: function(context, persistedState)
+            {
+                Manager.getInstance().destroyContext(this.win, context);
+            }
 
-                loadedContext: function(context)
-                {
-                    Manager.getInstance().loadedContext(this.win, context);
-                },
-
-                // source file is created or changed
-                onSourceFileCreated: function(context, sourceFile)
-                {
-                    if (context.qpfbug.listeningToJSDEvents)
-                        DebugService.getInstance().onSourceFileCreated(context, sourceFile);
-                },
-
-                destroyContext: function(context, persistedState)
-                {
-                    Manager.getInstance().destroyContext(this.win, context);
-                }
-
-            });
-
-            module.win = win;
-            return module;
         };
 
         constructor.getInstance = function(win){

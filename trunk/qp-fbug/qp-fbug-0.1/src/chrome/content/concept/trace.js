@@ -28,16 +28,16 @@ with (Lang){
 
 
                     //add .owner trace object
-                    var queryObject;
-                    for (var i=0 ; i<querypoint.queryObjects.length ; i++){
-                        if (querypoint.queryObjects[i].ref == ".owner"){
-                            queryObject = querypoint.queryObjects[i];
+                    var queryData;
+                    for (var i=0 ; i<querypoint.queryDatas.length ; i++){
+                        if (querypoint.queryDatas[i].expr == ".owner"){
+                            queryData = querypoint.queryDatas[i];
                             break;
                         }
                     }
 
                     var parentJSDIValue = QPFBUG.fbs.getJSD().wrapValue(parent);
-                    var traceObject = new TraceObject(queryObject, parent, oldValue);
+                    var traceObject = new TraceObject(queryData, parent, oldValue);
 
                     var parentJSDIObject = parentJSDIValue.objectValue;
                     if (parentJSDIObject)
@@ -70,15 +70,15 @@ with (Lang){
                     var traceFrame = new TraceFrame(stackTraceXB, this.getTraceScope(frame.scope));
                     var tracepoint = new Tracepoint(++this.nextTracepointId, querypoint, traceFrame);
 
-                    for (var i=0 ; i<querypoint.queryObjects.length ; i++)
+                    for (var i=0 ; i<querypoint.queryDatas.length ; i++)
                     {
-                        var queryObject = querypoint.queryObjects[i];
+                        var queryData = querypoint.queryDatas[i];
 
-                        //todo find the right frame based on queryObject.frameNo
-                        var valueRef = queryObject.ref;
+                        //todo find the right frame based on queryData.frameNo
+                        var valueRef = queryData.expr;
 
-                        var propertyName = queryObject.propertyName;
-                        var parentRef = queryObject.parentRef;
+                        var propertyName = queryData.propertyName;
+                        var parentRef = queryData.parentRef;
 
                         var parent = evalInFrame(frame, parentRef);
 
@@ -94,7 +94,7 @@ with (Lang){
 
                         // Gecko2 (firefox 4)
                         // var parentId = Object.getProperty(object, "__QPFBUG_ID");
-                        var traceObject = new TraceObject(queryObject, parent, parent[propertyName])
+                        var traceObject = new TraceObject(queryData, parent, parent[propertyName])
 
                         var parentJSDIObject = parentJSDIValue.objectValue;
                         if (parentJSDIObject)
@@ -149,7 +149,11 @@ with (Lang){
                     variableValues = {};
                     for (var prop in unWrapped){
                         if (unWrapped[prop])
-                            variableValues[prop] = unWrapped[prop].toSource();
+                            try{
+                                variableValues[prop] = unWrapped[prop].toSource();
+                            }catch(exc){
+                                trace("Error in object.toSource(): " + exc.message, exc);
+                            }
                         else
                             variableValues[prop] = unWrapped[prop];
                     }

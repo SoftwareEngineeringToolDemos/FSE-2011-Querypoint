@@ -38,7 +38,7 @@ with (Lang){
                 eventRequest.id = this.nextEventRequestId++;
                 context.qpfbug.eventRequests.push(eventRequest);
 
-                this.enableEventRequests(context, eventRequest);
+                this.enableEventRequest(context, eventRequest);
 
                 return eventRequest;
             },
@@ -52,7 +52,7 @@ with (Lang){
                 eventRequest.id = this.nextEventRequestId++;
                 context.qpfbug.eventRequests.push(eventRequest);
 
-                this.enableEventRequests(context, eventRequest);
+                this.enableEventRequest(context, eventRequest);
 
                 return eventRequest;
             },
@@ -133,11 +133,11 @@ with (Lang){
             },
 
             //--------------------------------- EventRequest-SourceFile --------------------------------
-            enableEventRequests: function(context, eventRequest){
+            enableEventRequest: function(context, eventRequest){
 
-//                if (eventRequest.type == EventRequest.TYPES.WATCHPOINT && eventRequest.w_ownerCreationUrl == ""){ //todo improve it
-//                    trace(":::::::" + context.window);
-//                    context.window.watch(bind(this.onPropertyChanged, this, context.window, eventRequest));
+//                if (eventRequest.type == EventRequest.TYPES.WATCHPOINT ){//&& eventRequest.w_ownerCreationUrl == null){ //todo improve it
+//                    var unwrapped = unwrapObject(context.window);
+//                    unwrapped.watch(eventRequest.w_propertyName, bind(this.onPropertyChanged, this, context.window, eventRequest));
 //                };
 
                 //set hooks for already loaded sourcefiles

@@ -58,6 +58,16 @@ with (QPFBUG.Classes){
             }
         },
 
+        arrayContainsObject: function(array, object)
+        {
+            for (var i=0 ; i<array.length ; i++){
+                if (array[i] == object){
+                    return true;
+                }
+            }
+            return false;
+        },
+
         cloneObject: function(object){
             var copy = {};
             for (var i in object){
@@ -102,6 +112,18 @@ with (QPFBUG.Classes){
             return depth;
         },
 
+        getFirebugService: function(){
+            return QPFBUG.fbs;
+        },
+
+        extendFromParent : function(object, parent)
+        {
+            for (var p in parent)
+                if (!object[p])
+                    object[p] = parent[p];
+        },
+
+
         //--------------------------------- from firebug lib.js -----------------------------
         bind: QPFBUG.FBL.bind,
 
@@ -121,7 +143,11 @@ with (QPFBUG.Classes){
 
         unwrapIValueObject : QPFBUG.FBL.unwrapIValueObject,
 
-        FBTrace: QPFBUG.traceConsoleService.getTracer("extensions.firebug"),
+        getCorrectedStackTrace : QPFBUG.FBL.getCorrectedStackTrace,
+
+        $ : QPFBUG.FBL.$,
+
+        FBTrace: QPFBUG.traceConsoleService.getTracer("extensions.firebug"),        
     };
 }
 }

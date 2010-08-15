@@ -25,23 +25,23 @@ with (Lang){
                     return querypoint;
                 },
 
-                addQuerypoint_LastChange : function(refPoint, valueFrameNo, valueRef){
+                addQuerypoint_LastChange : function(refQuerypoint, valueFrameNo, valueRef){
 
-                    // updates refPoint queryObjects
-                    var type = QueryObject.TYPES.PARENT_CREATIONDATA | QueryObject.TYPES.PARENT_VALUE;
-                    var queryObject = new QueryObject(type, valueFrameNo, valueRef);
-                    refPoint.addQueryObject(queryObject);
+                    // updates refQuerypoint queryDatas
+                    var type = QueryData.TYPES.PARENT_CREATIONDATA | QueryData.TYPES.PARENT_VALUE;
+                    var queryData = new QueryData(type, valueFrameNo, valueRef);
+                    refQuerypoint.addQueryData(queryData);
 
                     // makes querypoint
-                    var queryObjectRef = new QueryObjectRef(refPoint, valueFrameNo, valueRef);
+                    var refQueryobject = new QueryExpr(valueFrameNo, valueRef);
                     var querypoint = new Querypoint(++this.nextQuerypointId, DebugModel.QUERY_TYPES.LASTCHANGE,
-                                                    null, queryObjectRef,
+                                                    refQuerypoint, refQueryobject,
                                                     null, null, null);
 
-                    // updates querypoint queryObjects
-                    type = QueryObject.TYPES.PARENT_CREATIONDATA | QueryObject.TYPES.PARENT_VALUE;
-                    queryObject = new QueryObject(type, 0, ".owner" );
-                    querypoint.addQueryObject(queryObject)
+                    // updates querypoint queryDatas
+                    type = QueryData.TYPES.PARENT_CREATIONDATA | QueryData.TYPES.PARENT_VALUE;
+                    queryData = new QueryData(type, 0, ".owner" );
+                    querypoint.addQueryData(queryData)
 
                     // add trace point to the list
                     this.querypoints[this.nextQuerypointId] = querypoint;
@@ -49,9 +49,9 @@ with (Lang){
                     return querypoint;
                 },
 
-                addQuerypoint_LastCondition : function(refPoint){
+                addQuerypoint_LastCondition : function(refQuerypoint){
                     var querypoint = new Querypoint(++this.nextQuerypointId, DebugModel.QUERY_TYPES.LASTCONDITION,
-                                                    refPoint, null,
+                                                    refQuerypoint, null,
                                                     null, null, null);
 
                     this.querypoints[this.nextQuerypointId] = querypoint;
