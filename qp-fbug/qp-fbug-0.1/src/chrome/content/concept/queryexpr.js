@@ -13,7 +13,8 @@ with (Lang){
             var constructor = function(frameNo, expr){
                 //frame number : the frame, ref should be evaluated in. Frame 0 is the top frame in the stack.
                 this.frameNo = frameNo;
-                //reference to object or value (in general it can be any expression that can be evaluated)
+
+                //reference to object or value (in general it can be any expression which refers to an object or value)
                 // expression valid in frame scope giving object we are tracking
                 this.expr = expr;
 
