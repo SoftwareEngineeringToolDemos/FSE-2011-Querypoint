@@ -362,7 +362,7 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
             this.currentTracepoint = tracepoint;
         }
 
-        var members = tracepoint.getTraceData();
+        var members = tracepoint.getTraceDataList();
         FBTrace.sysout("QueryStatePanel.updateSelection traceData: "+members.length, members);
         this.expandMembers(members, this.toggles, 0, 0, this.context);
         this.showMembers(members, !newTracepoint);

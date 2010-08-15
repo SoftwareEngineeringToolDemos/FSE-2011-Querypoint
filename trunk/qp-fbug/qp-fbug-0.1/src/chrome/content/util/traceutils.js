@@ -52,6 +52,8 @@ with (Lang){
                                     var argumentsCopy = cloneArray(arguments); //because "arguments" is not longer available when function returns
                                     QPFBUG.Classes.Lang.trace(space + objName + " - " + fName , argumentsCopy);
                                     var rv = f.apply(this, arguments);
+                                    if (rv)
+                                        QPFBUG.Classes.Lang.trace(space + objName + " - " + fName + " returns." , rv);
                                     TraceUtils.exitThread(thread, caller);
                                     return rv;
                             }

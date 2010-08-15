@@ -15,27 +15,27 @@ with (Lang){
                 this.id = id;
                 this.querypoint = querypoint;
                 this.traceFrame = traceFrame;
-                this.traceData = [];
+                this.traceDataList = [];
             };
 
             constructor.prototype = {
                 addTraceData: function(traceData){
-                    this.traceData.push(traceData);
+                    this.traceDataList.push(traceData);
                 },
 
                 getTraceData: function(frameNo, ref){
-                    for (var i=0; i<this.traceData.length ; i++)
+                    for (var i=0; i<this.traceDataList.length ; i++)
                     {
-                        if (this.traceData[i].queryData.frameNo == frameNo &&
-                            this.traceData[i].queryData.expr == ref)
-                            return this.traceData[i];
+                        if (this.traceDataList[i].queryData.frameNo == frameNo &&
+                            this.traceDataList[i].queryData.expr == ref)
+                            return this.traceDataList[i];
                     }
                     return null;
                 },
 
-                getTraceData: function()
+                getTraceDataList: function()
                 {
-                    return this.traceData;
+                    return this.traceDataList;
                 },
 
                 getStackFrames: function()
