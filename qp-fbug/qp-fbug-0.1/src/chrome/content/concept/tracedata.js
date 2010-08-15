@@ -7,10 +7,10 @@ with (Lang){
 
     var owner = QPFBUG.Classes;
 
-    //------------------------------- TraceObject ----------------------------------
+    //------------------------------- TraceData ----------------------------------
     // This object keeps collected data from an objects.
 
-    owner.TraceObject =
+    owner.TraceData =
         function(){
             var constructor = function(queryData, parentValue, value){
                 this.queryData = queryData;
@@ -25,7 +25,7 @@ with (Lang){
             constructor.prototype = {
                 toString: function()
                 {
-                    return "[TraceObject]";
+                    return "[TraceData]";
                 }
             };
 

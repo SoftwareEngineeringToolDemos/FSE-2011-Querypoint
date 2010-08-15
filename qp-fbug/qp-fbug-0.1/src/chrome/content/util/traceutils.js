@@ -28,14 +28,14 @@ with (Lang){
                 return;
             }
 
-            TraceUtils.traceObjectFunctionCalls(className, class);
+            TraceUtils.traceDataFunctionCalls(className, class);
             if (class.prototype)
-                TraceUtils.traceObjectFunctionCalls(className, class.prototype);
+                TraceUtils.traceDataFunctionCalls(className, class.prototype);
 
             TraceUtils.wrappedClasses.push(className);
         },
 
-        traceObjectFunctionCalls: function(objName, obj, functionName) //todo instead of getting one function name get a list
+        traceDataFunctionCalls: function(objName, obj, functionName) //todo instead of getting one function name get a list
         {
             for (var p in obj)
             {

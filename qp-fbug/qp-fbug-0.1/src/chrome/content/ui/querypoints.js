@@ -333,7 +333,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 });
 
 /*
- * Q-State, shows objects of type QPFBUG.Classes.TraceObject
+ * Q-State, shows objects of type QPFBUG.Classes.TraceData
  */
 Firebug.Querypoint.QueryStatePanel = function QueryStatePanel() {}
 
@@ -362,8 +362,8 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
             this.currentTracepoint = tracepoint;
         }
 
-        var members = tracepoint.getTraceObjects();
-        FBTrace.sysout("QueryStatePanel.updateSelection traceObjects: "+members.length, members);
+        var members = tracepoint.getTraceDatas();
+        FBTrace.sysout("QueryStatePanel.updateSelection traceDatas: "+members.length, members);
         this.expandMembers(members, this.toggles, 0, 0, this.context);
         this.showMembers(members, !newTracepoint);
     },
@@ -378,7 +378,7 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
     // extends Panel
 
     name: "QueryState",
-    title: "TraceObjects",
+    title: "TraceDatas",
     order: 0,
     parentPanel: "tracepoints",
     enableA11y: true,

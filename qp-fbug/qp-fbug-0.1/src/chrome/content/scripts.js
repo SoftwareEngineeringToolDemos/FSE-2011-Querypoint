@@ -41,7 +41,7 @@ loadScript("resource://qpfbug/concept/queryexpr.js");
 loadScript("resource://qpfbug/concept/querydata.js");
 loadScript("resource://qpfbug/concept/trace.js");
 loadScript("resource://qpfbug/concept/tracepoint.js");
-loadScript("resource://qpfbug/concept/traceobject.js");
+loadScript("resource://qpfbug/concept/tracedata.js");
 loadScript("resource://qpfbug/concept/tracescope.js");
 loadScript("resource://qpfbug/concept/traceframe.js");
 loadScript("resource://qpfbug/concept/debugsession.js");

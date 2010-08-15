@@ -126,24 +126,24 @@ with (Lang){
                     }
 
                     if (querypoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE){
-                        var traceObject = context.qpfbug.debugSession.getLastTraceObject(
+                        var traceData = context.qpfbug.debugSession.getLastTraceData(
                                      querypoint.refQuerypoint,
-                                     querypoint.refQueryobject.frameNo,
-                                     querypoint.refQueryobject.expr
+                                     querypoint.refQueryexpr.frameNo,
+                                     querypoint.refQueryexpr.expr
                                      );
 
-                        if (traceObject){
-                            var url = traceObject.parentCreatorURL;
-                            var lineNo = traceObject.parentCreatorLine;
+                        if (traceData){
+                            var url = traceData.parentCreatorURL;
+                            var lineNo = traceData.parentCreatorLine;
 
                             if (!url){
-                                url = traceObject.parentConstructorURL;
-                                lineNo = traceObject.parentConstructorLine;
+                                url = traceData.parentConstructorURL;
+                                lineNo = traceData.parentConstructorLine;
                             }
                             if (url){    //todo
                                 url = normalizeURL(url);
                                 eventRequest = DebugService.getInstance().createModificationWatchpointRequest(
-                                    context, bind(this.onModificationWatchpointEvent, this), url, lineNo, querypoint.refQueryobject.propertyName);
+                                    context, bind(this.onModificationWatchpointEvent, this), url, lineNo, querypoint.refQueryexpr.propertyName);
                             }
 
                         }
