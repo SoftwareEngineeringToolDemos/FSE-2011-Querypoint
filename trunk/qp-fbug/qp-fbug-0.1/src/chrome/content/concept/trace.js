@@ -37,18 +37,18 @@ with (Lang){
                     }
 
                     var parentJSDIValue = QPFBUG.fbs.getJSD().wrapValue(parent);
-                    var traceObject = new TraceObject(queryData, parent, oldValue);
+                    var traceData = new TraceData(queryData, parent, oldValue);
 
                     var parentJSDIObject = parentJSDIValue.objectValue;
                     if (parentJSDIObject)
                     {
-                        traceObject.parentCreatorURL = parentJSDIObject.creatorURL;
-                        traceObject.parentCreatorLine = parentJSDIObject.creatorLine;
-                        traceObject.parentConstructorURL = parentJSDIObject.constructorURL;
-                        traceObject.parentConstructorLine = parentJSDIObject.constructorLine;
+                        traceData.parentCreatorURL = parentJSDIObject.creatorURL;
+                        traceData.parentCreatorLine = parentJSDIObject.creatorLine;
+                        traceData.parentConstructorURL = parentJSDIObject.constructorURL;
+                        traceData.parentConstructorLine = parentJSDIObject.constructorLine;
                     }
 
-                    tracepoint.addTraceObject(traceObject);
+                    tracepoint.addTraceData(traceData);
                     trace("LastChange Tracepoint", tracepoint);
                     return tracepoint;
                 },
@@ -94,18 +94,18 @@ with (Lang){
 
                         // Gecko2 (firefox 4)
                         // var parentId = Object.getProperty(object, "__QPFBUG_ID");
-                        var traceObject = new TraceObject(queryData, parent, parent[propertyName])
+                        var traceData = new TraceData(queryData, parent, parent[propertyName])
 
                         var parentJSDIObject = parentJSDIValue.objectValue;
                         if (parentJSDIObject)
                         {
-                            traceObject.parentCreatorURL = parentJSDIObject.creatorURL;
-                            traceObject.parentCreatorLine = parentJSDIObject.creatorLine;
-                            traceObject.parentConstructorURL = parentJSDIObject.constructorURL;
-                            traceObject.parentConstructorLine = parentJSDIObject.constructorLine;
+                            traceData.parentCreatorURL = parentJSDIObject.creatorURL;
+                            traceData.parentCreatorLine = parentJSDIObject.creatorLine;
+                            traceData.parentConstructorURL = parentJSDIObject.constructorURL;
+                            traceData.parentConstructorLine = parentJSDIObject.constructorLine;
                         }
 
-                        tracepoint.addTraceObject(traceObject);
+                        tracepoint.addTraceData(traceData);
 
                     }
 
@@ -118,11 +118,11 @@ with (Lang){
                     this.querypointId_tracepoint[querypoint.id] = tracepoint;
                 },
 
-                getTraceObject: function(pointRef, frameNo, objectRef)
+                getTraceData: function(pointRef, frameNo, objectRef)
                 {
                     var tracepoint = this.querypointId_tracepoint[pointRef.id];
                     if (tracepoint)
-                        return tracepoint.getTraceObject(frameNo, objectRef);
+                        return tracepoint.getTraceData(frameNo, objectRef);
                     return null;
                 },
 

@@ -38,11 +38,11 @@ var owner = QPFBUG.Classes;
         },
 
 
-        getLastTraceObject: function(pointRef, frameNo, objRef)
+        getLastTraceData: function(pointRef, frameNo, objRef)
         {
             var reproductions = this.reproductions;
             if (reproductions.length > 1)
-                return reproductions[reproductions.length - 2].trace.getTraceObject(pointRef, frameNo, objRef);
+                return reproductions[reproductions.length - 2].trace.getTraceData(pointRef, frameNo, objRef);
             return null;
         },
 
