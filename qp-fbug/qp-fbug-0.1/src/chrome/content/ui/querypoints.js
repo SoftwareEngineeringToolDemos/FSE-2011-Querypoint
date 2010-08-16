@@ -137,7 +137,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
     syncSidePanels: function()
     {
-        var qstate = this.context.getPanel("QueryState", false);
+        var qstate = this.context.getPanel("TraceData", false);
         if (qstate)
             qstate.updateSelection(this.location);
     },
@@ -333,11 +333,11 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 });
 
 /*
- * Q-State, shows objects of type QPFBUG.Classes.TraceData
+ * TraceDataPanel, shows objects of type QPFBUG.Classes.TraceData
  */
-Firebug.Querypoint.QueryStatePanel = function QueryStatePanel() {}
+Firebug.Querypoint.TraceDataPanel = function TraceDataPanel() {}
 
-Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.prototype,
+Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.DOMBasePanel.prototype,
 {
     tag: Firebug.DOMPanel.DirTable.watchTag,
 
@@ -351,7 +351,7 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
         var mainPanel =  this.context.getPanel("tracepoints", false);
         var tracepoint = mainPanel.location;
 
-        FBTrace.sysout("QueryStatePanel.updateSelection "+tracepoint, tracepoint);
+        FBTrace.sysout("TraceDataPanel.updateSelection "+tracepoint, tracepoint);
         if( ! (tracepoint instanceof Tracepoint) )
             return;
 
@@ -363,7 +363,7 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
         }
 
         var members = tracepoint.getTraceDataList();
-        FBTrace.sysout("QueryStatePanel.updateSelection traceData: "+members.length, members);
+        FBTrace.sysout("TraceDataPanel.updateSelection traceData: "+members.length, members);
         this.expandMembers(members, this.toggles, 0, 0, this.context);
         this.showMembers(members, !newTracepoint);
     },
@@ -377,7 +377,7 @@ Firebug.Querypoint.QueryStatePanel.prototype = extend(Firebug.DOMBasePanel.proto
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
     // extends Panel
 
-    name: "QueryState",
+    name: "TraceData",
     title: "TraceData",
     order: 0,
     parentPanel: "tracepoints",
@@ -615,12 +615,29 @@ Firebug.Querypoint.LastChangeTracepointRep = domplate(Firebug.Querypoint.Tracepo
 
     });
 
+
+/*
+ * TraceStackPanel, shows objects of type QPFBUG.Classes.TraceFrame
+ */
+Firebug.Querypoint.TraceStackPanel = function TraceStackPanel() {}
+
+Firebug.Querypoint.TraceStackPanel.prototype = extend(Firebug.CallstackPanel.prototype,
+{
+    name: "tracestack",
+    title: "Tracestack",
+    parentPanel: "tracepoints",
+    order: 2,
+    enableA11y: true,
+    deriveA11yFrom: "console",
+});
+
 Firebug.registerModule(Firebug.Querypoint.QPModule);
 Firebug.registerStylesheet("chrome://qpfbug/content/ui/querypoints.css");
 Firebug.registerPreference("querypoints.enableSites", false);
 Firebug.registerPreference("querypoints.reproducer", "local");
 Firebug.registerPanel(Firebug.Querypoint.QPSourceViewPanel);
-Firebug.registerPanel(Firebug.Querypoint.QueryStatePanel);
+Firebug.registerPanel(Firebug.Querypoint.TraceDataPanel);
+Firebug.registerPanel(Firebug.Querypoint.TraceStackPanel);
 Firebug.registerPanel(Firebug.Querypoint.ReproductionsPanel);
 
 Firebug.registerRep(Firebug.Querypoint.BreakpointTracepointRep);

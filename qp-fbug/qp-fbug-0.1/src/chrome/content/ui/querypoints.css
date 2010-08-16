@@ -22,3 +22,7 @@
 .sourceRow[tracepoint="true"] > .sourceLine {
      background-image: url(chrome://qpfbug/content/ui/tracepoint.png);
 }
+
+.panelNode-tracestack .stackframeMarker {
+    padding-left: 13px;
+}
