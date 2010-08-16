@@ -150,7 +150,7 @@ with (Lang){
                     for (var prop in unWrapped){
                         if (unWrapped[prop])
                             try{
-                                variableValues[prop] = unWrapped[prop].toSource();
+                                variableValues[prop] = JSON.parse(JSON.stringify(unWrapped[prop]));
                             }catch(exc){
                                 trace("Error in object.toSource(): " + exc.message, exc);
                             }

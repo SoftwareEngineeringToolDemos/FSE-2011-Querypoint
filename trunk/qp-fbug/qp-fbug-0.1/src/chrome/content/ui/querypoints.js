@@ -348,8 +348,9 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.DOMBasePanel.protot
             this.currentTracepoint = tracepoint;
         }
 
-        var tracedata = tracepoint.getTraceDataList();
-        var members = this.getMembers(tracedata, 0, this.context);
+        //var tracedata = tracepoint.traceFrame.traceScope.variableValues;
+        var members = this.generateScopeChain(tracepoint.traceFrame.traceScope);
+        //var members = this.getMembers(tracedata, 0, this.context);
         FBTrace.sysout("TraceDataPanel.rebuild traceData: "+members.length, members);
 
         this.expandMembers(members, this.toggles, 0, 0, this.context);
@@ -389,6 +390,45 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.DOMBasePanel.protot
     showEmptyMembers: function()
     {
         FirebugReps.Warning.tag.replace({object: "NoMembersWarning"}, this.panelNode);
+    },
+
+    generateScopeChain: function (scope)
+    {
+        var members = [];
+        while (scope) {
+            var scopeVars;
+            // getWrappedValue will not contain any variables for closure
+            // scopes, so we want to special case this to get all variables
+            // in all cases.
+            if (scope.jsClassName == "Call") {
+                var scopeVars = scope.variableValues; 
+                scopeVars.toString = function() {return "Closure Scope";}
+            } else {
+                scopeVars = scope.variableValues;
+            }
+
+            if (scopeVars && scopeVars.hasOwnProperty)
+            {
+                if (!scopeVars.hasOwnProperty("toString")) {
+                    (function() {
+                        var className = scope.jsClassName;
+                        scopeVars.toString = function() {
+                            return $STR(className + " Scope");
+                        };
+                    })();
+                }
+                
+                this.addMember(scopeVars, "scopes", members, scopeVars.toString(), scopeVars, 0);
+            }
+            else
+            {
+                if (FBTrace.DBG_ERRORS)
+                    FBTrace.sysout("dom .generateScopeChain: bad scopeVars");
+            }
+            scope = scope.parentScope;
+        }
+
+        return members;
     },
 
 
@@ -463,6 +503,45 @@ Firebug.Querypoint.TracepointsTag = domplate(Firebug.Rep,
 
 });
 
+Firebug.Querypoint.ReproductionsRep = domplate(Firebug.Rep,
+{
+	tag: DIV({"class":"reproductionSelector"},
+			FirebugReps.OBJECTLINK({"class":"previousReproduction"}, "$object|getPreviousReproduction"),
+			SPAN({"class":"currentReproduction"}, "$object|getTitle"),
+			FirebugReps.OBJECTLINK({"class":"previousReproduction"}, "$object|getNextReproduction"),
+			TAG(Firebug.Querypoint.TracepointsTag.tag, {object: "$object|getTracepoints"})
+			),
+	
+	getTitle: function(object)
+	{
+		return object.id;
+	},
+	
+	getPreviousReproduction: function(object)
+	{
+		return "< " + (object.id - 1);
+	},
+
+	getNextReproduction: function(object)
+	{
+		return (object.id + 1) +">"
+	},
+	
+	getTracepoints: function(reproduction)
+	{
+		return reproduction.trace.tracepoints;
+	},
+
+	className: "QuerypointReprodution",
+
+	supportsObject: function(object, type)
+    {
+        return (object instanceof QPFBUG.Classes.Reproduction); 
+    },
+
+});
+
+
 /*
  * Reproductions, shows objects of type QPFBUG.Classes.Reproduction
  */
@@ -470,26 +549,31 @@ Firebug.Querypoint.ReproductionsPanel = function ReproductionsPanel() {}
 
 Firebug.Querypoint.ReproductionsPanel.prototype = extend(Firebug.DOMBasePanel.prototype,
 {
-
-    rebuild: function()
+	
+	// called by navigate when object != this.location
+    updateLocation: function(object)
     {
-        // location needs to be reproduction id
-        this.updateSelection(this.selection);
+    	if (object instanceof Tracepoint)
+    	{
+    		var reproduction = UIUtils.getReproduction(this.context);  // WRONG need reproduction by tracepoint
+    		this.select(reproduction);
+    	}
     },
-
-    updateSelection: function(ignore)
+    
+    syncToMainPanel: function()
     {
         var mainPanel =  this.context.getPanel("tracepoints", false);
-        var tracepoints = UIUtils.getTracepoints(this.context);
-
-        if (!tracepoints.length)
-        {
-            this.showEmptyMembers();
-            return;
-        }
-
-        FBTrace.sysout("ReproductionsPanel.updateSelection "+tracepoints.length, {tracepoints: tracepoints, tag: Firebug.Querypoint.TracepointsTag});
-        Firebug.Querypoint.TracepointsTag.tag.replace({object:tracepoints}, this.panelNode);
+        this.navigate(mainPanel.location);
+    },
+    
+    // called by select when object != this.selection
+    updateSelection: function(object)
+    {
+    	if (object instanceof Reproduction)
+    	{
+    		FBTrace.sysout("ReproductionsPanel.updateLocation "+object, object); 
+    		Firebug.Querypoint.ReproductionsRep.tag.replace({object:object}, this.panelNode, Firebug.Querypoint.ReproductionsRep);
+    	}
     },
 
     showEmptyMembers: function()
@@ -521,7 +605,7 @@ Firebug.Querypoint.ReproductionsPanel.prototype = extend(Firebug.DOMBasePanel.pr
 
     show: function(state)
     {
-        this.rebuild();
+        this.syncToMainPanel();
     },
 
     initializeNode: function(oldPanelNode)
