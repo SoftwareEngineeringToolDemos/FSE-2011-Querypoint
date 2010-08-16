@@ -131,15 +131,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         var lineNumber = frame.line;
         this.scrollToLine(null, lineNumber, bind(this.highlightExecutionLine, this, lineNumber, "tracepoint_line"));
 
-        this.syncSidePanels(); // we should not have to do this?
         FBTrace.sysout("QPSourceViewPanel.updateLocation "+tracepoint, tracepoint);
-    },
-
-    syncSidePanels: function()
-    {
-        var qstate = this.context.getPanel("TraceData", false);
-        if (qstate)
-            qstate.updateSelection(this.location);
     },
 
     /*
@@ -343,13 +335,15 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.DOMBasePanel.protot
 
     rebuild: function()
     {
+        var mainPanel =  this.context.getPanel("tracepoints", false);
+        this.location = mainPanel.location;
+
         this.updateSelection(this.selection);
     },
 
     updateSelection: function(ignore)
     {
-        var mainPanel =  this.context.getPanel("tracepoints", false);
-        var tracepoint = mainPanel.location;
+        var tracepoint = this.location;
 
         FBTrace.sysout("TraceDataPanel.updateSelection "+tracepoint, tracepoint);
         if( ! (tracepoint instanceof Tracepoint) )
@@ -454,6 +448,7 @@ Firebug.Querypoint.ReproductionsPanel.prototype = extend(Firebug.DOMBasePanel.pr
 
     rebuild: function()
     {
+        // location needs to be reproduction id
         this.updateSelection(this.selection);
     },
 
@@ -629,6 +624,41 @@ Firebug.Querypoint.TraceStackPanel.prototype = extend(Firebug.CallstackPanel.pro
     order: 2,
     enableA11y: true,
     deriveA11yFrom: "console",
+
+    rebuild: function()
+    {
+        var mainPanel =  this.context.getPanel("tracepoints", false);
+
+        this.location = new StackTrace(mainPanel.location.getStackFrames());
+
+        this.updateLocation(this.location);
+
+        if ( !(this.selection instanceof StackFrame) )
+            this.selection = this.getDefaultSelection();
+
+        this.updateSelection(this.selection);
+    },
+
+    updateLocation: function(object)
+    {
+        Firebug.CallstackPanel.prototype.updateLocation.apply(this, arguments);
+    },
+
+    updateSelection: function(object)
+    {
+        FBTrace.sysout("TraceStack.updateSelection ", object);
+        if (object instanceof Tracepoint)
+            FBTrace.sysout("TraceStack.updateSelection ", object);
+
+        Firebug.CallstackPanel.prototype.updateSelection.apply(this, arguments);
+
+    },
+
+    getDefaultSelection: function()
+    {
+        return this.location && this.location.frames[0];
+    },
+
 });
 
 Firebug.registerModule(Firebug.Querypoint.QPModule);
