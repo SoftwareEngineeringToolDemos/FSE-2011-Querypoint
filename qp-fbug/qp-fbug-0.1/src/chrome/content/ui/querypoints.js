@@ -335,14 +335,6 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.DOMBasePanel.protot
 
     rebuild: function()
     {
-        var mainPanel =  this.context.getPanel("tracepoints", false);
-        this.location = mainPanel.location;
-
-        this.updateSelection(this.selection);
-    },
-
-    updateSelection: function(ignore)
-    {
         var tracepoint = this.location;
 
         FBTrace.sysout("TraceDataPanel.updateSelection "+tracepoint, tracepoint);
@@ -356,10 +348,42 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.DOMBasePanel.protot
             this.currentTracepoint = tracepoint;
         }
 
-        var members = tracepoint.getTraceDataList();
-        FBTrace.sysout("TraceDataPanel.updateSelection traceData: "+members.length, members);
+        var tracedata = tracepoint.getTraceDataList();
+        var members = this.getMembers(tracedata, 0, this.context);
+        FBTrace.sysout("TraceDataPanel.rebuild traceData: "+members.length, members);
+
         this.expandMembers(members, this.toggles, 0, 0, this.context);
         this.showMembers(members, !newTracepoint);
+
+        if (newTracepoint)
+            this.selection = this.getDefaultSelection();
+    },
+
+    // called by panel selection
+    updateSelection: function(object)
+    {
+        this.syncToMainPanel();
+
+        if (object !== this.selection)
+        {
+            // highlight selection?
+        }
+    },
+
+    syncToMainPanel: function()
+    {
+        var mainPanel =  this.context.getPanel("tracepoints", false);
+        if (mainPanel.location != this.location)
+            this.navigate(mainPanel.location);
+    },
+
+    updateLocation: function(object)
+    {
+        if (object instanceof Tracepoint)
+        {
+            if (object !== this.location)
+                this.rebuild();
+        }
     },
 
     showEmptyMembers: function()
@@ -390,6 +414,7 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.DOMBasePanel.protot
 
     show: function(state)
     {
+
         this.rebuild();
     },
 
@@ -479,7 +504,7 @@ Firebug.Querypoint.ReproductionsPanel.prototype = extend(Firebug.DOMBasePanel.pr
 
     name: "Reproductions",
     title: "Reproductions",
-    order: 1,
+    order: 2,
     parentPanel: "tracepoints",
     enableA11y: true,
     deriveA11yFrom: "console",
@@ -621,7 +646,7 @@ Firebug.Querypoint.TraceStackPanel.prototype = extend(Firebug.CallstackPanel.pro
     name: "tracestack",
     title: "Tracestack",
     parentPanel: "tracepoints",
-    order: 2,
+    order: 1,
     enableA11y: true,
     deriveA11yFrom: "console",
 
