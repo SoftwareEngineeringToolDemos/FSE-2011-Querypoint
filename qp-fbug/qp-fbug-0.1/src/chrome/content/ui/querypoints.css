@@ -26,3 +26,24 @@
 .panelNode-tracestack .stackframeMarker {
     padding-left: 13px;
 }
+
+.reproductionSelector {
+    background-color: lightgoldenrodyellow;
+    font-weight: bold;
+    cursor: pointer;
+}
+.reproductionSelector .previousReproduction {
+    text-align: left;
+	padding: 10px;    
+}
+.reproductionSelector .currentReproduction {
+    text-align: center;
+	padding: 10px;    
+}
+.reproductionSelector .nextReproduction {
+    text-align: right;
+    padding: 10px;
+    position: absolute;
+    float: right;
+}
+

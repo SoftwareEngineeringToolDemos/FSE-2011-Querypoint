@@ -73,6 +73,7 @@ owner.UIEventHandler = function(){
                       Firebug.getPanelType("dom").prototype.getContextMenuItems = new_GetContextMenuItems;
                       Firebug.getPanelType("domSide").prototype.getContextMenuItems = new_GetContextMenuItems;
                       Firebug.getPanelType("watches").prototype.getContextMenuItems = new_GetContextMenuItems;
+                      Firebug.getPanelType("TraceData").prototype.getContextMenuItems = new_GetContextMenuItems;
                   }};
             },
 
