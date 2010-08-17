@@ -5,12 +5,12 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-    var owner = QPFBUG.Classes;
+    var __owner = QPFBUG.Classes;
 
     //------------------------------- TraceData ----------------------------------
     // This object keeps collected data from an objects.
 
-    owner.TraceData =
+    __owner.TraceData =
         function(){
             var constructor = function(queryData, parentValue, value){
                 this.queryData = queryData;

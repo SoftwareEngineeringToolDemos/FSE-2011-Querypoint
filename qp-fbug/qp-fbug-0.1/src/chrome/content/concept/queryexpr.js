@@ -4,11 +4,11 @@ loadModule = function(QPFBUG)
 
 with (QPFBUG.Classes){
 with (Lang){
-    var owner = QPFBUG.Classes;
+    var __owner = QPFBUG.Classes;
 
     //------------------------------- QueryExpr ----------------------------------
     // This object uniquely specifies an object at a point.
-    owner.QueryExpr =
+    __owner.QueryExpr =
         function(){
             var constructor = function(frameNo, expr){
                 //frame number : the frame, ref should be evaluated in. Frame 0 is the top frame in the stack.

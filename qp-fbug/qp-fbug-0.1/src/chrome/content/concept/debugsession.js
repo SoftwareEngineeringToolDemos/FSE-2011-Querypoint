@@ -5,17 +5,17 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-var owner = QPFBUG.Classes;
+var __owner = QPFBUG.Classes;
 
     //--------------------------------- DebugSession --------------------------------
-    owner.DebugSession = function(id){
+    __owner.DebugSession = function(id){
         this.id = id;
         this.reproductions = [];
         this.nextReproductionId = 0;
         this.debugModel = new DebugModel();
     }
 
-    owner.DebugSession.prototype = {
+    __owner.DebugSession.prototype = {
 
         newReproduction : function(){
             var id = this.nextReproductionId++;

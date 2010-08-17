@@ -5,12 +5,12 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-    var owner = QPFBUG.Classes;
+    var __owner = QPFBUG.Classes;
 
     //------------------------------- ScopeTrace ----------------------------------
     // This object keeps collected data from an scope.
 
-    owner.TraceScope =
+    __owner.TraceScope =
         function(){
             var constructor = function(parentScope, jsClassName, variableValues){
                 this.parentScope = parentScope;

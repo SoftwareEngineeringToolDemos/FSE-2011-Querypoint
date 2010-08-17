@@ -5,11 +5,11 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-    var owner = QPFBUG.Classes;
+    var __owner = QPFBUG.Classes;
 
     //--------------------------- ExecutionMonitor ----------------------
     // an object creation execution monitor
-    owner.ExecutionMonitor = function(){
+    __owner.ExecutionMonitor = function(){
 
         var constructor = function(context){
             this.context = context;

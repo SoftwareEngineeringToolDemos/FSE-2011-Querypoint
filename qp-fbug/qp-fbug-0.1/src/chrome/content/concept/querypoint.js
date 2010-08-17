@@ -4,11 +4,11 @@ loadModule = function(QPFBUG)
 
 with (QPFBUG.Classes){
 with (Lang){
-    var owner = QPFBUG.Classes;
+    var __owner = QPFBUG.Classes;
 
     //------------------------------- Querypoint ----------------------------------
     // trace point is kept in debug model.
-    owner.Querypoint =
+    __owner.Querypoint =
         function(){
             var constructor = function(id, queryType, refQuerypoint, refQueryexpr, url, lineNo, hitCount){
                 this.id = id;
@@ -28,12 +28,12 @@ with (Lang){
                 this.hitCount = hitCount;
 
                 //obj should be traced at this point
-                this.queryDatas = [];
+                this.queryDataList = [];
             };
 
             constructor.prototype = {
                 addQueryData : function(queryData){
-                    this.queryDatas.push(queryData);
+                    this.queryDataList.push(queryData);
                     return queryData;
                 },
 

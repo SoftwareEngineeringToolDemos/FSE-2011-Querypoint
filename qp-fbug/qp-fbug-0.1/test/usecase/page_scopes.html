@@ -1,0 +1,54 @@
+<html>
+    <head>
+        <title>
+            PAGE_SIMPLE
+        </title>
+        <script type="text/javascript">
+
+        <!--
+            myObject = {
+                myProperty : 0
+            };
+
+            myScope = {
+                var1 : 3
+            };
+
+
+            increaseMyProperty = function(){
+                var inside = 4;
+                return function(){
+                    myObject.myProperty++;
+                    inside++;
+                    updatePage();
+                }
+            }();
+            updatePage = function(){
+                var inside2 = 5;
+                return function(){
+                    with(myScope){
+                        inside2++;
+                        var myParagraph = document.getElementById("myParagraph");
+                        myParagraph.innerHTML = "myObject.myProperty = " + myObject.myProperty;
+                    }
+                }
+            }();
+        -->
+        </script>
+
+    </head>
+
+    <body id="myBody" onclick="increaseMyProperty()">
+    <p>
+      This page contains an object "myObject",
+      whenever user clicks, "myObject.myProperty" value increases.
+    </P>
+    <p id="myParagraph">
+      myObject.myProperty = 0;
+    </P>
+    <p id>
+
+    </p>
+    </body>
+
+</html>

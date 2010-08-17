@@ -123,6 +123,20 @@ with (QPFBUG.Classes){
                     object[p] = parent[p];
         },
 
+        copyObject: function(object, depth){
+            if (object == null || depth ==0)
+                return null;
+
+            if (typeof(object) == "object")
+            {
+                var copy = {};
+                for (p in object){
+                    copy[p] = this.copyObject(object[p], depth-1);
+                }
+                return copy;
+            }
+            return object;
+        },
 
         //--------------------------------- from firebug lib.js -----------------------------
         bind: QPFBUG.FBL.bind,
@@ -140,6 +154,8 @@ with (QPFBUG.Classes){
         normalizeURL : QPFBUG.FBL.normalizeURL,
 
         unwrapObject : QPFBUG.FBL.unwrapObject,
+
+        unwrapIValue : QPFBUG.FBL.unwrapIValue,
 
         unwrapIValueObject : QPFBUG.FBL.unwrapIValueObject,
 

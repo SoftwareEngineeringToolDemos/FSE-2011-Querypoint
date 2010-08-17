@@ -5,10 +5,10 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-var owner = QPFBUG.Classes;
+var __owner = QPFBUG.Classes;
 
 //--------------------------------- EventRequest --------------------------------
-owner.EventRequest = function(){
+__owner.EventRequest = function(){
 
         var constructor = function(type, callBack, context, bp_url, bp_lineNo,
                                          w_ownerCreationUrl, w_ownerCreationLineNo, w_propertyName){

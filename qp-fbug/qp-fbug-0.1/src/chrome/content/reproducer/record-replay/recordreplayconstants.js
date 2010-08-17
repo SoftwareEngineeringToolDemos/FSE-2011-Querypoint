@@ -5,10 +5,10 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-var owner = QPFBUG.Classes;
+var __owner = QPFBUG.Classes;
 
 //--------------------------------- JSDConstants --------------------------------
-owner.RecordReplayConstants = {
+__owner.RecordReplayConstants = {
 
         RECORDED_EVENT_TYPES : ["INIT", "DOM","JS","UI"],
                             

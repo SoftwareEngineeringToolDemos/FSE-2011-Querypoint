@@ -5,11 +5,11 @@ with (QPFBUG){
 with (QPFBUG.Classes){
 with (Lang){
 
-    var owner = QPFBUG.Classes;
+    var __owner = QPFBUG.Classes;
 
     //------------------------------- ModuleEventHandler ----------------------------------
     // An instance of this class is built for every new Firforx window like Firebug
-    owner.ModuleEventHandler = function(){
+    __owner.ModuleEventHandler = function(){
 
         var constructor = function(win){
             extendFromParent(this, win.Firebug.Module); //TODO change it to activeModule

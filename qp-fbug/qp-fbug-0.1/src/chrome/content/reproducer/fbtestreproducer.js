@@ -5,11 +5,11 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-var owner = QPFBUG.Classes;
+var __owner = QPFBUG.Classes;
 
 //--------------------------------- Reproducer --------------------------------
 
-owner.FBTestReproducer = function(){
+__owner.FBTestReproducer = function(){
 
         var constructor = function(){
         };

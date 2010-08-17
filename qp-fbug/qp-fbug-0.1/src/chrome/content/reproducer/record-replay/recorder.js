@@ -5,10 +5,10 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-var owner = QPFBUG.Classes;
+var __owner = QPFBUG.Classes;
 
 //--------------------------------- Reproducer --------------------------------
-owner.Recorder = function(){
+__owner.Recorder = function(){
 
         var constructor = function(win){
             this.win = win;

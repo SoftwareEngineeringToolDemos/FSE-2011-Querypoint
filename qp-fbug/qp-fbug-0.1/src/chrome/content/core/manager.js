@@ -5,10 +5,10 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-    var owner = QPFBUG.Classes;
+    var __owner = QPFBUG.Classes;
 
     //--------------------------- Querypoint Debugging Manager ----------------------
-    owner.Manager = function(){
+    __owner.Manager = function(){
 
         var constructor = function(fbs){
             this.fbs = fbs;
@@ -144,6 +144,9 @@ with (Lang){
                                 url = normalizeURL(url);
                                 eventRequest = DebugService.getInstance().createModificationWatchpointRequest(
                                     context, bind(this.onModificationWatchpointEvent, this), url, lineNo, querypoint.refQueryexpr.propertyName);
+                            }else{
+                                eventRequest = DebugService.getInstance().createModificationWatchpointRequest(
+                                    context, bind(this.onModificationWatchpointEvent, this), null, null, querypoint.refQueryexpr.propertyName);
                             }
 
                         }
@@ -193,7 +196,7 @@ with (Lang){
             },
 
             //------------------------------- actions ---------------------------------------
-            findLastChangeFromQuerypoint: function(context, querypoint, owner, propertyPath){
+            findLastChangeFromQuerypoint: function(context, querypoint, propertyPath){
                 var win = context.qpfbug.firefoxWindow;
                 with(win){
                     var debugSession = context.qpfbug.debugSession;
@@ -210,7 +213,7 @@ with (Lang){
                 }
             },
 
-            findLastChangeFromBreakpoint: function(context, owner, propertyPath){
+            findLastChangeFromBreakpoint: function(context, propertyPath){
                 var win = context.qpfbug.firefoxWindow;
                 with(win){
                     var debugSession = context.qpfbug.debugSession;
@@ -240,7 +243,7 @@ with (Lang){
                         context.qpfbug.toBeCollected.push(querypoint);
                         context.qpfbug.stoppedFrame = context.stoppedFrame;
 
-                        this.findLastChangeFromQuerypoint(context, querypoint, owner, propertyPath);
+                        this.findLastChangeFromQuerypoint(context, querypoint, propertyPath);
                     }
                 }
             },
