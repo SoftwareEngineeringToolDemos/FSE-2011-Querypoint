@@ -60,6 +60,12 @@ with (Lang){
          {
             return tracepoint.querypoint;
          },
+         
+         getTraceData: function(tracepoint)
+         {
+        	 // Salman, need help here.
+        	 return {expr: "traceDataExpr", traceData: {value: "traceDataValue", otherProps: "here"} };
+         },
      };
 }}
 
