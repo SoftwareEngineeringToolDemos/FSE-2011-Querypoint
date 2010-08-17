@@ -7,32 +7,49 @@
 
         <!--
             myObject = {
-                myProperty : 0
+                myProperty : 5
             }
             increaseMyProperty = function(){
+                foo();
                 myObject.myProperty++;
-                myObject.myProperty++;
-                myObject.myProperty++;
-                myObject.myProperty++;
+                bar();
+                baz();
                 updatePage();
             }
             updatePage = function(){
                 var myParagraph = document.getElementById("myParagraph");
                 myParagraph.innerHTML = "myObject.myProperty = " + myObject.myProperty;
             }
+            function foo()
+            {
+                return "now who is the foo!";
+            }
+            function baz()
+            {
+                var blah = "blah";
+                var blahblah = "blahblah";
+                var blahblahblah = "blahblah";
+                var hoozah = blah+blahblahblah;
+                return hoozah + "!";
+            }
+            function bar()
+            {
+                myObject.myProperty = 0;
+            }
+            window.addEventListener('load', updatePage, false);
         -->
         </script>
 
     </head>
 
-    <body id="myBody" onclick="increaseMyProperty()">
+    <body id="myBody">
     <p>
       This page contains an object "myObject",
       whenever user clicks, "myObject.myProperty" value increases.
     </P>
-    <p id="myParagraph">
+    <button id="myParagraph" onclick="increaseMyProperty()">
       myObject.myProperty = 0;
-    </P>
+    </button>
     <p id>
 
     </p>
