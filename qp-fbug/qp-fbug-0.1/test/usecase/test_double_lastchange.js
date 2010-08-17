@@ -33,7 +33,7 @@ function runTest()
         FBTestFirebug.waitForBreakInDebugger(chrome, lineNo, true, breakpointHit);
 
         // click on the page
-        var node = testData.firstTabWin.document.getElementById("myBody");
+        var node = testData.firstTabWin.document.getElementById("myParagraph");
         FBTest.click(node);
     };
 
@@ -95,7 +95,7 @@ function runTest()
      // check collected data
 
     var testData = {};
-    testData.bp_lineNo = 20;
+    testData.bp_lineNo = 21;
     FBTestFirebug.openNewTab(basePath + "test/usecase/page_double.html", firstTabLoaded);
     
 };
