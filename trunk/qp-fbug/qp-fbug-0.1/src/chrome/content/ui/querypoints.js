@@ -37,7 +37,8 @@ Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
 
     onStartDebugging: function(context)
     {
-        FBTrace.sysout("onStartDebugging tracepoints.show "+context.qpfbug.inQuery);
+        if (FBTrace.DBG_QUERYPOINT)
+            FBTrace.sysout("onStartDebugging tracepoints.show "+context.qpfbug.inQuery);
         if (context.qpfbug.inQuery)
         {
             context.qpfbug.inSession = true;  // I don't know how we will get out of this state
@@ -329,13 +330,13 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
  */
 Firebug.Querypoint.TraceDataPanel = function TraceDataPanel() {}
 
-Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.DOMBasePanel.prototype,
+Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototype,
 {
     tag: Firebug.DOMPanel.DirTable.watchTag,
 
     rebuild: function()
     {
-        var tracepoint = this.location;
+        var tracepoint = this.mainPanel.location;
 
         FBTrace.sysout("TraceDataPanel.updateSelection "+tracepoint, tracepoint);
         if( ! (tracepoint instanceof Tracepoint) )
@@ -348,16 +349,20 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.DOMBasePanel.protot
             this.currentTracepoint = tracepoint;
         }
 
-        //var tracedata = tracepoint.traceFrame.traceScope.variableValues;
-        var members = this.generateScopeChain(tracepoint.traceFrame.traceScope);
-        //var members = this.getMembers(tracedata, 0, this.context);
+        var traceMembers = [];
+        if (tracepoint.getQueryType() === "lastChange")
+        {
+            var expr =  tracepoint.querypoint.getQueryObjectExpression();
+            var traceData = UIUtils.getTraceData(tracepoint);
+            this.addMember(traceData, "query", traceMembers, traceData.expr, traceData.traceData, 0);
+        }
+
+        var members = this.generateScopeChain(tracepoint.traceFrame.traceScope, traceMembers);
         FBTrace.sysout("TraceDataPanel.rebuild traceData: "+members.length, members);
 
         this.expandMembers(members, this.toggles, 0, 0, this.context);
         this.showMembers(members, !newTracepoint);
 
-        if (newTracepoint)
-            this.selection = this.getDefaultSelection();
     },
 
     // called by panel selection
@@ -378,6 +383,14 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.DOMBasePanel.protot
             this.navigate(mainPanel.location);
     },
 
+    onPanelNavigate: function(object, panel)
+    {
+        if (panel !== this.mainPanel)
+            return;
+
+        this.navigate(this.mainPanel.location);
+    },
+
     updateLocation: function(object)
     {
         if (object instanceof Tracepoint)
@@ -392,16 +405,15 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.DOMBasePanel.protot
         FirebugReps.Warning.tag.replace({object: "NoMembersWarning"}, this.panelNode);
     },
 
-    generateScopeChain: function (scope)
+    generateScopeChain: function (scope, members)
     {
-        var members = [];
         while (scope) {
             var scopeVars;
             // getWrappedValue will not contain any variables for closure
             // scopes, so we want to special case this to get all variables
             // in all cases.
             if (scope.jsClassName == "Call") {
-                var scopeVars = scope.variableValues; 
+                var scopeVars = scope.variableValues;
                 scopeVars.toString = function() {return "Closure Scope";}
             } else {
                 scopeVars = scope.variableValues;
@@ -417,7 +429,7 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.DOMBasePanel.protot
                         };
                     })();
                 }
-                
+
                 this.addMember(scopeVars, "scopes", members, scopeVars.toString(), scopeVars, 0);
             }
             else
@@ -445,6 +457,8 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.DOMBasePanel.protot
     initialize: function()
     {
         Firebug.DOMBasePanel.prototype.initialize.apply(this, arguments);
+        this.mainPanel =  this.context.getPanel("tracepoints", false);
+        this.mainPanel.addListener(this);
     },
 
     destroy: function(state)
@@ -454,7 +468,6 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.DOMBasePanel.protot
 
     show: function(state)
     {
-
         this.rebuild();
     },
 
@@ -505,38 +518,38 @@ Firebug.Querypoint.TracepointsTag = domplate(Firebug.Rep,
 
 Firebug.Querypoint.ReproductionsRep = domplate(Firebug.Rep,
 {
-	tag: DIV({"class":"reproductionSelector"},
-			FirebugReps.OBJECTLINK({"class":"previousReproduction"}, "$object|getPreviousReproduction"),
-			SPAN({"class":"currentReproduction"}, "$object|getTitle"),
-			FirebugReps.OBJECTLINK({"class":"previousReproduction"}, "$object|getNextReproduction"),
-			TAG(Firebug.Querypoint.TracepointsTag.tag, {object: "$object|getTracepoints"})
-			),
-	
-	getTitle: function(object)
-	{
-		return object.id;
-	},
-	
-	getPreviousReproduction: function(object)
-	{
-		return "< " + (object.id - 1);
-	},
+    tag: DIV({"class":"reproductionSelector"},
+            FirebugReps.OBJECTLINK({"class":"previousReproduction"}, "$object|getPreviousReproduction"),
+            SPAN({"class":"currentReproduction"}, "$object|getTitle"),
+            FirebugReps.OBJECTLINK({"class":"previousReproduction"}, "$object|getNextReproduction"),
+            TAG(Firebug.Querypoint.TracepointsTag.tag, {object: "$object|getTracepoints"})
+            ),
 
-	getNextReproduction: function(object)
-	{
-		return (object.id + 1) +">"
-	},
-	
-	getTracepoints: function(reproduction)
-	{
-		return reproduction.trace.tracepoints;
-	},
-
-	className: "QuerypointReprodution",
-
-	supportsObject: function(object, type)
+    getTitle: function(object)
     {
-        return (object instanceof QPFBUG.Classes.Reproduction); 
+        return object.id;
+    },
+
+    getPreviousReproduction: function(object)
+    {
+        return "< " + (object.id - 1);
+    },
+
+    getNextReproduction: function(object)
+    {
+        return (object.id + 1) +">"
+    },
+
+    getTracepoints: function(reproduction)
+    {
+        return reproduction.trace.tracepoints;
+    },
+
+    className: "QuerypointReprodution",
+
+    supportsObject: function(object, type)
+    {
+        return (object instanceof QPFBUG.Classes.Reproduction);
     },
 
 });
@@ -549,31 +562,31 @@ Firebug.Querypoint.ReproductionsPanel = function ReproductionsPanel() {}
 
 Firebug.Querypoint.ReproductionsPanel.prototype = extend(Firebug.DOMBasePanel.prototype,
 {
-	
-	// called by navigate when object != this.location
+
+    // called by navigate when object != this.location
     updateLocation: function(object)
     {
-    	if (object instanceof Tracepoint)
-    	{
-    		var reproduction = UIUtils.getReproduction(this.context);  // WRONG need reproduction by tracepoint
-    		this.select(reproduction);
-    	}
+        if (object instanceof Tracepoint)
+        {
+            var reproduction = UIUtils.getReproduction(this.context);  // WRONG need reproduction by tracepoint
+            this.select(reproduction);
+        }
     },
-    
+
     syncToMainPanel: function()
     {
         var mainPanel =  this.context.getPanel("tracepoints", false);
         this.navigate(mainPanel.location);
     },
-    
+
     // called by select when object != this.selection
     updateSelection: function(object)
     {
-    	if (object instanceof Reproduction)
-    	{
-    		FBTrace.sysout("ReproductionsPanel.updateLocation "+object, object); 
-    		Firebug.Querypoint.ReproductionsRep.tag.replace({object:object}, this.panelNode, Firebug.Querypoint.ReproductionsRep);
-    	}
+        if (object instanceof Reproduction)
+        {
+            FBTrace.sysout("ReproductionsPanel.updateLocation "+object, object);
+            Firebug.Querypoint.ReproductionsRep.tag.replace({object:object}, this.panelNode, Firebug.Querypoint.ReproductionsRep);
+        }
     },
 
     showEmptyMembers: function()
