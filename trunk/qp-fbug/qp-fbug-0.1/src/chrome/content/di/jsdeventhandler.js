@@ -5,7 +5,7 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-var owner = QPFBUG.Classes;
+var __owner = QPFBUG.Classes;
 
 //--------------------------------- JSDEventHandler --------------------------------
 // Only one instance of this class is created in runtime and kept as QPFBUG.jsdEventHandler;
@@ -15,7 +15,7 @@ var owner = QPFBUG.Classes;
 //          bugs.
 //
 
-owner.JSDEventHandler = function(){
+__owner.JSDEventHandler = function(){
 
         var constructor = function(ds,fbs){
             this.ds = ds;

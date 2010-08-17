@@ -5,10 +5,10 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-    var owner = QPFBUG.Classes;
+    var __owner = QPFBUG.Classes;
 
     //--------------------------------- Trace --------------------------------
-    owner.Trace =
+    __owner.Trace =
 
         function(){
 
@@ -25,13 +25,11 @@ with (Lang){
 
                     var tracepoint = this.addTracepoint(querypoint, context, frame);
 
-
-
                     //add .owner trace object
                     var queryData;
-                    for (var i=0 ; i<querypoint.queryDatas.length ; i++){
-                        if (querypoint.queryDatas[i].expr == ".owner"){
-                            queryData = querypoint.queryDatas[i];
+                    for (var i=0 ; i<querypoint.queryDataList.length ; i++){
+                        if (querypoint.queryDataList[i].expr == ".owner"){
+                            queryData = querypoint.queryDataList[i];
                             break;
                         }
                     }
@@ -70,9 +68,9 @@ with (Lang){
                     var traceFrame = new TraceFrame(stackTraceXB, this.getTraceScope(frame.scope));
                     var tracepoint = new Tracepoint(++this.nextTracepointId, querypoint, traceFrame);
 
-                    for (var i=0 ; i<querypoint.queryDatas.length ; i++)
+                    for (var i=0 ; i<querypoint.queryDataList.length ; i++)
                     {
-                        var queryData = querypoint.queryDatas[i];
+                        var queryData = querypoint.queryDataList[i];
 
                         //todo find the right frame based on queryData.frameNo
                         var valueRef = queryData.expr;
@@ -80,7 +78,21 @@ with (Lang){
                         var propertyName = queryData.propertyName;
                         var parentRef = queryData.parentRef;
 
-                        var parent = evalInFrame(frame, parentRef);
+                        //var exprValue;
+                        var parentValue;
+
+                        var traceData;
+                        var parent;
+                        if (!parentRef){//todo parent is a scope
+
+                            trace("((((((((((((((((((((((((((((((((((((((((");
+                            parent = this.findScopeForPropertyName(frame.scope, propertyName);
+                            trace(")))))))))))))))))))))))))))))))))))))))))", parent);
+
+                            //traceData = new TraceData(queryData, null, exprValue)
+                        }else{
+                            parent = evalInFrame(frame, parentRef);
+                        }
 
                         if (!parent)
                             continue;
@@ -94,7 +106,7 @@ with (Lang){
 
                         // Gecko2 (firefox 4)
                         // var parentId = Object.getProperty(object, "__QPFBUG_ID");
-                        var traceData = new TraceData(queryData, parent, parent[propertyName])
+                        traceData = new TraceData(queryData, parent, parent[propertyName])
 
                         var parentJSDIObject = parentJSDIValue.objectValue;
                         if (parentJSDIObject)
@@ -134,6 +146,38 @@ with (Lang){
                         return points[points.length - 1];
                 },
 
+                findScopeForPropertyName: function(scope, propertyName){
+                    trace("**********"+propertyName);
+                    if (!scope)
+                        return null;
+
+                    if (scope.getProperty(propertyName))
+                        return unwrapIValue(scope);
+
+                    return this.findScopeForPropertyName(scope.jsParent, propertyName);
+//                    var jsClassName = scope.jsClassName;
+//                    var unWrappedScope  = unwrapIValueObject(scope);
+//                    for (name in unWrappedScope){
+//                        if (name == propertyName){
+//                            return unWrappedScope;
+//                        }
+//                    }
+
+//                        scopeVars = {};
+//                        var listValue = {value: null}, lengthValue = {value: 0};
+//                        scope.getProperties(listValue, lengthValue);
+//
+//                        for (var i = 0; i < lengthValue.value; ++i)
+//                        {
+//                            var prop = listValue.value[i];
+//                            var name = FBL.unwrapIValue(prop.name);
+//                            if (!FBL.shouldIgnore(name))
+//                                scopeVars[name] = FBL.unwrapIValue(prop.value);
+//                        }
+//                        return scopeVars;
+                    
+                },
+
                 getTraceScope: function (scope)
                 {
                     if (!scope)
@@ -142,22 +186,21 @@ with (Lang){
                     var traceScope;
                     var parentScope, jsClassName, variables, values;
 
-                    var unWrapped;
-                    parentTraceScope = this.getTraceScope(scope.jsParent);
-                    jsClassName = scope.jsClassName;
-                    unWrapped  = unwrapIValueObject(scope);
-                    variableValues = {};
-                    for (var prop in unWrapped){
-                        if (unWrapped[prop])
+                    var parentTraceScope = this.getTraceScope(scope.jsParent);
+                    var jsClassName = scope.jsClassName;
+                    var unWrappedScope  = unwrapIValueObject(scope);
+                    var variableValues = {};
+                    for (var prop in unWrappedScope){
+                        if (unWrappedScope[prop])
                             try{
-                            	var theJSON = JSON.stringify(unWrapped[prop]);
-                                variableValues[prop] = JSON.parse(theJSON);
+//                                variableValues[prop] = JSON.parse(JSON.stringify(unWrappedScope[prop]));
+                                variableValues[prop] = null;
+                                variableValues[prop] = copyObject(unWrappedScope[prop], 3);
                             }catch(exc){
-                            	exc.theJSON = theJSON;
-                                trace("Error in getTraceScope: " + exc.message, exc);
+                                trace("Error in JSON.stringify(): " + exc.message, exc);
                             }
                         else
-                            variableValues[prop] = unWrapped[prop];
+                            variableValues[prop] = unWrappedScope[prop];
                     }
                     traceScope = new TraceScope(parentTraceScope, jsClassName, variableValues);
 

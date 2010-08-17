@@ -5,11 +5,11 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-var owner = QPFBUG.Classes;
+var __owner = QPFBUG.Classes;
 
 //--------------------------------- UIEventHandler --------------------------------
 
-owner.UIEventHandler = function(){
+__owner.UIEventHandler = function(){
 
         var constructor = function(win){
             this.win = win;
@@ -32,117 +32,146 @@ owner.UIEventHandler = function(){
             // 'this': is not specified
             addLastChangeMenuItem : function()
             {
-                  with(this.win){
-                  with(FBL){
-                      var old_GetContextMenuItems = Firebug.getPanelType("dom").prototype.getContextMenuItems;
+                with(this.win){
+                with(FBL){
 
+                    var panelType_Dom = Firebug.getPanelType("dom");
+                    var panelType_DomSide = Firebug.getPanelType("domSide");
+                    var panelType_Watches = Firebug.getPanelType("watches");
+                    var panelType_TraceData = Firebug.getPanelType("TraceData");
+
+                    var old_GetContextMenuItems = panelType_Dom.prototype.getContextMenuItems;
 
                       //'this': is one of the dom panels
-                      var new_GetContextMenuItems = function(sourceLink, target)
-                      {
-                            var items = old_GetContextMenuItems.apply(this, arguments);
-                            //todo if !context.stopped return items
-                            var panel = target ? Firebug.getElementPanel(target) : null;
-                            if (!panel) // the event must be on our chrome not inside the panel
-                                return items;
+                    var new_GetContextMenuItems = function(sourceLink, target)
+                    {
+                        var uiEventHandler = Firebug.qpfbug.uiEventHandler;
 
-                            var row = getAncestorByClass(target, "memberRow");
-                            if (row)
+                        var items = old_GetContextMenuItems.apply(this, arguments);
+
+                        var domPanel = target ? Firebug.getElementPanel(target) : null;
+
+                        var row = getAncestorByClass(target, "memberRow");
+
+
+                        //todo conditions should be based on panel
+                        // for example if a fram is shown in dom panel it accepts but it shouldn't
+
+                        if (domPanel && row){
+
+                            var propertyPath = domPanel.getPropertyPath(row).join("");
+                            if (propertyPath.match(/^scopeChain\[/) != null) //startsWith scopeChain[
                             {
-                                  //todo needs more check for adding this item
-
-//                                var rowName;
-//                                // = getRowName(row);
-//                                var labelNode = row.getElementsByClassName("memberLabelCell").item(0);
-//                                rowName = labelNode.textContent;
-//
-//                                var rowObject = this.getRowObject(row);
-//                                var rowValue = this.getRowPropertyValue(row);
-//
-//                                var isWatch = hasClass(row, "watchRow");
-//                                var isStackFrame = rowObject instanceof jsdIStackFrame;
-
-                                var uiEventHandler = Firebug.qpfbug.uiEventHandler;
-                                items.push({label: "Last Change",  id: "lastChange", 
-                                            command: bindFixed(uiEventHandler.lastChangeAction, uiEventHandler, this, row)});
+                                propertyPath = propertyPath.substring(propertyPath.indexOf("].")+2, propertyPath.length);
                             }
-                            return items;
-                       };
 
-                      // change panels
-                      Firebug.getPanelType("dom").prototype.getContextMenuItems = new_GetContextMenuItems;
-                      Firebug.getPanelType("domSide").prototype.getContextMenuItems = new_GetContextMenuItems;
-                      Firebug.getPanelType("watches").prototype.getContextMenuItems = new_GetContextMenuItems;
-                      Firebug.getPanelType("TraceData").prototype.getContextMenuItems = new_GetContextMenuItems;
-                  }};
+                            if (propertyPath.match(/^\[/) != null) //startsWith ["[object Window]"] //todo
+                            {
+                                propertyPath = propertyPath.substring(propertyPath.indexOf("].")+2, propertyPath.length);
+                            }
+
+                            if (domPanel.selection instanceof JSDConstants.jsdIStackFrame){ //watches panel
+                                if (domPanel.context.stopped){
+                                    var isWatch = false;
+                                    isWatch = hasClass(row, "watchRow");
+                                    if (!isWatch){
+                                        items.push({label: "Last Change",  id: "lastChange",
+                                                    command: bindFixed(uiEventHandler.lastChangeOnBreakpointAction,
+                                                    uiEventHandler, domPanel.context,
+                                                    propertyPath)
+                                                  });
+                                    }
+                                }
+                            }else
+//                            if (domPanel.selection != domPanel.context.window){ //dom panel
+//                                if (domPanel.context.stopped){
+//
+//                                }
+//                            }else
+                            if (domPanel.selection instanceof DebugModel){  //tracedata
+                                items.push({label: "Last Change",  id: "lastChange",
+                                            command: bindFixed(uiEventHandler.lastChangeOnQuerypointyAction,
+                                            uiEventHandler, domPanel.context,
+                                            domPanel.currentTracepoint.querypoint,
+                                            propertyPath)
+                                          });
+                            }
+                        }
+
+                        return items;
+                    };
+
+                      // change domPanels
+                    panelType_Dom.prototype.getContextMenuItems = new_GetContextMenuItems;
+                    panelType_DomSide.prototype.getContextMenuItems = new_GetContextMenuItems;
+                    panelType_Watches.prototype.getContextMenuItems = new_GetContextMenuItems;
+                    panelType_TraceData.prototype.getContextMenuItems = new_GetContextMenuItems;
+                }};
             },
 
-             //this : is a uiEventHandler object as expected.
-             lastChangeAction : function(domPanel, row)
-             {
-                 with(this.win){
-                 with(FBL){
-                     //--------------- local functions --------------------------------
-                     // We have to define these functions because they are kind of private
-                     // in dom.js .
+            //this : is a uiEventHandler object as expected.
+            lastChangeOnQuerypointyAction : function(context, querypoint, propertyPath){
+                Manager.getInstance().findLastChangeFromQuerypoint(context, querypoint, propertyPath);
+            },
+            //this : is a uiEventHandler object as expected.
+            lastChangeOnBreakpointAction : function(context, propertyPath){
+                with(this.win){
+                with(FBL){
+//                    //--------------- local functions --------------------------------
+//                     // We have to define these functions because they are kind of private
+//                     // in dom.js .
+//
+//                    var getRowValue = function(row)
+//                    {
+//                        var valueNode = row.getElementsByClassName("memberValueCell").item(0);
+//                        return valueNode.firstChild.repObject;
+//                    };
+//
+//                    //It goes up until reaches the parent row
+//                    var getParentRow = function(row)
+//                    {
+//                        var level = parseInt(row.getAttribute("level"))-1;
+//                        // If it's top level object the level is now set to -1, is that a problem?
+//                        for (var row = row.previousSibling; row; row = row.previousSibling)
+//                        {
+//                            if (parseInt(row.getAttribute("level")) == level)
+//                                return row;
+//                        }
+//                    };
+//
+//                    var getRowOwnerObject = function (row)
+//                    {
+//                        var parentRow = getParentRow(row);
+//                        if (parentRow)
+//                            return getRowValue(parentRow);
+//                    };
+//
+//                    // the value of row, object or primitive
+//                    var rowValue = getRowValue(row);
+//
+//                    // getting the owner;
+//                    var rowOwnerObject;
+//
+//                    var rowOwnerObject = getRowOwnerObject(row);
+//
+//                    //domPanel.selection is the whole object which is shown in the dom panel
+//                    // so if row is at top level the rowOwnerObject will be the whole object of
+//                    // dom panel.
+//                    rowOwnerObject = rowOwnerObject ? rowOwnerObject : domPanel.selection;
+//
+//                    var propertyPath = domPanel.getPropertyPath(row).join("");
+//                    var propertyName = domPanel.getRowPathName(row);
+//
+//                    // value is something like  [., name] so we ignore the separator(dot).
+//                    propertyName = propertyName[1];
 
+                    Manager.getInstance().findLastChangeFromBreakpoint(context, propertyPath);
 
-                     var getRowValue = function(row)
-                     {
-                         var valueNode = row.getElementsByClassName("memberValueCell").item(0);
-                         return valueNode.firstChild.repObject;
-                     };
+                }}
 
-                     //It goes up until reaches the parent row
-                     var getParentRow = function(row)
-                     {
-                         var level = parseInt(row.getAttribute("level"))-1;
-                         // If it's top level object the level is now set to -1, is that a problem?
-                         for (var row = row.previousSibling; row; row = row.previousSibling)
-                         {
-                             if (parseInt(row.getAttribute("level")) == level)
-                                 return row;
-                         }
-                     };
+            }
 
-                     var getRowOwnerObject = function (row)
-                     {
-                         var parentRow = getParentRow(row);
-                         if (parentRow)
-                             return getRowValue(parentRow);
-                     };
-                    // ----------------------------------------------------------------
-
-                     // the value of row, object or primitive
-                     var rowValue = getRowValue(row);
-
-                     // getting the owner;
-                     var rowOwnerObject;
-
-
-                     var rowOwnerObject = getRowOwnerObject(row);
-
-                     //domPanel.selection is the whole object which is shown in the dom panel
-                     // so if row is at top level the rowOwnerObject will be the whole object of
-                     // dom panel.
-                     rowOwnerObject = rowOwnerObject ? rowOwnerObject : domPanel.selection;
-
-                     var propertyPath = domPanel.getPropertyPath(row).join("");
-                     var propertyName = domPanel.getRowPathName(row);
-
-                     // value is something like  [., name] so we ignore the separator(dot).
-                     propertyName = propertyName[1];
-
-                     if (propertyPath.match(/^scopeChain\[/) != null) //startsWith scopeChain[
-                     {
-                         propertyPath = propertyPath.substring(valueRef.indexOf("].")+2, propertyPath.length);
-                     }
-
-                     Manager.getInstance().findLastChangeFromBreakpoint(domPanel.context, rowOwnerObject, propertyPath);
-                  }}
-             }
-
-         };
+        };
 
         constructor.getInstance = function(win){
             if (!win.Firebug.qpfbug.uiEventHandler)

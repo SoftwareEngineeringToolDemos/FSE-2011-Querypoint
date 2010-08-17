@@ -5,10 +5,10 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-    var owner = QPFBUG.Classes;
+    var __owner = QPFBUG.Classes;
 
     //------------------------------- TraceFrame ----------------------------------
-    owner.TraceFrame =
+    __owner.TraceFrame =
         function(){
             var constructor = function(stackTraceXB, traceScope){
                 this.stackTraceXB = stackTraceXB;

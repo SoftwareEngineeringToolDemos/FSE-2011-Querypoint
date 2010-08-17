@@ -5,10 +5,10 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-    var owner = QPFBUG.Classes;
+    var __owner = QPFBUG.Classes;
 
     //------------------------------ DebugService --------------------------
-    owner.DebugService = function(){
+    __owner.DebugService = function(){
 
         var constructor = function(fbs){
             this.fbs = fbs;
@@ -74,7 +74,19 @@ with (Lang){
             },
 
             onModificationWatchpointEvent: function(eventRequest, frame, type, rv, object, propertyName, oldValue, newValue){
-                eventRequest.callBack(eventRequest,  frame, type, rv, object, propertyName, oldValue, newValue);
+
+                //ignore frames onPropertyChanged() frame
+                var targetFrame = frame.callingFrame;
+
+                //ignore bind functions
+                if (!eventRequest.w_ownerCreationUrl){ // a root variable
+                    targetFrame = targetFrame.callingFrame;
+                }else{
+                    targetFrame = targetFrame.callingFrame.callingFrame;
+                }
+
+
+                eventRequest.callBack(eventRequest,  targetFrame, type, rv, object, propertyName, oldValue, newValue);
             },
 
             onBreakpointEvent: function(eventRequest, frame, type, rv){
@@ -134,11 +146,10 @@ with (Lang){
 
             //--------------------------------- EventRequest-SourceFile --------------------------------
             enableEventRequest: function(context, eventRequest){
-
-//                if (eventRequest.type == EventRequest.TYPES.WATCHPOINT ){//&& eventRequest.w_ownerCreationUrl == null){ //todo improve it
-//                    var unwrapped = unwrapObject(context.window);
-//                    unwrapped.watch(eventRequest.w_propertyName, bind(this.onPropertyChanged, this, context.window, eventRequest));
-//                };
+                if (eventRequest.type == EventRequest.TYPES.WATCHPOINT  && !eventRequest.w_ownerCreationUrl){ //todo improve it
+                    var unwrapped = unwrapObject(context.window);
+                    unwrapped.watch(eventRequest.w_propertyName, bind(this.onPropertyChanged, this, context.window, eventRequest));
+                };
 
                 //set hooks for already loaded sourcefiles
                 for (var i in context.sourceFileMap){
@@ -209,8 +220,13 @@ with (Lang){
 //                }
 //                stepHandler.start(haltObject.context, frame, type, rv);
 
-                //todo recursively search for the first parent frame that is in the context
-                haltObject.callBack(frame.callingFrame.callingFrame.callingFrame.callingFrame.callingFrame, type, rv);
+                //ignore 2 frames haltObject.halt and halt
+                var haltFrame = frame;
+                for (var i=0 ; i<2 ; i++){
+                    haltFrame = haltFrame.callingFrame;
+                }
+
+                haltObject.callBack(haltFrame, type, rv);
                 return Ci.jsdIExecutionHook.RETURN_CONTINUE;
             },
 
@@ -291,6 +307,7 @@ with (Lang){
 
             onPropertyChanged: function(propertyName, oldValue, newValue, object, eventRequest){
                 var onModificationWatchpointEvent = this.onModificationWatchpointEvent;
+
                 var callBack = function(frame, type, rv){
                     onModificationWatchpointEvent(eventRequest, frame, type, rv, object, propertyName, oldValue, newValue);
                 }

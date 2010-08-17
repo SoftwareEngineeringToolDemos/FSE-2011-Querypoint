@@ -4,10 +4,10 @@ loadModule = function(QPFBUG)
 
 with (QPFBUG.Classes){
 with (Lang){
-    var owner = QPFBUG.Classes;
+    var __owner = QPFBUG.Classes;
 
     //--------------------------------- DebugModel --------------------------------
-    owner.DebugModel =
+    __owner.DebugModel =
         function(){
             var constructor = function(){
                  this.querypoints = {};
@@ -27,7 +27,7 @@ with (Lang){
 
                 addQuerypoint_LastChange : function(refQuerypoint, valueFrameNo, valueRef){
 
-                    // updates refQuerypoint queryDatas
+                    // updates refQuerypoint queryDataList
                     var type = QueryData.TYPES.PARENT_CREATIONDATA | QueryData.TYPES.PARENT_VALUE;
                     var queryData = new QueryData(type, valueFrameNo, valueRef);
                     refQuerypoint.addQueryData(queryData);
@@ -38,7 +38,7 @@ with (Lang){
                                                     refQuerypoint, refQueryexpr,
                                                     null, null, null);
 
-                    // updates querypoint queryDatas
+                    // updates querypoint queryDataList
                     type = QueryData.TYPES.PARENT_CREATIONDATA | QueryData.TYPES.PARENT_VALUE;
                     queryData = new QueryData(type, 0, ".owner" );
                     querypoint.addQueryData(queryData)

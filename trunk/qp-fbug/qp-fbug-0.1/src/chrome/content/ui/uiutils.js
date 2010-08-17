@@ -5,11 +5,11 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-    var owner = QPFBUG.Classes;
+    var __owner = QPFBUG.Classes;
 
     //--------------------------------- UIEventHandler --------------------------------
 
-    owner.UIUtils = {
+    __owner.UIUtils = {
 
          getDebugModel: function(context){
             return context.qpfbug.debugSession.debugModel;

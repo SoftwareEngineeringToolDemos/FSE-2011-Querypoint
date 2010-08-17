@@ -5,7 +5,7 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-    var owner = QPFBUG.Classes;
+    var __owner = QPFBUG.Classes;
 
     //Note: There is one assumption behind current Stepping Driver implementation:
     //  It supports only one thread's interrupts/functions during one step.
@@ -13,7 +13,7 @@ with (Lang){
     //  a context only has one running thread, we can have the above assumption.
     //
     //--------------------------- Stepping Driver ----------------------
-    owner.SteppingDriver = function(){
+    __owner.SteppingDriver = function(){
 
         var constructor = function(id, stepHandler, context){
             this.id = id;

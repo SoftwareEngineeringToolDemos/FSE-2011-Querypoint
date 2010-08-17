@@ -4,11 +4,11 @@ loadModule = function(QPFBUG)
 
 with (QPFBUG.Classes){
 with (Lang){
-    var owner = QPFBUG.Classes;
+    var __owner = QPFBUG.Classes;
 
     //------------------------------- QueryData ----------------------------------
     // This object specifies data should be collected for an object at a point.
-    owner.QueryData =
+    __owner.QueryData =
         function(){
             var constructor = function(type, frameNo, expr){
 

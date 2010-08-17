@@ -5,10 +5,10 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-var owner = QPFBUG.Classes;
+var __owner = QPFBUG.Classes;
 
 //--------------------------------- JSDConstants --------------------------------
-owner.JSDConstants = {
+__owner.JSDConstants = {
 
         DebuggerService : Cc["@mozilla.org/js/jsd/debugger-service;1"],
 

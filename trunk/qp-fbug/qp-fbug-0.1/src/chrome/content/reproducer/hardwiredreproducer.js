@@ -5,11 +5,11 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-var owner = QPFBUG.Classes;
+var __owner = QPFBUG.Classes;
 
 //--------------------------------- Reproducer --------------------------------
 
-owner.HardWiredReproducer = function(){
+__owner.HardWiredReproducer = function(){
 
         var constructor = function(){
         };
@@ -29,9 +29,11 @@ owner.HardWiredReproducer = function(){
 
                         var url = context.window.location.toString();
 
-//                        win.Firebug.Debugger.resume(context);
+                        var oldTab = context.qpfbug.tab;
+
+                        //close the old tab
                         var tabBrowser = $("content");
-                        tabBrowser.removeTab(context.qpfbug.tab);
+                        tabBrowser.removeTab(oldTab);
 
 
                         var openNewTab = function(url, callback)
@@ -113,6 +115,7 @@ owner.HardWiredReproducer = function(){
                         var newTab = openNewTab(url,
                           callback = function(win)
                           {
+
                             var node = win.document.getElementById("myBody");
                             // on cliec
                             var doc = node.ownerDocument, event = doc.createEvent("MouseEvents");

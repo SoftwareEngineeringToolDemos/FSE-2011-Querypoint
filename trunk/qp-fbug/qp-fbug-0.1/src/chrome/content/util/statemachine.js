@@ -5,13 +5,13 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-    var owner = QPFBUG.Classes;
+    var __owner = QPFBUG.Classes;
 
     //--------------------------------- StateMachine --------------------------------
     // This object works like a state machine and is usually used for keeping
     // the state of an object or component.
     // A transition has a name, from and to values.
-    owner.StateMachine =
+    __owner.StateMachine =
         function(){
 
             // []String states

@@ -6,10 +6,10 @@ QPFBUG.Classes = {};
 
 QPFBUG.contexts = {}; // a map(context.uid, context)
 
-QPFBUG.DBG = false;
+QPFBUG.DBG = true;
 
 //do not include these classes: TraceUtils, Lang, JSDEventHandler, HaltObject, DebugService;
-QPFBUG.DBG_Filter = ["Manager", "ModuleEventHandler", "UIEventHandler",
-                     "DebugModel", "Trace", "DebugSession", "Reproduction"];
+QPFBUG.DBG_Filter = ["Manager", "ModuleEventHandler", "UIEventHandler",// "DebugService",
+                     "DebugModel", "Trace", "DebugSession", "Reproduction", "Reproducer", "UIUtils"];
 
 

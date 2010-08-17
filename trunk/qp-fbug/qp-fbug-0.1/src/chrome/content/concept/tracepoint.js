@@ -5,11 +5,11 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-    var owner = QPFBUG.Classes;
+    var __owner = QPFBUG.Classes;
 
     //------------------------------- Tracepoint ----------------------------------
     // trace point is kept in debug model.
-    owner.Tracepoint =
+    __owner.Tracepoint =
         function(){
             var constructor = function(id, querypoint, traceFrame){
                 this.id = id;

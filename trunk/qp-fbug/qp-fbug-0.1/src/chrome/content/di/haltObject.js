@@ -5,10 +5,10 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-var owner = QPFBUG.Classes;
+var __owner = QPFBUG.Classes;
 
 //--------------------------------- EventRequest --------------------------------
-owner.HaltObject = function(){
+__owner.HaltObject = function(){
 
         var constructor = function(context, callBack){
             this.context = context;
