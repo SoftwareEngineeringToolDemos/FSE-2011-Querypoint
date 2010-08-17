@@ -150,9 +150,11 @@ with (Lang){
                     for (var prop in unWrapped){
                         if (unWrapped[prop])
                             try{
-                                variableValues[prop] = JSON.parse(JSON.stringify(unWrapped[prop]));
+                            	var theJSON = JSON.stringify(unWrapped[prop]);
+                                variableValues[prop] = JSON.parse(theJSON);
                             }catch(exc){
-                                trace("Error in object.toSource(): " + exc.message, exc);
+                            	exc.theJSON = theJSON;
+                                trace("Error in getTraceScope: " + exc.message, exc);
                             }
                         else
                             variableValues[prop] = unWrapped[prop];
