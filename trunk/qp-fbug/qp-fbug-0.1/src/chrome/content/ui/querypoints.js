@@ -336,7 +336,14 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
 
     rebuild: function()
     {
-        var tracepoint = this.mainPanel.location;
+
+
+    },
+
+    // called by panel selection
+    updateSelection: function(object)
+    {
+        var tracepoint = object;
 
         FBTrace.sysout("TraceDataPanel.updateSelection "+tracepoint, tracepoint);
         if( ! (tracepoint instanceof Tracepoint) )
@@ -362,25 +369,6 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
 
         this.expandMembers(members, this.toggles, 0, 0, this.context);
         this.showMembers(members, !newTracepoint);
-
-    },
-
-    // called by panel selection
-    updateSelection: function(object)
-    {
-        this.syncToMainPanel();
-
-        if (object !== this.selection)
-        {
-            // highlight selection?
-        }
-    },
-
-    syncToMainPanel: function()
-    {
-        var mainPanel =  this.context.getPanel("tracepoints", false);
-        if (mainPanel.location != this.location)
-            this.navigate(mainPanel.location);
     },
 
     onPanelNavigate: function(object, panel)
@@ -388,16 +376,8 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
         if (panel !== this.mainPanel)
             return;
 
-        this.navigate(this.mainPanel.location);
-    },
-
-    updateLocation: function(object)
-    {
         if (object instanceof Tracepoint)
-        {
-            if (object !== this.location)
-                this.rebuild();
-        }
+        	this.select(this.mainPanel.location, true);
     },
 
     showEmptyMembers: function()
@@ -468,7 +448,7 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
 
     show: function(state)
     {
-        this.rebuild();
+         FBTrace.sysout("TraceData show", this);
     },
 
     initializeNode: function(oldPanelNode)
@@ -479,11 +459,6 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
     destroyNode: function()
     {
         Firebug.DOMBasePanel.prototype.destroyNode.apply(this, arguments);
-    },
-
-    refresh: function()
-    {
-        this.rebuild(true);
     },
 
 });
