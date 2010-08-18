@@ -373,11 +373,12 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
 
     onPanelNavigate: function(object, panel)
     {
+        FBTrace.sysout("TraceData onPanelNavigate "+panel.name)
         if (panel !== this.mainPanel)
             return;
 
         if (object instanceof Tracepoint)
-        	this.select(this.mainPanel.location, true);
+            this.select(this.mainPanel.location, true);
     },
 
     showEmptyMembers: function()
@@ -438,7 +439,7 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
     {
         Firebug.DOMBasePanel.prototype.initialize.apply(this, arguments);
         this.mainPanel =  this.context.getPanel("tracepoints", false);
-        this.mainPanel.addListener(this);
+        Firebug.registerUIListener(this);
     },
 
     destroy: function(state)
@@ -449,6 +450,7 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
     show: function(state)
     {
          FBTrace.sysout("TraceData show", this);
+         this.updateSelection(this.mainPanel.location);
     },
 
     initializeNode: function(oldPanelNode)
