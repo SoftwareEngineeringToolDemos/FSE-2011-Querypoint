@@ -22,6 +22,9 @@ __owner.JSDEventHandler = function(){
             this.fbs = fbs;
             this.cachedContexts = {}; // map <context.uid, executionContext.tag>
             this.counter = 0;
+            this.counterInterrupt = 0;
+            this.counterFunction = 0;
+            this.counterBreakpoint = 0;
         };
 
         constructor.prototype =
@@ -145,8 +148,8 @@ __owner.JSDEventHandler = function(){
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
-
                 var returnValue = Ci.jsdIExecutionHook.RETURN_CONTINUE;
+                jsdEventHandler.counterBreakpoint++;
 
                 var context = jsdEventHandler.getContextFromFrame(frame);
                 if (context)
@@ -201,6 +204,7 @@ __owner.JSDEventHandler = function(){
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
                 var returnValue = Ci.jsdIExecutionHook.RETURN_CONTINUE;
+                jsdEventHandler.counterInterrupt++;
 
                 if (jsdEventHandler.ds_hooksState.interruptHook){
                     var context = jsdEventHandler.getContextFromFrame(frame);
@@ -221,9 +225,7 @@ __owner.JSDEventHandler = function(){
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
                 var returnValue = Ci.jsdIExecutionHook.RETURN_CONTINUE;
-
-                if (debugService.listeningToFunctions)
-                    this.counter++;
+                jsdEventHandler.counterFunction++;
 
                 if (jsdEventHandler.ds_hooksState.functionHook){
                     var context = jsdEventHandler.getContextFromFrame(frame);
@@ -343,6 +345,7 @@ __owner.JSDEventHandler = function(){
 
             getContextFromFrame: function(frame)
             {
+                this.counter++;
                 var context = null;
 
                   //todo contextexecution tag is not a safe way to recognize context
