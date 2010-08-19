@@ -11,17 +11,19 @@ with (Lang){
         function(){
             var constructor = function(){
                  this.querypoints = {};
+                 this.querypointsSize = 0;
                  this.nextQuerypointId = 0;
             };
 
             constructor.prototype = {
                 addQuerypoint_Breakpoint : function(url, lineNumber, hitCount){
-                    var querypoint = new Querypoint(++this.nextQuerypointId, DebugModel.QUERY_TYPES.BREAKPOINT,
+                    var id = ++this.nextQuerypointId;
+                    var querypoint = new Querypoint(id, DebugModel.QUERY_TYPES.BREAKPOINT,
                                                     null, null,
                                                     url, lineNumber, hitCount);
 
-                    this.querypoints[this.nextQuerypointId] = querypoint;
-
+                    this.querypoints[id] = querypoint;
+                    this.querypointsSize++;
                     return querypoint;
                 },
 
@@ -34,7 +36,8 @@ with (Lang){
 
                     // makes querypoint
                     var refQueryexpr = new QueryExpr(valueFrameNo, valueRef);
-                    var querypoint = new Querypoint(++this.nextQuerypointId, DebugModel.QUERY_TYPES.LASTCHANGE,
+                    var id = ++this.nextQuerypointId;
+                    var querypoint = new Querypoint(id, DebugModel.QUERY_TYPES.LASTCHANGE,
                                                     refQuerypoint, refQueryexpr,
                                                     null, null, null);
 
@@ -44,17 +47,21 @@ with (Lang){
                     querypoint.addQueryData(queryData)
 
                     // add trace point to the list
-                    this.querypoints[this.nextQuerypointId] = querypoint;
+                    this.querypoints[id] = querypoint;
+                    this.querypointsSize++;
 
                     return querypoint;
                 },
 
                 addQuerypoint_LastCondition : function(refQuerypoint){
-                    var querypoint = new Querypoint(++this.nextQuerypointId, DebugModel.QUERY_TYPES.LASTCONDITION,
+                    var id = ++this.nextQuerypointId;
+                    var querypoint = new Querypoint(id, DebugModel.QUERY_TYPES.LASTCONDITION,
                                                     refQuerypoint, null,
                                                     null, null, null);
 
-                    this.querypoints[this.nextQuerypointId] = querypoint;
+                    this.querypoints[id] = querypoint;
+                    this.querypointsSize++;
+
                     return querypoint;
                 },
 

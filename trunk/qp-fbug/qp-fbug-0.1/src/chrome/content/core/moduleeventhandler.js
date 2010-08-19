@@ -12,10 +12,10 @@ with (Lang){
     __owner.ModuleEventHandler = function(){
 
         var constructor = function(win){
-            extendFromParent(this, win.Firebug.Module); //TODO change it to activeModule
+            extendFromParent(this, win.Firebug.ActivableModule); 
             this.win = win;
-
-            return this;
+            this.dispatchName = "qpfbugModule";
+            win.Firebug.Debugger.addListener(this);
         };
 
         constructor.prototype = {
@@ -41,9 +41,22 @@ with (Lang){
             // source file is created or changed
             onSourceFileCreated: function(context, sourceFile)
             {
-                if (context.qpfbug.listeningToJSDEvents)
-                    DebugService.getInstance().onSourceFileCreated(context, sourceFile);
+                DebugService.getInstance().onSourceFileCreated(context, sourceFile);
             },
+
+            //todo change it
+            onStartDebugging: function(context)
+            {
+                trace("^^^^^^^^^^^^^^^^^^^^^");
+                trace("onStartDebugging tracepoints.show "+context.qpfbug.inQuery);
+                if (context.qpfbug.newResults)
+                {
+                    context.qpfbug.firefoxWindow.Firebug.chrome.selectSupportingPanel(UIUtils.getDebugModel(context), context, true);
+                    delete context.qpfbug.newResults;
+                }
+
+            },
+
 
             destroyContext: function(context, persistedState)
             {

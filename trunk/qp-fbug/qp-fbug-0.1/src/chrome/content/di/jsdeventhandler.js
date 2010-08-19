@@ -329,9 +329,8 @@ __owner.JSDEventHandler = function(){
                 var context = null;
                 var contextUID = this.cachedContexts[frame.executionContext.tag];
                 if (contextUID){
-                    context = QPFBUG.contexts[contextUID];
-                    if (context && context.qpfbug.listeningToJSDEvents)  //if context is is not any longer available (e.g., firebug disabled and it is deleted for this tab) or qp is not listening.
-                        return context;
+                    context = DebugService.getInstance().registeredContexts[contextUID];
+                    return context;
                 }
 
                 //try to get context from frame
@@ -345,7 +344,7 @@ __owner.JSDEventHandler = function(){
                   //todo contextexecution tag is not a safe way to recognize context
                   // the outer scope should also considreed
 
-                if (QPFBUG.contexts.length == 0)//there is no context
+                if (DebugService.getInstance().registeredContextsNo == 0)//there is no context
                     return null;
 
                 // this 'outerMostScope' is just the outermost scope (not necessarily
@@ -363,15 +362,13 @@ __owner.JSDEventHandler = function(){
 
                 if (rootWindow)
                 {
-                    for (var uid in QPFBUG.contexts)
+                    for (var uid in DebugService.getInstance().registeredContexts)
                     {
-                        var context = QPFBUG.contexts[uid];
+                        var context = DebugService.getInstance().registeredContexts[uid];
                         if (context.window == rootWindow)
                         {
                             this.cachedContexts[frame.executionContext.tag] = context.uid;
-                            if (!context.qpfbug.listeningToJSDEvents)
-                                return null;
-                            return context;    
+                            return context;
                         }
                     }
                 }

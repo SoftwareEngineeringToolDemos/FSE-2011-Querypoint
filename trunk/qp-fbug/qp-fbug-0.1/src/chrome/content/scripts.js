@@ -27,7 +27,10 @@ QPFBUG.loadScript = loadScript;
 loadScript("resource://firebug/firebug-service.js", QPFBUG);
 loadScript("resource://firebug/firebug-trace-service.js", QPFBUG);
 //load lib.js
-QPFBUG.FBL = FBL; //FBL is created once per window, one of them is enough
+
+//following objects are created once per window, one of them is enough
+QPFBUG.FBL = FBL;
+QPFBUG.Classes.FB = {};
 
 // qpfbug scripts
 loadScript("resource://qpfbug/util/lang.js");
@@ -75,6 +78,7 @@ loadScript("resource://qpfbug/di/scriptanalyzer.js");
 loadScript("resource://qpfbug/parser/jsparser.js");
 
 loadScript("resource://qpfbug/ui/uieventhandler.js");
+loadScript("resource://qpfbug/ui/sourceviewpanel.js");
 loadScript("resource://qpfbug/ui/uiutils.js");
 
 loadScript("resource://qpfbug/dev/doubledebugger.js");

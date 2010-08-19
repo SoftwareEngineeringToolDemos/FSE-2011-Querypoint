@@ -50,7 +50,7 @@ with (Lang){
                                     var thread = TraceUtils.enterThread(caller, f);
                                     var space = TraceUtils.getPre(thread);
                                     var argumentsCopy = cloneArray(arguments); //because "arguments" is not longer available when function returns
-                                    QPFBUG.Classes.Lang.trace(space + objName + " - " + fName , argumentsCopy);
+                                    QPFBUG.Classes.Lang.trace(space + objName + " - " + fName , {object:this, arguments:argumentsCopy});
                                     var rv = f.apply(this, arguments);
                                     if (rv)
                                         QPFBUG.Classes.Lang.trace(space + objName + " - " + fName + " returns." , rv);

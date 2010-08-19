@@ -197,7 +197,7 @@ with (Lang){
                                 variableValues[prop] = null;
                                 variableValues[prop] = copyObject(unWrappedScope[prop], 3);
                             }catch(exc){
-                                trace("Error in JSON.stringify(): " + exc.message, exc);
+                                trace("Error in copyObject(): " + exc.message, exc);
                             }
                         else
                             variableValues[prop] = unWrappedScope[prop];
