@@ -8,72 +8,88 @@ with (Lang){
 var __owner = QPFBUG.Classes;
 
     //--------------------------------- DebugSession --------------------------------
-    __owner.DebugSession = function(id){
-        this.id = id;
-        this.reproductions = [];
-        this.nextReproductionId = 0;
-        this.debugModel = new DebugModel();
-    }
+    __owner.DebugSession = function(){
 
-    __owner.DebugSession.prototype = {
+        var constructor = function(id){
+            this.id = id;
 
-        newReproduction : function(){
-            var id = this.nextReproductionId++;
-            var reproduction = new Reproduction(id, this);
-            this.reproductions.push(reproduction);
-            return reproduction;
-        },
+            this.reproductions = {};
 
-        getReproduction : function(id){
-            if (!id)
-                return this.newReproduction();
-            for (var i=0 ; i < this.reproductions.length ; i++)
+            this.nextReproductionId = 0;
+
+            // It is supposed that there is only one current reproduction.
+            // In the future it may support more than on running reproduction at the same
+            // time for faster data collection.
+            this.previousReproduction = null;
+            this.currentReproduction = this.nextReproduction();
+
+            this.debugModel = new DebugModel();
+        }
+
+        constructor.prototype = {
+
+            nextReproduction : function(){
+                //todo end the current reproduction
+
+                var id = this.nextReproductionId++;
+                var reproduction = new Reproduction(id, this);
+                this.reproductions[id]= reproduction;
+
+                this.previousReproduction = this.currentReproduction;
+                this.currentReproduction = reproduction;
+                // call produce
+                return reproduction;
+            },
+
+            getReproduction : function(id){
+                if (!id)
+                    return null;
+                return this.reproductions[id];
+            },
+
+
+            getLastTraceData: function(pointRef, frameNo, objRef)
             {
-                if (this.reproductions[i].id == id)
+                if (this.previousReproduction)
+                    return this.previousReproduction.trace.getTraceData(pointRef, frameNo, objRef);
+                return null;
+            },
+
+            getNewestTrace: function()
+            {
+                if (this.currentReproduction)
+                    return this.currentReproduction.trace;
+                return null;
+            },
+
+            //getTracepoints
+            getTracepoints: function(reproductionId)
+            {
+                var tps = [];
+                var trace = this.reproductions[reproductionId].trace;
+                Lang.trace("getTracepoints "+trace, trace);
+                if (trace)
                 {
-                    return this.reproductions[i];
+                    var qps = this.debugModel.getQuerypoints();
+                    Lang.trace("getTracepoints qps "+qps.length, qps);
+                    for (var i = 0; i < qps.length; i++)
+                    {
+                        var tp = trace.getLastTracepointByQuerypoint(qps[i]);
+                        if (tp)
+                            tps.push(tp);
+                    }
+                    return tps;
                 }
+            },
+
+            getNumberOfQuerypoints: function(){
+                return this.debugModel.querypointsSize;
             }
-            return null;
-        },
+        }
 
+        return constructor;
 
-        getLastTraceData: function(pointRef, frameNo, objRef)
-        {
-            var reproductions = this.reproductions;
-            if (reproductions.length > 1)
-                return reproductions[reproductions.length - 2].trace.getTraceData(pointRef, frameNo, objRef);
-            return null;
-        },
-
-        getNewestTrace: function()
-        {
-            var reproductions = this.reproductions;
-        	if (reproductions.length)  
-        		return reproductions[reproductions.length - 1].trace; 
-        },
-        
-        //getTracepoints
-        getTracepoints: function(reproductionId)
-        {
-        	var tps = [];
-        	var trace = this.reproductions[reproductionId].trace;
-        	Lang.trace("getTracepoints "+trace, trace);
-        	if (trace)
-        	{
-        		var qps = this.debugModel.getQuerypoints();
-        		Lang.trace("getTracepoints qps "+qps.length, qps);
-        		for (var i = 0; i < qps.length; i++)
-        		{
-        			var tp = trace.getLastTracepointByQuerypoint(qps[i]);
-        			if (tp)
-        				tps.push(tp);
-        		}
-        		return tps;
-        	}
-        },
-
-    }
+    }();
 
 }}
 

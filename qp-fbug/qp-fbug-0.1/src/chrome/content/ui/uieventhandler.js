@@ -70,6 +70,11 @@ __owner.UIEventHandler = function(){
                                 propertyPath = propertyPath.substring(propertyPath.indexOf("].")+2, propertyPath.length);
                             }
 
+                            if (propertyPath.match(/^Window/) != null) //startsWith Window //todo it is only for datatrace
+                            {
+                                propertyPath = propertyPath.substring(propertyPath.indexOf(".")+1, propertyPath.length);
+                            }
+
                             if (domPanel.selection instanceof JSDConstants.jsdIStackFrame){ //watches panel
                                 if (domPanel.context.stopped){
                                     var isWatch = false;

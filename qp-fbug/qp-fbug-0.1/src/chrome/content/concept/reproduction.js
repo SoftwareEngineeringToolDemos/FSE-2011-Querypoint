@@ -24,15 +24,16 @@ __owner.Reproduction =
                this.stateMachine = new StateMachine(states, "notstarted", transitions);
                this.id = id;
                this.debugSession = debugSession;
-               this.breakRequests = {}; //active breakpoints
-               this.nextBreakRequestsId = 0;
-               this.breakRequests_querypoints = [];
-               this.trace = new Trace();
+               this.trace = null;
+               this.context = null;
             };
 
             constructor.prototype = {
-                start : function(){
-                    this.stateMachine.transit("start");
+                start : function(context){
+                    this.stateMachine.startTransit("start");
+                    this.context = context;
+                    this.trace = new Trace();
+                    this.stateMachine.endTransit();
                 },
 
                 pause : function(){

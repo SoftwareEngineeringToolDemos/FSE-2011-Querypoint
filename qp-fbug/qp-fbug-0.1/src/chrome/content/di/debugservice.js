@@ -14,6 +14,10 @@ with (Lang){
             this.fbs = fbs;
             this.nextEventRequestId = 0;
             this.nextBreakpointId = 0;
+
+            this.registeredContexts = {};
+            this.registeredContextsNo = 0;
+
             this.interruptListeners = {};
             this.functionListeners = {};
             this.listeningToInterrupts = 0;
@@ -31,16 +35,12 @@ with (Lang){
             // url & lineNo that the object is created there.
             createModificationWatchpointRequest: function(context, callBack, w_ownerCreationUrl,
                                                           ownerCreationLineNo, propertyName){
+                trace(":::::::::::::::::::::::::::::::::::::::::::::::::");
                 var eventRequest = new EventRequest(EventRequest.TYPES.WATCHPOINT, callBack, context,
                                                     null, null,
                                                     w_ownerCreationUrl, ownerCreationLineNo, propertyName
                                                     );
-                eventRequest.id = this.nextEventRequestId++;
-                context.qpfbug.eventRequests.push(eventRequest);
-
-                this.enableEventRequest(context, eventRequest);
-
-                return eventRequest;
+                return this.createEventRequest(context, eventRequest);
             },
 
             createBreakpointRequest: function(context, callBack, url, lineNo ){
@@ -49,7 +49,18 @@ with (Lang){
                                                     url, lineNo,
                                                     null, null, null
                                                     );
+                return this.createEventRequest(context, eventRequest);
+            },
+
+            //private function
+            createEventRequest: function(context, eventRequest){
+                if (!this.registeredContexts[context.uid]){
+                    this.registeredContexts[context.uid] = context;
+                    this.registeredContextsNo++;
+                    context.qpfbug.eventRequests = [];
+                }
                 eventRequest.id = this.nextEventRequestId++;
+                eventRequest.context = context;
                 context.qpfbug.eventRequests.push(eventRequest);
 
                 this.enableEventRequest(context, eventRequest);
@@ -58,7 +69,12 @@ with (Lang){
             },
 
             removeEventRequestsForContext: function(context){
+                delete this.registeredContexts[context.uid];
+                this.registeredContextsNo--;
+
                 var eventRequests = context.qpfbug.eventRequests;
+                if (!eventRequests)
+                    return;
                 var eventRequest;
                 var executionMonitor;
                 for (var i=0 ; i<eventRequests.length ; i++){
@@ -233,6 +249,8 @@ with (Lang){
             //--------------------------------- new/changed script --------------------------------
             // source file is created or changed so update breakpoints
             onSourceFileCreated: function(context, sourceFile){
+                if (!this.registeredContexts[context.uid])
+                    return;
                 this.enableAllEventRequestsForSourceFile(context, sourceFile);
             },
 
@@ -268,9 +286,13 @@ with (Lang){
                 var pc = frame.pc;
                 for (var i=0 ; i<eventRequests.length ; i++){
 
+                    trace("1111111111111111111111111111111   " +eventRequests.length);
+                    trace("line  "+ frame.line);
+                    trace("eventRequest  "+ eventRequests[i]);
                     eventRequest = eventRequests[i];
                     for (var j=0 ; j<eventRequest.breakpoints.length ; j++){ //there is only one
 
+                        trace("44444444444444444444444444444");
                         var bp = eventRequest.breakpoints[j];
                         if (bp.scriptsWithBreakpoint)
                         {
@@ -278,14 +300,15 @@ with (Lang){
                             {
                                 if ( bp.scriptsWithBreakpoint[iScript] && (bp.scriptsWithBreakpoint[iScript].tag == script.tag) && (bp.pc[iScript] == pc) )
                                 {
-                                    //trace("On Breakpoint : " + bp.href +  ": " + bp.lineNo);
+                                    trace("222222222222222222222222222222222");
+                                    trace("On Breakpoint : " + bp.href +  ": " + bp.lineNo);
                                     if (eventRequest.isBreakpoint())
                                     {
                                         this.onBreakpointEvent(eventRequest, frame, type, rv);
                                     }
                                     if (eventRequest.isWatchpoint()) 
                                     {
-                                        //trace("--------------------------");
+                                        trace("333333333333333333333333333333333");
                                         //todo monitor should be saved in a list
                                         executionMonitor = new ExecutionMonitor(context);
                                         eventRequest.executionMonitors.push(executionMonitor);

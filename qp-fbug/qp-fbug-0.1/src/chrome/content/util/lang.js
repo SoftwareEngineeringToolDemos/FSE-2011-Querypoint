@@ -124,7 +124,7 @@ with (QPFBUG.Classes){
         },
 
         copyObject: function(object, depth){
-            if (object == null || depth ==0)
+            if (object === null || depth ==0)
                 return null;
 
             if (typeof(object) == "object")
@@ -160,6 +160,10 @@ with (QPFBUG.Classes){
         unwrapIValueObject : QPFBUG.FBL.unwrapIValueObject,
 
         getCorrectedStackTrace : QPFBUG.FBL.getCorrectedStackTrace,
+
+        getCorrectedStackTrace : QPFBUG.FBL.clearNode,
+
+        getCorrectedStackTrace : QPFBUG.FBL.createMenuItem,
 
         $ : QPFBUG.FBL.$,
 

@@ -11,20 +11,20 @@ with (Lang){
 
     __owner.UIUtils = {
 
+         getDebugSession: function(context){
+            return context.qpfbug.debugSession;
+         },
+
          getDebugModel: function(context){
             return context.qpfbug.debugSession.debugModel;
          },
 
          getReproduction: function(context){
-            return context.qpfbug.reproduction;
-         },
-
-         getDebugSession: function(context){
-            return context.qpfbug.debugSession;
+            return context.qpfbug.debugSession.currentReproduction;
          },
 
          getTracepoints: function(context){
-            return UIUtils.getDebugSession(context).getTracepoints(context.qpfbug.reproduction.id);
+            return UIUtils.getDebugSession(context).getTracepoints(UIUtils.getReproduction(context).id);
          },
 
          eachTracepoint: function(context, fnOfTracepoint)

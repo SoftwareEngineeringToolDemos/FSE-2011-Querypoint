@@ -116,7 +116,7 @@ __owner.HardWiredReproducer = function(){
                           callback = function(win)
                           {
 
-                            var node = win.document.getElementById("myBody");
+                            var node = win.document.getElementById("myParagraph");
                             // on cliec
                             var doc = node.ownerDocument, event = doc.createEvent("MouseEvents");
                             event.initMouseEvent("click", true, true, doc.defaultView, 0, 0, 0, 0, 0,
