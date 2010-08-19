@@ -39,6 +39,7 @@ __owner.Reproduction =
                 pause : function(){
                     this.stateMachine.transit("pause");
                 },
+                
                 resume : function(){
                     this.stateMachine.startTransit("resume");
                     //collect data before resume

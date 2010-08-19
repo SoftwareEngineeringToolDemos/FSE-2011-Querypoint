@@ -71,8 +71,10 @@ with (Lang){
                     reproducer: win.Firebug.getPref("extensions.firebug", "querypoints.reproducer"),
                     recorder: null,
                 };
+//                if (debugSession.getNumberOfQuerypoints > 0){
                 reproduction.start(context);
-                this.enableQP(context);
+                this.enableQuerypoints(context);
+//                }
 
             },
 
@@ -92,7 +94,7 @@ with (Lang){
             {
                 //todo store debugModel in the persistedState
                 // remove all breakpoints
-                this.disableQP(context);
+                this.disableQuerypoints(context);
                 if (context.qpfbug.recorder){
                     context.qpfbug.recorder.stop();
                     context.qpfbug.debugSession.record = context.qpfbug.recorder.record;
@@ -100,12 +102,10 @@ with (Lang){
                 delete context.qpfbug;
             },
 
-            enableQP: function(context){
+            enableQuerypoints: function(context){
 
                 var querypoints = context.qpfbug.debugSession.debugModel.querypoints;
-                var anyQuerypoint = false;
                 for (var i in querypoints){
-                    anyQuerypoint = true;
                     var querypoint = querypoints[i];
                     var eventRequest = null;
 
@@ -148,12 +148,9 @@ with (Lang){
                     }
                 }
 
-                if (anyQuerypoint){
-                    context.qpfbug.inQuery = true;
-                }
             },
 
-            disableQP: function(context){
+            disableQuerypoints: function(context){
                 DebugService.getInstance().removeEventRequestsForContext(context); //todo is it necessary?
             },
 
@@ -180,9 +177,12 @@ with (Lang){
                     tracepoint = reproduction.trace.addBreakpointTracepoint(querypoint, context, frame);
                     reproduction.trace.assignTracepoint(querypoint, tracepoint);
 
-                    trace("!!!!!!!!!!!!!!!!!!!!!!!!!!!11");
-                    //show new found querypoints
-                    context.qpfbug.newResults = true;
+                    if (context.qpfbug.debugSession.moreQuerypointsToFind()){
+                        this.resume(context);
+                    }else{
+                        //show new found querypoints
+                        context.qpfbug.newResults = true;
+                    }
                 }
             },
 
@@ -276,7 +276,7 @@ with (Lang){
 
                 context.qpfbug.stoppedFrame = null;
                 var newReproduction = debugSession.nextReproduction();
-                this.disableQP(context);
+                this.disableQuerypoints(context);
                 Reproducer.getInstance().reproduce(context.qpfbug.reproducer, context, debugSession.id, newReproduction.id);
             }
 
