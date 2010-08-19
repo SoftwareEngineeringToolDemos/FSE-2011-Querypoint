@@ -64,7 +64,7 @@ function runTest()
         var myPropertyElt = FW.FBL.getElementsByClass(testData.watchesPanelNode, "memberLabel userLabel")[2];
         FBTest.executeContextMenuCommand(myPropertyElt, "lastChange", function()
         {
-            setTimeout(end, 100000);
+            setTimeout(end, 10000000);
         });
     }
 
