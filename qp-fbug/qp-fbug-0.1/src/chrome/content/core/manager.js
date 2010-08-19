@@ -67,7 +67,7 @@ with (Lang){
                     firefoxWindow : win, //sometimes we need access to main firefox window
                     tab : selectedTab,
                     debugSession : debugSession,
-                    inQuery : false, //todo
+                    newResults : false, //todo
                     reproducer: win.Firebug.getPref("extensions.firebug", "querypoints.reproducer"),
                     recorder: null,
                 };
@@ -198,7 +198,7 @@ with (Lang){
                     var querypointB = debugModel.addQuerypoint_LastChange(querypoint, 0, propertyPath);
 
                     //todo move this tag to another place
-                    context.qpfbug.inQuery = true;
+                    context.qpfbug.newResults = true;
 
                     this.resume(context);
                 }
@@ -239,7 +239,7 @@ with (Lang){
                         var querypointB = debugModel.addQuerypoint_LastChange(querypoint, 0, propertyPath);
 
                         //todo move this tag to another place
-                        context.qpfbug.inQuery = true;
+                        context.qpfbug.newResults = true;
 
                         this.resume(context);
                     }
