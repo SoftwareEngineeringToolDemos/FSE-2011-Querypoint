@@ -726,7 +726,11 @@ Firebug.Querypoint.TraceStackPanel.prototype = extend(Firebug.CallstackPanel.pro
 
 });
 
-//Firebug.registerPanel(Firebug.Querypoint.QPSourceViewPanel);
+Firebug.registerStylesheet("chrome://qpfbug/content/ui/querypoints.css");
+Firebug.registerPreference("querypoints.enableSites", false);
+Firebug.registerPreference("querypoints.reproducer", "local");
+
+Firebug.registerPanel(Firebug.Querypoint.QPSourceViewPanel);
 Firebug.registerPanel(Firebug.Querypoint.TraceDataPanel);
 Firebug.registerPanel(Firebug.Querypoint.TraceStackPanel);
 Firebug.registerPanel(Firebug.Querypoint.ReproductionsPanel);
