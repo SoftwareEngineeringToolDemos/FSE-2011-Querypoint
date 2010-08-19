@@ -7,8 +7,9 @@
 
         <!--
             myObject = {
-                myProperty : 5
-            }
+                myProperty : 5};
+            myObject2 = {
+                myProperty2 : 5};
             increaseMyProperty = function(){
                 foo();
                 myObject.myProperty++;
@@ -22,6 +23,7 @@
             }
             function foo()
             {
+                myObject2.myProperty2 = 0;
                 return "now who is the foo!";
             }
             function baz()
@@ -34,7 +36,9 @@
             }
             function bar()
             {
-                myObject.myProperty = 0;
+                if (!myObject2.myProperty2){
+                    myObject.myProperty = 0;
+                }
             }
             //window.addEventListener('load', updatePage, false);
         -->

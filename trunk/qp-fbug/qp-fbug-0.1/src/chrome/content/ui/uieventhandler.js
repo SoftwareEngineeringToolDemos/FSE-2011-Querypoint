@@ -93,14 +93,15 @@ __owner.UIEventHandler = function(){
 //
 //                                }
 //                            }else
-                            if (domPanel.selection instanceof DebugModel){  //tracedata
+//                            if (domPanel.selection instanceof DebugModel){  //tracedata //todo correct it
+
                                 items.push({label: "Last Change",  id: "lastChange",
                                             command: bindFixed(uiEventHandler.lastChangeOnQuerypointyAction,
                                             uiEventHandler, domPanel.context,
                                             domPanel.currentTracepoint.querypoint,
                                             propertyPath)
                                           });
-                            }
+//                            }
                         }
 
                         return items;

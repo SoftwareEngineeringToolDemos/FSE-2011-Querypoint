@@ -23,7 +23,9 @@ var __owner = QPFBUG.Classes;
             this.previousReproduction = null;
             this.currentReproduction = this.nextReproduction();
 
+
             this.debugModel = new DebugModel();
+
         }
 
         constructor.prototype = {
@@ -46,7 +48,6 @@ var __owner = QPFBUG.Classes;
                     return null;
                 return this.reproductions[id];
             },
-
 
             getLastTraceData: function(pointRef, frameNo, objRef)
             {
@@ -84,7 +85,12 @@ var __owner = QPFBUG.Classes;
 
             getNumberOfQuerypoints: function(){
                 return this.debugModel.querypointsSize;
-            }
+            },
+
+            moreQuerypointsToFind: function(){
+               return (this.getNumberOfQuerypoints() > this.currentReproduction.trace.assignedTracepointsSize);
+            },
+
         }
 
         return constructor;

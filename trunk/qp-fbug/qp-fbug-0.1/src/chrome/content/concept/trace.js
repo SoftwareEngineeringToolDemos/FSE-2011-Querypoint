@@ -15,8 +15,8 @@ with (Lang){
             var constructor = function(){
                 this.nextTracepointId = 0;
                 this.tracepoints = {}; //<int querypointId, [] tracepoints>
-                this.querypointId_tracepoint = {};
-                this.results_querypointId_tracepoint = {};
+                this.assignedTracepoints = {};
+                this.assignedTracepointsSize = 0;
             };
 
             constructor.prototype = {
@@ -127,12 +127,14 @@ with (Lang){
 
                 assignTracepoint: function(querypoint, tracepoint)
                 {
-                    this.querypointId_tracepoint[querypoint.id] = tracepoint;
+                    if (!this.assignedTracepoints[querypoint.id])//todo this line is unneccary
+                        this.assignedTracepointsSize++;          
+                    this.assignedTracepoints[querypoint.id] = tracepoint;
                 },
 
                 getTraceData: function(pointRef, frameNo, objectRef)
                 {
-                    var tracepoint = this.querypointId_tracepoint[pointRef.id];
+                    var tracepoint = this.assignedTracepoints[pointRef.id];
                     if (tracepoint)
                         return tracepoint.getTraceData(frameNo, objectRef);
                     return null;
