@@ -16,40 +16,6 @@ FBL.ns(function() { with (FBL)  {with(QPFBUG.Classes){
 
 Firebug.Querypoint = {};
 
-Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
-{
-    dispatchName: "qpModule",
-
-    initContext: function(context, persistedState)
-    {
-        context.Firebug = Firebug; // I guess.
-        Firebug.Debugger.addListener(this);
-        context.qpfbug.reproducer = Firebug.getPref("extensions.firebug", "querypoints.reproducer");
-        FBTrace.sysout("QPModule initContext context.qpfbug.reproducer "+context.qpfbug.reproducer+' in context '+context.getName());
-    },
-
-    onQuerypointHit: function(context)
-    {
-
-    },
-
-    //********** Firebug.Debugger Listener *************************
-
-    onStartDebugging: function(context)
-    {
-        if (FBTrace.DBG_QUERYPOINT)
-            FBTrace.sysout("onStartDebugging tracepoints.show "+context.qpfbug.inQuery);
-        if (context.qpfbug.inQuery)
-        {
-            context.qpfbug.inSession = true;  // I don't know how we will get out of this state
-            Firebug.chrome.selectSupportingPanel(UIUtils.getDebugModel(context), context, true);
-            delete context.qpfbug.inQuery;
-        }
-
-    },
-
-
-});
 
 Firebug.Querypoint.QPSourceViewPanel = function QPSourceViewPanel() {};
 
@@ -272,7 +238,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
     show: function(state)
     {
-        var enabled = this.context.qpfbug.inSession;
+        var enabled = (UIUtils.getDebugSession(this.context).getNumberOfQuerypoints() > 0);
         FBTrace.sysout("tracepoints.show "+enabled, this.context);
         // These buttons are visible only if debugger is enabled.
         //this.showToolbarButtons("fbLocationSeparator", enabled);
@@ -760,11 +726,7 @@ Firebug.Querypoint.TraceStackPanel.prototype = extend(Firebug.CallstackPanel.pro
 
 });
 
-Firebug.registerModule(Firebug.Querypoint.QPModule);
-Firebug.registerStylesheet("chrome://qpfbug/content/ui/querypoints.css");
-Firebug.registerPreference("querypoints.enableSites", false);
-Firebug.registerPreference("querypoints.reproducer", "local");
-Firebug.registerPanel(Firebug.Querypoint.QPSourceViewPanel);
+//Firebug.registerPanel(Firebug.Querypoint.QPSourceViewPanel);
 Firebug.registerPanel(Firebug.Querypoint.TraceDataPanel);
 Firebug.registerPanel(Firebug.Querypoint.TraceStackPanel);
 Firebug.registerPanel(Firebug.Querypoint.ReproductionsPanel);
