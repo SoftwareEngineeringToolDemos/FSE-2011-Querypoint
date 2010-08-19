@@ -8,9 +8,9 @@ FBL.ns(function() { with (FBL)
             TraceUtils.traceClassesFunctionCalls(QPFBUG.DBG_Filter);
 
         //store firebug classes
-        QPFBUG.Classes.FB.SourceBoxPanel = Firebug.SourceBoxPanel; //FBL is created once per window, one of them is enough
-        QPFBUG.Classes.FB.SourceBoxDecorator = Firebug.SourceBoxDecorator; //FBL is created once per window, one of them is enough
-//        QPFBUG.Classes.FB.WatchPanel = Firebug.SourceBoxDecorator; //FBL is created once per window, one of them is enough
+        QPFBUG.Classes.FB.SourceBoxPanel = Firebug.SourceBoxPanel;
+        QPFBUG.Classes.FB.SourceBoxDecorator = Firebug.SourceBoxDecorator;
+        QPFBUG.Classes.FB.WatchPanel = Firebug.WatchPanel;
 
         //initializes JSDEventHandler
         JSDEventHandler.getInstance();
