@@ -14,8 +14,8 @@ with (Lang){
         var constructor = function(win){
             extendFromParent(this, win.Firebug.ActivableModule); 
             this.win = win;
-            this.dispatchName = "qpfbugModule";
-            win.Firebug.Debugger.addListener(this);
+//            this.dispatchName = "qpfbugModule";
+//            win.Firebug.Debugger.addListener(this);
         };
 
         constructor.prototype = {
@@ -44,18 +44,17 @@ with (Lang){
                 DebugService.getInstance().onSourceFileCreated(context, sourceFile);
             },
 
-            //todo change it
-            onStartDebugging: function(context)
-            {
-                trace("^^^^^^^^^^^^^^^^^^^^^");
-                trace("onStartDebugging tracepoints.show "+context.qpfbug.inQuery);
-                if (context.qpfbug.newResults)
-                {
-                    context.qpfbug.firefoxWindow.Firebug.chrome.selectSupportingPanel(UIUtils.getDebugModel(context), context, true);
-                    delete context.qpfbug.newResults;
-                }
-
-            },
+//            //todo change it
+//            onStartDebugging: function(context)
+//            {
+//                trace("onStartDebugging tracepoints.show "+context.qpfbug.inQuery);
+//                if (context.qpfbug.newResults)
+//                {
+//                    context.qpfbug.firefoxWindow.Firebug.chrome.selectSupportingPanel(UIUtils.getDebugModel(context), context, true);
+//                    delete context.qpfbug.newResults;
+//                }
+//
+//            },
 
 
             destroyContext: function(context, persistedState)

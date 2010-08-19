@@ -16,6 +16,40 @@ FBL.ns(function() { with (FBL)  {with(QPFBUG.Classes){
 
 Firebug.Querypoint = {};
 
+Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
+{
+    dispatchName: "qpModule",
+
+    initContext: function(context, persistedState)
+    {
+        context.Firebug = Firebug; // I guess.
+        Firebug.Debugger.addListener(this);
+        context.qpfbug.reproducer = Firebug.getPref("extensions.firebug", "querypoints.reproducer");
+        FBTrace.sysout("QPModule initContext context.qpfbug.reproducer "+context.qpfbug.reproducer+' in context '+context.getName());
+    },
+
+    onQuerypointHit: function(context)
+    {
+
+    },
+
+    //********** Firebug.Debugger Listener *************************
+
+    onStartDebugging: function(context)
+    {
+        if (FBTrace.DBG_QUERYPOINT)
+            FBTrace.sysout("onStartDebugging tracepoints.show "+context.qpfbug.newResults);
+        if (context.qpfbug.newResults)
+        {
+//            context.qpfbug.inSession = true;  // I don't know how we will get out of this state
+            Firebug.chrome.selectSupportingPanel(UIUtils.getDebugModel(context), context, true);
+            delete context.qpfbug.newResults;
+        }
+
+    },
+
+
+});
 
 Firebug.Querypoint.QPSourceViewPanel = function QPSourceViewPanel() {};
 
@@ -726,6 +760,7 @@ Firebug.Querypoint.TraceStackPanel.prototype = extend(Firebug.CallstackPanel.pro
 
 });
 
+Firebug.registerModule(Firebug.Querypoint.QPModule);
 Firebug.registerStylesheet("chrome://qpfbug/content/ui/querypoints.css");
 Firebug.registerPreference("querypoints.enableSites", false);
 Firebug.registerPreference("querypoints.reproducer", "local");

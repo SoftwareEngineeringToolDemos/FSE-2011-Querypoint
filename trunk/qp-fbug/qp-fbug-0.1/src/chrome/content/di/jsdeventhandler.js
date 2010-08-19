@@ -21,6 +21,7 @@ __owner.JSDEventHandler = function(){
             this.ds = ds;
             this.fbs = fbs;
             this.cachedContexts = {}; // map <context.uid, executionContext.tag>
+            this.counter = 0;
         };
 
         constructor.prototype =
@@ -220,6 +221,9 @@ __owner.JSDEventHandler = function(){
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
                 var returnValue = Ci.jsdIExecutionHook.RETURN_CONTINUE;
+
+                if (debugService.listeningToFunctions)
+                    this.counter++;
 
                 if (jsdEventHandler.ds_hooksState.functionHook){
                     var context = jsdEventHandler.getContextFromFrame(frame);
