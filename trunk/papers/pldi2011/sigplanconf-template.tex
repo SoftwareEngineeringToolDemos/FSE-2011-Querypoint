@@ -88,8 +88,7 @@ Our contritution in this paper is the algorightm \textit{lastchange}, which loca
 
 %---------------------------------------------------------------------------------------------------
 \section{Introductory example}
-We illustrate the \textit{lastChange} functionality by a simple example. The example demonstrates a buggy javascript code in a html page (Figure ~\ref{fig:js-code}). The page contains a button (line 40) which shows the \texttt{myObject.myProperty} value. Whenever user clicks on the button \texttt{onClick} function is called. This function increases the value of \texttt{myObject.myProperty} by one (line 15) and calls \texttt{updateButton} function which updates button's text to the new value. Once the page is loaded for the first time the button shows \texttt{1} as the initial value of \texttt{myObject.myProperty}. The bug happens when user clicks on the button and instead of \texttt{2}, \texttt{0} appears on the button.
-
+We illustrate the \textit{lastChange} functionality by a simple example. The example demonstrates a buggy javascript code in a html page (Figure ~\ref{fig:js-code}). The page contains a button (line 40) which shows the \texttt{myObject.myProperty} value. It is supposed that whenever user clicks on the button, the value of \texttt{myObject.myProperty} and therefore button's label is increased by one. Once the page is loaded for the first time the button shows \texttt{1} as the initial value of \texttt{myObject.myProperty}. The bug happens when user clicks on the button and instead of \texttt{2}, \texttt{0} appears. 
 
 
 \begin{figure}[htp]
@@ -126,11 +125,15 @@ We illustrate the \textit{lastChange} functionality by a simple example. The exa
 42  </button>
 43 </html>
 \end{verbatim}
-\caption{The buggy javascript code.}
+\caption{The buggy javascript code in a html page.}
 \label{fig:js-code}
 \end{figure}
 
-To start debugging, the developer sets a abreakpoint on line 22 which is the place button's text is updated. Once the button is clicked execution is paused at line 22. (Figure ~\ref{fig:example1}) shows the debugger while the execution is paused. The developer can examine the program state at the right panel and as it shows the \texttt{myObject.myProperty} value at this point is zero. This value is wrong and the developer seeks the last place this value is changed. By right clicking on \texttt{myObject.myProperty} in the right panel, the developer can run \textit{lastChange} command (Figure ~\ref{fig:example2}). Debugger considers the paused point at the breakpoint as the \textit{reproduction point}, and re-executes the buggy execution, pauses at the reproduction point and shows line 29 in a new panel (Figure ~\ref{fig:example3}). The program state debugger shows on the right panel belongs to the past. Therefore the right panel just shows the partially collected data. If the developer needs some values which are not available in the right panel, debuggers re-executes another time and collects and shows the requested data. 
+Once user clicks on the button, \texttt{onClick} function is called. This function increases the value of \texttt{myObject.myProperty} by one (line 15) and calls \texttt{updateButton} function which updates button's text to the new value (line 22). To start debugging, the developer sets a abreakpoint on line 22 and once the button is clicked execution is paused at line 22. (Figure ~\ref{fig:example1}) shows the debugger while the execution is paused. The developer can examine the program state at the right panel and as it shows the \texttt{myObject.myProperty} value at this point is zero which is obviously a wrong value. 
+
+To apply backward search strategy for locating defects, the developer first needs to know the origin to the wrong value. To achieve this goal using breakpoints, the developer should search code to find and set breakpoint at all possible places that \texttt{myObject.myProperty} might get a new value. Even if the developer could sucessfully finish this step (There is no simple way to check it), the next step is monitoring the re-execution and collecting data at breakpoint hits before reaching line 22. All this work is useless if an origin was missed in the first step or unsufficient data was collected in the scond step.
+
+In contrast, we propose a high-level function in debugger, \textit{lastChange}, which provides the answer. By right clicking on \texttt{myObject.myProperty} in the right panel, the developer can run \textit{lastChange} command (Figure ~\ref{fig:example2}). Debugger considers the paused point at the breakpoint as the \textit{reproduction point}, and re-executes the buggy execution, pauses at the reproduction point and shows line 29 in a new panel (Figure ~\ref{fig:example3}). The program state debugger shows on the right panel belongs to the past. Therefore the right panel just shows the partially collected data. If the developer needs some values which are not available in the right panel, debugger re-executes another time and collects and shows the requested data. 
 
 Looking at line 29, it seems that something is wrong with \texttt{myCondition.value} which causes line 29 execution. The developer examines \texttt{myCondition.value} and it is \texttt{undefined}. The next step is to know when this property got this value. To do so, the developer runs \textit{lastChange} command on \texttt{myCondition.value} at this point. Debugger re-executes the execution and pauses at the reproduction point and shows line 25-the place \texttt{undefined} value is assigned to \texttt{myCondition.value} (Figure ~\ref{fig:example3}). Now it is clear that the bug occures because \texttt{oldValue} is \texttt{undefined} once execution reaches line 25.
 
@@ -161,7 +164,7 @@ Notice that in our example, \textit{lastChange} combines some aspects of breakpo
 
 %---------------------------------------------------------------------------------------------------
 \section{\textit{lastChange} implementation}
-\textit{lastChange} can be called on two different types of values: An object property or a variable value. We explain each case separately.
+\textit{lastChange} can be called on two different types of values: An object property or a variable value. A variable can be a global, local or closure variable. We explain each case separately.
 
 
 \subsection{\textit{lastChange} on object propery}
