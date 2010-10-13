@@ -174,15 +174,13 @@ The \textit{lastChange} algorithm is based on program re-execution. \textit{Repr
 \subsection{\textit{lastChange} on object propery}
 To simplify the algorithm explanation and avoid technical details, we assume two basic operations and postpone implementation details to the next section. The first opertion is \texttt{objectId()} which gets an object and returns an integer as its identifier. This identifier is unique for every object during one execution. The second operation is \texttt{setPropertyChangeHook()} which gets function as the hook and a string as the property name like \texttt{foo}. Whenever property \texttt{foo} in any object changes the hook will be called. The hook function receives a reference to the owner of \texttt{foo}.
 
-Once developer asks for the last change of \texttt{bar.foo} at the reproduction point, debugger calls \texttt{setPropertyChangeHook()} with \texttt{foo} as the property name and re-executes the program. Whenever \texttt{foo} changes and the hook function is called, debugger first calls \texttt{objectID()} on the \texttt{foo} owner object. Then it stores owner id and stack frame locations. Whenever the execution reaches the reproduction point it looks at the list of all changes and finds the last \texttt{foo} change with the same object id as \texttt{bar} id at the reproduction point(Figure ~\ref{fig:foo-changes1}). 
+Once developer asks for the last change of \texttt{bar.foo} at the reproduction point, debugger calls \texttt{setPropertyChangeHook()} with \texttt{foo} as the property name and re-executes the program. Whenever \texttt{foo} changes and the hook function is called, debugger first calls \texttt{objectID()} on the \texttt{foo} owner object. Then it stores owner id and stack frame locations. The reason we keep object id instead of a reference to the object itself is to let garbage collector destroys dead objects. Whenever the execution reaches the reproduction point it looks at the history of \texttt{foo} changes and finds the last \texttt{foo} change with the same object id as \texttt{bar} id at the reproduction point(Figure ~\ref{fig:foo-changes1}). 
 
 \begin{figure}[htp]
 \includegraphics[width=.48\textwidth]{6-foo-changes1.jpg}
 \caption{The list of \texttt{foo} changes and \texttt{bar} id which identifies the last change of \texttt{bar.foo} in the history of events.}
 \label{fig:foo-changes1}
 \end{figure}
-
-
 
 \subsection{\textit{lastChange} on variable} 
 Once developer asks for the last change of variable \texttt{foo} at a reproduction point, debugger first determines the variable's scope as follows:  Consider that in JavaScript, available variables are not resricted to local varialbes, but all variables in outer scopes are also accessible. The outer scopes are regualr JavaScript objects or closure scopes. The first group are usually created by calling \texttt{with()} function. The second group are created once a function is called. Therefore, there are theree cases for the escope of a variable, the current scope, an outer scope regular object or an outer scope clousure scope. 
