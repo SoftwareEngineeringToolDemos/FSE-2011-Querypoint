@@ -143,7 +143,7 @@ To apply backward search strategy for locating defects, the developer first need
 \label{fig:example-points}
 \end{figure}
 
-In contrast, we propose a high-level function in debugger, \textit{lastChange}, which provides the answer without demanding anymore effort from the developer. By right clicking on \texttt{myObject.myProperty} in the right panel, the developer can run \textit{lastChange} command (Figure ~\ref{fig:example2}). Debugger considers the paused point at the breakpoint as the \textit{reproduction point}, and re-executes the buggy execution, pauses at the reproduction point and shows line 29 in a new panel (Figure ~\ref{fig:example3}). The program state debugger shows on the right panel belongs to the past. Therefore the right panel just shows the partially collected data. If the developer needs some values which are not available in the right panel, debugger re-executes another time and collects and shows the requested data. 
+In contrast, we propose a high-level function in debugger, \textit{lastChange}, which provides the answer without demanding anymore effort from the developer. By right clicking on \texttt{myObject.myProperty} in the right panel, the developer can run \textit{lastChange} command (Figure ~\ref{fig:example2}). Debugger considers the paused point at the breakpoint as the reproduction point, and re-executes the buggy execution, pauses at the reproduction point and shows line 29 in a new panel (Figure ~\ref{fig:example3}). The program state debugger shows on the right panel belongs to the past. Therefore the right panel just shows the partially collected data. If the developer needs some values which are not available in the right panel, debugger re-executes another time and collects and shows the requested data. 
 
 
 \begin{figure*}[htp]
@@ -168,14 +168,13 @@ Notice that in our example, \textit{lastChange} combines some aspects of breakpo
 
 %---------------------------------------------------------------------------------------------------
 \section{\textit{lastChange} Algorithm}
-\textit{lastChange} can be called on two different types of values: An object property or a variable value. A variable can be a global, local or closure variable. We explain each case separately.
 
+The \textit{lastChange} algorithm is based on program re-execution. \textit{Reproduction point} is the execution point in which first \textit{lastChange} is calld. Like the introductory example, it can be specified by a [conditional] breakpoint. \textit{lastChange} can be called on two different types of values: An object property or a variable value. In JavaScript, every available variable in a frame comes from one of the scopes in the current scope chain. There are five different scopes: global, local, with, catch, closure. We explain each case separately.
 
 \subsection{\textit{lastChange} on object propery}
+To simplify the algorithm explanation and avoid technical details, we assume two basic operations and postpone implementation details to the next section. The first opertion is \texttt{objectId()} which gets an object and returns an integer as its identifier. This identifier is unique for every object during one execution. The second operation is \texttt{setPropertyChangeHook()} which gets function as the hook and a string as the property name like \texttt{foo}. Whenever property \texttt{foo} in any object changes the hook will be called. The hook function receives a reference to the owner of \texttt{foo}.
 
-At the beginning, we assume that every object has a unique id. Moreover, we assume that there is a special watchpoint, \textit{property watchpoint}, that can be set on a property name \texttt{foo} and whenever property \texttt{foo} in any object changes this watchpoint hits. We know that none of these assumptions is true in JavaScript. We discuss this issue later in tracking object creation. 
-
-Once developer asks for the last change of \texttt{bar.foo} at a reproduction point, debugger sets a property watchpoint on \texttt{foo} and  re-executes the program. Whenever the property watchpoint hits, debugger keeps the object id and stack frame locations. Whenever the execution reaches the reproduction point it looks at the list of all changes and finds the last \texttt{foo} change with the same object id as \texttt{bar} id at the reproduction point(Figure ~\ref{fig:foo-changes1}). 
+Once developer asks for the last change of \texttt{bar.foo} at the reproduction point, debugger calls \texttt{setPropertyChangeHook()} with \texttt{foo} as the property name and re-executes the program. Whenever \texttt{foo} changes and the hook function is called, debugger first calls \texttt{objectID()} on the \texttt{foo} owner object. Then it stores owner id and stack frame locations. Whenever the execution reaches the reproduction point it looks at the list of all changes and finds the last \texttt{foo} change with the same object id as \texttt{bar} id at the reproduction point(Figure ~\ref{fig:foo-changes1}). 
 
 \begin{figure}[htp]
 \includegraphics[width=.48\textwidth]{6-foo-changes1.jpg}
