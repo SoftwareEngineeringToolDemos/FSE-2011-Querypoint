@@ -178,7 +178,7 @@ Once developer asks for the last change of \texttt{bar.foo} at the reproduction 
 
 \begin{figure}[htp]
 \includegraphics[width=.48\textwidth]{6-foo-changes1.jpg}
-\caption{The list of \texttt{foo} changes and \texttt{bar} id which identifies the last change of \texttt{bar.foo} in the history of events.}
+\caption{The list of property \texttt{foo} changes and \texttt{bar} id which identifies the last change of \texttt{bar.foo} in the history of events.}
 \label{fig:foo-changes1}
 \end{figure}
 
@@ -189,10 +189,9 @@ In JavaScript, every frame has a scope chain and every available variable in the
 \subsubsection{global and \texttt{with} scopes}
 Global scope is the the most outer scope in the scope chain and it also refers as global object. This scope is a regular JavaScript object and therefore every global variable is a property of global object. Similar to global scope, \texttt{with} scopes are also regular objects. A \texttt{with} scope is created by a \texttt{with()} block with an object as the parameter. Every property of passed object is available inside the block as a variable. Debugger treats the case where variable's scope is global or \texttt{with}, like \textit{lastChange} on an object property. 
 
-\subsubsection{local, clousure and \texttt{catch} scopes}
+\subsubsection{local, closure and \texttt{catch} scopes}
 local scope refers to the top scope in the scope chain. Clousure scope refers to the scope which is created once a function is defined. Catch scope is the scope created by try-catch blocks and contains the exception variable. These objects are not necessarily regular JavaScript objects. Therefore to track changes to a variable in these scopes we need a new strategy. 
 
-A variables in these scopes can only be changed by the code which is included in the it's definition block. Therefore it is only enough to take care only about the lines that a variable is assinged a new value. The same fact is also true about \texttt{catch} and local scopes. Debugger puts hooks in on the line the variable is defined and all lines the variable is assigned a new variable (including inner-functions). For example in Figure ~\ref{fig:js-closure}, if the execution is paused at line 24 and the last change of \texttt{var1} is requested by the developer, two hooks on lines 22 and 23 will be set, but if the execution is paused at line 19, four hooks on lines 11, 12, 16, and 18. The reason is that \texttt{var1} in \texttt{firstChild} is a closure variable but in \texttt{secondChild} is a local variable.
 
 %%% we need a short explanation about scopes
 %%% important: think about it: we also need to set a special variable (id) to let us to identify the related functional scope
@@ -221,9 +220,8 @@ A variables in these scopes can only be changed by the code which is included in
 \label{fig:js-closure}
 \end{figure}
 
+A variables in these scopes can only be changed by the code which is included in the it's definition block. Therefore it is only enough to take care only about the lines that a variable is assinged a new value. The same fact is also true about \texttt{catch} and local scopes. Debugger puts hooks in on the line the variable is defined and all lines the variable is assigned a new variable (including inner-functions). For example in Figure ~\ref{fig:js-closure}, if the execution is paused at line 24 and the last change of \texttt{var1} is requested by the developer, two hooks on lines 22 and 23 will be set, but if the execution is paused at line 19, four hooks on lines 11, 12, 16, and 18. The reason is that \texttt{var1} in \texttt{firstChild} is a closure variable but in \texttt{secondChild} is a local variable.
 
-Everytime one of the hook hit a new event is inserted to the list of events. To separate irrelvant event from each other, we use a special variable \texttt{\_scopeId}. If the scope has this variable, the value of this variable is used for the scope id otherwise a new id will be generated and \texttt{\_scopeId} variable is created by \texttt{eval()} function in the scope. Figure ~\ref{fig:recursive} demonstrates one case that scope id is necessary for identifying the right answer. In thiss case the same variable \texttt{x} is changed several times but in different scopes due to recursive calls. Without the scope id calling \textit{lastChange(x)} at point C will return point B while the right answer is point A.
- 
 \begin{figure}[htp]
 \begin{verbatim}
 
@@ -251,10 +249,22 @@ The trace of recursive calls:
 \label{fig:recursive}
 \end{figure}
 
+\begin{figure}[htp]
+\includegraphics[width=.48\textwidth]{7-foo-changes2.jpg}
+\caption{The list of variable \texttt{foo} changes and the \texttt{foo}'s scope id at the reproduction point which identifies the answer.}
+\label{fig:foo-changes2}
+\end{figure}
 
+Everytime one of the hook hit a new event is inserted to the list of events. To separate irrelvant event from each other, we use a special variable \texttt{\_scopeId}. If the scope has this variable, the value of this variable is used for the scope id otherwise a new id will be generated and \texttt{\_scopeId} variable is created by \texttt{eval()} function in the scope. For example evaluating \texttt{var \_scopeId = 50} will create a variable with name \texttt{\_scopeId} and value \texttt{50} in the local scope. Consider that even in the case of closure scopes, \texttt{\_scopeId} is set when the variable first defined and the variable's scope is still local. Figure ~\ref{fig:recursive} demonstrates one case that scope id is necessary for identifying the right answer. In thiss case the same variable \texttt{x} is changed several times but in different scopes due to recursive calls. Without the scope id calling \textit{lastChange(x)} at point C will return point B while the right answer is point A.
+ 
 \subsection{\textit{lastChange} on \textit{lastChange}}
 Once the developer asks for the first \textit{lastChange} all program state is available to the debugger. But the next \textit{lastChange} calls are asked over collected data. For example, debugger needs object id for the second \textit{lastChange} and this data should be collected. To do so, debugger does a data dependency analysis between points which gives a list of items should be collected at every point.
 
+\begin{figure}[htp]
+\includegraphics[width=.48\textwidth]{8-lastchange-lastchange.jpg}
+\caption{The list of events stored for locating \textit{lastChange} of \texttt{bar.x} (point B) at the reproduction point and \texttt{baz.y} at point B.}
+\label{fig:lastchange-lastchange}
+\end{figure}
 %---------------------------------------------------------------------------------------------------
 \section{JavaScript implementation}
 The JavaScript prototype is implemented as an extension to Firebug[] javasrcipt debugger. 
