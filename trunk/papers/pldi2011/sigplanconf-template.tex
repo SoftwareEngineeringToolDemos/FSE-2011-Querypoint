@@ -82,8 +82,9 @@ The next dilemma is data collection. In breakpoint debugging, developer has to m
 
 Our proposal is a new functionality in debuggers which locates the origin of a wrong value, call it \textit{lastChange}. The only prerequisite for \textit{lastChange} functionality is bug reproduciblity (i.e., there is a test case which reproduces the bug). Assume that the program execution is paused on a breakpoint and the developer is suspicious about the value of an object property or variable. The developer selects \textit{lastChange} on the value and it is due to debugger to locate and shows the last change of object property or variable. Debugger reproduces the buggy execution and collects limited data and once the execution reaches the same place (i.e., the same breakpoint hit), call it \textit{reproduction point}, it pauses the execution, analyzes the collected data and shows the location of the last change to the developer. Developer can also examine the program state at the located point of execution, and ask for a new \textit{lastChange} at this point.
 
-Our contribution in this paper is the algorightm \textit{lastchange}, which locates the last place a value is changed, gathers other values from that execution point, and allows \textit{lastChange} operations from that point. The algorithm builds on existing breakpoint debugger technology. We demonstrate the feasibiltily of the algorithm with an implementation extending the Firebug JavaScript debugger.
+Our contribution in this paper is the algorightm \textit{lastchange}, which locates the last place a value is changed, gathers other values from that execution point, and allows \textit{lastChange} operations from that point. The algorithm builds on existing breakpoint debugger technology. We demonstrate the feasibiltily of the algorithm with \textit{RevNav}, an implementation extending the Firebug JavaScript debugger. \textit{RevNav} also provides mechanism for automated bug reproduction, and a centralized user interface which summarizes investigated execution points and collected results. 
 
+The rest of the paper is organized as follows. First, we demonstrate the \textit{lastChange} usage on a simple example with the comparison to breakpoint debugging. Section 3 presents \textit{lastChange} algorithm. In section 4, we explain the details of the JavaScript prototype implementation. 
 %\begin{enumerate}
 %/\item The evaluation of \textit{lastChange} implementation.
 
@@ -93,6 +94,9 @@ Our contribution in this paper is the algorightm \textit{lastchange}, which loca
 \section{Introductory example}
 We illustrate the \textit{lastChange} functionality by a simple example. The example demonstrates a buggy JavaScript code in a html page (Figure ~\ref{fig:js-code}). The page contains a button (line 40) which shows the \texttt{myObject.myProperty} value. It is supposed that whenever user clicks on the button, the value of \texttt{myObject.myProperty} and therefore button's label is increased by one. Once the page is loaded for the first time the button shows \texttt{1} as the initial value of \texttt{myObject.myProperty}. The bug happens when user clicks on the button and instead of \texttt{2}, \texttt{0} appears. 
 
+Once user clicks on the button, \texttt{onClick} function (line 13) is called. This function increases the value of \texttt{myObject.myProperty} by one (line 15) and calls \texttt{updateButton} function which updates button's text to the new value (line 22). To start debugging, the developer sets a abreakpoint on line 22 and once the button is clicked execution is paused at line 22. (Figure ~\ref{fig:example1}) shows the debugger while the execution is paused. The developer can examine the program state at the right panel and as it shows, the \texttt{myObject.myProperty} value at this point is zero which is obviously a wrong value. 
+
+To apply backward search strategy for locating defects, the developer first needs to know the origin to the wrong value. To achieve this goal using breakpoints, the developer should search code to find and set breakpoint at all possible places that \texttt{myObject.myProperty} might get a new value. Even if the developer could sucessfully finish this step (There is no simple way to check it), the next step is monitoring the re-execution and collecting data at breakpoint hits before reaching line 22. All this work is useless if an origin was missed in the first step or if the data was collected in the second step is insufficient.
 
 \begin{figure}[htp]
 \begin{verbatim}
@@ -132,10 +136,6 @@ We illustrate the \textit{lastChange} functionality by a simple example. The exa
 \label{fig:js-code}
 \end{figure}
 
-Once user clicks on the button, \texttt{onClick} function is called. This function increases the value of \texttt{myObject.myProperty} by one (line 15) and calls \texttt{updateButton} function which updates button's text to the new value (line 22). To start debugging, the developer sets a abreakpoint on line 22 and once the button is clicked execution is paused at line 22. (Figure ~\ref{fig:example1}) shows the debugger while the execution is paused. The developer can examine the program state at the right panel and as it shows the \texttt{myObject.myProperty} value at this point is zero which is obviously a wrong value. 
-
-To apply backward search strategy for locating defects, the developer first needs to know the origin to the wrong value. To achieve this goal using breakpoints, the developer should search code to find and set breakpoint at all possible places that \texttt{myObject.myProperty} might get a new value. Even if the developer could sucessfully finish this step (There is no simple way to check it), the next step is monitoring the re-execution and collecting data at breakpoint hits before reaching line 22. All this work is useless if an origin was missed in the first step or if the data was collected in the second step is insufficient.
-
 
 \begin{figure}[htp]
 \includegraphics{5-example-points.jpg}
@@ -162,19 +162,19 @@ In contrast, we propose a high-level function in debugger, \textit{lastChange}, 
 
 Looking at line 29, it seems that something is wrong with \texttt{myCondition.value} which causes line 29 execution. The developer examines \texttt{myCondition.value} and it is \texttt{undefined}. The next step is to know when this property got this value. To do so, the developer runs \textit{lastChange} command on \texttt{myCondition.value} at this point. Debugger re-executes the execution and pauses at the reproduction point and shows line 25-the place \texttt{undefined} value is assigned to \texttt{myCondition.value} (Figure ~\ref{fig:example3}). Now it is clear that the bug occures because \texttt{oldValue} is \texttt{undefined} once execution reaches line 25.
 
-As demonstrated in Figure ~\ref{fig:example-points}, the developer examinated three points of execution. These points-the history of the search for the defect-are available through the debugger's interface. On the top of the left panel in Figure ~\ref{fig:example3} there is an opened list which shows all three examinated points. The first one is the breakpoint on line 22, the second one is the point which is the last change of \texttt{myObject.myProperty} before the reaching the breakpoint and finally the last one is the point of execution in which \texttt{myCondition.value} gets the \texttt{undefined} value. Moreover, the source lines related to these points are tagged with red-cycle icons.
+As demonstrated in Figure ~\ref{fig:example-points}, the developer examinated three points of execution. Excepting the first point which debugger pause execution at that point, the second and third points are in the past and are shown by dotted line. These points-the history of the search for the defect-are available through the debugger's interface. On the top of the left panel in Figure ~\ref{fig:example3} there is an opened list which shows all three examinated points. The first one is the breakpoint on line 22, the second one is the point which is the last change of \texttt{myObject.myProperty} before the reaching the breakpoint and finally the last one is the point of execution in which \texttt{myCondition.value} gets the \texttt{undefined} value. Moreover, the source lines related to these points are tagged with red-cycle icons.
 
-Notice that in our example, \textit{lastChange} combines some aspects of breakpoint and of log-based debugging. Like breakpoint debugging, the developer re-executes a live runtime without changing the source and without a special execution environment beyond the debugger. The state of the program memory and the call stack are available at the lastChange point. Like log-based debugging, the program state and the call stack are recorded during program execution. We can't halt the program at \textit{lastChange} because we don't know which is the last one until we return to the original breakpoint.
+Notice that in our example, \textit{lastChange} combines some aspects of breakpoint and of log-based debugging. Like breakpoint debugging, the developer re-executes a live runtime without changing the source and without a special execution environment beyond the debugger. The state of the program memory and the call stack are available at the lastChange point. Like log-based debugging, the program state and the call stack are recorded during program execution. We can't halt the program at \textit{lastChange} because we don't know which is the last one until we return to the original breakpoint. In section 5 we discuss about the possibility of pausing at \textit{lastChange} results.
 
 %---------------------------------------------------------------------------------------------------
 \section{\textit{lastChange} Algorithm}
 
-The \textit{lastChange} algorithm is based on program re-execution. \textit{Reproduction point} is the execution point in which first \textit{lastChange} is calld. Like the introductory example, it can be specified by a [conditional] breakpoint. \textit{lastChange} can be called on two different types of values: An object property or a variable value. In JavaScript, every available variable in a frame comes from one of the scopes in the current scope chain. There are five different scope types: global, local, with, catch, closure. We explain each case separately.
+The \textit{lastChange} algorithm is based on program re-execution. Once developer asks for the \textit{lastChange} of a value, debugger re-executes the program, collects limited data and shows the result. \textit{Reproduction point} is the execution point in which first \textit{lastChange} is calld. Like the introductory example, it can be defined by a [conditional] breakpoint. \textit{lastChange} can be called on two different types of values: An object property or a variable value. In JavaScript, every available variable in a frame comes from one of the scopes in the current scope chain. There are five different scope types: global, local, with, catch, closure. We explain each case separately.
 
 \subsection{\textit{lastChange} on object propery}
 To simplify the algorithm explanation and avoid technical details, we assume two basic operations and postpone implementation details to the next section. The first opertion is \texttt{objectId()} which gets an object and returns an integer as its identifier. This identifier is unique for every object during one execution. The second operation is \texttt{setPropertyChangeHook()} which gets function as the hook and a string as the property name like \texttt{foo}. Whenever property \texttt{foo} in any object changes the hook will be called. The hook function receives a reference to the owner of \texttt{foo}.
 
-Once developer asks for the last change of \texttt{bar.foo} at the reproduction point, debugger calls \texttt{setPropertyChangeHook()} with \texttt{foo} as the property name and re-executes the program. Whenever \texttt{foo} changes and the hook function is called, debugger first calls \texttt{objectID()} on the \texttt{foo} owner object. Then it stores owner id and stack frame locations. The reason we keep object id instead of a reference to the object itself is to let garbage collector destroys dead objects. Whenever the execution reaches the reproduction point it looks at the history of \texttt{foo} changes and finds the last \texttt{foo} change with the same object id as \texttt{bar} id at the reproduction point(Figure ~\ref{fig:foo-changes1}). 
+Once developer asks for the last change of \texttt{bar.foo} at the reproduction point, debugger calls \texttt{setPropertyChangeHook()} with \texttt{foo} as the property name and re-executes the program. Whenever \texttt{foo} changes and the hook function is called, debugger first calls \texttt{objectID()} on the \texttt{foo} owner object. Then it stores owner id and stack frame locations. The reason we keep object id instead of a reference to the object itself is to let garbage collector to destroy dead objects. Whenever the execution reaches the reproduction point it looks at the history of \texttt{foo} changes and finds the last \texttt{foo} change with the same object id as \texttt{bar} id at the reproduction point(Figure ~\ref{fig:foo-changes1}). 
 
 \begin{figure}[htp]
 \includegraphics[width=.48\textwidth]{6-foo-changes1.jpg}
@@ -183,41 +183,47 @@ Once developer asks for the last change of \texttt{bar.foo} at the reproduction 
 \end{figure}
 
 \subsection{\textit{lastChange} on variable} 
-Once developer asks for the last change of variable \texttt{foo} at a reproduction point, debugger first determines the variable's scope as follows: it iterates over the scopes in the scope chain and the first scope which has a variable with the same name is the variable's scope. Consider that in JavaScript, available variables are not resricted to local varialbes, but all variables in outer scopes are also accessible. Among five scope types, global scopes and with scopes-scopes which are created by calling \texttt{with()} function-are regular JavaScript objects. Debugger treats the case where variable's scope is global or with, like \textit{lastChange} on an object property. 
+In JavaScript, every frame has a scope chain and every available variable in the frame comes from one of the scopes in the frame's scope chain. Once developer asks for the last change of variable \texttt{foo} at the reproduction point, debugger first determines the variable's scope as follows: it iterates over the scopes in the scope chain and the first scope which has a variable with the same name is the variable's scope. There are five different scope types: local, global, \texttt{with}, closure, \texttt{catch}. We explain each case separately.
 
-A closure scope is created once a function is called. In this case, debugger sets breakpoints on the line the variable is defined and all lines the variable is assigned a new variable (including inner-functions). For example in Figure ~\ref{fig:js-closure}, if the execution is paused at line 24 and the last change of \texttt{var2} is requested by the developer, two breakpoints on lines 22 and 23 will be set, but if the execution is paused at line 19, four breakpoints on lines 11, 12, 16, and 18.
 
+\subsubsection{global and \texttt{with} scopes}
+Global scope is the the most outer scope in the scope chain and it also refers as global object. This scope is a regular JavaScript object and therefore every global variable is a property of global object. Similar to global scope, \texttt{with} scopes are also regular objects. A \texttt{with} scope is created by a \texttt{with()} block with an object as the parameter. Every property of passed object is available inside the block as a variable. Debugger treats the case where variable's scope is global or \texttt{with}, like \textit{lastChange} on an object property. 
+
+\subsubsection{local, clousure and \texttt{catch} scopes}
+local scope refers to the top scope in the scope chain. Clousure scope refers to the scope which is created once a function is defined. Catch scope is the scope created by try-catch blocks and contains the exception variable. These objects are not necessarily regular JavaScript objects. Therefore to track changes to a variable in these scopes we need a new strategy. 
+
+A variables in these scopes can only be changed by the code which is included in the it's definition block. Therefore it is only enough to take care only about the lines that a variable is assinged a new value. The same fact is also true about \texttt{catch} and local scopes. Debugger puts hooks in on the line the variable is defined and all lines the variable is assigned a new variable (including inner-functions). For example in Figure ~\ref{fig:js-closure}, if the execution is paused at line 24 and the last change of \texttt{var1} is requested by the developer, two hooks on lines 22 and 23 will be set, but if the execution is paused at line 19, four hooks on lines 11, 12, 16, and 18. The reason is that \texttt{var1} in \texttt{firstChild} is a closure variable but in \texttt{secondChild} is a local variable.
 
 %%% we need a short explanation about scopes
 %%% important: think about it: we also need to set a special variable (id) to let us to identify the related functional scope
 \begin{figure}[htp]
 \begin{verbatim}
-10  function parent(var1){
-11    var var2;
-12    var2 = 1;
-13    function myfun(var3){
-14      var var4;
-15      var4 = {...}
-16      var2 = var4;
-17      function firstChild(var5){
-18        var2 = 5;
-19        var4 = 5;
+10  function parent(arg1){
+11    var var1;
+12    var1 = 0;
+13    function myfun(arg2){
+14      var var2;
+15      var2 = {...}
+16      var1 = var2;
+17      function firstChild(arg3){
+18        var1 = 1;
+19        var2 = 1;
 20      }  
-21      function secondChild(var6){
-22       	var var2;
-23        var2 = 5			      
-24        var4 = 5;	
+21      function secondChild(arg4){
+22       	var var1;
+23        var1 = 2			      
+24        var2 = 2;	
 25      }
 26    }  
-23  }    
+27  }    
 \end{verbatim}
 \caption{Sample JavaScript code demonstrating closure variables.}
 \label{fig:js-closure}
 \end{figure}
 
 
-Everytime one of the breakpoints hit a new event is inserted to the list of events. To separate irrelvant event from each other, we use a special variable \texttt{\_scopeId}. If the scope has this variable, the value of this variable is used for the scope id otherwise a new id will be generated and \texttt{\_scopeId} variable is created in the scope. This is specially needed in case of recursive calls. Figure Figure ~\ref{fig:recursive} shows changes to a the same variable \texttt{x} but in different scopes. alling \textit{lastChange(x)} at point B should return point A.
-
+Everytime one of the hook hit a new event is inserted to the list of events. To separate irrelvant event from each other, we use a special variable \texttt{\_scopeId}. If the scope has this variable, the value of this variable is used for the scope id otherwise a new id will be generated and \texttt{\_scopeId} variable is created by \texttt{eval()} function in the scope. Figure ~\ref{fig:recursive} demonstrates one case that scope id is necessary for identifying the right answer. In thiss case the same variable \texttt{x} is changed several times but in different scopes due to recursive calls. Without the scope id calling \textit{lastChange(x)} at point C will return point B while the right answer is point A.
+ 
 \begin{figure}[htp]
 \begin{verbatim}
 
@@ -236,9 +242,9 @@ The trace of recursive calls:
     x changes; // A
       f was called;
         x changes;
-        f was called
-          x changes;
-    //B 
+        f was called 
+          x changes; //C
+    //C 
 
 \end{verbatim}
 \caption{Recursive calls.}
