@@ -95,7 +95,7 @@ We illustrate the \textit{lastChange} functionality by a simple example. The exa
 
 Once user clicks on the button, \texttt{onClick} function (line 13) is called. This function increases the value of \texttt{myObject.myProperty} by one (line 15) and calls \texttt{updateButton} function which updates button's text to the new value (line 22). To start debugging, the developer sets a breakpoint on line 22 and once the button is clicked execution is paused at line 22. Figure ~\ref{fig:example1} shows the debugger while the execution is paused. The developer can examine the program state at the right panel and as it shows, the \texttt{myObject.myProperty} value at this point is zero which is obviously a wrong value. 
 
-To apply backward search strategy for locating defects, the developer first needs to know the origin to the wrong value. To achieve this goal using breakpoints, the developer should search code to find and set breakpoint at all possible places that \texttt{myObject.myProperty} might get a new value. Having the fact that an object and property can be accessed and changed through different names and methods, we realize that the difficulty of this task. Even if the developer could sucessfully finish this step (There is no simple way to check it!), the next step is monitoring the re-execution and collecting data at breakpoint hits before reaching line 22. All this work should be repeated if an origin was missed in the first step or if the data was collected in the second step is insufficient.
+
 
 \begin{figure}[htp]
 \begin{verbatim}
@@ -135,6 +135,7 @@ To apply backward search strategy for locating defects, the developer first need
 \label{fig:js-code}
 \end{figure}
 
+To apply backward search strategy for locating defects, the developer first needs to know the origin to the wrong value. To achieve this goal using breakpoints, the developer should search code to find and set breakpoint at all possible places that \texttt{myObject.myProperty} might get a new value. Having the fact that an object and property can be accessed and changed through different names and methods, we realize that the difficulty of this task. Even if the developer could sucessfully finish this step (There is no simple way to check it!), the next step is monitoring the re-execution and collecting data at breakpoint hits before reaching line 22. All this work should be repeated if an origin was missed in the first step or if the data was collected in the second step is insufficient.
 
 \begin{figure}[htp]
 \includegraphics{5-example-points.jpg}
