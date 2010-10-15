@@ -258,13 +258,26 @@ The trace of recursive calls:
 Everytime one of the hook hit a new event is inserted to the list of events. To separate irrelvant event from each other, we use a special variable \texttt{\_scopeId}. If the scope has this variable, the value of this variable is used for the scope id otherwise a new id will be generated and \texttt{\_scopeId} variable is created by \texttt{eval()} function in the scope. For example evaluating \texttt{var \_scopeId = 50} will create a variable with name \texttt{\_scopeId} and value \texttt{50} in the local scope. Consider that even in the case of closure scopes, \texttt{\_scopeId} is set when the variable first defined and the variable's scope is still local. Figure ~\ref{fig:recursive} demonstrates one case that scope id is necessary for identifying the right answer. In thiss case the same variable \texttt{x} is changed several times but in different scopes due to recursive calls. Without the scope id calling \textit{lastChange(x)} at point C will return point B while the right answer is point A.
  
 \subsection{\textit{lastChange} on \textit{lastChange}}
-Once the developer asks for the first \textit{lastChange} all program state is available to the debugger. But the next \textit{lastChange} calls are asked over collected data. For example, debugger needs object id for the second \textit{lastChange} and this data should be collected. To do so, debugger does a data dependency analysis between points which gives a list of items should be collected at every point.
+The algorithm we explained so far needs an enhancement to support longer sequence of \textit{lastChange}s. We explain first the issue and then the solution. Consider the following points:
+
+\begin{center}
+\textit{
+ point A : the reproduction point \\
+ point B : lastChange(A, bar.x) \\
+ point C : lastChange(B, baz.y) 
+ }
+ \end{center}
+According the algorithm explained in the previous section none of the points B and C can be identified before reaching point A. Therefore, all \texttt{x} changes for piont B and all \texttt{y} changes for point C are stored. Once the execution reaches point A, and the exact \texttt{bar} id reveals, point B can be identified among the items in the history of \texttt{x} changes. The problem arises in recognizing point C. To recognize point C, we need \texttt{baz} id at point B, but B is a past program state, and \texttt{baz} id has not been collected at this point. 
 
 \begin{figure}[htp]
 \includegraphics[width=.48\textwidth]{8-lastchange-lastchange.jpg}
 \caption{The list of events stored for locating \textit{lastChange} of \texttt{bar.x} (point B) at the reproduction point and \texttt{baz.y} at point B.}
 \label{fig:lastchange-lastchange}
 \end{figure}
+
+To address this issue, debugger does a dependency analysis between all \textit{lastChange} queries and computes the additional data needs to be collected at each point. For example in the mentioned case, \texttt{baz} id- if it is available- should be collected at all points \texttt{x} changes. Having this additional data, locating point C, using the \texttt{baz} id at point B is straightforward (Figure ~\ref{fig:lastchange-lastchange}).
+
+
 %---------------------------------------------------------------------------------------------------
 \section{JavaScript implementation}
 The JavaScript prototype is implemented as an extension to Firebug[] javasrcipt debugger. 
