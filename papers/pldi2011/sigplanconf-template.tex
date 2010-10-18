@@ -29,7 +29,8 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{subfigure}
-
+\usepackage{algorithmic}
+\usepackage{algorithm}
 
 \begin{document}
 
@@ -264,6 +265,28 @@ The algorithm we explained so far needs an enhancement to support longer sequenc
  \end{center}
 According the algorithm explained in the previous section none of the points B and C can be identified before reaching point A. Therefore, all \texttt{x} changes for piont B and all \texttt{y} changes for point C are stored. Once the execution reaches point A, and the exact \texttt{bar} id reveals, point B can be identified among the items in the history of \texttt{x} changes. The problem arises in recognizing point C. To recognize point C, we need \texttt{baz} id at point B, but B is a past program state, and \texttt{baz} id has not been collected at this point. 
 
+\begin{algorithm}
+\caption{\textit{lastChange} queries dependency analysis.}
+\label{dependency-analysis}
+\begin{algorithmic}
+
+%\FORALL{xxx}%q in queries} 
+\FOR{$q$ in $queries$} 
+ \FOR {$p$ defined at the $q$ result}
+   \STATE \COMMENT{p = lastChange(q, bar.foo)}        	
+   \IF {$p$ is a lastChange on object property} 
+     
+     \STATE Store $foo$ id at $q$. 
+   \ELSE \STATE \COMMENT{lastChange on variable}
+     \STATE \COMMENT{p = lastChange(q, foo)}        	
+     \STATE Store $foo$ scope id at $q$.
+	 \ENDIF 
+ \ENDFOR 
+\ENDFOR
+
+\end{algorithmic}
+\end{algorithm}
+
 \begin{figure}[htp]
 \includegraphics[width=.48\textwidth]{8-lastchange-lastchange.jpg}
 \caption{The list of change events stored for locating point B, the \textit{lastChange} of \texttt{bar.x} at the reproduction point, and point C, the \textit{lastChange} of  \texttt{baz.y} at point B.}
@@ -277,14 +300,14 @@ To address this issue, debugger does a dependency analysis between all \textit{l
 \section{JavaScript implementation}
 The JavaScript prototype is implemented as an extension to Firebug[] javasrcipt debugger. 
 
+\subsection{Tracking object creation}
+Now we discuss two mentioned assumptions. In the standard JavaScript every object has a \texttt{watch()} function which receives two parameters, a property name and another function as a hook. Whenever the property with the given name changes the hook function is called. The issue with using this function is that it can only be applied to available objects. However, at the beginning of re-execution there is no object available. To solve this issue we use a feature in Firefox JavaScript engine, setting a flag gives us the place the object created (e.g., myFile.js, line 24). Though this is a limited data it can help us to get a reference to the object once it is created. Therefore, at the reproduction point, debugger gets the creation location of \texttt{bar} and once the execution reaches to that location it gets a reference to the created object and sets a unique id for it.
+
 \subsection{Execution reproduction}
 Altough execution reproduction is basicly should be provided by the developer, we tried to devise some automatic way which reproduces the execution. In the prototype, develooper can choose among three reproduction options. The first one is using a test case which provided by developer. The second one is by record and replay and the third one is local-reproduction.
 
 Two parts should be carefully considered in execution reproduction. First, the initial state should be the same as previous execution. Second, the similar actions and events should be applied to the program during the execution. In the record and replay approach, debugger stores the initial page url and user actions and during replay phase, opens the same url and emulates user actions. 
 In the local reproduction approach, debugger calls the funtion on the bottom of stack with the same parameters.
-
-\subsection{Tracking object creation}
-Now we discuss two mentioned assumptions. In the standard JavaScript every object has a \texttt{watch()} function which receives two parameters, a property name and another function as a hook. Whenever the property with the given name changes the hook function is called. The issue with using this function is that it can only be applied to available objects. However, at the beginning of re-execution there is no object available. To solve this issue we use a feature in Firefox JavaScript engine, setting a flag gives us the place the object created (e.g., myFile.js, line 24). Though this is a limited data it can help us to get a reference to the object once it is created. Therefore, at the reproduction point, debugger gets the creation location of \texttt{bar} and once the execution reaches to that location it gets a reference to the created object and sets a unique id for it.
 
 \subsection{Data collection}
 
