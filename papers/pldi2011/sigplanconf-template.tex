@@ -129,13 +129,14 @@ Once user clicks on the button, \texttt{onClick} function (line 13) is called. T
 \label{fig:js-code}
 \end{figure}
 
-To apply backward search strategy for locating defects, the developer first needs to know the origin to the wrong value. To achieve this goal using breakpoints, the developer should search code to find and set breakpoint at all possible places that \texttt{myObject.myProperty} might get a new value. Having the fact that an object and property can be accessed and changed through different names and methods, we realize that the difficulty of this task. Even if the developer could sucessfully finish this step (There is no simple way to check it!), the next step is monitoring the re-execution and collecting data at breakpoint hits before reaching line 22. All this work should be repeated if an origin was missed in the first step or if the data was collected in the second step is insufficient.
 
 \begin{figure}[htp]
 \includegraphics{5-example-points.jpg}
 \caption{The examinated points before locating the defect.}
 \label{fig:example-points}
 \end{figure}
+
+To apply backward search strategy for locating defects, the developer first needs to know the origin to the wrong value. To achieve this goal using breakpoints, the developer should search code to find and set breakpoint at all possible places that \texttt{myObject.myProperty} might get a new value. Having the fact that an object and property can be accessed and changed through different names and methods, we realize that the difficulty of this task. Even if the developer could sucessfully finish this step (There is no simple way to check it!), the next step is monitoring the re-execution and collecting data at breakpoint hits before reaching line 22. All this work should be repeated if an origin was missed in the first step or if the data was collected in the second step is insufficient.
 
 In contrast, we propose a high-level function in debugger, \textit{lastChange}, which provides the answer without demanding anymore effort from the developer. By right clicking on \texttt{myObject.myProperty} in the right panel, the developer can run \textit{lastChange} command (Figure ~\ref{fig:example2}). Debugger considers the paused point at the breakpoint as the reproduction point, and re-executes the buggy execution, pauses at the reproduction point and shows line 29 in a new panel (Figure ~\ref{fig:example3}). The program state debugger shows on the right panel belongs to the past. Therefore the right panel just shows the partially collected data. If the developer needs some values which are not available in the right panel, debugger re-executes another time and collects and shows the requested data. 
 
