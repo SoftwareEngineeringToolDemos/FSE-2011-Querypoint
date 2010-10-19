@@ -194,65 +194,58 @@ In JavaScript, every frame has a scope chain and every available variable in the
 
 
 \subsubsection{global and \texttt{with} scopes}
-Global scope is the the most outer scope in the scope chain and it also refers as global object. This scope is a regular JavaScript object and therefore every global variable is a property of global object. Similar to global scope, \texttt{with} scopes are also regular objects. A \texttt{with} scope is created by a \texttt{with()} block with an object as the parameter. Every property of passed object is available inside the block as a variable. Debugger treats the case where variable's scope is global or \texttt{with}, like \textit{lastChange} on an object property. 
+Global scope is the the most outer scope in the scope chain and it is also refered as global object which is usually \texttt{window} object. This scope is a regular JavaScript object and therefore every global variable is a property of global object. Similar to global scope, \texttt{with} scopes are also regular objects. A \texttt{with} scope is created by a \texttt{with()} block with an object as the parameter. Every property of passed object is available inside the block as a variable. Debugger treats the case where variable's scope is global or \texttt{with}, like \textit{lastChange} on an object property. 
 
 \subsubsection{local, closure and \texttt{catch} scopes}
-local scope refers to the most nested scope in the scope chain. Clousure scope refers to the scope which is created once a function is defined. Catch scope is the scope created by try-catch blocks and contains the exception variable. These objects are not necessarily regular JavaScript objects. Therefore to track changes to a variable in these scopes we need a new strategy. 
+Local scope refers to the most nested scope in the scope chain. Closure scope refers to the scope which is created once a function is defined. Catch scope is the scope created in the catch block of try-catch statements and contains the exception variable. These scopes are not necessarily regular JavaScript objects. Therefore, to track changes to a variable in these scopes we use a different strategy. 
 
-
-%%% we need a short explanation about scopes
-%%% important: think about it: we also need to set a special variable (id) to let us to identify the related functional scope
 \begin{figure}[htp]
 \begin{verbatim}
-10  function parent(arg1){
+10  function parent(){
 11    var var1;
-12    var1 = 0;
-13    function myfun(arg2){
-14      var var2;
-15      var2 = {...}
-16      var1 = var2;
-17      function firstChild(arg3){
-18        var1 = 1;
-19        var2 = 1;
-20      }  
-21      function secondChild(arg4){
-22       	var var1;
-23        var1 = 2			      
-24        var2 = 2;	
-25      }
-26    }  
-27  }    
+12    var1 = ...;
+13    function myfun(){
+14      var1 = ...;
+15      function firstChild(){
+16       	var var1;
+17        var1 = ...;
+18      }  
+19      function secondChild(){
+20        var1 = ...;			      
+21      }
+22    }  
+23  }    
 \end{verbatim}
-\caption{Sample JavaScript code demonstrating closure variables.}
+\caption{Sample JavaScript code demonstrating local and clousure variables.}
 \label{fig:js-closure}
 \end{figure}
 
-A variable in these scopes can only be changed by the code which is included in the its definition block. Therefore it is only enough to take care only about the lines that a variable is assigned a new value. The same fact is also true about \texttt{catch} and local scopes. Debugger puts hooks in on the line the variable is defined and all lines the variable is assigned a new value (including inner-functions). For example in Figure ~\ref{fig:js-closure}, if the execution is paused at line 19, four hooks on lines 11, 12, 16, and 18, but if the execution is paused at line 24 and the last change of \texttt{var1} is requested by the developer, two hooks on lines 22 and 23 will be set. The reason is that \texttt{var1} in \texttt{firstChild} is a closure variable but in \texttt{secondChild} is a local variable.
+A variable in these types of scope can only be changed in the function the variable is defined or the nested fuctions. For example in Figure ~\ref{fig:js-closure}, variable \texttt{var1} in line 11 can only be changed in lines 10 to 23. Therefore, after locating the function in which the variable is defined, it is enough to parse the code inside the function block and set a hook on all lines where the variable is assigned a new value.% TODO lines or instruction???
+We also set a hook at the first line of the function which is corresponding to the line variable is defined. In Figure ~\ref{fig:js-closure}, if the execution is paused at line 17 and the last change of \texttt{var1} is queried, two hooks on lines 16 and 17 will be set, but if the execution is paused at line 20 , four hooks on lines 11, 12, 14, 20 will be set. These two cases are different due the fact that \texttt{var1} in \texttt{firstChild} is a local variable but in \texttt{secondChild} is a closure variable.
+
+Everytime one of the hooks hits a new change event is inserted to the list of change events. During execution the same variable might be changed several times but in different scopes. Figure ~\ref{fig:recursive} demonstrates one case that a scope identifier is necessary for locating the right answer. In this case the same variable \texttt{x} is changed several times but in different scopes due to the recursive calls. Without the scope id calling \textit{lastChange(x)} at point C will return point B while the right answer is point A.
 
 \begin{figure}[htp]
 \begin{verbatim}
 
-Recursive function: 
- f(){
-   var x;
-   x++;
-   f();
-   x; 
-   ...
- }
+  function f(){
+    var x;
+    x++;
+    f();
+  }
 
-The trace of recursive calls:
+Sample Trace:
 
-  f was called.
-    x changes; // A
-      f was called;
-        x changes;
-        f was called 
-          x changes; //C
-    //C 
+   f()
+A  |  x changes; 
+   |  f()
+   |  |  x changes;
+   |  |  f()
+B  |  |  |  x changes; 
+C  |  ?
 
 \end{verbatim}
-\caption{Recursive calls.}
+\caption{A recursive call trace demonstrates the need for scope id. Querying \textit{lastChange} on \texttt{x} at point C should return point A not B.}
 \label{fig:recursive}
 \end{figure}
 
@@ -262,7 +255,7 @@ The trace of recursive calls:
 \label{fig:foo-changes2}
 \end{figure}
 
-Everytime one of the hook hit a new event is inserted to the list of events. To separate irrelvant event from each other, we use a special variable \texttt{\_scopeId}. If the scope has this variable, the value of this variable is used for the scope id otherwise a new id will be generated and \texttt{\_scopeId} variable is created by \texttt{eval()} function in the scope. For example evaluating \texttt{var \_scopeId = 50} will create a variable with name \texttt{\_scopeId} and value \texttt{50} in the local scope. Consider that even in the case of closure scopes, \texttt{\_scopeId} is set when the variable first defined and the variable's scope is still local. Figure ~\ref{fig:recursive} demonstrates one case that scope id is necessary for identifying the right answer. In thiss case the same variable \texttt{x} is changed several times but in different scopes due to recursive calls. Without the scope id calling \textit{lastChange(x)} at point C will return point B while the right answer is point A.
+The scope id is kept as a variable in the scope, \texttt{\_scopeId}. As we said, a hook is set on the first instruction of the function defines the variable. Whenever this hook hits,  \texttt{\_scopeId} variable is set by \texttt{eval()} function. For example evaluating \texttt{var \_scopeId = 50} will create a variable with name \texttt{\_scopeId} and value \texttt{50} in the local scope.
  
 \subsection{\textit{lastChange} on \textit{lastChange}}
 The algorithm we explained so far needs an enhancement to support longer sequence of \textit{lastChange}s. We explain first the issue and then the solution. Consider the following points:
@@ -274,23 +267,21 @@ The algorithm we explained so far needs an enhancement to support longer sequenc
  point C : lastChange(B, baz.y) 
  }
  \end{center}
-According the algorithm explained in the previous section none of the points B and C can be identified before reaching point A. Therefore, all \texttt{x} changes for piont B and all \texttt{y} changes for point C are stored. Once the execution reaches point A, and the exact \texttt{bar} id reveals, point B can be identified among the items in the history of \texttt{x} changes. The problem arises in recognizing point C. To recognize point C, we need \texttt{baz} id at point B, but B is a past program state, and \texttt{baz} id has not been collected at this point. 
+According to the algorithm explained in the previous section none of the points B and C can be identified before reaching point A. Therefore, all \texttt{x} changes for piont B and all \texttt{y} changes for point C are stored. Once the execution reaches point A, and the exact \texttt{bar} id reveals, point B can be identified among the change events in the history of \texttt{x} changes. The problem arises in recognizing point C. To recognize point C, we need \texttt{baz} id at point B, but B is a past program state, and \texttt{baz} id has not been collected at this point. 
+
+To address this issue, debugger does a dependency analysis between all \textit{lastChange} queries and computes the additional data required to be collected at each point. For example in the mentioned case, \texttt{baz} id- if it is available- should be collected at all points \texttt{x} changes. Having this additional data, locating point C, using \texttt{baz} id at point B is straightforward (Figure ~\ref{fig:lastchange-lastchange}).
 
 \begin{algorithm}
 \caption{\textit{lastChange} queries dependency analysis.}
 \label{dependency-analysis}
 \begin{algorithmic}
 
-%\FORALL{xxx}%q in queries} 
 \FOR{$q$ in $queries$} 
- \FOR {$p$ defined at the $q$ result}
-   %\STATE \COMMENT{p = lastChange(q, bar.foo)}        	
+ \FOR {$p$ was defined at the $q$ result}
    \IF {$p$ is a lastChange on object property} 
-     
-     \STATE Store $foo$ id at $q$. 
-   \ELSE %\STATE \COMMENT{lastChange on variable}
-    % \STATE \COMMENT{p = lastChange(q, foo)}        	
-     \STATE Store $foo$ scope id at $q$.
+     \STATE property id should be stored at $q$ change events. 
+   \ELSIF {$p$ is a lastChange on variable} 
+     \STATE variable scope id should be stored at $q$ change events.
 	 \ENDIF 
  \ENDFOR 
 \ENDFOR
@@ -304,7 +295,7 @@ According the algorithm explained in the previous section none of the points B a
 \label{fig:lastchange-lastchange}
 \end{figure}
 
-To address this issue, debugger does a dependency analysis between all \textit{lastChange} queries and computes the additional data needs to be collected at each point. For example in the mentioned case, \texttt{baz} id- if it is available- should be collected at all points \texttt{x} changes. Having this additional data, locating point C, using the \texttt{baz} id at point B is straightforward (Figure ~\ref{fig:lastchange-lastchange}).
+
 
 
 %---------------------------------------------------------------------------------------------------
