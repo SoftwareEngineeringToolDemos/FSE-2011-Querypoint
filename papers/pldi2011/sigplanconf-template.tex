@@ -168,7 +168,7 @@ effort from the developer. By right clicking on
 \textit{lastChange} command (Figure ~\ref{fig:example2}). Debugger
 re-executes the program and halts again at the breakpoint on line 22.
 However, it shows a new QP panel, centered on the source at line 29
-(Figure ~\ref{fig:example3}), the point of \testit{lastChange}.  To
+(Figure ~\ref{fig:example3}), the point of \textit{lastChange}.  To
 the right, the TraceData panels shows values of properties from the
 program state when it passed through line 29.  These two panels
 resemble the Script and Watch panels, but they show data collected by
@@ -256,7 +256,7 @@ As we shown in the previous section, a \textit{lastChange} query can be performe
 \textit{lastChange} can be called on two different types of values: An object property or a variable value. In JavaScript, every available variable in a frame comes from one of the scopes in the frame's scope chain. There are five different scope types: global, local, with, catch, closure. We explain each case separately.
 
 \subsection{\textit{lastChange} on object propery}
-To simplify the algorithm explanation and avoid technical details, we assume two basic operations and later we explain the details of this two operations. The first opertion is \texttt{objectId()} which gets a JavaScript object and returns an integer as its identifier. This identifier is unique for every object during one execution. The second operation is \texttt{setPropertyChangeHook()} which gets function as the callback and a string as the property name like \texttt{foo}. Whenever property \texttt{foo} in any object changes the callback will be called. The callback function receives a reference to the owner of \texttt{foo}.
+To simplify the algorithm explanation and avoid technical details, we assume two basic operations and later we explain the details of these two operations. The first opertion is \texttt{objectId()} which gets a JavaScript object and returns an integer as its identifier. This identifier is unique for every object during one execution. The second operation is \texttt{setPropertyChangeHook()} which gets function as the callback and a string as the property name like \texttt{foo}. Whenever property \texttt{foo} in any object changes the callback will be called. The callback function receives a reference to the owner of \texttt{foo}.
 
 
 \begin{figure}[htp]
@@ -265,14 +265,8 @@ To simplify the algorithm explanation and avoid technical details, we assume two
 \label{fig:foo-changes1}
 \end{figure}
 
-Once developer asks for the last change of \texttt{bar.foo} at the reproduction point, debugger calls \texttt{setPropertyChangeHook()} with \texttt{foo} as the property name and re-executes the program. Whenever \texttt{foo} changes and the callback function is called, debugger first calls \texttt{objectId()} on the \texttt{foo} owner object. Then it stores owner id and stack frame locations. The reason we keep object id instead of a reference to the object itself is to let garbage collector to destroy dead objects. Whenever the execution reaches the reproduction point it looks at the history of \texttt{foo} changes and finds the last \texttt{foo} change with the same object id as \texttt{bar} id at the reproduction point. Figure ~\ref{fig:foo-changes1} shows the list of property \texttt{foo} change events in a hypothetical execution. \texttt{bar} id at the reproduction point is 1010, so the last change of \texttt{bar.foo} is the forth column.
+Once developer asks for the last change of \texttt{bar.foo} at the reproduction point, debugger calls \texttt{setPropertyChangeHook()} with \texttt{foo} as the property name and re-executes the program. Whenever \texttt{foo} changes and the callback function is called, debugger first calls \texttt{objectId()} on the \texttt{foo} owner object. Then it stores owner id and stack frame locations. The reason we keep object id instead of a reference to the object itself is to let garbage collector to destroy dead objects. Whenever the execution reaches the reproduction point it looks at the history of \texttt{foo} changes and finds the last \texttt{foo} change with the same object id as \texttt{bar} id at the reproduction point. Figure ~\ref{fig:foo-changes1} shows the list of property \texttt{foo} change events in a hypothetical execution. \texttt{bar} id at the reproduction point is 1010, so the last change of \texttt{bar.foo} is the fourth column.
 
-\subsubsection{\texttt{objectId()}}
-The object id is kept as a property of the object, \texttt{\_objectid}, which is not enumerable. Therefore, it will not appear in \texttt{for(property in object)} loops and has no effect on the executing program. Once \texttt{objectId()} is called on an object and the object has not \texttt{\_objectId} property, this property is defined by calling \texttt{defineProperty} JavaScript function. As a parameter it can be specified that the defined property is not enumerable. Then it is enough to assign a new generated id to this property.
-
-\subsubsection{\texttt{setPropertyChangeHook()}}
-To implement this operation, we use two features that are available in Firefox JavaScript engine. First, every regular JavaScript object has a \texttt{watch()} function which receives two parameters, a property name and another function as a callback. Whenever the property with the given name changes the calleback function is called. The hook is set by this function is enabled even if the property is removed and added again [ref]. The issue with this function is that it can only be applied to available objects. However, at the beginning of re-execution there is no object available. To solve this issue we use the second feature. Enabling a flag gives us the place the object created including the JavaScript file url and line number (e.g., myFile.js, line 24). Though this is a limited data, it helps us to get a reference to the object once it is created. Then it is enough to set objet id and call \texttt{watch()} with the property name. In section 4.1, we explain how we get reference to the created objects.
- 
 \subsection{\textit{lastChange} on variable} 
 In JavaScript, every frame has a scope chain and every available variable in the frame comes from one of the scopes in the frame's scope chain. Once developer asks for the last change of variable \texttt{foo} at the reproduction point, debugger first determines the variable's scope as follows: it iterates over the scopes in the scope chain and the first scope which has a variable with the same name is the variable's scope. There are five different scope types: local, global, \texttt{with}, closure, \texttt{catch}. We explain these cases in two groups.
 
@@ -339,7 +333,6 @@ C  |  ?
 \label{fig:foo-changes2}
 \end{figure}
 
-The scope id is kept as a variable in the scope, \texttt{\_scopeId}. As we said, a hook is set on the first instruction of the function defines the variable. Whenever this hook hits,  \texttt{\_scopeId} variable is set by \texttt{eval()} function. For example evaluating \texttt{var \_scopeId = 50} will create a variable with name \texttt{\_scopeId} and value \texttt{50} in the local scope.
  
 \subsection{\textit{lastChange} on \textit{lastChange}}
 The algorithm we explained so far needs an enhancement to support longer sequence of \textit{lastChange}s. We explain first the issue and then the solution. Consider the following points:
@@ -386,8 +379,20 @@ To address this issue, debugger does a dependency analysis between all \textit{l
 \section{JavaScript implementation}
 The JavaScript prototype is implemented as an extension to Firebug[] javasrcipt debugger. 
 
-\subsection{Tracking object creation}
+
+\subsection{Algorithm technical details}
+\subsubsection{\texttt{objectId()}}
+The object id is kept as a property of the object, \texttt{\_objectid}, which is not enumerable. Therefore, it will not appear in \texttt{for(property in object)} loops and has no effect on the executing program. Once \texttt{objectId()} is called on an object and the object has not \texttt{\_objectId} property, this property is defined by calling \texttt{defineProperty} JavaScript function. As a parameter it can be specified that the defined property is not enumerable. Then it is enough to assign a new generated id to this property.
+
+\subsubsection{\texttt{scopeId()}}
+The scope id is kept as a variable in the scope, \texttt{\_scopeId}. As we said, a hook is set on the first instruction of the function defines the variable. Whenever this hook hits,  \texttt{\_scopeId} variable is set by \texttt{eval()} function. For example evaluating \texttt{var \_scopeId = 50} will create a variable with name \texttt{\_scopeId} and value \texttt{50} in the local scope.
+
+\subsubsection{\texttt{setPropertyChangeHook()}}
+To implement this operation, we use two features that are available in Firefox JavaScript engine. First, every regular JavaScript object has a \texttt{watch()} function which receives two parameters, a property name and another function as a callback. Whenever the property with the given name changes the calleback function is called. The hook is set by this function is enabled even if the property is removed and added again [ref]. The issue with this function is that it can only be applied to available objects. However, at the beginning of re-execution there is no object available. To solve this issue we use the second feature. Enabling a flag gives us the place the object created including the JavaScript file url and line number (e.g., myFile.js, line 24). Though this is a limited data, it helps us to get a reference to the object once it is created. Then it is enough to set objet id and call \texttt{watch()} with the property name. In section 4.1, we explain how we get reference to the created objects.
+ 
+\subsubsection{Tracking object creation}
 Now we discuss two mentioned assumptions. In the standard JavaScript every object has a \texttt{watch()} function which receives two parameters, a property name and another function as a hook. Whenever the property with the given name changes the hook function is called. The issue with using this function is that it can only be applied to available objects. However, at the beginning of re-execution there is no object available. To solve this issue we use a feature in Firefox JavaScript engine, setting a flag gives us the place the object created (e.g., myFile.js, line 24). Though this is a limited data it can help us to get a reference to the object once it is created. Therefore, at the reproduction point, debugger gets the creation location of \texttt{bar} and once the execution reaches to that location it gets a reference to the created object and sets a unique id for it.
+
 
 \subsection{Execution reproduction}
 Altough execution reproduction is basicly should be provided by the developer, we tried to devise some automatic way which reproduces the execution. In the prototype, develooper can choose among three reproduction options. The first one is using a test case which provided by developer. The second one is by record and replay and the third one is local-reproduction.
@@ -433,6 +438,8 @@ In this important case of reproducible bugs, \textit{lastChange} are more effect
 In the case of a non-deterministic program, a \textit{lastChange} is not equivalent to any series of conventional watchpoints or breakpoints. Each time we re-execute a non-deterministic program, the details of execution in-struction order may change. For example, if we record the source code lines every time a conventional watchpoint hits, the record may differ each time we re-execute. Sup-pose we consult one such record and set a breakpoint on the last entry, the apparent lastChange source line. When we re-execute, the breakpoint will hit, but the information we gain may be incorrect: this may not be the lastChange for this particular re-execution. The \textit{lastChange} method records the values we need and the sequence of source lines from all of the watchpoints, then analyzes the record to select the correct lastChange point. The data shown to the developer will be internally consistent, but of course it may change from a previous re-execution, surprising the developer. This is just a signal that the execution is not deterministic. In future we hope to compare queries from successive executions as a tool for learning about non-deterministic executions.
 
 \section{Evaluation}
+\subsection{Execution overhead analysis}
+%If we assume for every change event k additionial instructions should be executed and the number of instructions executed in one execution is n and the number of change %events is m then the total amount of instructions is n+mk. The overhead is mk/n. for m=10^3, k=10^2 and n=10^10 the overhead is very low about 10^-5.
 
 \section{Related Work}
 
