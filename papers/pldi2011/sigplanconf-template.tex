@@ -377,7 +377,7 @@ To address this issue, debugger does a dependency analysis between all \textit{l
 
 %---------------------------------------------------------------------------------------------------
 \section{JavaScript implementation}
-The JavaScript prototype is implemented as an extension to Firebug[] javasrcipt debugger. 
+The JavaScript prototype is implemented as an extension to Firebug\cite{Firebug} javasrcipt debugger. In this section, first we explain technical details for the \textit{lastChange} implementation skipped in the previous section. Then we address other issues, such as re-execution, data collection and presentation.
 
 
 \subsection{Algorithm technical details}
@@ -391,18 +391,26 @@ The scope id is kept as a variable in the scope, \texttt{\_scopeId}. As we said,
 To implement this operation, we use two features that are available in Firefox JavaScript engine. First, every regular JavaScript object has a \texttt{watch()} function which receives two parameters, a property name and another function as a callback. Whenever the property with the given name changes the calleback function is called. The hook is set by this function is enabled even if the property is removed and added again [ref]. The issue with this function is that it can only be applied to available objects. However, at the beginning of re-execution there is no object available. To solve this issue we use the second feature. Enabling a flag gives us the place the object created including the JavaScript file url and line number (e.g., myFile.js, line 24). Though this is a limited data, it helps us to get a reference to the object once it is created. Then it is enough to set objet id and call \texttt{watch()} with the property name. In section 4.1, we explain how we get reference to the created objects.
  
 \subsubsection{Tracking object creation}
-Now we discuss two mentioned assumptions. In the standard JavaScript every object has a \texttt{watch()} function which receives two parameters, a property name and another function as a hook. Whenever the property with the given name changes the hook function is called. The issue with using this function is that it can only be applied to available objects. However, at the beginning of re-execution there is no object available. To solve this issue we use a feature in Firefox JavaScript engine, setting a flag gives us the place the object created (e.g., myFile.js, line 24). Though this is a limited data it can help us to get a reference to the object once it is created. Therefore, at the reproduction point, debugger gets the creation location of \texttt{bar} and once the execution reaches to that location it gets a reference to the created object and sets a unique id for it.
+Having the source file url and the line number in wich the object created, we want to get a reference to the created object. Due to the fact that more than one object might be created in a line and there is no way to distinguish between them, we get references to all created objects. 
+By parsing the source code we can find all statements that create a new object. It might be an object constructed by \texttt{\{\}} or \texttt{new ... } or spcial objects like function which can be created by \texttt{function()}.
+Every recently created object might be assigned to a variable or property by \texttt{=} or \texttt{:} or be passed to a function as an argument.
+For the first two case we create a list of assignees.
+Having the list of possible assignees we do stepping and after every step we check those assignees values and if the value is changed, we consider the new value
+ as a created object.
 
-
+ %One solution is to assume that jsd has features that simplify it:first: Setting the flag (object track) returns the exact location of object creation instead of the line number.second: It is possible to set hook on object creation and this returns a reference to the created object.
+ %Then we can explain it like this: We set a breakpoint at the location object is created and we enable the object creation hook.  We do steppingfor one instruction and we get the reference.
+ 
 \subsection{Execution reproduction}
 Altough execution reproduction is basicly should be provided by the developer, we tried to devise some automatic way which reproduces the execution. In the prototype, develooper can choose among three reproduction options. The first one is using a test case which provided by developer. The second one is by record and replay and the third one is local-reproduction.
 
 Two parts should be carefully considered in execution reproduction. First, the initial state should be the same as previous execution. Second, the similar actions and events should be applied to the program during the execution. In the record and replay approach, debugger stores the initial page url and user actions and during replay phase, opens the same url and emulates user actions. 
 In the local reproduction approach, debugger calls the funtion on the bottom of stack with the same parameters.
 
-\subsection{Data collection}
+\subsection{Data collection and presentation}
+In additional to the data collected by the \textit{lastChange} algorithm to correctly identify the last change, the list of available variables and their values (one level) are collected.
 
-\subsection{User interface}
+
 
 \section{Converting \textit{lastChange} result to a conditional breakpoint}
 We believe that in many cases it is possible to convert the \textit{lastChange} result to a conditional breakpoint and therefore debugger is able to pause at the point
@@ -427,7 +435,6 @@ Figure ~\ref{fig:counter-example} shows a function with processes an array. The 
 \end{figure}
  
 
-%\section{}
 %---------------------------------------------------------------------------------------------------
 \section{Reproducible Non-deterministic Execution}
 Thus far we have not discussed problems caused by mul-tiple threads or other sources of non-deterministic execu-tions. We want to explain why we believe \textit{lastChange} is robust in the practically important case where a bug is reproducible even though the execution may not be deterministic. 
@@ -486,6 +493,9 @@ June, 2000.
 J.K. Czyz, and B. Jayaraman. \newblock Declarative and visual debugging in Eclipse.
 \newblock In \emph{OOPSLA workshop on eclipse technology eXchange},
 October, 2007.
+
+\bibitem[Firebug(2010)]{Firebug}
+Firebug. \newblock http://getfirebug.com.
 
 \bibitem[Ko(2008)]{Ko}
 A.J. Ko, and B.A. Myers. \newblock Debugging reinvented: asking and answering why and why not questions about program behavior.
