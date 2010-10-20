@@ -70,31 +70,36 @@ The rest of the paper is organized as follows. First, we demonstrate the \textit
 \section{Introductory example}
 
 We illustrate the \textit{lastChange} functionality by a simple
-example. The example demonstrates a buggy JavaScript code in a html
+example. The example demonstrates a buggy JavaScript code in a HTML
 page (Figure ~\ref{fig:js-code}). The page contains a button (line 40)
-which shows the value of \texttt{myObject.myProperty}. It is supposed
-that whenever user clicks on the button, the value of
-\texttt{myObject.myProperty} and therefore button's label is increased
-by one. Once the page is loaded for the first time the button shows
-\texttt{1} as the initial value of \texttt{myObject.myProperty}. The
-bug happens when user clicks on the button and instead of \texttt{2},
-\texttt{0} appears.
-
-Once user clicks on the button, \texttt{onClick} function (line 13) is
+showing the value of \texttt{myObject.myProperty}.  When the user
+clicks on the button, the \texttt{onClick} function (line 13) is
 called. This function increases the value of
 \texttt{myObject.myProperty} by one (line 15) and calls
 \texttt{updateButton} function which updates button's text to the new
-value (line 22). To start debugging, the developer sets a breakpoint
+value (line 22).  Once the page is loaded for the first time the
+button shows \texttt{1} as the initial value of
+\texttt{myObject.myProperty}.  In practice when the user clicks on the
+button, \texttt{0} appears instead of \texttt{2}: there is a bug.
+
+Two other functions are called in \texttt{onClick()}, \texttt{foo()}
+and \texttt{bar()}. As developers we often encounter function calls
+which seem perpheral to our current concern; they may have been added
+by another developer, or we may have forgotten their exact properties
+or those properties may have changed, and so on. The difference
+between what we expect these functions to do, e.g. nothing
+interesting, and what they do in practice may cause bugs.
+
+To start debugging, the developer sets a breakpoint
 on line 22 and once the button is clicked execution is paused at line
 22. Figure ~\ref{fig:example1} shows the Firebug debugger while the
-execution is paused. Firebug has several panels (e.g., html, css,
-script, dom, etc.) that each one demonstrate one aspect of JavaScript
-execution. The script panel contains the list of all loaded source
+execution is paused. Firebug has several panels (e.g., HTML, CSS,
+Script, DOM, etc.) that each demonstrate one aspect of the Web page.
+The Script panel contains the list of all loaded source
 files and regular debugging facilities such as setting breakpoints and
-stepping. The right panel in the script panel shows the program state
-and developer can examine object and variable values. In our case, the
-\texttt{myObject.myProperty} value at the paused point is zero which
-is obviously a wrong value.
+stepping. To the right of the script panel, the Watch panel shows the program state
+where the developer can examine object and variable values. In our case, the
+\texttt{myObject.myProperty} value at the paused point is zero. We expected this value to be \texttt{2}.
 
 \begin{figure}[htp]
 \begin{verbatim}
@@ -130,7 +135,7 @@ is obviously a wrong value.
 42  </button>
 43 </html>
 \end{verbatim}
-\caption{The buggy JavaScript code in a html page.}
+\caption{A Web page containing JavaScript code. Some lines not related to our paper have been elided.}
 \label{fig:js-code}
 \end{figure}
 
@@ -145,50 +150,51 @@ To apply backward search strategy for locating defects, the developer
 first needs to know the origin to the wrong value. To achieve this
 goal using breakpoints, the developer should search code to find and
 set breakpoint at all possible places that
-\texttt{myObject.myProperty} might get a new value. Having the fact
-that an object and property can be accessed and changed through
-different names and methods, we realize that the difficulty of this
-task. Even if the developer could sucessfully finish this step (There
-is no simple way to check it!), the next step is monitoring the
-re-execution and collecting data at breakpoint hits before reaching
-line 22. All this work should be repeated if an origin was missed in
-the first step or if the data was collected in the second step is
-insufficient.
+\texttt{myObject.myProperty} might get a new value.  However, an
+object and property can be accessed and changed through different
+names and methods. There is no simple way to identify these alias or
+even their total number.  The developer can make a good guess and set
+breakpoints on lines where the property seems to be changed. Then they
+re-execute the program and examine the state looking for values that
+may lead to the incorrect value observed at line 22. All this work
+must be repeated if a new alias is discovered or if the some
+information related to the buggy result was missed while stopped on
+one of the breakpoints.
 
 In contrast, we propose a high-level function in debugger,
-\textit{lastChange}, which provides the answer without demanding
-anymore effort from the developer. By right clicking on
-\texttt{myObject.myProperty} in the right panel, the developer can run
+\textit{lastChange}, which provides the answer without tedious manual
+effort from the developer. By right clicking on
+\texttt{myObject.myProperty} in the Watch panel, the developer can run
 \textit{lastChange} command (Figure ~\ref{fig:example2}). Debugger
-considers the paused point at the breakpoint as the reproduction
-point, and re-executes the buggy execution, pauses at the reproduction
-point and shows line 29 in a new panel (Figure
-~\ref{fig:example3}). The program state debugger shows on the right
-panel belongs to the past. Therefore the right panel just shows the
-partially collected data. If the developer needs some values which are
-not available in the right panel, debugger re-executes another time
-and collects and shows the requested data.
-
+re-executes the program and halts again at the breakpoint on line 22.
+However, it shows a new QP panel, centered on the source at line 29
+(Figure ~\ref{fig:example3}), the point of \testit{lastChange}.  To
+the right, the TraceData panels shows values of properties from the
+program state when it passed through line 29.  These two panels
+resemble the Script and Watch panels, but they show data collected by
+the debugger at an execution point which has now past: these are
+'traces' or 'logs' of information collected during the re-execution.
 
 \begin{figure*}[htp]
 
-\subfigure[A view of Firebug JavaScript debugger. The selected script
-  panel, presents all loaded JavaScript code. Developer has access to
-  all loaded source file and can set breakpoints on lines. In this
+\subfigure[A screen shot of the Firebug debugger while running the example code from Fig.~\ref{fig:example2}. The Script
+  panel is selected; it gives access to
+  all loaded source files and allows breakpoints to be set on lines. In this
   figure, the execution is paused at line 22 by a regular
-  breakpoint. The panel at the right site shows the program state at
+  breakpoint. The Watch panel at the right shows the program state at
   the paused
   point. ]{\label{fig:example1}\includegraphics[width=1.0\textwidth,
     height=.19\textheight]{1-bp22.jpg}}
 
-\subfigure[Developer can query \textit{lastChange} on a value by right
-  clicking on the
-  value.]{\label{fig:example2}\includegraphics[width=1.0\textwidth,
+\subfigure[Developer can query \textit{lastChange} on a value by right-clicking 
+on the
+  value of \texttt{myProperty}.]{\label{fig:example2}\includegraphics[width=1.0\textwidth,
     height=.19\textheight]{2-bp22-lastChange.jpg}}
 
 \subfigure[The result of \textit{lastChange} query for
-  \texttt{myObject.myProperty}. The right panel shows the collected
-  data at the
+  \texttt{myObject.myProperty}. The left panel, QP, shows the source
+  code at the point of \textit{lastChange}; The right panel,
+  TraceData, shows the collected data at the
   point.]{\label{fig:example3}\includegraphics[width=1.0\textwidth,
     height=.23\textheight]{3-lastChange.jpg}}
 
@@ -212,13 +218,13 @@ on \texttt{myCondition.value} at this point. Debugger re-executes the
 execution and pauses at the reproduction point and shows line 25-the
 place \texttt{undefined} value is assigned to
 \texttt{myCondition.value} (Figure ~\ref{fig:example3}). Now it is
-clear that the bug occures because \texttt{oldValue} is
+clear that the bug occurs because \texttt{oldValue} is
 \texttt{undefined} once execution reaches line 25.
 
 As demonstrated in Figure ~\ref{fig:example-points}, the developer
-examinated three points of execution. Excepting the first point which
-debugger pause execution at that point, the second and third points
-are in the past and are shown by dotted line. These points-the history
+examinated three points of execution. The first point was the breakpoint set by the developer.
+The second and third points preceded the breakpoint in time.
+All three points-the history
 of the search for the defect-are available through the debugger's
 interface. On the top of the left panel in Figure ~\ref{fig:example3}
 there is an opened list which shows all three examinated points. The
@@ -237,9 +243,8 @@ state of the program memory and the call stack are available at the
 lastChange point. Like log-based debugging, the program state and the
 call stack are recorded during program execution. We can't halt the
 program at \textit{lastChange} because we don't know which is the last
-one until we return to the original breakpoint. In section 5 we
-discuss about the possibility of pausing at \textit{lastChange}
-results.
+one until we return to the original breakpoint. (In section 5 we
+discuss cases were it is possible to pause at lines of \textit{lastChange}).
 
 %---------------------------------------------------------------------------------------------------
 \section{\textit{lastChange} Algorithm}
