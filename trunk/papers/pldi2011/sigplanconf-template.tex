@@ -309,7 +309,7 @@ Everytime one of the hooks hits a new change event is inserted to the list of ch
   function f(){
     var x;
     x++;
-    f();
+    if (!stop) f();
   }
 
 Sample Trace:
@@ -412,12 +412,12 @@ Case 1:
 
 Case 2:
 19  parentObject = {
-20   	  self : {
+20   	  newObject : {
 21  			x : 5
 22  }}
 
 Case 3:
-20 myFunction({myProperty:5})
+20 myFunction({myProperty:5});
  
 \end{verbatim}
 \caption{A few cases shows possible object creations.}
