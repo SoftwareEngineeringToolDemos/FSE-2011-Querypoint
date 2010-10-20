@@ -388,19 +388,43 @@ The object id is kept as a property of the object, \texttt{\_objectid}, which is
 The scope id is kept as a variable in the scope, \texttt{\_scopeId}. As we said, a hook is set on the first instruction of the function defines the variable. Whenever this hook hits,  \texttt{\_scopeId} variable is set by \texttt{eval()} function. For example evaluating \texttt{var \_scopeId = 50} will create a variable with name \texttt{\_scopeId} and value \texttt{50} in the local scope.
 
 \subsubsection{\texttt{setPropertyChangeHook()}}
-To implement this operation, we use two features that are available in Firefox JavaScript engine. First, every regular JavaScript object has a \texttt{watch()} function which receives two parameters, a property name and another function as a callback. Whenever the property with the given name changes the calleback function is called. The hook is set by this function is enabled even if the property is removed and added again [ref]. The issue with this function is that it can only be applied to available objects. However, at the beginning of re-execution there is no object available. To solve this issue we use the second feature. Enabling a flag gives us the place the object created including the JavaScript file url and line number (e.g., myFile.js, line 24). Though this is a limited data, it helps us to get a reference to the object once it is created. Then it is enough to set objet id and call \texttt{watch()} with the property name. In section 4.1, we explain how we get reference to the created objects.
- 
+To implement this operation, we use two features that are available in Firefox JavaScript engine. First, every regular JavaScript object has a \texttt{watch()} function which receives two parameters, a property name and another function as a callback. Whenever the property with the given name changes the calleback function is called. The hook is set by this function is enabled even if the property is removed and added again [ref]. The issue with this function is that it can only be applied to available objects. However, at the beginning of re-execution there is no object available. To solve this issue we use the second feature. Enabling a flag gives us the place the object created including the JavaScript file url and line number (e.g., myFile.js, line 24). Though this is a limited data, it helps us to get a reference to the object once it is created. Then it is enough to set objet id and call \texttt{watch()} with the property name. Consider that in this way, we implicitly assume that the object will be created at the same place in the next re-executions. This assumption will be discussed later.
+
+In the next section, we explain the algorithm for getting a reference to the object after its creation. We could replace this algorithm with a much simpler algorithm if Firefox supported these two features. First instead of line number of object creation point, it gave us the program counter. Second, there was a way to hook object creation and get a reference to the created object. Having this two features, it was enough to set a hook at the instruction and once the execution reaches to instruction, we enable the object creation hook and we step one instruction and we get the reference to the object.
+
 \subsubsection{Tracking object creation}
 Having the source file url and the line number in wich the object created, we want to get a reference to the created object. Due to the fact that more than one object might be created in a line and there is no way to distinguish between them, we get references to all created objects. 
-By parsing the source code we can find all statements that create a new object. It might be an object constructed by \texttt{\{\}} or \texttt{new ... } or spcial objects like function which can be created by \texttt{function()}.
-Every recently created object might be assigned to a variable or property by \texttt{=} or \texttt{:} or be passed to a function as an argument.
-For the first two case we create a list of assignees.
-Having the list of possible assignees we do stepping and after every step we check those assignees values and if the value is changed, we consider the new value
- as a created object.
+By parsing the source code we can find all statements that create a new object. It might be an object constructed by object initializer(\texttt{\{...\}}) or \textit{new} operator (\texttt{new constructor()}) or function objects which can be created by \texttt{function()} statement.
+Every created object might be assigned to a statement (which is evaluated as a pointer) by \texttt{=} or object property by \texttt{:} or might be passed to a function as an argument.
+For the first case, by parsing the code we create the list of all statements. For the second case, we also create the full path of object property in the scope.
+We set a breakpoint at the line and once the breakpoint hits, we evaluate all statements in the list and we do stepping and after every step we check those assignees values and if the value is changed, we consider the new value as a created object.
 
  %One solution is to assume that jsd has features that simplify it:first: Setting the flag (object track) returns the exact location of object creation instead of the line number.second: It is possible to set hook on object creation and this returns a reference to the created object.
  %Then we can explain it like this: We set a breakpoint at the location object is created and we enable the object creation hook.  We do steppingfor one instruction and we get the reference.
  
+ %I was thinking that perhaps Fireforx 4.0 may support these features.I know that in the new version of JS (1.8.5) and Fireforx 4.0 there is a new function Object(), which is the main object constructor. If for all cases of object creations ({}, new, function),  the engine first calls this function then by modifying or setting a hook in this function we can track object creation. Do you know anyone in Mozilla team who can answer this question?Do you know whether firefox 4 still supports objectTrace flag or not? 
+ 
+
+\begin{figure}[htp]
+\begin{verbatim}
+Case 1:
+20 x.y = new myConstructor();
+
+Case 2:
+19  parentObject = {
+20   	  self : {
+21  			x : 5
+22  }}
+
+Case 3:
+20 myFunction({myProperty:5})
+ 
+\end{verbatim}
+\caption{A few cases shows possible object creations.}
+\label{fig:objectCreation}
+\end{figure}
+
+  
 \subsection{Execution reproduction}
 Altough execution reproduction is basicly should be provided by the developer, we tried to devise some automatic way which reproduces the execution. In the prototype, develooper can choose among three reproduction options. The first one is using a test case which provided by developer. The second one is by record and replay and the third one is local-reproduction.
 
