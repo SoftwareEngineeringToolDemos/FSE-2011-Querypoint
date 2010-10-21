@@ -251,33 +251,107 @@ discuss cases were it is possible to pause at lines of \textit{lastChange}).
 %---------------------------------------------------------------------------------------------------
 \section{\textit{lastChange} Algorithm}
 
-The story starts when developer examines the program state at a breakpoint hit and asks for the \textit{lastChange} of a value. The \textit{lastChange} algorithm is based on program re-execution. Therefore it is assumed that the execution can be reproduced automatically (e.g., by a given test case) or with the developer's assistance. The breakpoint hit becomes the \textit{reproduction point}. Debugger sets hooks on all instructions that might be the result of \textit{lastChange} query, re-executes the program, at every hook hit, \textit{change event}, collects limited data and once the execution reaches the reproduction point, it analyzes the collected data and shows the result. The result is a partial snapshot of the program state at the execution point that last change occured. 
+The story starts when developer examines the program state at a
+breakpoint hit and asks for the \textit{lastChange} of a value. The
+\textit{lastChange} algorithm is based on program
+re-execution. Therefore it is assumed that the execution can be
+reproduced automatically (e.g., by a given test case) or with the
+developer's assistance. The breakpoint hit becomes the
+\textit{reproduction point}. Debugger sets hooks on all instructions
+that might be the result of \textit{lastChange} query, re-executes the
+program, at every hook hit, \textit{change event}, collects limited
+data and once the execution reaches the reproduction point, it
+analyzes the collected data and shows the result. The result is a
+partial snapshot of the program state at the execution point that last
+change occured.
 
-As we shown in the previous section, a \textit{lastChange} query can be performed on the result of another \textit{lastChange} query. If we name the reproduction point \textit{R}, we can write the first \textit{lastChange} in the introductory example in this form: \textit{lastChange(R, myObject.myProperty)}. It means that this query is defined at \textit{R}. If we name the result of this query \textit{A}, we can write the second \textit{lastChange} in this form: \textit{lastChange(A, myCondition.value)}. In this way, a sequence of \textit{lastChange} queries with any length can be defined.
+As we shown in the previous section, a \textit{lastChange} query can
+be performed on the result of another \textit{lastChange} query. If we
+name the reproduction point \textit{R}, we can write the first
+\textit{lastChange} in the introductory example in this form:
+\textit{lastChange(R, myObject.myProperty)}. It means that this query
+is defined at \textit{R}. If we name the result of this query
+\textit{A}, we can write the second \textit{lastChange} in this form:
+\textit{lastChange(A, myCondition.value)}. In this way, a sequence of
+\textit{lastChange} queries with any length can be defined.
 
-\textit{lastChange} can be called on two different types of values: An object property or a variable value. In JavaScript, every available variable in a frame comes from one of the scopes in the frame's scope chain. We explain each case separately.
+\textit{lastChange} can be called on two different types of values: An
+object property or a variable value. In JavaScript, every available
+variable in a frame comes from one of the scopes in the frame's scope
+chain. We explain each case separately.
 
 \subsection{\textit{lastChange} on object propery}
-To simplify the algorithm explanation and avoid technical details, we assume two basic operations and later we explain the details of these two operations. The first opertion is \texttt{objectId()} which gets a JavaScript object and returns an integer as its identifier. This identifier is unique for every object during one execution. The second operation is \texttt{setPropertyChangeHook()} which gets function as the callback and a string as the property name like \texttt{foo}. Whenever property \texttt{foo} in any object changes the callback will be called. The callback function receives a reference to the owner of \texttt{foo}.
+To simplify the algorithm explanation and avoid technical details, we
+assume two basic operations and later we explain the details of these
+two operations. The first opertion is \texttt{objectId()} which gets a
+JavaScript object and returns an integer as its identifier. This
+identifier is unique for every object during one execution. The second
+operation is \texttt{setPropertyChangeHook()} which gets function as
+the callback and a string as the property name like
+\texttt{foo}. Whenever property \texttt{foo} in any object changes the
+callback will be called. The callback function receives a reference to
+the owner of \texttt{foo}.
 
 
 \begin{figure}[htp]
 \includegraphics[width=.48\textwidth]{6-foo-changes1.jpg}
-\caption{The list of property \texttt{foo} change events and \texttt{bar} id at the reproduction point which identifies the last change of \texttt{bar.foo} in the list. Column 3 is also a change of the object we want to study, id 1010, but it is not the last change; Column 5 is also a change of a property \texttt{foo} but its not for the object we are interested in.}
+\caption{The list of property \texttt{foo} change events and
+  \texttt{bar} id at the reproduction point which identifies the last
+  change of \texttt{bar.foo} in the list. Column 3 is also a change of
+  the object we want to study, id 1010, but it is not the last change;
+  Column 5 is also a change of a property \texttt{foo} but its not for
+  the object we are interested in.}
 \label{fig:foo-changes1}
 \end{figure}
 
-Once developer asks for the last change of \texttt{bar.foo} at the reproduction point, debugger calls \texttt{setPropertyChangeHook()} with \texttt{foo} as the property name and re-executes the program. Whenever \texttt{foo} changes and the callback function is called, debugger first calls \texttt{objectId()} on the \texttt{foo} owner object. Then it stores owner id and stack frame locations. The reason we keep object id instead of a reference to the object itself is to let garbage collector to destroy dead objects. Whenever the execution reaches the reproduction point it looks at the history of \texttt{foo} changes and finds the last \texttt{foo} change with the same object id as \texttt{bar} id at the reproduction point. Figure ~\ref{fig:foo-changes1} shows the list of property \texttt{foo} change events in a hypothetical execution. \texttt{bar} id at the reproduction point is 1010, so the last change of \texttt{bar.foo} is the fourth column.
+Once developer asks for the last change of \texttt{bar.foo} at the
+reproduction point, debugger calls \texttt{setPropertyChangeHook()}
+with \texttt{foo} as the property name and re-executes the
+program. Whenever \texttt{foo} changes and the callback function is
+called, debugger first calls \texttt{objectId()} on the \texttt{foo}
+owner object. Then it stores owner id and stack frame locations. The
+reason we keep object id instead of a reference to the object itself
+is to let garbage collector to destroy dead objects. Whenever the
+execution reaches the reproduction point it looks at the history of
+\texttt{foo} changes and finds the last \texttt{foo} change with the
+same object id as \texttt{bar} id at the reproduction point. Figure
+~\ref{fig:foo-changes1} shows the list of property \texttt{foo} change
+events in a hypothetical execution. \texttt{bar} id at the
+reproduction point is 1010, so the last change of \texttt{bar.foo} is
+the fourth column.
 
 \subsection{\textit{lastChange} on variable} 
-In JavaScript, every frame has a scope chain and every available variable in the frame comes from one of the scopes in the frame's scope chain. Once developer asks for the last change of variable \texttt{foo} at the reproduction point, debugger first determines the variable's scope as follows: it iterates over the scopes in the scope chain and the first scope which has a variable with the same name is the variable's scope. There are five different scope types: local, global, \texttt{with}, closure and \texttt{catch}. We explain these cases in two groups.
+In JavaScript, every frame has a scope chain and every available
+variable in the frame comes from one of the scopes in the frame's
+scope chain. Once developer asks for the last change of variable
+\texttt{foo} at the reproduction point, debugger first determines the
+variable's scope as follows: it iterates over the scopes in the scope
+chain and the first scope which has a variable with the same name is
+the variable's scope. There are five different scope types: local,
+global, \texttt{with}, closure and \texttt{catch}. We explain these
+cases in two groups.
 
 
 \subsubsection{global and \texttt{with} scopes}
-Global scope is the the most outer scope in the scope chain and it is also refered as global object which is usually \texttt{window} object. This scope is a regular JavaScript object and therefore every global variable is a property of global object. Similar to global scope, \texttt{with} scopes are also regular objects. A \texttt{with} scope is created by a \texttt{with()} block with an object as the parameter. Every property of passed object is available inside the block as a variable. Debugger treats the case where variable's scope is global or \texttt{with}, like \textit{lastChange} on an object property. 
+Global scope is the the most outer scope in the scope chain and it is
+also refered as global object which is usually \texttt{window}
+object. This scope is a regular JavaScript object and therefore every
+global variable is a property of global object. Similar to global
+scope, \texttt{with} scopes are also regular objects. A \texttt{with}
+scope is created by a \texttt{with()} block with an object as the
+parameter. Every property of passed object is available inside the
+block as a variable. Debugger treats the case where variable's scope
+is global or \texttt{with}, like \textit{lastChange} on an object
+property.
 
 \subsubsection{local, closure and \texttt{catch} scopes}
-Local scope refers to the most nested scope in the scope chain. Closure scope refers to the scope which is created once a function is defined. Catch scope is the scope created in the catch block of try-catch statements and contains the exception variable. These scopes are not necessarily regular JavaScript objects. Therefore, to track changes to a variable in these scopes we use a different strategy. 
+Local scope refers to the most nested scope in the scope
+chain. Closure scope refers to the scope which is created once a
+function is defined. Catch scope is the scope created in the catch
+block of try-catch statements and contains the exception
+variable. These scopes are not necessarily regular JavaScript
+objects. Therefore, to track changes to a variable in these scopes we
+use a different strategy.
 
 \begin{figure}[htp]
 \begin{verbatim}
@@ -300,8 +374,21 @@ Local scope refers to the most nested scope in the scope chain. Closure scope re
 \label{fig:js-closure}
 \end{figure}
 
-A variable in these types of scope can only be changed in the function the variable is defined or the nested fuctions. For example in Figure ~\ref{fig:js-closure}, variable \texttt{var1} in line 11 can only be changed in lines 10 to 23. Therefore, after locating the function in which the variable is defined, it is enough to parse the code inside the function block and set a hook on all lines where the variable is assigned a new value. % TODO lines or instruction??? 
-We also set a hook at the first line of the function which is corresponding to the line variable is defined. In Figure ~\ref{fig:js-closure}, if the execution is paused at line 17 and the last change of \texttt{var1} is queried, two hooks on lines 16 and 17 will be set, but if the execution is paused at line 20 , four hooks on lines 11, 12, 14, 20 will be set. These two cases are different due the fact that \texttt{var1} in \texttt{firstChild} is a local variable but in \texttt{secondChild} is a closure variable.
+A variable in these types of scope can only be changed in the function
+the variable is defined or the nested fuctions. For example in Figure
+~\ref{fig:js-closure}, variable \texttt{var1} in line 11 can only be
+changed in lines 10 to 23. Therefore, after locating the function in
+which the variable is defined, it is enough to parse the code inside
+the function block and set a hook on all lines where the variable is
+assigned a new value. % TODO lines or instruction??? 
+We also set a hook at the first line of the function which is
+corresponding to the line variable is defined. In Figure
+~\ref{fig:js-closure}, if the execution is paused at line 17 and the
+last change of \texttt{var1} is queried, two hooks on lines 16 and 17
+will be set, but if the execution is paused at line 20 , four hooks on
+lines 11, 12, 14, 20 will be set. These two cases are different due
+the fact that \texttt{var1} in \texttt{firstChild} is a local variable
+but in \texttt{secondChild} is a closure variable.
 
 \begin{figure}[htp]
 \begin{verbatim}
@@ -323,22 +410,39 @@ B  |  |  |  x changes;
 C  |  ?
 
 \end{verbatim}
-\caption{A recursive call trace demonstrates the need for scope id. Querying \textit{lastChange} on \texttt{x} at point C should return point A not B.}
+\caption{A recursive call trace demonstrates the need for scope
+  id. Querying \textit{lastChange} on \texttt{x} at point C should
+  return point A not B.}
 \label{fig:recursive}
 \end{figure}
 
 
-Everytime one of the hooks hits a new change event is inserted to the list of change events. During execution the same variable might be changed several times but in different scopes. Figure ~\ref{fig:recursive} demonstrates a case that the same variable \texttt{x} is changed several times but in different scopes due to the recursive calls. Without the scope id calling \textit{lastChange(x)} at point C will return point B while the right answer is point A. To address this issue, we employ \texttt{scopeId()} operation-explained in the next section-which returns a unique id for a scopes during on execution. The scope id is kept at every variable change event. Once the execution reaches the reproduction point, using variable's scope id, the last change is recognized. 
+Everytime one of the hooks hits a new change event is inserted to the
+list of change events. During execution the same variable might be
+changed several times but in different scopes. Figure
+~\ref{fig:recursive} demonstrates a case that the same variable
+\texttt{x} is changed several times but in different scopes due to the
+recursive calls. Without the scope id calling \textit{lastChange(x)}
+at point C will return point B while the right answer is point A. To
+address this issue, we employ \texttt{scopeId()} operation-explained
+in the next section-which returns a unique id for a scopes during on
+execution. The scope id is kept at every variable change event. Once
+the execution reaches the reproduction point, using variable's scope
+id, the last change is recognized.
 
 \begin{figure}[htp]
 \includegraphics[width=.48\textwidth]{7-foo-changes2.jpg}
-\caption{The list of variable \texttt{foo} change events and the \texttt{foo}'s scope id at the reproduction point which identifies the last change.}
+\caption{The list of variable \texttt{foo} change events and the
+  \texttt{foo}'s scope id at the reproduction point which identifies
+  the last change.}
 \label{fig:foo-changes2}
 \end{figure}
 
  
 \subsection{\textit{lastChange} on \textit{lastChange}}
-The algorithm we explained so far needs an enhancement to support longer sequence of \textit{lastChange}s. We explain first the issue and then the solution. Consider the following points:
+The algorithm we explained so far needs an enhancement to support
+longer sequence of \textit{lastChange}s. We explain first the issue
+and then the solution. Consider the following points:
 
 \begin{center}
 \textit{
@@ -347,9 +451,25 @@ The algorithm we explained so far needs an enhancement to support longer sequenc
  point C : lastChange(B, baz.y) 
  }
  \end{center}
-According to the algorithm explained in the previous section none of the points B and C can be identified before reaching point A. Therefore, all \texttt{x} changes for piont B and all \texttt{y} changes for point C are stored. Once the execution reaches point A, and the exact \texttt{bar} id reveals, point B can be identified among the change events in the history of \texttt{x} changes. The problem arises in recognizing point C. To recognize point C, we need \texttt{baz} id at point B, but B is a past program state, and \texttt{baz} id has not been collected at this point. 
+According to the algorithm explained in the previous section none of
+the points B and C can be identified before reaching point
+A. Therefore, all \texttt{x} changes for piont B and all \texttt{y}
+changes for point C are stored. Once the execution reaches point A,
+and the exact \texttt{bar} id reveals, point B can be identified among
+the change events in the history of \texttt{x} changes. The problem
+arises in recognizing point C. To recognize point C, we need
+\texttt{baz} id at point B, but B is a past program state, and
+\texttt{baz} id has not been collected at this point.
 
-To address this issue, we use Algorithm \ref{dependency-analysis}, to create the list of additional data should be collected at a change event. This algorithm does does a dependency analysis between all \textit{lastChange} queries and computes the list additional data required to be collected at each change event. For example in the mentioned case, \texttt{baz} id-if it is available- should be collected at all points \texttt{x} changes. Having this additional data, locating point C, using \texttt{baz} id at point B is straightforward (Figure ~\ref{fig:lastchange-lastchange}).
+To address this issue, we use Algorithm \ref{dependency-analysis}, to
+create the list of additional data should be collected at a change
+event. This algorithm does does a dependency analysis between all
+\textit{lastChange} queries and computes the list additional data
+required to be collected at each change event. For example in the
+mentioned case, \texttt{baz} id-if it is available- should be
+collected at all points \texttt{x} changes. Having this additional
+data, locating point C, using \texttt{baz} id at point B is
+straightforward (Figure ~\ref{fig:lastchange-lastchange}).
 
 \begin{algorithm}
 \caption{\textit{lastChange} queries dependency analysis.}
@@ -371,7 +491,9 @@ To address this issue, we use Algorithm \ref{dependency-analysis}, to create the
 
 \begin{figure}[htp]
 \includegraphics[width=.48\textwidth]{8-lastchange-lastchange.jpg}
-\caption{The list of change events stored for locating point B, the \textit{lastChange} of \texttt{bar.x} at the reproduction point, and point C, the \textit{lastChange} of  \texttt{baz.y} at point B.}
+\caption{The list of change events stored for locating point B, the
+  \textit{lastChange} of \texttt{bar.x} at the reproduction point, and
+  point C, the \textit{lastChange} of \texttt{baz.y} at point B.}
 \label{fig:lastchange-lastchange}
 \end{figure}
 
