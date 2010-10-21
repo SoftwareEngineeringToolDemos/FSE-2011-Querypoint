@@ -380,8 +380,7 @@ To address this issue, we use Algorithm \ref{dependency-analysis}, to create the
 
 %---------------------------------------------------------------------------------------------------
 \section{JavaScript implementation}
-The JavaScript prototype is implemented as an extension to Firebug\cite{Firebug} javasrcipt debugger. In this section, first we explain technical details for the \textit{lastChange} implementation skipped in the previous section. Then we address other issues, such as re-execution, data collection and presentation.
-
+We implemented \textit{Querypointer}, an Extension to Firebug JavaScript debugger, which provides \textit{lastChange} functionality. Firebug is an add-on of Firefox browser. Firefox JavaScript engine provides a JavaScript debugging interface and \textit{Querypointer} is developed over this interface. The debugging support in JavaScript comparing to more traditional languages such as Java and C\# is less comprehensive. Some part of this flaw is due to the dynamic nature of JavaScript. For example, JavaScript does not have classes and therefore setting watchpoint on properties before program execution is not possible. We explain how we could overcome these limitations and provide required operations for \textit{lastChange} algorithm implementation. Moreover, we breifly describe mechanisms for automated execution reproduction, data collection and presentation.
 
 \subsection{Algorithm technical details}
 \subsubsection{\texttt{objectId()}}
