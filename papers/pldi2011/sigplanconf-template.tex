@@ -601,6 +601,8 @@ In this important case of reproducible bugs, \textit{lastChange} are more effect
 
 In the case of a non-deterministic program, a \textit{lastChange} is not equivalent to any series of conventional watchpoints or breakpoints. Each time we re-execute a non-deterministic program, the details of execution in-struction order may change. For example, if we record the source code lines every time a conventional watchpoint hits, the record may differ each time we re-execute. Sup-pose we consult one such record and set a breakpoint on the last entry, the apparent lastChange source line. When we re-execute, the breakpoint will hit, but the information we gain may be incorrect: this may not be the lastChange for this particular re-execution. The \textit{lastChange} method records the values we need and the sequence of source lines from all of the watchpoints, then analyzes the record to select the correct lastChange point. The data shown to the developer will be internally consistent, but of course it may change from a previous re-execution, surprising the developer. This is just a signal that the execution is not deterministic. In future we hope to compare queries from successive executions as a tool for learning about non-deterministic executions.
 
+\subsection{Reproduction point}
+
 \section{Evaluation}
 \subsection{\textit{lastChange} effectiveness}
 
