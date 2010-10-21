@@ -512,38 +512,43 @@ We implemented \textit{Querypointer}, an Extension to Firebug JavaScript debugge
 The scope id is kept as a variable with name \texttt{\_scopeId} in the scope. We explained that we set a hook at the first instruction of the function which defines the variable. Once this hook hits, \texttt{\_scopeId} is set by calling \texttt{eval()} function. For example, executing \texttt{eval( var \_scopeId = 10)} creates a variable with name \texttt{\_scopeId} and value \texttt{10} in the local scope which is our interesting scope.
 
 \subsubsection{\texttt{setPropertyChangeHook()} operation}
-We implement a slightly different version of this operation. Setting a flag into the Firefox JavaScript engine we can get the place am object created including the JavaScript file url and line number (e.g., myFile.js, line 24). We can assume that an object is created in the same place in the next re-executions. This assumption does not lead to a wrong answer. We will discuss it in the next section when we discuss the effect of non-determinism. Having this assumption, it is enough to set property change hook for the objects created at one place. 
+We implement a slightly different version of this operation. Setting a flag into the Firefox JavaScript engine we can get the place an object created including the JavaScript file url and line number (e.g., myFile.js, line 24). We can assume that an object is created in the same place in the next re-executions. This assumption does not lead to a wrong answer. We will discuss it in the next section when we discuss the effect of non-determinism. Having this assumption, it is enough to set property change hook for the objects created at one place. 
 
 The Firefox JavaScript engine supports watching property changes in an object. Every object has a \texttt{watch()} function which receives two parameters, a property name and another function as the callback. Whenever the property with the given name changes the calleback function is called. The hook is set by this function remains enabled even if the property is deleted and defined again. This function can only be applied to avaialbe objects. However, at the beginning of execution, no object excepting the global object is available. 
 
 If we could get a reference to the object just after its creation, we could use \texttt{watch()} function to monitor property changes in the object. In the next section we explain the algorithm we devised for this purpose by parsing and analyzing the code. This algorithm could be replaced by a much simpler one if Firefox debugging interface gives us the program counter of object creation instead of line number and also provides object creation hook.
 By these assumptions, it was enough to set a hook on the object creation location. Once the execution reaches this location, by enabling object creation hook, we could get a reference to the new object. 
 
-\subsubsection{Tracking object creation}
-Having the source file url and the line number in wich the object created, we want to get a reference to the created object. Due to the fact that more than one object might be created in a line and there is no way to distinguish between them, we get references to all created objects. 
-By parsing the source code we can find all statements that create a new object. It might be an object constructed by object initializer(\texttt{\{...\}}) or \textit{new} operator (\texttt{new constructor()}) or function objects which can be created by \texttt{function()} statement.
-Every created object might be assigned to a statement (which is evaluated as a pointer) by \texttt{=} or object property by \texttt{:} or might be passed to a function as an argument.
-For the first case, by parsing the code we create the list of all statements. For the second case, we also create the full path of object property in the scope.
-We set a breakpoint at the line and once the breakpoint hits, we evaluate all statements in the list and we do stepping and after every step we check those assignees values and if the value is changed, we consider the new value as a created object.
-
- %One solution is to assume that jsd has features that simplify it:first: Setting the flag (object track) returns the exact location of object creation instead of the line number.second: It is possible to set hook on object creation and this returns a reference to the created object.
+%One solution is to assume that jsd has features that simplify it:first: Setting the flag (object track) returns the exact location of object creation instead of the line number.second: It is possible to set hook on object creation and this returns a reference to the created object.
  %Then we can explain it like this: We set a breakpoint at the location object is created and we enable the object creation hook.  We do steppingfor one instruction and we get the reference.
  
  %I was thinking that perhaps Fireforx 4.0 may support these features.I know that in the new version of JS (1.8.5) and Fireforx 4.0 there is a new function Object(), which is the main object constructor. If for all cases of object creations ({}, new, function),  the engine first calls this function then by modifying or setting a hook in this function we can track object creation. Do you know anyone in Mozilla team who can answer this question?Do you know whether firefox 4 still supports objectTrace flag or not? 
  
+\subsubsection{Tracking object creation}
+The only data we have is the object creation location including the file url and the line number and the goal is to get a reference to this object. Although in the most regular cases we have only one statement and one object creation in a line, there are cases that more than one object might be created in a line. There is no way to recognize the interesting object among these new objects. So instead of one object, we monitor all new objects created in the line. 
+
+An object might be created by one of these statements: An object initializer(\texttt{\{...\}}) or \textit{new} operator (\texttt{new constructor()}) or function objects which can be created by \texttt{function()} statement. By parsing the source code we can easily recognize the statements create an object. The next step is getting a reference to the new object. 
+
+The new object can be assigned to an object property or variable by \texttt{=}. In these cases we keep the assignee statement at the left side. The idea is that we create a list of assignee statements that the new objects are assigned to them. We set a hook on the creation line. Once the hook hits, we evaluate all statements. Then we do stepping(step-over) and after each step we evaluate the statements. Every statement which has a new value, we consider the new value-if it is an object-as a new object. For example in Figure ~\ref{fig:objectCreation}(a), if the creation line number is 20, we have only one statement which creates a new object and it is assigned to \texttt{x.y}. 
+
+The new object can also be set as the property of a parent object by \texttt{:}. This case is also treated similar to previous case. The only difference is that the full path of property from the root parent in the local scope should be considered as the assignee statement. For example in Figure ~\ref{fig:objectCreation}(b), if the creation line is 20, we keep \texttt{parentObject.newObject}. In this case stepping should be continued until the end of line 22 for getting a reference to the created new object. 
+
+There is another case for new objects and when they are passed as arguments to other functions ~\ref{fig:objectCreation}(c). In these cases instead of step-over we use step-in and we get the corresponding argument as a new object.
+
+%The algorithm is not complete and it is tried to support more and more cases
 
 \begin{figure}[htp]
 \begin{verbatim}
-Case 1:
+(a) Case 1:
 20 x.y = new myConstructor();
 
-Case 2:
+(b) Case 2:
 19  parentObject = {
 20   	  newObject : {
 21  			x : 5
 22  }}
 
-Case 3:
+(c) Case 3:
 20 myFunction({myProperty:5});
  
 \end{verbatim}
@@ -553,14 +558,15 @@ Case 3:
 
   
 \subsection{Execution reproduction}
-Altough execution reproduction is basicly should be provided by the developer, we tried to devise some automatic way which reproduces the execution. In the prototype, develooper can choose among three reproduction options. The first one is using a test case which provided by developer. The second one is by record and replay and the third one is local-reproduction.
+Although execution reproduction is basicly should be provided by the developer, we tried to devise some automatic way which reproduces the execution. In \textit{Querypointer}, develooper can directly provide a test case which reproduces the execution. It is also possible to use two automatic reproduction option: record-replay or local-reproduction .
 
-Two parts should be carefully considered in execution reproduction. First, the initial state should be the same as previous execution. Second, the similar actions and events should be applied to the program during the execution. In the record and replay approach, debugger stores the initial page url and user actions and during replay phase, opens the same url and emulates user actions. 
-In the local reproduction approach, debugger calls the funtion on the bottom of stack with the same parameters.
+Two elements should be carefully considered in execution reproduction. First, the initial state should be the same as previous execution. Second, the similar actions and events should be applied to the program during the execution. In Record-replay approach, debugger stores the initial page url and user actions and during replay phase, opens the same url and simulates user actions. In the local reproduction approach, debugger calls the funtion on the bottom of stack with the same parameters. The idea behind local-reproduction is that in many web pages it is enough to replay the event to reproduce the bug. While record-replay approach gives better warranty about the same initial states, the local-reproudction gives us shorter cycles. It is also possible to uses thes approaches in combination. For example, debugger locally reproduce the execution and if it couldn't find the answer, reproduce the whole execution by record-replay.
+% should we talk about counting breakpoint hits for stopping at the right place?
 
 \subsection{Data collection and presentation}
-In additional to the data collected by the \textit{lastChange} algorithm to correctly identify the last change, the list of available variables and their values (one level) are collected.
+So far, we talked about the data collected at change events for \textit{lastChange} algorithm. However, if developer needs to explore the program state at a given point, more data is required. It is possible to postpone data collection until user requests. It is also possible to collect the list of available variable. \textit{Querypointer} collects data in one level depth. More data will be collected upon the developer's request by re-execution.
 
+We needed to build an interface to different execution points which are presented at the same time. The current \textit{Querypointer} interface resembles the script panel interface while it keeps the history of navigation.
 
 \section{Discussion}
 \subsection{Converting \textit{lastChange} result to a conditional breakpoint}
