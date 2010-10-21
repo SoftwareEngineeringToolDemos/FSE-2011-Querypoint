@@ -35,11 +35,11 @@
 \maketitle
 
 \begin{abstract}
-Backward search from bug symptoms to defects-which cause the bug-is a natural way to debugging. However, due to the lack of support for easily bakward movement by  traditional debugging approaches (e.g., breakpoint-based or log-based debugging), applying this strategy-if it is not pracatically impossible-demands a lot of effort from developers. Tracking origins to wrong values is a fundumental step in this process and any aid in this regard can greatly reduce the complexity of debugging for developers.
+Backward search from bug symptoms to defects-which cause the bug-is a natural way to debugging. However, due to the lack of support for easily backward movement by  traditional debugging approaches (e.g., breakpoint-based or log-based debugging), applying this strategy-if it is not practically impossible-demands a lot of effort from developers. Tracking origins to wrong values is a fundamental step in this process and any aid in this regard can greatly reduce the complexity of debugging for developers.
 
-To address this problem, we propose a new functionality in debuggers, \textit{lastChange}, which locates the last place a value is changed and lets developer to collect data and ask for more \textit{lastChange} queries at the located point. Although \textit{lastChange} algorithm is based on program re-execution, contrary to other replay-based algorithms which require exactly the same re-executions, it only requires bug reproduction by re-executions. In other words \textit{bug reproduciblity} (i.e., a test case is available which reproduces the bug) is the only prerequisite for \textit{lastChange} functinality.
+To address this problem, we propose a new functionality in debuggers, \textit{lastChange}, which locates the last place a value is changed and lets developer to collect data and ask for more \textit{lastChange} queries at the located point. Although \textit{lastChange} algorithm is based on program re-execution, contrary to other replay-based algorithms which require exactly the same re-executions, it only requires bug reproduction by re-executions. In other words \textit{bug reproducibility} (i.e., a test case is available which reproduces the bug) is the only prerequisite for \textit{lastChange} functionality.
 
-As a proof of concept, we developed \textit{Querypointer}, a prototype which enhances Firebug JavaScript debugger with \textit{lastChange} feature. Moreover, \textit{Querypointer} provides mechanisms for automated bug reproduction, and a novel user interface to investigated execution points and results.
+As a proof of concept, we developed \textit{Querypointer}, a prototype which enhances a popular JavaScript debugger, Firebug, with \textit{lastChange} feature. Moreover, \textit{Querypointer} provides mechanisms for automated bug reproduction, and a novel user interface to investigated execution points and results.
 
 \end{abstract}
 
@@ -54,17 +54,17 @@ LastChange, Locating Defects, Breakpoint, Watchpoint, Logging
 
 %---------------------------------------------------------------------------------------------------
 \section{Introduction}
-Debugging is an inevitable part of programming, still hard and time-consuming. To fix a bug, developers have to reproduce and monitor the buggy execution several times to understand the program's unexpected behavior. Trial and error, guess-work and analyzing huge collected data are the inseparable parts of this process. According to \cite{LaToza}, developers spend about fifty percent of their time debugging. Therefore, every improvement to debugging techniques and tools can considerably save developers' time and improve programs' quality.
+Debugging is an inevitable part of programming, still hard and time-consuming. To fix a bug, developers have to reproduce and monitor the buggy execution several times to understand the program's unexpected behavior. Trial and error, guess-work and analyzing huge collected data are the inseparable parts of this process. According to \cite{LaToza}, developers spend about fifty percent of their time debugging. Therefore, enhancements to debugging techniques and tools can considerably save developers' time and improve programs' quality.
 
-Locating defects cause the bug is the main part of debugging. A common strategy for locating defects is starting from bug symptoms and backward movement by following the origings to wrong values. While this strategy seems straightforward and effective, applying this strategy using traditional methods is complicated. There are two traditional approaches to debugging, breakpoint-based and log-based debugging. None of these approaches assist developer in finding origings to a wrong value. It is due to developer to search source files, find the list of possible origings to a wrong value and set breakpoints or insert log statements in a way that covers all possible origins.
+Locating defects cause the bug is the main part of debugging. A common strategy for locating defects is starting from bug symptoms and backward movement by following the origins to wrong values. While this strategy seems straightforward and effective, applying this strategy using traditional methods is complicated. There are two traditional approaches to debugging, breakpoint-based and log-based debugging. None of these approaches assist developer in finding origins to a wrong value. It is due to developer to search source files, find the list of possible origins to a wrong value and set breakpoints or insert log statements in a way that covers all possible origins.
 
-The next dilemma is data collection. In breakpoint debugging, developer has to memorize values or manually collect data at every breakpoint hit. As the number of breakpoint hits increases, the process of checking the program state, collecting data and resuming the execution becomes cumbersome. While in breakpoint-based debugging, the whole program state is available to developer, in log-based debugging, developer has to decide about data should be collected when inserts the log statement. It is very common that developer has to repeat this step several times due to insufficient collected data. Once the adequate data is collected, it still requires analysis and understanding. Developers usually end up in dealing with long log files and analyzing huge collected data.
+The next dilemma is data collection. In breakpoint debugging, developer has to memorize values or manually collect data at every breakpoint hit. As the number of breakpoint hits increases, the process of checking the program state, collecting data and resuming the execution becomes cumbersome. While in breakpoint-based debugging, the whole program state is available to developer, in log-based debugging, developer has to decide about data should be collected when inserts the log statement. It is very common that developer has to repeat this step several times due to insufficient collected data. Once the adequate data is collected, it still requires analyzing and understanding. Developers usually end up in dealing with long log files and analyzing huge collected data.
 
-Our proposal is a new functionality in debuggers which locates the origin of a wrong value, call it \textit{lastChange}. The only prerequisite for \textit{lastChange} functionality is bug reproduciblity (i.e., there is a test case which reproduces the bug). Assume that the program execution is paused on a breakpoint and the developer is suspicious about the value of an object property or variable. The developer selects \textit{lastChange} on the value and it is due to debugger to locate and shows the last change of object property or variable. Debugger reproduces the buggy execution and collects limited data and once the execution reaches the same place (i.e., the same breakpoint hit), call it \textit{reproduction point}, it pauses the execution, analyzes the collected data and shows the location of the last change to the developer. Developer can also examine the program state at the located point of execution, and ask for a new \textit{lastChange} at this point.
+To address the mentioned problems, we propose a new functionality in debuggers, \textit{lastChange}, which locates the origin of a wrong value. It works based on program re-execution similar to the practice in using breakpoints and log statements. Contrary to other replay-based alogrithms which require the same re-executions (instruction by instruction), the only prerequisite for \textit{lastChange} functionality is bug reproducibility (i.e., there is a test case which reproduces the bug). Assume that the program execution is paused on a breakpoint and the developer is suspicious about the value of an object property or a variable. The developer queries \textit{lastChange} on the value and it is due to debugger to locate and shows the last change of the object property or variable. Debugger reproduces the buggy execution and collects limited data and once the execution reaches the same place (i.e., the same breakpoint hit), call it \textit{reproduction point}, it pauses the execution, analyzes the collected data and shows the location of the last change to the developer. The developer can also examine the program state at the located point of execution, and continue debugging by more \textit{lastChange} queries from that point.
 
-Our contribution in this paper is the algorightm \textit{lastchange}, which locates the last place a value is changed, gathers other values from that execution point, and allows \textit{lastChange} operations from that point. The algorithm builds on existing breakpoint debugger technology. We demonstrate the feasibiltily of the algorithm with \textit{Querypointer}, an implementation extending the Firebug JavaScript debugger. \textit{Querypointer} also provides mechanism for automated bug reproduction, and a centralized user interface which summarizes investigated execution points and collected results. 
+Our contribution in this paper is the algorithm \textit{lastchange}, which locates the last place a value is changed, gathers other values from that execution point, and allows \textit{lastChange} operations from that point. The algorithm builds on existing breakpoint debugger technology. We demonstrate the feasibility of the algorithm with \textit{Querypointer}, an implementation extending the Firebug JavaScript debugger. \textit{Querypointer} also provides mechanism for automated bug reproduction, and a novel user interface which summarizes investigated execution points and collected results. 
 
-The rest of the paper is organized as follows. First, we demonstrate the \textit{lastChange} usage on a simple example with the comparison to breakpoint debugging. Section 3 presents \textit{lastChange} algorithm. In section 4, we explain the details of the JavaScript prototype implementation. 
+The rest of the paper is organized as follows. First, we demonstrate the \textit{lastChange} usage on a simple example with the comparison to breakpoint debugging. Section 3 presents \textit{lastChange} algorithm. In section 4, we explain the details of the JavaScript prototype implementation. We discuss the effect of non-determinism on the \textit{lastChange} algorithm. Section 6 contains an evaluation of \text{lastChange} functionality. 
 
 %---------------------------------------------------------------------------------------------------
 \section{Introductory example}
@@ -84,22 +84,12 @@ button, \texttt{0} appears instead of \texttt{2}: there is a bug.
 
 Two other functions are called in \texttt{onClick()}, \texttt{foo()}
 and \texttt{bar()}. As developers we often encounter function calls
-which seem perpheral to our current concern; they may have been added
+which seem peripheral to our current concern; they may have been added
 by another developer, or we may have forgotten their exact properties
 or those properties may have changed, and so on. The difference
 between what we expect these functions to do, e.g. nothing
 interesting, and what they do in practice may cause bugs.
 
-To start debugging, the developer sets a breakpoint
-on line 22 and once the button is clicked execution is paused at line
-22. Figure ~\ref{fig:example1} shows the Firebug debugger while the
-execution is paused. Firebug has several panels (e.g., HTML, CSS,
-Script, DOM, etc.) that each demonstrate one aspect of the Web page.
-The Script panel contains the list of all loaded source
-files and regular debugging facilities such as setting breakpoints and
-stepping. To the right of the script panel, the Watch panel shows the program state
-where the developer can examine object and variable values. In our case, the
-\texttt{myObject.myProperty} value at the paused point is zero. We expected this value to be \texttt{2}.
 
 \begin{figure}[htp]
 \begin{verbatim}
@@ -139,12 +129,16 @@ where the developer can examine object and variable values. In our case, the
 \label{fig:js-code}
 \end{figure}
 
-
-\begin{figure}[htp]
-\includegraphics{5-example-points.jpg}
-\caption{The examinated points before locating the defect.}
-\label{fig:example-points}
-\end{figure}
+To start debugging, the developer sets a breakpoint
+on line 22 and once the button is clicked execution is paused at line
+22. Figure ~\ref{fig:example1} shows the Firebug debugger while the
+execution is paused. Firebug has several panels (e.g., HTML, CSS,
+Script, DOM, etc.) that each demonstrate one aspect of the Web page.
+The Script panel contains the list of all loaded source
+files and regular debugging facilities such as setting breakpoints and
+stepping. To the right of the script panel, the Watch panel shows the program state
+where the developer can examine object and variable values. In our case, the
+\texttt{myObject.myProperty} value at the paused point is zero. We expected this value to be \texttt{2}.
 
 To apply backward search strategy for locating defects, the developer
 first needs to know the origin to the wrong value. To achieve this
@@ -172,8 +166,41 @@ However, it shows a new QP panel, centered on the source at line 29
 the right, the TraceData panels shows values of properties from the
 program state when it passed through line 29.  These two panels
 resemble the Script and Watch panels, but they show data collected by
-the debugger at an execution point which has now past: these are
+the debugger at an execution point which is now past: these are
 'traces' or 'logs' of information collected during the re-execution.
+
+Looking at line 29, it seems that something is wrong with
+\texttt{myCondition.value} which causes line 29 execution. The
+developer examines \texttt{myCondition.value} and it is
+\texttt{undefined}. The next step is to know when this property got
+this value. To do so, the developer runs \textit{lastChange} command
+on \texttt{myCondition.value} at this point. Debugger re-executes the
+execution and pauses at the reproduction point and shows line 25-the
+place \texttt{undefined} value is assigned to
+\texttt{myCondition.value} (Figure ~\ref{fig:example3}). Now it is
+clear that the bug occurs because \texttt{oldValue} is
+\texttt{undefined} once execution reaches line 25.
+
+
+As demonstrated in Figure ~\ref{fig:example-points}, the developer
+examined three points of execution. The first point was the breakpoint set by the developer.
+The second and third points preceded the breakpoint in time.
+All three points-the history
+of the search for the defect-are available through the debugger's
+interface. On the top of the left panel in Figure ~\ref{fig:example4}
+there is an opened list which shows all three examined points. The
+first one is the breakpoint on line 22, the second one is the point
+which is the last change of \texttt{myObject.myProperty} before
+reaching the breakpoint and finally the last one is the point of
+execution in which \texttt{myCondition.value} gets the
+\texttt{undefined} value. Moreover, the source lines related to these
+points are tagged with red-cycle icons.
+
+\begin{figure}[htp]
+\includegraphics{5-example-points.jpg}
+\caption{The examined points before locating the defect.}
+\label{fig:example-points}
+\end{figure}
 
 \begin{figure*}[htp]
 
@@ -209,31 +236,6 @@ on the
 \label{fig:lastChange}
 \end{figure*}
 
-Looking at line 29, it seems that something is wrong with
-\texttt{myCondition.value} which causes line 29 execution. The
-developer examines \texttt{myCondition.value} and it is
-\texttt{undefined}. The next step is to know when this property got
-this value. To do so, the developer runs \textit{lastChange} command
-on \texttt{myCondition.value} at this point. Debugger re-executes the
-execution and pauses at the reproduction point and shows line 25-the
-place \texttt{undefined} value is assigned to
-\texttt{myCondition.value} (Figure ~\ref{fig:example3}). Now it is
-clear that the bug occurs because \texttt{oldValue} is
-\texttt{undefined} once execution reaches line 25.
-
-As demonstrated in Figure ~\ref{fig:example-points}, the developer
-examinated three points of execution. The first point was the breakpoint set by the developer.
-The second and third points preceded the breakpoint in time.
-All three points-the history
-of the search for the defect-are available through the debugger's
-interface. On the top of the left panel in Figure ~\ref{fig:example3}
-there is an opened list which shows all three examinated points. The
-first one is the breakpoint on line 22, the second one is the point
-which is the last change of \texttt{myObject.myProperty} before the
-reaching the breakpoint and finally the last one is the point of
-execution in which \texttt{myCondition.value} gets the
-\texttt{undefined} value. Moreover, the source lines related to these
-points are tagged with red-cycle icons.
 
 Notice that in our example, \textit{lastChange} combines some aspects
 of breakpoint and of log-based debugging. Like breakpoint debugging,
@@ -435,8 +437,8 @@ In the local reproduction approach, debugger calls the funtion on the bottom of 
 In additional to the data collected by the \textit{lastChange} algorithm to correctly identify the last change, the list of available variables and their values (one level) are collected.
 
 
-
-\section{Converting \textit{lastChange} result to a conditional breakpoint}
+\section{Discussion}
+\subsection{Converting \textit{lastChange} result to a conditional breakpoint}
 We believe that in many cases it is possible to convert the \textit{lastChange} result to a conditional breakpoint and therefore debugger is able to pause at the point
  instead of showing collected data to the developer. Here, we present an example which shows a case this transformation is not possible.
 
@@ -460,7 +462,7 @@ Figure ~\ref{fig:counter-example} shows a function with processes an array. The 
  
 
 %---------------------------------------------------------------------------------------------------
-\section{Reproducible Non-deterministic Execution}
+\subsection{Reproducible Non-deterministic Execution}
 Thus far we have not discussed problems caused by mul-tiple threads or other sources of non-deterministic execu-tions. We want to explain why we believe \textit{lastChange} is robust in the practically important case where a bug is reproducible even though the execution may not be deterministic. 
 Because \textit{lastChange} require re-execution, we rely on reproducible but not necessarily deterministic execution. A bug is reproducible for a developer when the developer can start from a determined initial state, operate on the program with a list of actions, and reproduce the symptoms of the bug. The details of the execution can change each time we re-execute the buggy program, but the buggy result is the same. The entire query chain reapplies during each execution so the data we show the developer will be internally consistent. The reproducibility of the bug means that the defect is very unlikely to depend on the order of events during the execution.
 
@@ -469,8 +471,10 @@ In this important case of reproducible bugs, \textit{lastChange} are more effect
 In the case of a non-deterministic program, a \textit{lastChange} is not equivalent to any series of conventional watchpoints or breakpoints. Each time we re-execute a non-deterministic program, the details of execution in-struction order may change. For example, if we record the source code lines every time a conventional watchpoint hits, the record may differ each time we re-execute. Sup-pose we consult one such record and set a breakpoint on the last entry, the apparent lastChange source line. When we re-execute, the breakpoint will hit, but the information we gain may be incorrect: this may not be the lastChange for this particular re-execution. The \textit{lastChange} method records the values we need and the sequence of source lines from all of the watchpoints, then analyzes the record to select the correct lastChange point. The data shown to the developer will be internally consistent, but of course it may change from a previous re-execution, surprising the developer. This is just a signal that the execution is not deterministic. In future we hope to compare queries from successive executions as a tool for learning about non-deterministic executions.
 
 \section{Evaluation}
+\subsection{\textit{lastChange} effectiveness}
+
 \subsection{Execution overhead analysis}
-%If we assume for every change event k additionial instructions should be executed and the number of instructions executed in one execution is n and the number of change %events is m then the total amount of instructions is n+mk. The overhead is mk/n. for m=10^3, k=10^2 and n=10^10 the overhead is very low about 10^-5.
+If we assume that the total number of instructions in an execution is $n$ and $m$ change event happens during one execution and for every change event $k$ additionial instructions should be executed, the execution overhead of our approach is $mk/n$. For $m=10^3$, $k=10^2$ and $n=10^{10}$ the overhead is very low and about $10^{-5}$.
 
 \section{Related Work}
 
