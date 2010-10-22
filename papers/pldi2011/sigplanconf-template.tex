@@ -251,21 +251,31 @@ discuss cases were it is possible to pause at lines of \textit{lastChange}).
 %---------------------------------------------------------------------------------------------------
 \section{\textit{lastChange} Algorithm}
 
-The story starts when developer examines the program state at a
-breakpoint hit and asks for the \textit{lastChange} of a value. The
-\textit{lastChange} algorithm is based on program
-re-execution. Therefore it is assumed that the execution can be
-reproduced automatically (e.g., by a given test case) or with the
-developer's assistance. The breakpoint hit becomes the
-\textit{reproduction point}. Debugger sets hooks on all instructions
-that might be the result of \textit{lastChange} query, re-executes the
-program, at every hook hit, \textit{change event}, collects limited
-data and once the execution reaches the reproduction point, it
-analyzes the collected data and shows the result. The result is a
-partial snapshot of the program state at the execution point that last
-change occured.
+The \textit{lastChange} algorithm is based on program re-execution of
+a program halted on a breakpoint. The breakpoint hit becomes the
+\textit{reproduction point}. The algorithm starts when developer
+examines the program state at a breakpoint hit and asks for the
+\textit{lastChange} of a value.  Debugger sets hooks (a callback
+function dependent upon the underlying runtime) on all instructions
+that might be the result of \textit{lastChange} query. Then the
+debugger re-executes the program and every time the hook hits it
+checks for a \textit{change event}. In the case of a change, it stores
+part of the program state values.  Once the execution reaches the
+reproduction point, it analyzes the collected data and shows the
+result.  The program state at the execution point for the last change
+event is the \textit{lastChange}.
 
-As we shown in the previous section, a \textit{lastChange} query can
+While \textit{lastChange} itself is not a different kind 'breakpoint',
+all of the assumptions developers already have for breakpoints hold
+for \textit{lastChange}. In particular the re-execution is just the
+same operation developers use to debug with breakpoints. Because
+\textit{lastChange} dramatically reduces the developers work in
+setting and removing breakpoints, the re-execution step will become a
+much larege fraction of the debug time. Therefore automatic mechanisms
+for re-execution will be corresponding more valuable for debugging
+with \textit{lastChange}.
+
+As we described in the preceding section, a \textit{lastChange} query can
 be performed on the result of another \textit{lastChange} query. If we
 name the reproduction point \textit{R}, we can write the first
 \textit{lastChange} in the introductory example in this form:
@@ -276,21 +286,22 @@ is defined at \textit{R}. If we name the result of this query
 \textit{lastChange} queries with any length can be defined.
 
 \textit{lastChange} can be called on two different types of values: An
-object property or a variable value. In JavaScript, every available
-variable in a frame comes from one of the scopes in the frame's scope
-chain. We explain each case separately.
+object property or a variable value. Three different variations of the
+algorithm are required, one for object property and two more depending
+upon the scope of a variable.
 
 \subsection{\textit{lastChange} on object propery}
-To simplify the algorithm explanation and avoid technical details, we
-assume two basic operations and later we explain the details of these
-two operations. The first opertion is \texttt{objectId()} which gets a
-JavaScript object and returns an integer as its identifier. This
-identifier is unique for every object during one execution. The second
-operation is \texttt{setPropertyChangeHook()} which gets function as
-the callback and a string as the property name like
-\texttt{foo}. Whenever property \texttt{foo} in any object changes the
-callback will be called. The callback function receives a reference to
-the owner of \texttt{foo}.
+To simplify the algorithm explanation and defer technical details, we
+define two basic operations and later we explain the details of these
+two operations. The first opertion is \texttt{objectId()}: given a
+JavaScript object it returns an integer as its identifier. This
+identifier is unique to the object during one execution. The second
+operation is \texttt{setPropertyChangeHook()}: given a function and a
+string, the function is called whenever a property changes and its
+name matches the string For example, if the property might be
+\texttt{foo} so changes to \texttt{bar.foo} or \texttt{baz.foo} would
+call the function.  The callback function receives a reference to the
+owner of \texttt{foo}.
 
 
 \begin{figure}[htp]
@@ -304,21 +315,24 @@ the owner of \texttt{foo}.
 \label{fig:foo-changes1}
 \end{figure}
 
-Once developer asks for the last change of \texttt{bar.foo} at the
-reproduction point, debugger calls \texttt{setPropertyChangeHook()}
-with \texttt{foo} as the property name and re-executes the
-program. Whenever \texttt{foo} changes and the callback function is
-called, debugger first calls \texttt{objectId()} on the \texttt{foo}
-owner object. Then it stores owner id and stack frame locations. The
-reason we keep object id instead of a reference to the object itself
-is to let garbage collector to destroy dead objects. Whenever the
-execution reaches the reproduction point it looks at the history of
-\texttt{foo} changes and finds the last \texttt{foo} change with the
-same object id as \texttt{bar} id at the reproduction point. Figure
-~\ref{fig:foo-changes1} shows the list of property \texttt{foo} change
-events in a hypothetical execution. \texttt{bar} id at the
-reproduction point is 1010, so the last change of \texttt{bar.foo} is
-the fourth column.
+To see how these functions work, suppose the developer asks for the
+last change of \texttt{bar.foo} at the reproduction point in a
+program. The debugger calls \texttt{setPropertyChangeHook()} with
+\texttt{foo} as the property name and re-executes the
+program. Whenever \texttt{foo} changes and the callback function is to
+be called, debugger first calls \texttt{objectId()} on the
+\texttt{foo} owner object. Then it stores this owner id, the stack
+frame locations, and other state values in scope at the call point.
+Whenever the execution reaches the reproduction point the debugger
+looks at the history of \texttt{foo} changes and finds the last
+\texttt{foo} change with the same object id as \texttt{bar} id at the
+reproduction point. Figure ~\ref{fig:foo-changes1} shows the list of
+property \texttt{foo} change events in a hypothetical
+execution. \texttt{bar} id at the reproduction point is 1010, so the
+last change of \texttt{bar.foo} is the fourth column.  By using an
+object id instead of an object reference we allow the garbage
+collector to reclaim the space for dead objects just at would in the
+absence of the debugger.
 
 \subsection{\textit{lastChange} on variable} 
 In JavaScript, every frame has a scope chain and every available
@@ -334,12 +348,12 @@ cases in two groups.
 
 \subsubsection{global and \texttt{with} scopes}
 Global scope is the the most outer scope in the scope chain and it is
-also refered as global object which is usually \texttt{window}
-object. This scope is a regular JavaScript object and therefore every
-global variable is a property of global object. Similar to global
-scope, \texttt{with} scopes are also regular objects. A \texttt{with}
+also refered to as the global object (the \texttt{window}
+object in Web pages). This scope is a regular JavaScript object and therefore every
+global variable is a property of global object. Similarly,
+ \texttt{with} scopes are also regular objects. A \texttt{with}
 scope is created by a \texttt{with()} block with an object as the
-parameter. Every property of passed object is available inside the
+parameter. Every property of this parameter object is available inside the
 block as a variable. Debugger treats the case where variable's scope
 is global or \texttt{with}, like \textit{lastChange} on an object
 property.
@@ -374,13 +388,13 @@ use a different strategy.
 \label{fig:js-closure}
 \end{figure}
 
-A variable in these types of scope can only be changed in the function
-the variable is defined or the nested fuctions. For example in Figure
+Only operations in the scope of the these varibles can change their value; that includes the defining scope and scopes nested inside of them.
+For example in Figure
 ~\ref{fig:js-closure}, variable \texttt{var1} in line 11 can only be
 changed in lines 10 to 23. Therefore, after locating the function in
 which the variable is defined, it is enough to parse the code inside
 the function block and set a hook on all lines where the variable is
-assigned a new value. % TODO lines or instruction??? 
+assigned a new value. \textit{What if we called this operation setVariableChangeHook() and defered the discussion to 4??}
 We also set a hook at the first line of the function which is
 corresponding to the line variable is defined. In Figure
 ~\ref{fig:js-closure}, if the execution is paused at line 17 and the
@@ -417,7 +431,7 @@ C  |  ?
 \end{figure}
 
 
-Everytime one of the hooks hits a new change event is inserted to the
+Every time one of the hooks hits a new change event is inserted to the
 list of change events. During execution the same variable might be
 changed several times but in different scopes. Figure
 ~\ref{fig:recursive} demonstrates a case that the same variable
@@ -453,7 +467,7 @@ and then the solution. Consider the following points:
  \end{center}
 According to the algorithm explained in the previous section none of
 the points B and C can be identified before reaching point
-A. Therefore, all \texttt{x} changes for piont B and all \texttt{y}
+A. Therefore, all \texttt{x} changes for point B and all \texttt{y}
 changes for point C are stored. Once the execution reaches point A,
 and the exact \texttt{bar} id reveals, point B can be identified among
 the change events in the history of \texttt{x} changes. The problem
