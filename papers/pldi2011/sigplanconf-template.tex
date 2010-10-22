@@ -738,13 +738,35 @@ interface resembles the script panel interface while it keeps the
 history of navigation.
 
 \section{Discussion}
-\subsection{Converting \textit{lastChange} result to a conditional breakpoint}
-We believe that in many cases it is possible to convert the
-\textit{lastChange} result to a conditional breakpoint and therefore
-debugger is able to pause at the point instead of showing collected
-data to the developer. Here, we present an example which shows a case
-this transformation is not possible.
 
+
+
+%---------------------------------------------------------------------------------------------------
+\subsection{Reproducible Non-deterministic Execution}
+
+By construction \textit{lastChange} works whenever conventional
+breakpoint debugging works. By that we mean that, since we use
+conventional breakpoint debugging technology under the covers,
+\textit{lastChange} works whenever breakpoint debugging
+works. However, there are cases where breakpoint debugging fails but
+\textit{lastChange} works.  These are cases of \textit{reproducible
+  non-deterministic} execution.
+
+A bug is \textit{reproducible} for a developer when the developer can
+start from a determined initial state, operate on the program with a
+list of actions, and reproduce the symptoms of the bug. The details of
+the execution can change each time we re-execute the buggy program,
+but the buggy result is the same.  The reproducibility of the bug
+means that the defect is very unlikely to depend on the order of
+events during the execution. When the developer selects a value and
+asks for \textit{lastChange}, they are expressing an hyptothesis that
+the value is related to the defect. Therefore the reproducibility of
+the bug makes it very unlikely that the \textit{lastChange} will
+depend upon order of events during execution.
+
+Since \textit{lastChange} does not rely on determinism, some bugs that
+confound breakpoint debuggers will be easier to find with
+\textit{lastChange}.  Consider the following example.
 Figure ~\ref{fig:counter-example} shows a function with processes an
 array. The array contains numbers except one itme which is
 \texttt{undefined} and it causes a bug in line 30. There is a call to
@@ -772,50 +794,31 @@ re-execution but it can not be identified by a conditional breakpoint.
 \end{figure}
  
 
-%---------------------------------------------------------------------------------------------------
-\subsection{Reproducible Non-deterministic Execution}
-Thus far we have not discussed problems caused by mul-tiple threads or
-other sources of non-deterministic execu-tions. We want to explain why
-we believe \textit{lastChange} is robust in the practically important
-case where a bug is reproducible even though the execution may not be
-deterministic.  Because \textit{lastChange} require re-execution, we
-rely on reproducible but not necessarily deterministic execution. A
-bug is reproducible for a developer when the developer can start from
-a determined initial state, operate on the program with a list of
-actions, and reproduce the symptoms of the bug. The details of the
-execution can change each time we re-execute the buggy program, but
-the buggy result is the same. The entire query chain reapplies during
-each execution so the data we show the developer will be internally
-consistent. The reproducibility of the bug means that the defect is
-very unlikely to depend on the order of events during the execution.
+Thus in the case of a non-deterministic program, a \textit{lastChange}
+is not equivalent to any series of conventional watchpoints or
+breakpoints. The extra power of \textit{lastChange} derives from its
+analysis of the entire execution up to the reproduction point and its
+memory of previous work on the defect.  Each time we re-execute a
+non-deterministic program, the details of execution instruction order
+may change. For example, if we record the source code lines every time
+a conventional watchpoint hits, the record may differ each time we
+re-execute. But \textit{lastChange} does not ask the developer to
+consider these single points.  Rather we analyze all of the
+watchpoints in an entire execution at the reproduction point where we
+know the defect has already occured and only show the final result to
+the developer.
 
-In this important case of reproducible bugs, \textit{lastChange} are
-more effective than breakpoints. In the case of logically
-deterministic program execution, we can use the result from a
-\textit{lastChange} operation to set a conditional breakpoint then
-re-execute the program to position the execution trace backwards from
-our first breakpoint.
-
-%(This may be a useful adjunct for Querypoint debuggers to implement, but this backwards motion in the execution logic is not required for Querypoint debugging.) Thus in this case Querypoint debugging can do the same kinds of things as conventional breakpoints just more automatically.
-
-In the case of a non-deterministic program, a \textit{lastChange} is
-not equivalent to any series of conventional watchpoints or
-breakpoints. Each time we re-execute a non-deterministic program, the
-details of execution in-struction order may change. For example, if we
-record the source code lines every time a conventional watchpoint
-hits, the record may differ each time we re-execute. Sup-pose we
-consult one such record and set a breakpoint on the last entry, the
-apparent lastChange source line. When we re-execute, the breakpoint
-will hit, but the information we gain may be incorrect: this may not
-be the lastChange for this particular re-execution. The
-\textit{lastChange} method records the values we need and the sequence
-of source lines from all of the watchpoints, then analyzes the record
-to select the correct lastChange point. The data shown to the
-developer will be internally consistent, but of course it may change
-from a previous re-execution, surprising the developer. This is just a
-signal that the execution is not deterministic. In future we hope to
-compare queries from successive executions as a tool for learning
-about non-deterministic executions.
+Of course there can be cases where the defect is reproducible but the
+value from \textit{lastChange} is not. As in conventional breakpoint
+debugging, we can only determine this empirically, by observing
+multiple executions with different values. Unlike conventionaly
+breakpoint debugging, implementations of \textit{lastChange} readily
+aid in detecting such cases: as we work back through a series of
+\textit{lastChange} requests we can compare values with previous
+executions. Different values on different executions will signal that
+the execution is not deterministic. In future we hope to compare
+queries from successive executions as a tool for learning about
+non-deterministic executions.
 
 \subsection{Reproduction point}
 
