@@ -35,11 +35,31 @@
 \maketitle
 
 \begin{abstract}
-Backward search from bug symptoms to defects-which cause the bug-is a natural way to debugging. However, due to the lack of support for easily backward movement by  traditional debugging approaches (e.g., breakpoint-based or log-based debugging), applying this strategy-if it is not practically impossible-demands a lot of effort from developers. Tracking origins to wrong values is a fundamental step in this process and any aid in this regard can greatly reduce the complexity of debugging for developers.
+Backward search from bug symptoms to defects-which cause the bug-is a
+natural way to debugging. However, due to the lack of support for
+easily backward movement by traditional debugging approaches (e.g.,
+breakpoint-based or log-based debugging), applying this strategy-if it
+is not practically impossible-demands a lot of effort from
+developers. Tracking origins to wrong values is a fundamental step in
+this process and any aid in this regard can greatly reduce the
+complexity of debugging for developers.
 
-To address this problem, we propose a new functionality in debuggers, \textit{lastChange}, which locates the last place a value is changed and lets developer to collect data and ask for more \textit{lastChange} queries at the located point. Although \textit{lastChange} algorithm is based on program re-execution, contrary to other replay-based algorithms which require exactly the same re-executions, it only requires bug reproduction by re-executions. In other words \textit{bug reproducibility} (i.e., a test case is available which reproduces the bug) is the only prerequisite for \textit{lastChange} functionality.
+To address this problem, we propose a new functionality in debuggers,
+\textit{lastChange}, which locates the last place a value is changed
+and lets developer to collect data and ask for more
+\textit{lastChange} queries at the located point. Although
+\textit{lastChange} algorithm is based on program re-execution,
+contrary to other replay-based algorithms which require exactly the
+same re-executions, it only requires bug reproduction by
+re-executions. In other words \textit{bug reproducibility} (i.e., a
+test case is available which reproduces the bug) is the only
+prerequisite for \textit{lastChange} functionality.
 
-As a proof of concept, we developed \textit{Querypointer}, a prototype which enhances a popular JavaScript debugger, Firebug, with \textit{lastChange} feature. Moreover, \textit{Querypointer} provides mechanisms for automated bug reproduction, and a novel user interface to investigated execution points and results.
+As a proof of concept, we developed \textit{Querypointer}, a prototype
+which enhances a popular JavaScript debugger, Firebug, with
+\textit{lastChange} feature. Moreover, \textit{Querypointer} provides
+mechanisms for automated bug reproduction, and a novel user interface
+to investigated execution points and results.
 
 \end{abstract}
 
@@ -58,13 +78,56 @@ Debugging is an inevitable part of programming, still hard and time-consuming. T
 
 Locating defects cause the bug is the main part of debugging. A common strategy for locating defects is starting from bug symptoms and backward movement by following the origins to wrong values. While this strategy seems straightforward and effective, applying this strategy using traditional methods is complicated. There are two traditional approaches to debugging, breakpoint-based and log-based debugging. None of these approaches assist developer in finding origins to a wrong value. It is due to developer to search source files, find the list of possible origins to a wrong value and set breakpoints or insert log statements in a way that covers all possible origins.
 
-The next dilemma is data collection. In breakpoint debugging, developer has to memorize values or manually collect data at every breakpoint hit. As the number of breakpoint hits increases, the process of checking the program state, collecting data and resuming the execution becomes cumbersome. While in breakpoint-based debugging, the whole program state is available to developer, in log-based debugging, developer has to decide about data should be collected when inserts the log statement. It is very common that developer has to repeat this step several times due to insufficient collected data. Once the adequate data is collected, it still requires analyzing and understanding. Developers usually end up in dealing with long log files and analyzing huge collected data.
+The next dilemma is data collection. In breakpoint debugging,
+developer has to memorize values or manually collect data at every
+breakpoint hit. As the number of breakpoint hits increases, the
+process of checking the program state, collecting data and resuming
+the execution becomes cumbersome. While in breakpoint-based debugging,
+the whole program state is available to developer, in log-based
+debugging, developer has to decide about data should be collected when
+inserts the log statement. It is very common that developer has to
+repeat this step several times due to insufficient collected
+data. Once the adequate data is collected, it still requires analyzing
+and understanding. Developers usually end up in dealing with long log
+files and analyzing huge collected data.
 
-To address the mentioned problems, we propose a new functionality in debuggers, \textit{lastChange}, which locates the origin of a wrong value. It works based on program re-execution similar to the practice in using breakpoints and log statements. Contrary to other replay-based alogrithms which require the same re-executions (instruction by instruction), the only prerequisite for \textit{lastChange} functionality is bug reproducibility (i.e., there is a test case which reproduces the bug). Assume that the program execution is paused on a breakpoint and the developer is suspicious about the value of an object property or a variable. The developer queries \textit{lastChange} on the value and it is due to debugger to locate and shows the last change of the object property or variable. Debugger reproduces the buggy execution and collects limited data and once the execution reaches the same place (i.e., the same breakpoint hit), call it \textit{reproduction point}, it pauses the execution, analyzes the collected data and shows the location of the last change to the developer. The developer can also examine the program state at the located point of execution, and continue debugging by more \textit{lastChange} queries from that point.
+To address the mentioned problems, we propose a new functionality in
+debuggers, \textit{lastChange}, which locates the origin of a wrong
+value. It works based on program re-execution similar to the practice
+in using breakpoints and log statements. Contrary to other
+replay-based alogrithms which require the same re-executions
+(instruction by instruction), the only prerequisite for
+\textit{lastChange} functionality is bug reproducibility (i.e., there
+is a test case which reproduces the bug). Assume that the program
+execution is paused on a breakpoint and the developer is suspicious
+about the value of an object property or a variable. The developer
+queries \textit{lastChange} on the value and it is due to debugger to
+locate and shows the last change of the object property or
+variable. Debugger reproduces the buggy execution and collects limited
+data and once the execution reaches the same place (i.e., the same
+breakpoint hit), call it \textit{reproduction point}, it pauses the
+execution, analyzes the collected data and shows the location of the
+last change to the developer. The developer can also examine the
+program state at the located point of execution, and continue
+debugging by more \textit{lastChange} queries from that point.
 
-Our contribution in this paper is the algorithm \textit{lastchange}, which locates the last place a value is changed, gathers other values from that execution point, and allows \textit{lastChange} operations from that point. The algorithm builds on existing breakpoint debugger technology. We demonstrate the feasibility of the algorithm with \textit{Querypointer}, an implementation extending the Firebug JavaScript debugger. \textit{Querypointer} also provides mechanism for automated bug reproduction, and a novel user interface which summarizes investigated execution points and collected results. 
+Our contribution in this paper is the algorithm \textit{lastchange},
+which locates the last place a value is changed, gathers other values
+from that execution point, and allows \textit{lastChange} operations
+from that point. The algorithm builds on existing breakpoint debugger
+technology. We demonstrate the feasibility of the algorithm with
+\textit{Querypointer}, an implementation extending the Firebug
+JavaScript debugger. \textit{Querypointer} also provides mechanism for
+automated bug reproduction, and a novel user interface which
+summarizes investigated execution points and collected results.
 
-The rest of the paper is organized as follows. First, we demonstrate the \textit{lastChange} usage on a simple example with the comparison to breakpoint debugging. Section 3 presents \textit{lastChange} algorithm. In section 4, we explain the details of the JavaScript prototype implementation. We discuss the effect of non-determinism on the \textit{lastChange} algorithm. Section 6 contains an evaluation of \text{lastChange} functionality. 
+The rest of the paper is organized as follows. First, we demonstrate
+the \textit{lastChange} usage on a simple example with the comparison
+to breakpoint debugging. Section 3 presents \textit{lastChange}
+algorithm. In section 4, we explain the details of the JavaScript
+prototype implementation. We discuss the effect of non-determinism on
+the \textit{lastChange} algorithm. Section 6 contains an evaluation of
+\text{lastChange} functionality.
 
 %---------------------------------------------------------------------------------------------------
 \section{Introductory example}
@@ -516,22 +579,75 @@ straightforward (Figure ~\ref{fig:lastchange-lastchange}).
 
 %---------------------------------------------------------------------------------------------------
 \section{JavaScript implementation}
-We implemented \textit{Querypointer}, an Extension to Firebug JavaScript debugger, which provides \textit{lastChange} functionality. Firebug is an add-on of Firefox browser. Firefox JavaScript engine provides a JavaScript debugging interface and \textit{Querypointer} is developed over this interface. The debugging support in JavaScript comparing to more traditional languages such as Java and C\# is less evolved. Some part of this flaw is due to the dynamic nature of JavaScript. For example, JavaScript does not have classes and therefore setting watchpoint on properties before program execution is not possible. We explain how we could overcome these limitations and provide required operations for \textit{lastChange} algorithm implementation. Moreover, we breifly describe mechanisms for automated execution reproduction, data collection and presentation.
+We implemented \textit{Querypointer}, an Extension to Firebug
+JavaScript debugger, which provides \textit{lastChange}
+functionality. Firebug is an add-on of Firefox browser. Firefox
+JavaScript engine provides a JavaScript debugging interface and
+\textit{Querypointer} is developed over this interface. The debugging
+support in JavaScript comparing to more traditional languages such as
+Java and C\# is less evolved. Some part of this flaw is due to the
+dynamic nature of JavaScript. For example, JavaScript does not have
+classes and therefore setting watchpoint on properties before program
+execution is not possible. We explain how we could overcome these
+limitations and provide required operations for \textit{lastChange}
+algorithm implementation. Moreover, we breifly describe mechanisms for
+automated execution reproduction, data collection and presentation.
 
 \subsection{Algorithm technical details}
 \subsubsection{\texttt{objectId()} operation}
-\texttt{objectId()} operation receives a regular JavaScript object and returns an id which is unique during one execution. This operation keeps the object id in an object property with name \texttt{\_objectId}. Once this operation receives an object, it returns \texttt{\_objectId} value if this property is already defined, otherwise it generates a new id and sets this property object. To set the property, it calls \texttt{defineProperty} standard JavaScript function. \texttt{defineProperty} receives an argument which specifies whether the property is enumerable or not. By setting the enumerable field \texttt{false} for \texttt{\_objectId}, this property will not apear in \texttt{for(property in object)} loops and therfore has no effect on the program execution. Consider that \texttt{\_objectId} is not set for all objects but only those objects that need an id.
+\texttt{objectId()} operation receives a regular JavaScript object and
+returns an id which is unique during one execution. This operation
+keeps the object id in an object property with name
+\texttt{\_objectId}. Once this operation receives an object, it
+returns \texttt{\_objectId} value if this property is already defined,
+otherwise it generates a new id and sets this property object. To set
+the property, it calls \texttt{defineProperty} standard JavaScript
+function. \texttt{defineProperty} receives an argument which specifies
+whether the property is enumerable or not. By setting the enumerable
+field \texttt{false} for \texttt{\_objectId}, this property will not
+apear in \texttt{for(property in object)} loops and therfore has no
+effect on the program execution. Consider that \texttt{\_objectId} is
+not set for all objects but only those objects that need an id.
 
 \subsubsection{\texttt{scopeId()} operation}
-The scope id is kept as a variable with name \texttt{\_scopeId} in the scope. We explained that we set a hook at the first instruction of the function which defines the variable. Once this hook hits, \texttt{\_scopeId} is set by calling \texttt{eval()} function. For example, executing \texttt{eval( var \_scopeId = 10)} creates a variable with name \texttt{\_scopeId} and value \texttt{10} in the local scope which is our interesting scope.
+The scope id is kept as a variable with name \texttt{\_scopeId} in the
+scope. We explained that we set a hook at the first instruction of the
+function which defines the variable. Once this hook hits,
+\texttt{\_scopeId} is set by calling \texttt{eval()} function. For
+example, executing \texttt{eval( var \_scopeId = 10)} creates a
+variable with name \texttt{\_scopeId} and value \texttt{10} in the
+local scope which is our interesting scope.
 
 \subsubsection{\texttt{setPropertyChangeHook()} operation}
-We implement a slightly different version of this operation. Setting a flag into the Firefox JavaScript engine we can get the place an object created including the JavaScript file url and line number (e.g., myFile.js, line 24). We can assume that an object is created in the same place in the next re-executions. This assumption does not lead to a wrong answer. We will discuss it in the next section when we discuss the effect of non-determinism. Having this assumption, it is enough to set property change hook for the objects created at one place. 
+We implement a slightly different version of this operation. Setting a
+flag into the Firefox JavaScript engine we can get the place an object
+created including the JavaScript file url and line number (e.g.,
+myFile.js, line 24). We can assume that an object is created in the
+same place in the next re-executions. This assumption does not lead to
+a wrong answer. We will discuss it in the next section when we discuss
+the effect of non-determinism. Having this assumption, it is enough to
+set property change hook for the objects created at one place.
 
-The Firefox JavaScript engine supports watching property changes in an object. Every object has a \texttt{watch()} function which receives two parameters, a property name and another function as the callback. Whenever the property with the given name changes the calleback function is called. The hook is set by this function remains enabled even if the property is deleted and defined again. This function can only be applied to avaialbe objects. However, at the beginning of execution, no object excepting the global object is available. 
+The Firefox JavaScript engine supports watching property changes in an
+object. Every object has a \texttt{watch()} function which receives
+two parameters, a property name and another function as the
+callback. Whenever the property with the given name changes the
+calleback function is called. The hook is set by this function remains
+enabled even if the property is deleted and defined again. This
+function can only be applied to avaialbe objects. However, at the
+beginning of execution, no object excepting the global object is
+available.
 
-If we could get a reference to the object just after its creation, we could use \texttt{watch()} function to monitor property changes in the object. In the next section we explain the algorithm we devised for this purpose by parsing and analyzing the code. This algorithm could be replaced by a much simpler one if Firefox debugging interface gives us the program counter of object creation instead of line number and also provides object creation hook.
-By these assumptions, it was enough to set a hook on the object creation location. Once the execution reaches this location, by enabling object creation hook, we could get a reference to the new object. 
+If we could get a reference to the object just after its creation, we
+could use \texttt{watch()} function to monitor property changes in the
+object. In the next section we explain the algorithm we devised for
+this purpose by parsing and analyzing the code. This algorithm could
+be replaced by a much simpler one if Firefox debugging interface gives
+us the program counter of object creation instead of line number and
+also provides object creation hook.  By these assumptions, it was
+enough to set a hook on the object creation location. Once the
+execution reaches this location, by enabling object creation hook, we
+could get a reference to the new object.
 
 %One solution is to assume that jsd has features that simplify it:first: Setting the flag (object track) returns the exact location of object creation instead of the line number.second: It is possible to set hook on object creation and this returns a reference to the created object.
  %Then we can explain it like this: We set a breakpoint at the location object is created and we enable the object creation hook.  We do steppingfor one instruction and we get the reference.
@@ -539,15 +655,46 @@ By these assumptions, it was enough to set a hook on the object creation locatio
  %I was thinking that perhaps Fireforx 4.0 may support these features.I know that in the new version of JS (1.8.5) and Fireforx 4.0 there is a new function Object(), which is the main object constructor. If for all cases of object creations ({}, new, function),  the engine first calls this function then by modifying or setting a hook in this function we can track object creation. Do you know anyone in Mozilla team who can answer this question?Do you know whether firefox 4 still supports objectTrace flag or not? 
  
 \subsubsection{Tracking object creation}
-The only data we have is the object creation location including the file url and the line number and the goal is to get a reference to this object. Although in the most regular cases we have only one statement and one object creation in a line, there are cases that more than one object might be created in a line. There is no way to recognize the interesting object among these new objects. So instead of one object, we monitor all new objects created in the line. 
+The only data we have is the object creation location including the
+file url and the line number and the goal is to get a reference to
+this object. Although in the most regular cases we have only one
+statement and one object creation in a line, there are cases that more
+than one object might be created in a line. There is no way to
+recognize the interesting object among these new objects. So instead
+of one object, we monitor all new objects created in the line.
 
-An object might be created by one of these statements: An object initializer(\texttt{\{...\}}) or \textit{new} operator (\texttt{new constructor()}) or function objects which can be created by \texttt{function()} statement. By parsing the source code we can easily recognize the statements create an object. The next step is getting a reference to the new object. 
+An object might be created by one of these statements: An object
+initializer(\texttt{\{...\}}) or \textit{new} operator (\texttt{new
+  constructor()}) or function objects which can be created by
+\texttt{function()} statement. By parsing the source code we can
+easily recognize the statements create an object. The next step is
+getting a reference to the new object.
 
-The new object can be assigned to an object property or variable by \texttt{=}. In these cases we keep the assignee statement at the left side. The idea is that we create a list of assignee statements that the new objects are assigned to them. We set a hook on the creation line. Once the hook hits, we evaluate all statements. Then we do stepping(step-over) and after each step we evaluate the statements. Every statement which has a new value, we consider the new value-if it is an object-as a new object. For example in Figure ~\ref{fig:objectCreation}(a), if the creation line number is 20, we have only one statement which creates a new object and it is assigned to \texttt{x.y}. 
+The new object can be assigned to an object property or variable by
+\texttt{=}. In these cases we keep the assignee statement at the left
+side. The idea is that we create a list of assignee statements that
+the new objects are assigned to them. We set a hook on the creation
+line. Once the hook hits, we evaluate all statements. Then we do
+stepping(step-over) and after each step we evaluate the
+statements. Every statement which has a new value, we consider the new
+value-if it is an object-as a new object. For example in Figure
+~\ref{fig:objectCreation}(a), if the creation line number is 20, we
+have only one statement which creates a new object and it is assigned
+to \texttt{x.y}.
 
-The new object can also be set as the property of a parent object by \texttt{:}. This case is also treated similar to previous case. The only difference is that the full path of property from the root parent in the local scope should be considered as the assignee statement. For example in Figure ~\ref{fig:objectCreation}(b), if the creation line is 20, we keep \texttt{parentObject.newObject}. In this case stepping should be continued until the end of line 22 for getting a reference to the created new object. 
+The new object can also be set as the property of a parent object by
+\texttt{:}. This case is also treated similar to previous case. The
+only difference is that the full path of property from the root parent
+in the local scope should be considered as the assignee statement. For
+example in Figure ~\ref{fig:objectCreation}(b), if the creation line
+is 20, we keep \texttt{parentObject.newObject}. In this case stepping
+should be continued until the end of line 22 for getting a reference
+to the created new object.
 
-There is another case for new objects and when they are passed as arguments to other functions ~\ref{fig:objectCreation}(c). In these cases instead of step-over we use step-in and we get the corresponding argument as a new object.
+There is another case for new objects and when they are passed as
+arguments to other functions ~\ref{fig:objectCreation}(c). In these
+cases instead of step-over we use step-in and we get the corresponding
+argument as a new object.
 
 %The algorithm is not complete and it is tried to support more and more cases
 
@@ -572,22 +719,61 @@ There is another case for new objects and when they are passed as arguments to o
 
   
 \subsection{Execution reproduction}
-Although execution reproduction is basicly should be provided by the developer, we tried to devise some automatic way which reproduces the execution. In \textit{Querypointer}, develooper can directly provide a test case which reproduces the execution. It is also possible to use two automatic reproduction option: record-replay or local-reproduction .
+Although execution reproduction is basicly should be provided by the
+developer, we tried to devise some automatic way which reproduces the
+execution. In \textit{Querypointer}, develooper can directly provide a
+test case which reproduces the execution. It is also possible to use
+two automatic reproduction option: record-replay or local-reproduction
+.
 
-Two elements should be carefully considered in execution reproduction. First, the initial state should be the same as previous execution. Second, the similar actions and events should be applied to the program during the execution. In Record-replay approach, debugger stores the initial page url and user actions and during replay phase, opens the same url and simulates user actions. In the local reproduction approach, debugger calls the funtion on the bottom of stack with the same parameters. The idea behind local-reproduction is that in many web pages it is enough to replay the event to reproduce the bug. While record-replay approach gives better warranty about the same initial states, the local-reproudction gives us shorter cycles. It is also possible to uses thes approaches in combination. For example, debugger locally reproduce the execution and if it couldn't find the answer, reproduce the whole execution by record-replay.
+Two elements should be carefully considered in execution
+reproduction. First, the initial state should be the same as previous
+execution. Second, the similar actions and events should be applied to
+the program during the execution. In Record-replay approach, debugger
+stores the initial page url and user actions and during replay phase,
+opens the same url and simulates user actions. In the local
+reproduction approach, debugger calls the funtion on the bottom of
+stack with the same parameters. The idea behind local-reproduction is
+that in many web pages it is enough to replay the event to reproduce
+the bug. While record-replay approach gives better warranty about the
+same initial states, the local-reproudction gives us shorter
+cycles. It is also possible to uses thes approaches in
+combination. For example, debugger locally reproduce the execution and
+if it couldn't find the answer, reproduce the whole execution by
+record-replay.
 % should we talk about counting breakpoint hits for stopping at the right place?
 
 \subsection{Data collection and presentation}
-So far, we talked about the data collected at change events for \textit{lastChange} algorithm. However, if developer needs to explore the program state at a given point, more data is required. It is possible to postpone data collection until user requests. It is also possible to collect the list of available variable. \textit{Querypointer} collects data in one level depth. More data will be collected upon the developer's request by re-execution.
+So far, we talked about the data collected at change events for
+\textit{lastChange} algorithm. However, if developer needs to explore
+the program state at a given point, more data is required. It is
+possible to postpone data collection until user requests. It is also
+possible to collect the list of available
+variable. \textit{Querypointer} collects data in one level depth. More
+data will be collected upon the developer's request by re-execution.
 
-We needed to build an interface to different execution points which are presented at the same time. The current \textit{Querypointer} interface resembles the script panel interface while it keeps the history of navigation.
+We needed to build an interface to different execution points which
+are presented at the same time. The current \textit{Querypointer}
+interface resembles the script panel interface while it keeps the
+history of navigation.
 
 \section{Discussion}
 \subsection{Converting \textit{lastChange} result to a conditional breakpoint}
-We believe that in many cases it is possible to convert the \textit{lastChange} result to a conditional breakpoint and therefore debugger is able to pause at the point
- instead of showing collected data to the developer. Here, we present an example which shows a case this transformation is not possible.
+We believe that in many cases it is possible to convert the
+\textit{lastChange} result to a conditional breakpoint and therefore
+debugger is able to pause at the point instead of showing collected
+data to the developer. Here, we present an example which shows a case
+this transformation is not possible.
 
-Figure ~\ref{fig:counter-example} shows a function with processes an array. The array contains numbers except one itme which is \texttt{undefined} and it causes a bug in line 30. There is a call to \texttt{randomPermutation} function in line 11 which randomly permutates the array item. So at every execution the \texttt{undefined} item will be in a new place. Calling \textit{lastChange} on \texttt{x} at the place bug happens, gives a point which shows line 14. Although this point exists at every re-execution but it can not be identified by a conditional breakpoint. 
+Figure ~\ref{fig:counter-example} shows a function with processes an
+array. The array contains numbers except one itme which is
+\texttt{undefined} and it causes a bug in line 30. There is a call to
+\texttt{randomPermutation} function in line 11 which randomly
+permutates the array item. So at every execution the
+\texttt{undefined} item will be in a new place. Calling
+\textit{lastChange} on \texttt{x} at the place bug happens, gives a
+point which shows line 14. Although this point exists at every
+re-execution but it can not be identified by a conditional breakpoint.
 
 \begin{figure}[htp]
 \begin{verbatim}
@@ -608,12 +794,48 @@ Figure ~\ref{fig:counter-example} shows a function with processes an array. The 
 
 %---------------------------------------------------------------------------------------------------
 \subsection{Reproducible Non-deterministic Execution}
-Thus far we have not discussed problems caused by mul-tiple threads or other sources of non-deterministic execu-tions. We want to explain why we believe \textit{lastChange} is robust in the practically important case where a bug is reproducible even though the execution may not be deterministic. 
-Because \textit{lastChange} require re-execution, we rely on reproducible but not necessarily deterministic execution. A bug is reproducible for a developer when the developer can start from a determined initial state, operate on the program with a list of actions, and reproduce the symptoms of the bug. The details of the execution can change each time we re-execute the buggy program, but the buggy result is the same. The entire query chain reapplies during each execution so the data we show the developer will be internally consistent. The reproducibility of the bug means that the defect is very unlikely to depend on the order of events during the execution.
+Thus far we have not discussed problems caused by mul-tiple threads or
+other sources of non-deterministic execu-tions. We want to explain why
+we believe \textit{lastChange} is robust in the practically important
+case where a bug is reproducible even though the execution may not be
+deterministic.  Because \textit{lastChange} require re-execution, we
+rely on reproducible but not necessarily deterministic execution. A
+bug is reproducible for a developer when the developer can start from
+a determined initial state, operate on the program with a list of
+actions, and reproduce the symptoms of the bug. The details of the
+execution can change each time we re-execute the buggy program, but
+the buggy result is the same. The entire query chain reapplies during
+each execution so the data we show the developer will be internally
+consistent. The reproducibility of the bug means that the defect is
+very unlikely to depend on the order of events during the execution.
 
-In this important case of reproducible bugs, \textit{lastChange} are more effective than breakpoints. In the case of logically deterministic program execution, we can use the result from a \textit{lastChange} operation to set a conditional breakpoint then re-execute the program to position the execution trace backwards from our first breakpoint. %(This may be a useful adjunct for Querypoint debuggers to implement, but this backwards motion in the execution logic is not required for Querypoint debugging.) Thus in this case Querypoint debugging can do the same kinds of things as conventional breakpoints just more automatically.
+In this important case of reproducible bugs, \textit{lastChange} are
+more effective than breakpoints. In the case of logically
+deterministic program execution, we can use the result from a
+\textit{lastChange} operation to set a conditional breakpoint then
+re-execute the program to position the execution trace backwards from
+our first breakpoint.
 
-In the case of a non-deterministic program, a \textit{lastChange} is not equivalent to any series of conventional watchpoints or breakpoints. Each time we re-execute a non-deterministic program, the details of execution in-struction order may change. For example, if we record the source code lines every time a conventional watchpoint hits, the record may differ each time we re-execute. Sup-pose we consult one such record and set a breakpoint on the last entry, the apparent lastChange source line. When we re-execute, the breakpoint will hit, but the information we gain may be incorrect: this may not be the lastChange for this particular re-execution. The \textit{lastChange} method records the values we need and the sequence of source lines from all of the watchpoints, then analyzes the record to select the correct lastChange point. The data shown to the developer will be internally consistent, but of course it may change from a previous re-execution, surprising the developer. This is just a signal that the execution is not deterministic. In future we hope to compare queries from successive executions as a tool for learning about non-deterministic executions.
+%(This may be a useful adjunct for Querypoint debuggers to implement, but this backwards motion in the execution logic is not required for Querypoint debugging.) Thus in this case Querypoint debugging can do the same kinds of things as conventional breakpoints just more automatically.
+
+In the case of a non-deterministic program, a \textit{lastChange} is
+not equivalent to any series of conventional watchpoints or
+breakpoints. Each time we re-execute a non-deterministic program, the
+details of execution in-struction order may change. For example, if we
+record the source code lines every time a conventional watchpoint
+hits, the record may differ each time we re-execute. Sup-pose we
+consult one such record and set a breakpoint on the last entry, the
+apparent lastChange source line. When we re-execute, the breakpoint
+will hit, but the information we gain may be incorrect: this may not
+be the lastChange for this particular re-execution. The
+\textit{lastChange} method records the values we need and the sequence
+of source lines from all of the watchpoints, then analyzes the record
+to select the correct lastChange point. The data shown to the
+developer will be internally consistent, but of course it may change
+from a previous re-execution, surprising the developer. This is just a
+signal that the execution is not deterministic. In future we hope to
+compare queries from successive executions as a tool for learning
+about non-deterministic executions.
 
 \subsection{Reproduction point}
 
@@ -621,24 +843,108 @@ In the case of a non-deterministic program, a \textit{lastChange} is not equival
 \subsection{\textit{lastChange} effectiveness}
 
 \subsection{Execution overhead analysis}
-If we assume that the total number of instructions in an execution is $n$ and $m$ change event happens during one execution and for every change event $k$ additionial instructions should be executed, the execution overhead of our approach is $mk/n$. For $m=10^3$, $k=10^2$ and $n=10^{10}$ the overhead is very low and about $10^{-5}$.
+If we assume that the total number of instructions in an execution is
+$n$ and $m$ change event happens during one execution and for every
+change event $k$ additionial instructions should be executed, the
+execution overhead of our approach is $mk/n$. For $m=10^3$, $k=10^2$
+and $n=10^{10}$ the overhead is very low and about $10^{-5}$.
 
 \section{Related Work}
 
-\textit{lastChange} functionality supports obtaining information about the execution state logically earlier in the control flow. This support resembles a mixture of replay-based and logging-based debugging. Replay-based approaches capture limited data during execution and replay the bug-gy execution to reach past points. In contrast, logging-based approaches collect enough data during execution to relieve developer from re-execution. Replay-based approaches impose much less runtime overhead (about two orders of magnitudes) comparing to logging-based appproches. However, developer has to re-execute the buggy execution several times. \textit{lastChange} functionality collects data on re-execution but this data is limited to the current queries of developer.
+\textit{lastChange} functionality supports obtaining information about
+the execution state logically earlier in the control flow. This
+support resembles a mixture of replay-based and logging-based
+debugging. Replay-based approaches capture limited data during
+execution and replay the bug-gy execution to reach past points. In
+contrast, logging-based approaches collect enough data during
+execution to relieve developer from re-execution. Replay-based
+approaches impose much less runtime overhead (about two orders of
+magnitudes) comparing to logging-based appproches. However, developer
+has to re-execute the buggy execution several
+times. \textit{lastChange} functionality collects data on re-execution
+but this data is limited to the current queries of developer.
 
-Among replay-based debuggers we compare to bdb \cite{Boothe} and reverse watchpoint \cite{Maruyama}.  A bidirectional C debugger, bdb employs a step counter to locate the requested point from the beginning of execution. It relies on deterministic execution replay (i.e., the same sequence of instructions in re-execution) and records the results of non-deterministic system calls and re-injects them into the program when it is replayed. It makes use of checkpoints to reduce the time needed for re-execution.  Reverse watchpoint, is proposed by Maruyama et al., analyses the execution and moves the debugger to the last write access of a selected variable by re-executing the program from the \cite{Maruyama}.  Similar to bdb it relies on deterministic replay and uses a counter to correctly locate a point in the next execution. The main disadvantage of these appraoches is requiring the exactly the same executions. Even one instruction difference between in two executions leads to wrong results. This requirement is that much restricting that after ten years from bdb paper publication, there is no newer implementation of this idea. On the other hand, \textit{lastChange} doesn't require any special feature in the re-rexecution and it is fit to everyday's developers' debugging practice. 
+Among replay-based debuggers we compare to bdb \cite{Boothe} and
+reverse watchpoint \cite{Maruyama}.  A bidirectional C debugger, bdb
+employs a step counter to locate the requested point from the
+beginning of execution. It relies on deterministic execution replay
+(i.e., the same sequence of instructions in re-execution) and records
+the results of non-deterministic system calls and re-injects them into
+the program when it is replayed. It makes use of checkpoints to reduce
+the time needed for re-execution.  Reverse watchpoint, is proposed by
+Maruyama et al., analyses the execution and moves the debugger to the
+last write access of a selected variable by re-executing the program
+from the \cite{Maruyama}.  Similar to bdb it relies on deterministic
+replay and uses a counter to correctly locate a point in the next
+execution. The main disadvantage of these appraoches is requiring the
+exactly the same executions. Even one instruction difference between
+in two executions leads to wrong results. This requirement is that
+much restricting that after ten years from bdb paper publication,
+there is no newer implementation of this idea. On the other hand,
+\textit{lastChange} doesn't require any special feature in the
+re-rexecution and it is fit to everyday's developers' debugging
+practice.
 
-Among logging-based approaches are "omniscient" debuggers ODB\cite{Lewis} and Unstuck[]. Omniscient debuggers have been proposed as a solution for the problems of breakpoint-debugging. Both approaches keep the log history in memory and hence can only record and store the complete history for a short period of time. These debuggers record all the events that occur during the buggy execution and later let the developer to navigate through the obtained execution log. In this approach there is no execution to resume: moving backwards in the log can be similar to moving forwards. Omniscient debuggers suffer from a different set of issues. First, the recording step is time expensive and it should be repeated in case of changes in program. Second, the execution log cannot fully replace the live execution. There are other aspects of execution (e.g., program user interface, file system, database tables, etc.) which are also important in debugging and are not available to the developer in omniscient debuggers. Third, querying collected data (e.g., to restore the program state at a certain point) may not be efficient enough for debugging of realistic programs.
+Among logging-based approaches are "omniscient" debuggers
+ODB\cite{Lewis} and Unstuck[]. Omniscient debuggers have been proposed
+as a solution for the problems of breakpoint-debugging. Both
+approaches keep the log history in memory and hence can only record
+and store the complete history for a short period of time. These
+debuggers record all the events that occur during the buggy execution
+and later let the developer to navigate through the obtained execution
+log. In this approach there is no execution to resume: moving
+backwards in the log can be similar to moving forwards. Omniscient
+debuggers suffer from a different set of issues. First, the recording
+step is time expensive and it should be repeated in case of changes in
+program. Second, the execution log cannot fully replace the live
+execution. There are other aspects of execution (e.g., program user
+interface, file system, database tables, etc.) which are also
+important in debugging and are not available to the developer in
+omniscient debuggers. Third, querying collected data (e.g., to restore
+the program state at a certain point) may not be efficient enough for
+debugging of realistic programs.
 
-A more scalable approach has been proposed by Pothier et al. \cite{Pothier}. Their back-in-time debugger, TOD, addresses the space problem by storing execution events in a distributed database. Comparing to Omniscient debuggers our approach is lightweight and more flexible. Developer can start debugging just after reproducing bug without a capturing step.  Changing inputs or environment settings and re-executing to investigate the bug works as in conventional breakpoint debuggers.
+A more scalable approach has been proposed by Pothier et
+al. \cite{Pothier}. Their back-in-time debugger, TOD, addresses the
+space problem by storing execution events in a distributed
+database. Comparing to Omniscient debuggers our approach is
+lightweight and more flexible. Developer can start debugging just
+after reproducing bug without a capturing step.  Changing inputs or
+environment settings and re-executing to investigate the bug works as
+in conventional breakpoint debuggers.
 
-Two new directions in logging debuggers explore more detailed use of the log and more effective logging approaches. WhyLine\cite{Ko} provides visual interface to collected runtime information and let developer to move  on execution log using queries expressed in terms of the programming objects. WhyLine stores the program user in-terface in addition to program trace and provides answers to why and why not questions to the user. Jive\cite{Czyz} depicts the history of execution by a sequence diagram and lets user to query on events database. Both tools suffer from similar issues with omniscient debuggers; 
+Two new directions in logging debuggers explore more detailed use of
+the log and more effective logging approaches. WhyLine\cite{Ko}
+provides visual interface to collected runtime information and let
+developer to move on execution log using queries expressed in terms of
+the programming objects. WhyLine stores the program user in-terface in
+addition to program trace and provides answers to why and why not
+questions to the user. Jive\cite{Czyz} depicts the history of
+execution by a sequence diagram and lets user to query on events
+database. Both tools suffer from similar issues with omniscient
+debuggers;
 %both provide models for extending Querypoint debugging to obtain a better user interface while retaining the flexible conven-tional replay model of debugging.  
 
-A recent work by Lienhard et al.\cite{Lienhard} suggests virtual machine level support for keeping the object flow. It rep-laces every object reference with an alias object which keeps the history of changes to the object reference. In this way, when an object is collected by garbage collector, its track of changes (if it is not referenced by other alias-es) will be also collected. Though this approach incurs less runtime overhead (7 times to 115 times) in comparison to omniscient debuggers, it adds memory overhead. Querypoint debugging uses re-executions to gather infor-mation requested by the developer: the memory overhead depends on the query not the entire program. Moreover, the Lienhard et al. debugger significantly changes the virtual machine, while our approach is a generalization to conditional breakpoints and available debugger infrastructure can be adapted to support it. 
+A recent work by Lienhard et al.\cite{Lienhard} suggests virtual
+machine level support for keeping the object flow. It rep-laces every
+object reference with an alias object which keeps the history of
+changes to the object reference. In this way, when an object is
+collected by garbage collector, its track of changes (if it is not
+referenced by other alias-es) will be also collected. Though this
+approach incurs less runtime overhead (7 times to 115 times) in
+comparison to omniscient debuggers, it adds memory
+overhead. Querypoint debugging uses re-executions to gather
+infor-mation requested by the developer: the memory overhead depends
+on the query not the entire program. Moreover, the Lienhard et
+al. debugger significantly changes the virtual machine, while our
+approach is a generalization to conditional breakpoints and available
+debugger infrastructure can be adapted to support it.
  
-\textit{lastChange} functionality does rely on a conventional breakpoint to begin queries, a requirement not shared by full logging solutions.  Here we leverage past experience of developers, but there are also new tools [] to help with this problem in the case of graphical and event based systems.
+\textit{lastChange} functionality does rely on a conventional
+breakpoint to begin queries, a requirement not shared by full logging
+solutions.  Here we leverage past experience of developers, but there
+are also new tools [] to help with this problem in the case of
+graphical and event based systems.
 
 
 \section{Conclusions and Future Work}
