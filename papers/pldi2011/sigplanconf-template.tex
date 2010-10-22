@@ -579,80 +579,60 @@ straightforward (Figure ~\ref{fig:lastchange-lastchange}).
 
 %---------------------------------------------------------------------------------------------------
 \section{JavaScript implementation}
-We implemented \textit{Querypointer}, an Extension to Firebug
-JavaScript debugger, which provides \textit{lastChange}
-functionality. Firebug is an add-on of Firefox browser. Firefox
+To verify the \textit{lastChange} algorithm we
+implemented it in an extension to the Firebug
+JavaScript debugger\cite{firebug-version-1.6}. 
+Firebug itself is an extension of the Firefox browser\cite{firefox-version-3.6}. The Firefox
 JavaScript engine provides a JavaScript debugging interface and
-\textit{Querypointer} is developed over this interface. The debugging
-support in JavaScript comparing to more traditional languages such as
-Java and C\# is less evolved. Some part of this flaw is due to the
-dynamic nature of JavaScript. For example, JavaScript does not have
-classes and therefore setting watchpoint on properties before program
-execution is not possible. We explain how we could overcome these
-limitations and provide required operations for \textit{lastChange}
-algorithm implementation. Moreover, we breifly describe mechanisms for
-automated execution reproduction, data collection and presentation.
+\textit{Querypointer} is developed over this interface. 
 
 \subsection{Algorithm technical details}
 \subsubsection{\texttt{objectId()} operation}
-\texttt{objectId()} operation receives a regular JavaScript object and
-returns an id which is unique during one execution. This operation
-keeps the object id in an object property with name
-\texttt{\_objectId}. Once this operation receives an object, it
-returns \texttt{\_objectId} value if this property is already defined,
-otherwise it generates a new id and sets this property object. To set
-the property, it calls \texttt{defineProperty} standard JavaScript
+\texttt{objectId(obj)} first checks the argument \texttt{obj} for a property \texttt{\_objectId}.
+It returns the value if this property is already defined,
+otherwise it generates a new id and sets this property. The value of the id is simply an integer incremented 
+for each new \texttt{\_objectId} needed. \textit{CHECK THAT} To set
+the property, we call the \texttt{defineProperty} standard JavaScript
 function. \texttt{defineProperty} receives an argument which specifies
 whether the property is enumerable or not. By setting the enumerable
 field \texttt{false} for \texttt{\_objectId}, this property will not
 apear in \texttt{for(property in object)} loops and therfore has no
-effect on the program execution. Consider that \texttt{\_objectId} is
+effect on the program execution. Note that \texttt{\_objectId} is
 not set for all objects but only those objects that need an id.
 
 \subsubsection{\texttt{scopeId()} operation}
 The scope id is kept as a variable with name \texttt{\_scopeId} in the
 scope. We explained that we set a hook at the first instruction of the
 function which defines the variable. Once this hook hits,
-\texttt{\_scopeId} is set by calling \texttt{eval()} function. For
+\texttt{\_scopeId} is set by calling JavaScript's dynamic compilation function \texttt{eval()}. For
 example, executing \texttt{eval( var \_scopeId = 10)} creates a
 variable with name \texttt{\_scopeId} and value \texttt{10} in the
-local scope which is our interesting scope.
+scope of the \texttt{eval()} call, which is our interesting scope.
 
 \subsubsection{\texttt{setPropertyChangeHook()} operation}
-We implement a slightly different version of this operation. Setting a
-flag into the Firefox JavaScript engine we can get the place an object
-created including the JavaScript file url and line number (e.g.,
-myFile.js, line 24). We can assume that an object is created in the
-same place in the next re-executions. This assumption does not lead to
-a wrong answer. We will discuss it in the next section when we discuss
-the effect of non-determinism. Having this assumption, it is enough to
-set property change hook for the objects created at one place.
-
 The Firefox JavaScript engine supports watching property changes in an
-object. Every object has a \texttt{watch()} function which receives
-two parameters, a property name and another function as the
-callback. Whenever the property with the given name changes the
-calleback function is called. The hook is set by this function remains
-enabled even if the property is deleted and defined again. This
-function can only be applied to avaialbe objects. However, at the
-beginning of execution, no object excepting the global object is
-available.
+object. Every object has a function \texttt{watch(propName, callback)}
+which receives two parameters, a property name and function.  Whenever
+the property with the given name changes, the \texttt{callback} function is
+called. The hook set by this function remains enabled even if the
+property is deleted and defined again. 
 
-If we could get a reference to the object just after its creation, we
-could use \texttt{watch()} function to monitor property changes in the
-object. In the next section we explain the algorithm we devised for
-this purpose by parsing and analyzing the code. This algorithm could
-be replaced by a much simpler one if Firefox debugging interface gives
-us the program counter of object creation instead of line number and
-also provides object creation hook.  By these assumptions, it was
-enough to set a hook on the object creation location. Once the
-execution reaches this location, by enabling object creation hook, we
-could get a reference to the new object.
+For our purposes, the \texttt{watch()} function only covers the case
+of global object properties. At the beginning of execution, no object
+excepting the global object is available. Therefore we defined and
+implemented \texttt{setPropertyChangeHook()} to work in the rest of
+the cases. 
 
-%One solution is to assume that jsd has features that simplify it:first: Setting the flag (object track) returns the exact location of object creation instead of the line number.second: It is possible to set hook on object creation and this returns a reference to the created object.
- %Then we can explain it like this: We set a breakpoint at the location object is created and we enable the object creation hook.  We do steppingfor one instruction and we get the reference.
- 
- %I was thinking that perhaps Fireforx 4.0 may support these features.I know that in the new version of JS (1.8.5) and Fireforx 4.0 there is a new function Object(), which is the main object constructor. If for all cases of object creations ({}, new, function),  the engine first calls this function then by modifying or setting a hook in this function we can track object creation. Do you know anyone in Mozilla team who can answer this question?Do you know whether firefox 4 still supports objectTrace flag or not? 
+The Firefox JavaScript engine does not current support
+\texttt{setPropertyChangeHook()} (see however \cite{bugzilla}).  For
+the our \textit{lastChange} prototype we created a version of
+\texttt{setPropertyChangeHook()} using only features of the current
+engine.  The basic strategy is to get a reference to the object just
+after its creation, then use \texttt{watch()} function to monitor
+property changes in the object.  Setting a flag into the Firefox
+JavaScript engine we can get file URL and line number for each object
+creation (e.g., myFile.js, line 24). We set a breakpoint on this line
+and analyze the source code to determine which object was created.
  
 \subsubsection{Tracking object creation}
 The only data we have is the object creation location including the
@@ -713,7 +693,7 @@ argument as a new object.
 20 myFunction({myProperty:5});
  
 \end{verbatim}
-\caption{A few cases shows possible object creations.}
+\caption{Examples of three types of JavaScript object creatin statements.}
 \label{fig:objectCreation}
 \end{figure}
 
