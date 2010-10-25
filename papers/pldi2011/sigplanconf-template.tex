@@ -428,44 +428,20 @@ function is defined. Catch scope is the scope created in the catch
 block of try-catch statements and contains the exception
 variable. These scopes are not necessarily regular JavaScript
 objects. Therefore, to track changes to a variable in these scopes we
-use a different strategy.
+need a different approach.
 
-\begin{figure}[htp]
-\begin{verbatim}
-10  function parent(){
-11    var var1;
-12    var1 = ...;
-13    function myfun(){
-14      var1 = ...;
-15      function firstChild(){
-16       	var var1;
-17        var1 = ...;
-18      }  
-19      function secondChild(){
-20        var1 = ...;			      
-21      }
-22    }  
-23  }    
-\end{verbatim}
-\caption{Sample JavaScript code demonstrating local and clousure variables.}
-\label{fig:js-closure}
-\end{figure}
+All scopes in the scope chains come from blocks around the executing code.
+Comparing the scope chain and the script we can identify the code block     % perhaps needs more explanation
+(script) corresponding to the variable scope. Similar to \textit{lastChange} 
+on object property, we define two basic operations \texttt{scopeId()} and
+\texttt{setVariableChangeHook()}. The first one given an scope and its defining 
+block(script) returns an integer as the scope's identifier. The second one 
+given a callback function, a block(script) and a variable name, the function is called
+whenever the variable is changed. After developer asks for the \textit{lastChange}
+on a variable, in re-exeuction whenever the script is loaded, \texttt{setVariableChangeHook()}
+is called. Every time the callback function is called a new change 
+event is inserted to the list of change events.
 
-Only operations in the scope of the these varibles can change their value; that includes the defining scope and scopes nested inside of them.
-For example in Figure
-~\ref{fig:js-closure}, variable \texttt{var1} in line 11 can only be
-changed in lines 10 to 23. Therefore, after locating the function in
-which the variable is defined, it is enough to parse the code inside
-the function block and set a hook on all lines where the variable is
-assigned a new value. \textit{What if we called this operation setVariableChangeHook() and defered the discussion to 4??}
-We also set a hook at the first line of the function which is
-corresponding to the line variable is defined. In Figure
-~\ref{fig:js-closure}, if the execution is paused at line 17 and the
-last change of \texttt{var1} is queried, two hooks on lines 16 and 17
-will be set, but if the execution is paused at line 20 , four hooks on
-lines 11, 12, 14, 20 will be set. These two cases are different due
-the fact that \texttt{var1} in \texttt{firstChild} is a local variable
-but in \texttt{secondChild} is a closure variable.
 
 \begin{figure}[htp]
 \begin{verbatim}
@@ -493,19 +469,16 @@ C  |  ?
 \label{fig:recursive}
 \end{figure}
 
-
-Every time one of the hooks hits a new change event is inserted to the
-list of change events. During execution the same variable might be
-changed several times but in different scopes. Figure
-~\ref{fig:recursive} demonstrates a case that the same variable
+Figure ~\ref{fig:recursive} demonstrates a case that the same variable
 \texttt{x} is changed several times but in different scopes due to the
-recursive calls. Without the scope id calling \textit{lastChange(x)}
-at point C will return point B while the right answer is point A. To
-address this issue, we employ \texttt{scopeId()} operation-explained
-in the next section-which returns a unique id for a scopes during on
-execution. The scope id is kept at every variable change event. Once
-the execution reaches the reproduction point, using variable's scope
-id, the last change is recognized.
+recursive calls. Without considering the scopes calling \textit{lastChange(x)}
+at point C will return point B while the right answer is point A. Using
+\texttt{scopId()} operation, the scope id is also stored at every variable
+change event.
+ 
+After developer asks for the \textit{lastChange} on a variable, 
+Once the execution reaches the reproduction point, using variable's scope
+id, the last change is recognized (Figure ~\ref{fig:foo-changes2}).
 
 \begin{figure}[htp]
 \includegraphics[width=.48\textwidth]{7-foo-changes2.jpg}
@@ -591,7 +564,7 @@ JavaScript engine provides a JavaScript debugging interface and
 \texttt{objectId(obj)} first checks the argument \texttt{obj} for a property \texttt{\_objectId}.
 It returns the value if this property is already defined,
 otherwise it generates a new id and sets this property. The value of the id is simply an integer incremented 
-for each new \texttt{\_objectId} needed. \textit{CHECK THAT} To set
+for each new \texttt{\_objectId} needed. To set %\textit{CHECK THAT} 
 the property, we call the \texttt{defineProperty} standard JavaScript
 function. \texttt{defineProperty} receives an argument which specifies
 whether the property is enumerable or not. By setting the enumerable
@@ -599,15 +572,6 @@ field \texttt{false} for \texttt{\_objectId}, this property will not
 apear in \texttt{for(property in object)} loops and therfore has no
 effect on the program execution. Note that \texttt{\_objectId} is
 not set for all objects but only those objects that need an id.
-
-\subsubsection{\texttt{scopeId()} operation}
-The scope id is kept as a variable with name \texttt{\_scopeId} in the
-scope. We explained that we set a hook at the first instruction of the
-function which defines the variable. Once this hook hits,
-\texttt{\_scopeId} is set by calling JavaScript's dynamic compilation function \texttt{eval()}. For
-example, executing \texttt{eval( var \_scopeId = 10)} creates a
-variable with name \texttt{\_scopeId} and value \texttt{10} in the
-scope of the \texttt{eval()} call, which is our interesting scope.
 
 \subsubsection{\texttt{setPropertyChangeHook()} operation}
 The Firefox JavaScript engine supports watching property changes in an
@@ -697,6 +661,53 @@ argument as a new object.
 \label{fig:objectCreation}
 \end{figure}
 
+
+\subsubsection{\texttt{scopeId()} operation}
+The scope id is kept as a variable with name \texttt{\_scopeId} in the
+scope. We explained that we set a hook at the first instruction of the
+function which defines the variable. Once this hook hits,
+\texttt{\_scopeId} is set by calling JavaScript's dynamic compilation function \texttt{eval()}. For
+example, executing \texttt{eval( var \_scopeId = 10)} creates a
+variable with name \texttt{\_scopeId} and value \texttt{10} in the
+scope of the \texttt{eval()} call, which is our interesting scope.
+
+\subsubsection{\texttt{setVariableChangeHook()} operation}
+Only operations in the scope of these varibles can change their value; 
+that includes the defining scope and scopes nested inside of them.
+For example in Figure ~\ref{fig:js-closure}, variable \texttt{var1} in line 11 can only be
+changed in lines 10 to 23. Therefore, after locating the function in
+which the variable is defined, it is enough to parse the code inside
+the function block and set a hook on all lines where the variable is
+assigned a new value. 
+We also set a hook at the first line of the function which is
+corresponding to the line variable is defined. In Figure
+~\ref{fig:js-closure}, if the execution is paused at line 17 and the
+last change of \texttt{var1} is queried, two hooks on lines 16 and 17
+will be set, but if the execution is paused at line 20 , four hooks on
+lines 11, 12, 14, 20 will be set. These two cases are different due
+the fact that \texttt{var1} in \texttt{firstChild} is a local variable
+but in \texttt{secondChild} is a closure variable.
+
+\begin{figure}[htp]
+\begin{verbatim}
+10  function parent(){
+11    var var1;
+12    var1 = ...;
+13    function myfun(){
+14      var1 = ...;
+15      function firstChild(){
+16       	var var1;
+17        var1 = ...;
+18      }  
+19      function secondChild(){
+20        var1 = ...;			      
+21      }
+22    }  
+23  }    
+\end{verbatim}
+\caption{Sample JavaScript code demonstrating local and clousure variables.}
+\label{fig:js-closure}
+\end{figure}
   
 \subsection{Execution reproduction}
 Although execution reproduction is basicly should be provided by the
