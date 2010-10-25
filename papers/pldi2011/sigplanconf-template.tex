@@ -559,8 +559,7 @@ Firebug itself is an extension of the Firefox browser\cite{firefox-version-3.6}.
 JavaScript engine provides a JavaScript debugging interface and
 \textit{Querypointer} is developed over this interface. 
 
-\subsection{Algorithm technical details}
-\subsubsection{\texttt{objectId()} operation}
+\subsection{\texttt{objectId()} operation}
 \texttt{objectId(obj)} first checks the argument \texttt{obj} for a property \texttt{\_objectId}.
 It returns the value if this property is already defined,
 otherwise it generates a new id and sets this property. The value of the id is simply an integer incremented 
@@ -573,7 +572,7 @@ apear in \texttt{for(property in object)} loops and therfore has no
 effect on the program execution. Note that \texttt{\_objectId} is
 not set for all objects but only those objects that need an id.
 
-\subsubsection{\texttt{setPropertyChangeHook()} operation}
+\subsection{\texttt{setPropertyChangeHook()} operation}
 The Firefox JavaScript engine supports watching property changes in an
 object. Every object has a function \texttt{watch(propName, callback)}
 which receives two parameters, a property name and function.  Whenever
@@ -598,7 +597,7 @@ JavaScript engine we can get file URL and line number for each object
 creation (e.g., myFile.js, line 24). We set a breakpoint on this line
 and analyze the source code to determine which object was created.
  
-\subsubsection{Tracking object creation}
+\subsection{Tracking object creation}
 The only data we have is the object creation location including the
 file url and the line number and the goal is to get a reference to
 this object. Although in the most regular cases we have only one
@@ -662,7 +661,7 @@ argument as a new object.
 \end{figure}
 
 
-\subsubsection{\texttt{scopeId()} operation}
+\subsection{\texttt{scopeId()} operation}
 The scope id is kept as a variable with name \texttt{\_scopeId} in the
 scope. We explained that we set a hook at the first instruction of the
 function which defines the variable. Once this hook hits,
@@ -671,7 +670,7 @@ example, executing \texttt{eval( var \_scopeId = 10)} creates a
 variable with name \texttt{\_scopeId} and value \texttt{10} in the
 scope of the \texttt{eval()} call, which is our interesting scope.
 
-\subsubsection{\texttt{setVariableChangeHook()} operation}
+\subsection{\texttt{setVariableChangeHook()} operation}
 Only operations in the scope of these varibles can change their value; 
 that includes the defining scope and scopes nested inside of them.
 For example in Figure ~\ref{fig:js-closure}, variable \texttt{var1} in line 11 can only be
@@ -709,44 +708,6 @@ but in \texttt{secondChild} is a closure variable.
 \label{fig:js-closure}
 \end{figure}
   
-\subsection{Execution reproduction}
-Although execution reproduction is basicly should be provided by the
-developer, we tried to devise some automatic way which reproduces the
-execution. In \textit{Querypointer}, develooper can directly provide a
-test case which reproduces the execution. It is also possible to use
-two automatic reproduction option: record-replay or local-reproduction
-.
-
-Two elements should be carefully considered in execution
-reproduction. First, the initial state should be the same as previous
-execution. Second, the similar actions and events should be applied to
-the program during the execution. In Record-replay approach, debugger
-stores the initial page url and user actions and during replay phase,
-opens the same url and simulates user actions. In the local
-reproduction approach, debugger calls the funtion on the bottom of
-stack with the same parameters. The idea behind local-reproduction is
-that in many web pages it is enough to replay the event to reproduce
-the bug. While record-replay approach gives better warranty about the
-same initial states, the local-reproudction gives us shorter
-cycles. It is also possible to uses thes approaches in
-combination. For example, debugger locally reproduce the execution and
-if it couldn't find the answer, reproduce the whole execution by
-record-replay.
-% should we talk about counting breakpoint hits for stopping at the right place?
-
-\subsection{Data collection and presentation}
-So far, we talked about the data collected at change events for
-\textit{lastChange} algorithm. However, if developer needs to explore
-the program state at a given point, more data is required. It is
-possible to postpone data collection until user requests. It is also
-possible to collect the list of available
-variable. \textit{Querypointer} collects data in one level depth. More
-data will be collected upon the developer's request by re-execution.
-
-We needed to build an interface to different execution points which
-are presented at the same time. The current \textit{Querypointer}
-interface resembles the script panel interface while it keeps the
-history of navigation.
 
 \section{Discussion}
 
@@ -830,6 +791,45 @@ executions. Different values on different executions will signal that
 the execution is not deterministic. In future we hope to compare
 queries from successive executions as a tool for learning about
 non-deterministic executions.
+
+\subsection{Execution reproduction}
+Although execution reproduction is basicly should be provided by the
+developer, we tried to devise some automatic way which reproduces the
+execution. In \textit{Querypointer}, develooper can directly provide a
+test case which reproduces the execution. It is also possible to use
+two automatic reproduction option: record-replay or local-reproduction
+.
+
+Two elements should be carefully considered in execution
+reproduction. First, the initial state should be the same as previous
+execution. Second, the similar actions and events should be applied to
+the program during the execution. In Record-replay approach, debugger
+stores the initial page url and user actions and during replay phase,
+opens the same url and simulates user actions. In the local
+reproduction approach, debugger calls the funtion on the bottom of
+stack with the same parameters. The idea behind local-reproduction is
+that in many web pages it is enough to replay the event to reproduce
+the bug. While record-replay approach gives better warranty about the
+same initial states, the local-reproudction gives us shorter
+cycles. It is also possible to uses thes approaches in
+combination. For example, debugger locally reproduce the execution and
+if it couldn't find the answer, reproduce the whole execution by
+record-replay.
+% should we talk about counting breakpoint hits for stopping at the right place?
+
+\subsection{Data collection and presentation}
+So far, we talked about the data collected at change events for
+\textit{lastChange} algorithm. However, if developer needs to explore
+the program state at a given point, more data is required. It is
+possible to postpone data collection until user requests. It is also
+possible to collect the list of available
+variable. \textit{Querypointer} collects data in one level depth. More
+data will be collected upon the developer's request by re-execution.
+
+We needed to build an interface to different execution points which
+are presented at the same time. The current \textit{Querypointer}
+interface resembles the script panel interface while it keeps the
+history of navigation.
 
 \subsection{Reproduction point}
 
