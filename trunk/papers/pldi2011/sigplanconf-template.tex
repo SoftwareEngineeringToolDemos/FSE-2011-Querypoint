@@ -561,14 +561,13 @@ straightforward (Figure ~\ref{fig:lastchange-lastchange}).
 
 
 
-
 %---------------------------------------------------------------------------------------------------
 \section{JavaScript implementation}
 To verify the \textit{lastChange} algorithm we
 implemented it in an extension to the Firebug
-JavaScript debugger[].%\cite{firebug-version-1.6}. 
-Firebug itself is an extension of the Firefox browser[]. %\cite{firefox-version-3.6}
-The Firefox JavaScript engine provides a JavaScript debugging interface and
+JavaScript debugger\cite{Firebug}. %\cite{firebug-version-1.6}. 
+Firebug itself is an extension of the Firefox browser\cite{Firefox}. %\cite{firefox-version-3.6}
+The Firefox JavaScript engine provides a JavaScript debugging interface \cite{JSD} and
 \textit{Querypointer} is developed over this interface. 
 
 \subsection{\texttt{objectId()} operation}
@@ -599,14 +598,14 @@ implemented \texttt{setPropertyChangeHook()} to work in the rest of
 the cases. 
 
 The Firefox JavaScript engine does not current support
-\texttt{setPropertyChangeHook()} (see however \cite{bugzilla}).  For
+\texttt{setPropertyChangeHook()} (see however []).  For %\cite{bugzilla}
 the our \textit{lastChange} prototype we created a version of
 \texttt{setPropertyChangeHook()} using only features of the current
 engine.  The basic strategy is to get a reference to the object just
 after its creation, then use \texttt{watch()} function to monitor
 property changes in the object.  Setting a flag into the Firefox
 JavaScript engine we can get file URL and line number for each object
-creation (e.g., myFile.js, line 24). We set a breakpoint on this line
+creation (e.g., myFile.js, line 24). We set a hook on this line
 and analyze the source code to determine which object was created.
  
 \subsection{Tracking object creation}
@@ -619,39 +618,23 @@ recognize the interesting object among these new objects. So instead
 of one object, we monitor all new objects created in the line.
 
 An object might be created by one of these statements: An object
-initializer(\texttt{\{...\}}) or \textit{new} operator (\texttt{new
-  constructor()}) or function objects which can be created by
-\texttt{function()} statement. By parsing the source code we can
-easily recognize the statements create an object. The next step is
-getting a reference to the new object.
+initializer (\texttt{\{...\}}), \textit{new} operator (\texttt{new 
+constructor()}) or function definition statment (\texttt{function()}). 
+By parsing the source code we can easily recognize the statements 
+create an object. The next step is getting a reference to the new object.
 
 The new object can be assigned to an object property or variable by
-\texttt{=}. In these cases we keep the assignee statement at the left
-side. The idea is that we create a list of assignee statements that
-the new objects are assigned to them. We set a hook on the creation
-line. Once the hook hits, we evaluate all statements. Then we do
-stepping(step-over) and after each step we evaluate the
+an assignment (\texttt{=}). In these cases we keep the assignee statement 
+at the left side. The idea is that we create a list of assignee statements 
+that the new objects are assigned to them. We set a hook on the creation
+line. Once the hook hits, we evaluate all assignee statements. Then 
+we do stepping(step-over) and after each step we evaluate the
 statements. Every statement which has a new value, we consider the new
 value-if it is an object-as a new object. For example in Figure
 ~\ref{fig:objectCreation}(a), if the creation line number is 20, we
 have only one statement which creates a new object and it is assigned
 to \texttt{x.y}.
 
-The new object can also be set as the property of a parent object by
-\texttt{:}. This case is also treated similar to previous case. The
-only difference is that the full path of property from the root parent
-in the local scope should be considered as the assignee statement. For
-example in Figure ~\ref{fig:objectCreation}(b), if the creation line
-is 20, we keep \texttt{parentObject.newObject}. In this case stepping
-should be continued until the end of line 22 for getting a reference
-to the created new object.
-
-There is another case for new objects and when they are passed as
-arguments to other functions ~\ref{fig:objectCreation}(c). In these
-cases instead of step-over we use step-in and we get the corresponding
-argument as a new object.
-
-%The algorithm is not complete and it is tried to support more and more cases
 
 \begin{figure}[htp]
 \begin{verbatim}
@@ -666,25 +649,50 @@ argument as a new object.
 
 (c) Case 3:
 20 myFunction({myProperty:5});
+
+(d) Case 4:
+20 a[++i] = new myConstructor();
  
 \end{verbatim}
 \caption{Examples of three types of JavaScript object creatin statements.}
 \label{fig:objectCreation}
 \end{figure}
 
+The new object can also be set as the property of a parent object by a
+colon (\texttt{:}). This case is also treated similar to previous case. The
+only difference is that the full path of property from the root parent
+in the local scope should be considered as the assignee statement. For
+example in Figure~\ref{fig:objectCreation}(b), if the creation line
+is 20, we keep \texttt{parentObject.newObject}. In this case stepping
+should be continued until the end of line 22 for getting a reference
+to the created new object.
+
+There is another case for new objects and when they are passed as
+arguments to other functions Figure~\ref{fig:objectCreation}(c). In these
+cases instead of step-over we use step-in and we get the corresponding
+argument as a new object.
+
+Although this approach is successful in many ordinary cases, there are some 
+cases that this approach doesn't work. For example in a case
+where the new object is assigned to \texttt{a[++i]} where i is a variable
+(Figure ~\ref{fig:objectCreation}(d)), \texttt{a[++i]} is kept in the list
+of assignee statements. Obviously, evaluating this statement doesn't return
+a reference to the new object.
+
+%The algorithm is not complete and it is tried to support more and more cases
 
 \subsection{\texttt{scopeId()} operation}
-The scope id is kept as a variable with name \texttt{\_scopeId} in the
-scope. We explained that we set a hook at the first instruction of the
-function which defines the variable. Once this hook hits,
-\texttt{\_scopeId} is set by calling JavaScript's dynamic compilation function \texttt{eval()}. For
-example, executing \texttt{eval( var \_scopeId = 10)} creates a
+Debugger sets a hook at the beginning of all code blocks need
+a scope id whenever the block is loaded. The scope id is kept as a variable with name 
+\texttt{\_scopeId} in the scope. Whenever the hook hits which means a new scope
+is created, \texttt{\_scopeId} is set by calling JavaScript's dynamic compilation 
+function \texttt{eval()}. For example, executing \texttt{eval( var \_scopeId = 10)} creates a
 variable with name \texttt{\_scopeId} and value \texttt{10} in the
 scope of the \texttt{eval()} call, which is our interesting scope.
 
 \subsection{\texttt{setVariableChangeHook()} operation}
-Only operations in the scope of these varibles can change their value; 
-that includes the defining scope and scopes nested inside of them.
+Variables defined in local, closure and catch scopes are only change in
+their scope; that includes the defining scope and scopes nested inside of them.
 For example in Figure ~\ref{fig:js-closure}, variable \texttt{var1} in line 11 can only be
 changed in lines 10 to 23. Therefore, after locating the function in
 which the variable is defined, it is enough to parse the code inside
@@ -721,7 +729,6 @@ but in \texttt{secondChild} is a closure variable.
 \end{figure}
 
 %---------------------------------------------------------------------------------------------------
-
 \subsection{Execution reproduction}
 Although execution reproduction is basicly should be provided by the
 developer, we tried to devise some automatic way which reproduces the
@@ -1076,7 +1083,7 @@ graphical and event based systems.
 
 % The bibliography should be embedded for final submission.
 
-\begin{thebibliography}{10}
+\begin{thebibliography}{13}
 \softraggedright
 
 \bibitem[Bond(2007)]{Bond}
@@ -1096,6 +1103,9 @@ October, 2007.
 
 \bibitem[Firebug(2010)]{Firebug}
 Firebug. \newblock http://getfirebug.com.
+
+\bibitem[Firefox(2010)]{Firefox}
+Firefox. \newblock http://www.mozilla.com.
 
 \bibitem[Ko(2008)]{Ko}
 A.J. Ko, and B.A. Myers. \newblock Debugging reinvented: asking and answering why and why not questions about program behavior.
@@ -1121,6 +1131,9 @@ July, 2008.
 K. Maruyama, and T. Kazutaka. \newblock Debugging with Reverse Watchpoint.
 \newblock In \emph{Proceedings of the Third International Conference on Quality Software},
 2003.
+
+\bibitem[JSD(2010)]{JSD}
+Mozila JavaScript Debugging Interface. \newblock http://www.mozilla.org/js/jsd.
 
 \bibitem[Pothier(2007)]{Pothier}
 G. Pothier, \'{E}. Tanter, and J. Piquer. \newblock Scalable omniscient debugging.
