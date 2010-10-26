@@ -461,8 +461,8 @@ C  |  ?
 
 Having the scope chain and the source code, we can map every scope to % perhaps needs more explanation, how?
 a code block, enclosed the executing code. In
-JavaScript, a code block can be identified by the file url the 
-the block's first program counter. Given this information, debugger is
+JavaScript, a code block can be identified by the file url and the 
+the block's first instruction program counter. Given this information, debugger is
 able to recognize the code block once it is loaded.
 Similar to \textit{lastChange} on object property, we define two basic operations: 
 \texttt{scopeId()} and \texttt{setVariableChangeHook()}. The first one 
@@ -478,7 +478,7 @@ change event.
 
 
 
-If developer asks for the last change of \texttt{foo} at the 
+If developer asks for the last change of variable \texttt{foo} at the 
 reproduction point in a program, debugger calls 
 \texttt{setVariableChangeHook()} with the variable's defining
 block and name as parameters and re-executes the
@@ -515,8 +515,8 @@ and then the solution. Consider the following points:
  \end{center}
 According to the algorithm explained in the previous section none of
 the points B and C can be identified before reaching point
-A. Therefore, all \texttt{x} changes for point B and all \texttt{y}
-changes for point C are stored. Once the execution reaches point A,
+A. Therefore, all \texttt{x} change events for point B and all \texttt{y}
+change events for point C are stored. Once the execution reaches point A,
 and the exact \texttt{bar} id reveals, point B can be identified among
 the change events in the history of \texttt{x} changes. The problem
 arises in recognizing point C. To recognize point C, we need
@@ -538,7 +538,7 @@ straightforward (Figure ~\ref{fig:lastchange-lastchange}).
 \label{dependency-analysis}
 \begin{algorithmic}
 
-\FOR{$q$ in $queries$} 
+\FOR{$q$ in $lastChange queries$} 
  \FOR {$p$ is defined at the $q$ result}
    \IF {$p$ is a lastChange on object property} 
      \STATE the property owner id should be stored at $q$ change events. 
