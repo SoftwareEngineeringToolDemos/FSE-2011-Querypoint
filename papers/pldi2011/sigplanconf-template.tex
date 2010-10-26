@@ -321,20 +321,20 @@ examines the program state at a breakpoint hit and asks for the
 \textit{lastChange} of a value.  Debugger sets hooks (a callback
 function dependent upon the underlying runtime) on all instructions
 that might be the result of \textit{lastChange} query. Then the
-debugger re-executes the program and every time the hook hits it
+debugger re-executes the program and every time a hook hits it
 checks for a \textit{change event}. In the case of a change, it stores
 part of the program state values.  Once the execution reaches the
 reproduction point, it analyzes the collected data and shows the
 result.  The program state at the execution point for the last change
 event is the \textit{lastChange}.
 
-While \textit{lastChange} itself is not a different kind 'breakpoint',
+While \textit{lastChange} itself is not a different kind \textit{breakpoint},
 all of the assumptions developers already have for breakpoints hold
 for \textit{lastChange}. In particular the re-execution is just the
 same operation developers use to debug with breakpoints. Because
 \textit{lastChange} dramatically reduces the developers work in
 setting and removing breakpoints, the re-execution step will become a
-much larege fraction of the debug time. Therefore automatic mechanisms
+much larger fraction of the debug time. Therefore automatic mechanisms
 for re-execution will be corresponding more valuable for debugging
 with \textit{lastChange}.
 
@@ -364,8 +364,9 @@ string, the function is called whenever a property changes and its
 name matches the string For example, if the property might be
 \texttt{foo} so changes to \texttt{bar.foo} or \texttt{baz.foo} would
 call the function.  The callback function receives a reference to the
-owner of \texttt{foo}.
-
+owner of \texttt{foo}. In the next section, we describe how we use
+a slightly different version of this operation which is restricted 
+to only created objects in one location instead of all objects.
 
 \begin{figure}[htp]
 \includegraphics[width=.48\textwidth]{6-foo-changes1.jpg}
@@ -423,25 +424,14 @@ property.
 
 \subsubsection{local, closure and \texttt{catch} scopes}
 Local scope refers to the most nested scope in the scope
-chain. Closure scope refers to the scope which is created once a
-function is defined. Catch scope is the scope created in the catch
+chain and contains the local variables. Closure scope refers to the 
+scope which is created for a nested function and contains variables 
+defined in the outer block. Catch scope is the scope created in the catch
 block of try-catch statements and contains the exception
 variable. These scopes are not necessarily regular JavaScript
-objects. Therefore, to track changes to a variable in these scopes we
-need a different approach.
-
-All scopes in the scope chains come from blocks around the executing code.
-Comparing the scope chain and the script we can identify the code block     % perhaps needs more explanation
-(script) corresponding to the variable scope. Similar to \textit{lastChange} 
-on object property, we define two basic operations \texttt{scopeId()} and
-\texttt{setVariableChangeHook()}. The first one given an scope and its defining 
-block(script) returns an integer as the scope's identifier. The second one 
-given a callback function, a block(script) and a variable name, the function is called
-whenever the variable is changed. After developer asks for the \textit{lastChange}
-on a variable, in re-exeuction whenever the script is loaded, \texttt{setVariableChangeHook()}
-is called. Every time the callback function is called a new change 
-event is inserted to the list of change events.
-
+objects. Scope object is usually a transient copy of a native object. 
+Therefore, to track changes to a variable in these scopes we
+employ a different approach.
 
 \begin{figure}[htp]
 \begin{verbatim}
@@ -469,16 +459,38 @@ C  |  ?
 \label{fig:recursive}
 \end{figure}
 
-Figure ~\ref{fig:recursive} demonstrates a case that the same variable
+Having the scope chain and the source code, we can map every scope to % perhaps needs more explanation, how?
+a code block, enclosed the executing code. In
+JavaScript, a code block can be identified by the file url the 
+the block's first program counter. Given this information, debugger is
+able to recognize the code block once it is loaded.
+Similar to \textit{lastChange} on object property, we define two basic operations: 
+\texttt{scopeId()} and \texttt{setVariableChangeHook()}. The first one 
+given a scope returns an integer as the scope's identifier. The second one 
+given a callback function, a code block and a variable name-
+which is defined inside the block-, the function is called
+whenever the variable is changed. Figure ~\ref{fig:recursive} demonstrates a case that the same variable
 \texttt{x} is changed several times but in different scopes due to the
 recursive calls. Without considering the scopes calling \textit{lastChange(x)}
 at point C will return point B while the right answer is point A. Using
-\texttt{scopId()} operation, the scope id is also stored at every variable
+\texttt{scopeId()} operation, the scope id is also stored at every variable
 change event.
- 
-After developer asks for the \textit{lastChange} on a variable, 
-Once the execution reaches the reproduction point, using variable's scope
-id, the last change is recognized (Figure ~\ref{fig:foo-changes2}).
+
+
+
+If developer asks for the last change of \texttt{foo} at the 
+reproduction point in a program, debugger calls 
+\texttt{setVariableChangeHook()} with the variable's defining
+block and name as parameters and re-executes the
+program. Whenever \texttt{foo} changes and the callback function is to
+be called, debugger first calls \texttt{scopeId()} on the
+variable's scope. Then it stores this scope id, the stack
+frame locations, and other state values in scope at the call point.
+Whenever the execution reaches the reproduction point the debugger
+looks at the history of \texttt{foo} changes and finds the last
+\texttt{foo} change with the same scope id as the variable's scope id
+at the reproduction point (Figure ~\ref{fig:foo-changes2}). 
+
 
 \begin{figure}[htp]
 \includegraphics[width=.48\textwidth]{7-foo-changes2.jpg}
@@ -554,9 +566,9 @@ straightforward (Figure ~\ref{fig:lastchange-lastchange}).
 \section{JavaScript implementation}
 To verify the \textit{lastChange} algorithm we
 implemented it in an extension to the Firebug
-JavaScript debugger\cite{firebug-version-1.6}. 
-Firebug itself is an extension of the Firefox browser\cite{firefox-version-3.6}. The Firefox
-JavaScript engine provides a JavaScript debugging interface and
+JavaScript debugger[].%\cite{firebug-version-1.6}. 
+Firebug itself is an extension of the Firefox browser[]. %\cite{firefox-version-3.6}
+The Firefox JavaScript engine provides a JavaScript debugging interface and
 \textit{Querypointer} is developed over this interface. 
 
 \subsection{\texttt{objectId()} operation}
@@ -707,124 +719,49 @@ but in \texttt{secondChild} is a closure variable.
 \caption{Sample JavaScript code demonstrating local and clousure variables.}
 \label{fig:js-closure}
 \end{figure}
-  
-
-\section{Discussion}
-
-We have presented the \texttt{lastChange} algorithm and describe our
-prototype implementation. Now we want to convince you that the
-algorithm has practical value. Ultimately, practical value can only be
-proven by developers in the field using the technique. This paper is
-one step to convince implementers to put \texttt{lastChange} in the
-field.  Thus our goal here is a persausive argument.
-
-The key ingredients in our argument are: 
-\begin{enumerate}
-   \item developers need an operation like \texttt{lastChange}, 
-   \item developers can learn to use \texttt{lastChange}, 
-   \item practical implementations are feasible with modest
-invested development time,
-   \item in most cases \texttt{lastChange} will be much faster than current alternatives,
-   \item the worst cases are not more common or more painful than
-alternatives.
-\end{enumerate}
-
-\subsection{developers need an operation like \protect\texttt{lastChange} }
-
-We have shown how \texttt{lastChange} identifies the prior point in
-program execution where a program state value changes. Is it something
-the developer needs to do?  Since ultimately programs are just
-transformation of state values, debugging is ultimately backtracking
-to find defects in program state change.  When a developer halts a
-program on a breakpoint they have three kinds of information: a model
-of the program in their head, a call stack showing what part of the
-program is halted, and the state at that point (a combination of the
-debugger's view of the program internal state and the output of the
-program up to this point of execution). If the model does not match
-the call stack or if no value in the viewable program state aligns
-with the developers model for this point in execution, the developer
-will seek another view by changing the breakpoint or the input
-data. If a value appears incorrect, they may have a flash of insight
-and know the defect. Otherwise they need to figure out what operation
-causes the incorrect value. Thus \texttt{lastChange} addresses a key
-part of the debugging process.
-
-\subsection{developers can learn to use \protect\texttt{lastChange}}
-
-If \texttt{lastChange} could be useful, can developers figure out how
-to use it? We hope that our prototype demonstrates that
-\texttt{lastChange} can be easily activated by operations on the
-graphical representation of erroneous data in a debugger. Intepreting
-the results should be only slightly more difficult. We designed the
-user interface for the results from \texttt{lastChange} to resemble
-the results from a breakpoint, with the source code of the change
-point highlighted and the state of the program presented the way state
-is presented from a breakpoint. Based on this user interface, we
-believe developers can start to use \texttt{lastChange} with minimal
-training. Of course developers may initially confuse the result of
-\texttt{lastChange} with being halted in a debugger at the point of
-last change. The value of the result will motivate them to clarify the
-issue.
-
-\subsection{practical implementations are feasible}
-
-We described our prototype implementation in Sec. 4. A fully usable
-implementation would require access to the object id at the point of
-object creation and \texttt{setPropertyChangeHook()}. Many
-object-oriented runtimes provide object identifiers\cite{} and some
-provide access to object creation\cite{}. In the particular case of
-the Firefox Web browser we used for our prototype, the primary barrier
-to practical implementation would likely be integration with the
-increasingly sophisticated just in time compilers\cite{}. 
-
-\subsection{in most cases \protect\texttt{lastChange} will be much faster than current alternatives}
-
-When developers try \texttt{lastChange}, will they get results fast
-enough to benefit? While we only used our prototype on toy programs,
-\textit{lastChange} seemed as fast as re-execution.  Recall that we
-insert additional code through debugger callbacks, then re-execute the
-program. The additional code we insert is proportional (in our
-JavaScript algorithm) to 1) the number of places a property or
-variable with a given name is changed, 2) the number of places objects
-are created. (Something about the likely overhead in Firefox).
-
-For comparison we should use the practical alternative: developers
-setting breakpoints. For the vast majority of programs, a developer
-will take much more time to set one breakpoint than
-\texttt{lastChange} would add. But typically the developer may not
-guess the point of last change. They must then ponder another
-breakpoint, and re-execution. 
-
-We could also compare to solutions based on logging or tracing. Manual
-logging has very high overhead: the developer must add code, debug
-that added code, then analyze the log. (To be fair, the log can become
-a permenant debugging aid.) Automatic logging as we discussion in
-\secref{related} causes about one or two orders of magnitude slow down. 
-
-\subsection{the worst cases are not more common or more painful than alternatives}
-
-Finally we consider the worst cases: what about code that changes
-objects in long running loops? Every time through the loop we incur
-the call back overhead; if the loop itself has relatively little code
-the overhead could be very large; if the loop computation is a
-significant fraction of the full program, the slowdown would be
-enormous. 
-
-Of course breakpoints are not feasible in these cases and logging
-becomes unyieldy. Since automatic logging solutions are highly tuned,
-their overhead in this case will likely be much less than
-\texttt{lastChange}. On the other hand, \texttt{lastChange} integrates
-with an interactive debugger and detecting that we are in a high
-overhead loop is simply a matter of checking our internal counter. In
-such unusual cases we may simply offer the developer the option of
-studying the loop code then omitting it from \texttt{lastChange}
-operations. As a practical result, this is no different from similar
-issues developers face with any debugger today: occasionally a
-debugger causes too much overhead to be useful for debugging. On
-balance we think \texttt{lastChange} will rarely encounter these kinds
-of issues.
 
 %---------------------------------------------------------------------------------------------------
+
+\subsection{Execution reproduction}
+Although execution reproduction is basicly should be provided by the
+developer, we tried to devise some automatic way which reproduces the
+execution. In \textit{Querypointer}, develooper can directly provide a
+test case which reproduces the execution. It is also possible to use
+two automatic reproduction option: record-replay or local-reproduction
+.
+
+Two elements should be carefully considered in execution
+reproduction. First, the initial state should be the same as previous
+execution. Second, the similar actions and events should be applied to
+the program during the execution. In Record-replay approach, debugger
+stores the initial page url and user actions and during replay phase,
+opens the same url and simulates user actions. In the local
+reproduction approach, debugger calls the funtion on the bottom of
+stack with the same parameters. The idea behind local-reproduction is
+that in many web pages it is enough to replay the event to reproduce
+the bug. While record-replay approach gives better warranty about the
+same initial states, the local-reproudction gives us shorter
+cycles. It is also possible to uses thes approaches in
+combination. For example, debugger locally reproduce the execution and
+if it couldn't find the answer, reproduce the whole execution by
+record-replay.
+% should we talk about counting breakpoint hits for stopping at the right place?
+
+\subsection{Data collection and presentation}
+So far, we talked about the data collected at change events for
+\textit{lastChange} algorithm. However, if developer needs to explore
+the program state at a given point, more data is required. It is
+possible to postpone data collection until user requests. It is also
+possible to collect the list of available
+variable. \textit{Querypointer} collects data in one level depth. More
+data will be collected upon the developer's request by re-execution.
+
+We needed to build an interface to different execution points which
+are presented at the same time. The current \textit{Querypointer}
+interface resembles the script panel interface while it keeps the
+history of navigation.
+
+\section{The effect of Non-determinism}  %flying over non-determinism
 \subsection{Reproducible Non-deterministic Execution}
 
 By construction \textit{lastChange} works whenever conventional
@@ -903,51 +840,128 @@ the execution is not deterministic. In future we hope to compare
 queries from successive executions as a tool for learning about
 non-deterministic executions.
 
-\subsection{Execution reproduction}
-Although execution reproduction is basicly should be provided by the
-developer, we tried to devise some automatic way which reproduces the
-execution. In \textit{Querypointer}, develooper can directly provide a
-test case which reproduces the execution. It is also possible to use
-two automatic reproduction option: record-replay or local-reproduction
-.
+%\subsection{Reproduction point}
 
-Two elements should be carefully considered in execution
-reproduction. First, the initial state should be the same as previous
-execution. Second, the similar actions and events should be applied to
-the program during the execution. In Record-replay approach, debugger
-stores the initial page url and user actions and during replay phase,
-opens the same url and simulates user actions. In the local
-reproduction approach, debugger calls the funtion on the bottom of
-stack with the same parameters. The idea behind local-reproduction is
-that in many web pages it is enough to replay the event to reproduce
-the bug. While record-replay approach gives better warranty about the
-same initial states, the local-reproudction gives us shorter
-cycles. It is also possible to uses thes approaches in
-combination. For example, debugger locally reproduce the execution and
-if it couldn't find the answer, reproduce the whole execution by
-record-replay.
-% should we talk about counting breakpoint hits for stopping at the right place?
+\section{Discussion}
 
-\subsection{Data collection and presentation}
-So far, we talked about the data collected at change events for
-\textit{lastChange} algorithm. However, if developer needs to explore
-the program state at a given point, more data is required. It is
-possible to postpone data collection until user requests. It is also
-possible to collect the list of available
-variable. \textit{Querypointer} collects data in one level depth. More
-data will be collected upon the developer's request by re-execution.
+We have presented the \textit{lastChange} algorithm and describe our
+prototype implementation. Now we want to convince you that the
+algorithm has practical value. Ultimately, practical value can only be
+proven by developers in the field using the technique. This paper is
+one step to convince implementers to put \textit{lastChange} in the
+field.  Thus our goal here is a persausive argument.
 
-We needed to build an interface to different execution points which
-are presented at the same time. The current \textit{Querypointer}
-interface resembles the script panel interface while it keeps the
-history of navigation.
+The key ingredients in our argument are: 
+\begin{enumerate}
+   \item developers need an operation like \textit{lastChange}, 
+   \item developers can learn to use \textit{lastChange}, 
+   \item practical implementations are feasible with modest
+invested development time,
+   \item in most cases \textit{lastChange} will be much faster than current alternatives,
+   \item the worst cases are not more common or more painful than
+alternatives.
+\end{enumerate}
 
-\subsection{Reproduction point}
+\subsection{developers need an operation like \protect\textit{lastChange} }
+
+We have shown how \textit{lastChange} identifies the prior point in
+program execution where a program state value changes. Is it something
+the developer needs to do?  Since ultimately programs are just
+transformation of state values, debugging is ultimately backtracking
+to find defects in program state change.  When a developer halts a
+program on a breakpoint they have three kinds of information: a model
+of the program in their head, a call stack showing what part of the
+program is halted, and the state at that point (a combination of the
+debugger's view of the program internal state and the output of the
+program up to this point of execution). If the model does not match
+the call stack or if no value in the viewable program state aligns
+with the developers model for this point in execution, the developer
+will seek another view by changing the breakpoint or the input
+data. If a value appears incorrect, they may have a flash of insight
+and know the defect. Otherwise they need to figure out what operation
+causes the incorrect value. Thus \textit{lastChange} addresses a key
+part of the debugging process.
+
+\subsection{developers can learn to use \protect\texttt{lastChange}}
+
+If \texttt{lastChange} could be useful, can developers figure out how
+to use it? We hope that our prototype demonstrates that
+\textit{lastChange} can be easily activated by operations on the
+graphical representation of erroneous data in a debugger. Intepreting
+the results should be only slightly more difficult. We designed the
+user interface for the results from \textit{lastChange} to resemble
+the results from a breakpoint, with the source code of the change
+point highlighted and the state of the program presented the way state
+is presented from a breakpoint. Based on this user interface, we
+believe developers can start to use \textit{lastChange} with minimal
+training. Of course developers may initially confuse the result of
+\textit{lastChange} with being halted in a debugger at the point of
+last change. The value of the result will motivate them to clarify the
+issue.
+
+\subsection{practical implementations are feasible}
+
+We described our prototype implementation in Sec. 4. A fully usable
+implementation would require access to the object id at the point of
+object creation and \texttt{setPropertyChangeHook()}. Many
+object-oriented runtimes provide object identifiers[] and some
+provide access to object creation[]. In the particular case of
+the Firefox Web browser we used for our prototype, the primary barrier
+to practical implementation would likely be integration with the
+increasingly sophisticated just in time compilers []. 
+
+\subsection{in most cases \protect\texttt{lastChange} will be much faster than current alternatives}
+
+When developers try \textit{lastChange}, will they get results fast
+enough to benefit? While we only used our prototype on toy programs,
+\textit{lastChange} seemed as fast as re-execution.  Recall that we
+insert additional code through debugger callbacks, then re-execute the
+program. The additional code we insert is proportional (in our
+JavaScript algorithm) to 1) the number of places a property or
+variable with a given name is changed, 2) the number of places objects
+are created. (Something about the likely overhead in Firefox).
+
+For comparison we should use the practical alternative: developers
+setting breakpoints. For the vast majority of programs, a developer
+will take much more time to set one breakpoint than
+\textit{lastChange} would add. But typically the developer may not
+guess the point of last change. They must then ponder another
+breakpoint, and re-execution. 
+
+We could also compare to solutions based on logging or tracing. Manual
+logging has very high overhead: the developer must add code, debug
+that added code, then analyze the log. (To be fair, the log can become
+a permenant debugging aid.) Automatic logging as we discussion in
+[secref] causes about one or two orders of magnitude slow down. 
+
+\subsection{the worst cases are not more common or more painful than alternatives}
+
+Finally we consider the worst cases: what about code that changes
+objects in long running loops? Every time through the loop we incur
+the call back overhead; if the loop itself has relatively little code
+the overhead could be very large; if the loop computation is a
+significant fraction of the full program, the slowdown would be
+enormous. 
+
+Of course breakpoints are not feasible in these cases and logging
+becomes unyieldy. Since automatic logging solutions are highly tuned,
+their overhead in this case will likely be much less than
+\textit{lastChange}. On the other hand, \textit{lastChange} integrates
+with an interactive debugger and detecting that we are in a high
+overhead loop is simply a matter of checking our internal counter. In
+such unusual cases we may simply offer the developer the option of
+studying the loop code then omitting it from \textit{lastChange}
+operations. As a practical result, this is no different from similar
+issues developers face with any debugger today: occasionally a
+debugger causes too much overhead to be useful for debugging. On
+balance we think \textit{lastChange} will rarely encounter these kinds
+of issues.
+
 
 \section{Evaluation}
-\subsection{\textit{lastChange} effectiveness}
+%\subsection{\textit{lastChange} effectiveness}
+%\subsection{Execution overhead analysis}
 
-\subsection{Execution overhead analysis}
 If we assume that the total number of instructions in an execution is
 $n$ and $m$ change event happens during one execution and for every
 change event $k$ additionial instructions should be executed, the
