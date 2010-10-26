@@ -72,7 +72,6 @@ Algorithms, Human Factors, Languages
 \keywords
 LastChange, Locating Defects, Breakpoint, Watchpoint, Logging
 
-%---------------------------------------------------------------------------------------------------
 \section{Introduction}
 Debugging is an inevitable part of programming, still hard and time-consuming. To fix a bug, developers have to reproduce and monitor the buggy execution several times to understand the program's unexpected behavior. Trial and error, guess-work and analyzing huge collected data are the inseparable parts of this process. According to \cite{LaToza}, developers spend about fifty percent of their time debugging. Therefore, enhancements to debugging techniques and tools can considerably save developers' time and improve programs' quality.
 
@@ -129,7 +128,6 @@ prototype implementation. We discuss the effect of non-determinism on
 the \textit{lastChange} algorithm. Section 6 contains an evaluation of
 \text{lastChange} functionality.
 
-%---------------------------------------------------------------------------------------------------
 \section{Introductory example}
 
 We illustrate the \textit{lastChange} functionality by a simple
@@ -311,7 +309,6 @@ program at \textit{lastChange} because we don't know which is the last
 one until we return to the original breakpoint. (In section 5 we
 discuss cases were it is possible to pause at lines of \textit{lastChange}).
 
-%---------------------------------------------------------------------------------------------------
 \section{\textit{lastChange} Algorithm}
 
 The \textit{lastChange} algorithm is based on program re-execution of
@@ -598,7 +595,8 @@ implemented \texttt{setPropertyChangeHook()} to work in the rest of
 the cases. 
 
 The Firefox JavaScript engine does not current support
-\texttt{setPropertyChangeHook()} (see however []).  For %\cite{bugzilla}
+\texttt{setPro-}
+\texttt{pertyChangeHook()} (see however []).  For %\cite{bugzilla}
 the our \textit{lastChange} prototype we created a version of
 \texttt{setPropertyChangeHook()} using only features of the current
 engine.  The basic strategy is to get a reference to the object just
@@ -617,7 +615,7 @@ than one object might be created in a line. There is no way to
 recognize the interesting object among these new objects. So instead
 of one object, we monitor all new objects created in the line.
 
-An object might be created by one of these statements: An object
+An object might be created by one of these statements: object
 initializer (\texttt{\{...\}}), \textit{new} operator (\texttt{new 
 constructor()}) or function definition statment (\texttt{function()}). 
 By parsing the source code we can easily recognize the statements 
@@ -679,8 +677,6 @@ where the new object is assigned to \texttt{a[++i]} where i is a variable
 of assignee statements. Obviously, evaluating this statement doesn't return
 a reference to the new object.
 
-%The algorithm is not complete and it is tried to support more and more cases
-
 \subsection{\texttt{scopeId()} operation}
 Debugger sets a hook at the beginning of all code blocks need
 a scope id whenever the block is loaded. The scope id is kept as a variable with name 
@@ -688,7 +684,8 @@ a scope id whenever the block is loaded. The scope id is kept as a variable with
 is created, \texttt{\_scopeId} is set by calling JavaScript's dynamic compilation 
 function \texttt{eval()}. For example, executing \texttt{eval( var \_scopeId = 10)} creates a
 variable with name \texttt{\_scopeId} and value \texttt{10} in the
-scope of the \texttt{eval()} call, which is our interesting scope.
+scope of the \texttt{eval()} call, which is our interesting scope. \texttt{scopeId()}
+operation returns the value of \texttt{\_scopeId} in the scope.
 
 \subsection{\texttt{setVariableChangeHook()} operation}
 Variables defined in local, closure and catch scopes are only change in
@@ -728,14 +725,12 @@ but in \texttt{secondChild} is a closure variable.
 \label{fig:js-closure}
 \end{figure}
 
-%---------------------------------------------------------------------------------------------------
 \subsection{Execution reproduction}
 Although execution reproduction is basicly should be provided by the
 developer, we tried to devise some automatic way which reproduces the
 execution. In \textit{Querypointer}, develooper can directly provide a
 test case which reproduces the execution. It is also possible to use
-two automatic reproduction option: record-replay or local-reproduction
-.
+two automatic reproduction option: record-replay or local-reproduction.
 
 Two elements should be carefully considered in execution
 reproduction. First, the initial state should be the same as previous
@@ -754,7 +749,7 @@ if it couldn't find the answer, reproduce the whole execution by
 record-replay.
 % should we talk about counting breakpoint hits for stopping at the right place?
 
-\subsection{Data collection and presentation}
+\subsection{Data collection}
 So far, we talked about the data collected at change events for
 \textit{lastChange} algorithm. However, if developer needs to explore
 the program state at a given point, more data is required. It is
@@ -767,6 +762,8 @@ We needed to build an interface to different execution points which
 are presented at the same time. The current \textit{Querypointer}
 interface resembles the script panel interface while it keeps the
 history of navigation.
+
+% Discuss what happens when assumptions changes, like object creation location.
 
 \section{The effect of Non-determinism}  %flying over non-determinism
 \subsection{Reproducible Non-deterministic Execution}
