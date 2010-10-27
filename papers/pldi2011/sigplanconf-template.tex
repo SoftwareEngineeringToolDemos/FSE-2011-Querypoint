@@ -39,7 +39,7 @@
 Developers often seek the origins of wrong values they see in their
 debugger. Their search must be backwards in time: the code causing the
 wrong value executed before the wrong value appeared. Searching with
-breakpoint- or log- based debuggers demands persistance and
+breakpoint- or log- based debuggers demands persistence and
 significant experience with the application being debugged. We propose
 a new approach, an algorithm \textit{lastChange}, which automatically
 locates the last point that a value was changed and related
@@ -138,7 +138,7 @@ prerequisite for \textit{lastChange} functionality.  This means
 breakpoint debugger and it does not require a special environment to
 create identical, instruction by instruction, re-executions.
 
-Our contribution in this paper is the algorithm \textit{lastchange},
+Our contribution in this paper is the algorithm \textit{lastChange},
 which locates the last place a value is changed, gathers other values
 from that execution point, and allows \textit{lastChange} operations
 from that point. The algorithm builds on existing breakpoint debugger
@@ -219,7 +219,7 @@ interesting, and what they do in practice may cause bugs.
 \end{figure}
 
 To start debugging, the developer sets a breakpoint
-on line 22 and once the button is clicked execution is paused at line
+on line 22 and, once the button is clicked, execution is paused at line
 22. Figure ~\ref{fig:example1} shows the Firebug debugger while the
 execution is paused. Firebug has several panels (e.g., HTML, CSS,
 Script, DOM, etc.) that each demonstrate one aspect of the Web page.
@@ -263,17 +263,17 @@ Looking at line 29, it seems that something is wrong with
 developer examines \texttt{myCondition.value} and it is
 \texttt{undefined}. The next step is to know when this property got
 this value. To do so, the developer runs \textit{lastChange} command
-on \texttt{myCondition.value} at this point. Debugger re-executes the
-execution and pauses at the reproduction point and shows line 25-the
-place \texttt{undefined} value is assigned to
+on \texttt{myCondition.value} at this point. This re-executes the
+program and pauses at the reproduction point,  showing line 25-the
+place \texttt{oldValue} is assigned to
 \texttt{myCondition.value} (Figure ~\ref{fig:example3}). Now it is
 clear that the bug occurs because \texttt{oldValue} is
 \texttt{undefined} once execution reaches line 25.
 
 
 As demonstrated in Figure ~\ref{fig:example-points}, the developer
-examined three points of execution. The first point was the breakpoint set by the developer.
-The second and third points preceded the breakpoint in time.
+examined three points of execution. The first point, the reproduction point,  was the breakpoint set by the developer.
+The second and third points preceded the reproduction point in execution sequence.
 All three points-the history
 of the search for the defect-are available through the debugger's
 interface. On the top of the left panel in Figure ~\ref{fig:example4}
@@ -437,7 +437,7 @@ cases in two groups.
 
 \subsubsection{global and \texttt{with} scopes}
 Global scope is the the most outer scope in the scope chain and it is
-also refered to as the global object (the \texttt{window}
+also referred to as the global object (the \texttt{window}
 object in Web pages). This scope is a regular JavaScript object and therefore every
 global variable is a property of global object. Similarly,
  \texttt{with} scopes are also regular objects. A \texttt{with}
@@ -766,7 +766,7 @@ execution and conditions to correctly recognize the reproduction point.
 Although both elements can be directly provided by developer, \textit{Querypointer}
 is also able to automatically create them from the first execution. 
 
-\textit{Querypointer} keeps track of breakpoint hits and user steppings. For example, 
+\textit{Querypointer} keeps track of breakpoint hits and single steps. For example, 
 if developer query \textit{lastChange} at the third hit of breakpoint \textit{b}, in
 re-execution, third hit of breakpoint b recognized as the reproduction point. 
 
@@ -811,7 +811,7 @@ the execution can change each time we re-execute the buggy program,
 but the buggy result is the same.  The reproducibility of the bug
 means that the defect is very unlikely to depend on the order of
 events during the execution. When the developer selects a value and
-asks for \textit{lastChange}, they are expressing an hyptothesis that
+asks for \textit{lastChange}, they are expressing an hypothesis that
 the value is related to the defect. Therefore the reproducibility of
 the bug makes it very unlikely that the \textit{lastChange} will
 depend upon order of events during execution.
@@ -823,7 +823,7 @@ Figure ~\ref{fig:counter-example} shows a function with processes an
 array. The array contains numbers except one itme which is
 \texttt{undefined} and it causes a bug in line 30. There is a call to
 \texttt{randomPermutation} function in line 11 which randomly
-permutates the array item. So at every execution the
+permutes the array item. So at every execution the
 \texttt{undefined} item will be in a new place. Calling
 \textit{lastChange} on \texttt{x} at the place bug happens, gives a
 point which shows line 14. Although this point exists at every
@@ -857,13 +857,13 @@ a conventional watchpoint hits, the record may differ each time we
 re-execute. But \textit{lastChange} does not ask the developer to
 consider these single points.  Rather we analyze all of the
 watchpoints in an entire execution at the reproduction point where we
-know the defect has already occured and only show the final result to
+know the defect has already occurred and only show the final result to
 the developer.
 
 Of course there can be cases where the defect is reproducible but the
 value from \textit{lastChange} is not. As in conventional breakpoint
 debugging, we can only determine this empirically, by observing
-multiple executions with different values. Unlike conventionaly
+multiple executions with different values. Unlike conventional
 breakpoint debugging, implementations of \textit{lastChange} readily
 aid in detecting such cases: as we work back through a series of
 \textit{lastChange} requests we can compare values with previous
@@ -881,7 +881,7 @@ prototype implementation. Now we want to convince you that the
 algorithm has practical value. Ultimately, practical value can only be
 proven by developers in the field using the technique. This paper is
 one step to convince implementers to put \textit{lastChange} in the
-field.  Thus our goal here is a persausive argument.
+field.  Thus our goal here is a persuasive argument.
 
 The key ingredients in our argument are: 
 \begin{enumerate}
@@ -919,7 +919,7 @@ part of the debugging process.
 If \texttt{lastChange} could be useful, can developers figure out how
 to use it? We hope that our prototype demonstrates that
 \textit{lastChange} can be easily activated by operations on the
-graphical representation of erroneous data in a debugger. Intepreting
+graphical representation of erroneous data in a debugger. Interpreting
 the results should be only slightly more difficult. We designed the
 user interface for the results from \textit{lastChange} to resemble
 the results from a breakpoint, with the source code of the change
@@ -963,8 +963,8 @@ breakpoint, and re-execution.
 We could also compare to solutions based on logging or tracing. Manual
 logging has very high overhead: the developer must add code, debug
 that added code, then analyze the log. (To be fair, the log can become
-a permenant debugging aid.) Automatic logging as we discussion in
-[secref] causes about one or two orders of magnitude slow down. 
+a permanent debugging aid.) Automatic logging as we discussion in
+\serref{relatedWork} causes about one or two orders of magnitude slow down. 
 
 \subsection{the worst cases are not more common or more painful than alternatives}
 
@@ -976,7 +976,7 @@ significant fraction of the full program, the slowdown would be
 enormous. 
 
 Of course breakpoints are not feasible in these cases and logging
-becomes unyieldy. Since automatic logging solutions are highly tuned,
+becomes unwieldy. Since automatic logging solutions are highly tuned,
 their overhead in this case will likely be much less than
 \textit{lastChange}. On the other hand, \textit{lastChange} integrates
 with an interactive debugger and detecting that we are in a high
@@ -996,7 +996,7 @@ of issues.
 
 %If we assume that the total number of instructions in an execution is
 %$n$ and $m$ change event happens during one execution and for every
-%change event $k$ additionial instructions should be executed, the
+%change event $k$ additional instructions should be executed, the
 %execution overhead of our approach is $mk/n$. For $m=10^3$, $k=10^2$
 %and $n=10^{10}$ the overhead is very low and about $10^{-5}$.
 
@@ -1010,7 +1010,7 @@ execution and replay the bug-gy execution to reach past points. In
 contrast, logging-based approaches collect enough data during
 execution to relieve developer from re-execution. Replay-based
 approaches impose much less runtime overhead (about two orders of
-magnitudes) comparing to logging-based appproches. However, developer
+magnitudes) comparing to logging-based approaches. However, developer
 has to re-execute the buggy execution several
 times. \textit{lastChange} functionality collects data on re-execution
 but this data is limited to the current queries of developer.
@@ -1027,13 +1027,13 @@ Maruyama et al., analyses the execution and moves the debugger to the
 last write access of a selected variable by re-executing the program
 from the beginning\cite{Maruyama}.  Similar to bdb it relies on deterministic
 replay and uses a counter to correctly locate a point in the next
-execution. The main disadvantage of these appraoches is requiring the
+execution. The main disadvantage of these approaches is requiring the
 exactly the same executions. Even one instruction difference between
 two executions leads to wrong results. This requirement is that
 much restricting that after ten years from bdb paper publication,
 there is no newer implementation of this idea. On the other hand,
 \textit{lastChange} doesn't require any special feature in the
-re-rexecution and it is fit to everyday's developers' debugging
+re-execution and it is fit to  developers' everyday debugging
 practice.
 
 Among logging-based approaches are \textit{omniscient} debuggers
@@ -1136,8 +1136,8 @@ Firefox. \newblock http://www.mozilla.com.
 
 \bibitem[Hofer(2006)]{Hofer}
 C. Hofer, M. Denker, and C. St\'{e}phane. \newblock Implementing a backward-in-time debugger.
-\newblock In Proceedings of\emph{NODe’06},
-volume P-88, pages 17–32. Lecture Notes in Informatics, 2006.
+\newblock In Proceedings of\emph{NODeï¿½06},
+volume P-88, pages 17ï¿½32. Lecture Notes in Informatics, 2006.
 
 \bibitem[Ko(2008)]{Ko}
 A.J. Ko, and B.A. Myers. \newblock Debugging reinvented: asking and answering why and why not questions about program behavior.
