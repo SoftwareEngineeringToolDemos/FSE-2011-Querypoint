@@ -35,25 +35,22 @@
 \maketitle
 
 \begin{abstract}
-Backward search from bug symptoms to defects-which cause the bug-is a
-natural way to debugging. However, due to the lack of support for
-easily backward movement by traditional debugging approaches (e.g.,
-breakpoint-based or log-based debugging), applying this strategy-if it
-is not practically impossible-demands a lot of effort from
-developers. Tracking origins to wrong values is a fundamental step in
-this process and any aid in this regard can greatly reduce the
-complexity of debugging for developers.
 
-To address this problem, we propose a new functionality in debuggers,
-\textit{lastChange}, which locates the last place a value is changed
-and lets developer to collect data and ask for more
-\textit{lastChange} queries at the located point. Although
-\textit{lastChange} algorithm is based on program re-execution,
-contrary to other replay-based algorithms which require exactly the
-same re-executions, it only requires bug reproduction by
-re-executions. In other words \textit{bug reproducibility} (i.e., a
-test case is available which reproduces the bug) is the only
-prerequisite for \textit{lastChange} functionality.
+Developers often seek the origins of wrong values they see in their
+debugger. Their search must be backwards in time: the code causing the
+wrong value executed before the wrong value appeared. Searching with
+breakpoint- or log- based debuggers demands persistance and
+significant experience with the application being debugged. We propose
+a new approach, an algorithm \textit{lastChange}, which automatically
+locates the last point that a value was changed and related
+information such as the call stack and program state. Starting from a
+program halted on a breakpoint, the \textit{lastChange} solution
+applies queries to the live program during re-execution. Thus
+\textit{lastChange} combines the flexibility of breakpoint debugging
+with the expressive power of log-based query debugging.  Contrary to
+other replay-based algorithms which require exactly the same
+re-executions, \textit{lastChange} only requires \textit{bug
+  reproducibility}, a test case is available which reproduces the bug.
 
 As a proof of concept, we developed \textit{Querypointer}, a prototype
 which enhances a popular JavaScript debugger, Firebug, with
