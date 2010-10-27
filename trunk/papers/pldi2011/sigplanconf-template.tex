@@ -70,42 +70,73 @@ Algorithms, Human Factors, Languages
 LastChange, Locating Defects, Breakpoint, Watchpoint, Logging
 
 \section{Introduction}
-Debugging is an inevitable part of programming, still hard and time-consuming. To fix a bug, developers have to reproduce and monitor the buggy execution several times to understand the program's unexpected behavior. Trial and error, guess-work and analyzing huge collected data are the inseparable parts of this process. According to \cite{LaToza}, developers spend about fifty percent of their time debugging. Therefore, enhancements to debugging techniques and tools can considerably save developers' time and improve programs' quality.
 
-Locating defects cause the bug is the main part of debugging. A common strategy for locating defects is starting from bug symptoms and backward movement by following the origins to wrong values. While this strategy seems straightforward and effective, applying this strategy using traditional methods is complicated. There are two traditional approaches to debugging, breakpoint-based and log-based debugging. None of these approaches assist developer in finding origins to a wrong value. It is due to developer to search source files, find the list of possible origins to a wrong value and set breakpoints or insert log statements in a way that covers all possible origins.
+According to \cite{LaToza}, developers spend about fifty percent of
+their time debugging. To fix a bug, developers typically reproduce and
+monitor the buggy execution several times to understand the program's
+unexpected behavior. Trial and error, guess-work, and analyzing large
+and complicated data make debugging difficult and time-consuming. Any
+enhancement to debugging techniques and tools can save developers'
+time, reducing development costs and improve programs' quality.
 
-The next dilemma is data collection. In breakpoint debugging,
-developer has to memorize values or manually collect data at every
-breakpoint hit. As the number of breakpoint hits increases, the
-process of checking the program state, collecting data and resuming
-the execution becomes cumbersome. While in breakpoint-based debugging,
-the whole program state is available to developer, in log-based
-debugging, developer has to decide about data should be collected when
-inserts the log statement. It is very common that developer has to
-repeat this step several times due to insufficient collected
-data. Once the adequate data is collected, it still requires analyzing
-and understanding. Developers usually end up in dealing with long log
-files and analyzing huge collected data.
+A common strategy for locating defects starts from bug symptoms and
+works backwards, moving from a point in the program execution where a
+value appears to be incorrect back to the point were that value was
+set.  There are two conventional approaches used: breakpoint-based and
+log-based debugging. Both approaches require tedious steps of
+selecting data to be collected, collecting the data, then analyzing
+the results. 
 
-To address the mentioned problems, we propose a new functionality in
+In breakpoint debugging, developers select data to be collected by
+searching through source files and setting breakpoints. To determine
+where a value was set incorrectly, a developer must list and set
+breakpoints at all possible points of the change for the value. At
+every breakpoint the developer must determine if the location is in
+fact related to the questionable value change then study the complex
+debugger user interface and memorize values or manually collect
+data. As the number of breakpoint hits increases, the process of
+checking the program state, collecting data and resuming the execution
+becomes cumbersome.
+
+In log-based debugging, developers select data to be collected by
+inserting statements for all points of possible change.  While in
+breakpoint-based debugging, the whole program state is available to
+developer, in log-based debugging, developer has to decide about data
+should be collected when inserts the log statement. It is very common
+that developer has to repeat this step several times due to
+insufficient collected data, or to wait a long time because too much
+data is recorded. Once the adequate data is collected, it still
+requires analyzing and understanding. Developers usually end up in
+dealing with long log files and analyzing huge collected data.  None
+of these approaches assist developer in finding origins to a wrong
+value.
+
+To address these problems, we propose a new functionality in
 debuggers, \textit{lastChange}, which locates the origin of a wrong
-value. It works based on program re-execution similar to the practice
-in using breakpoints and log statements. Contrary to other
-replay-based alogrithms which require the same re-executions
-(instruction by instruction), the only prerequisite for
-\textit{lastChange} functionality is bug reproducibility (i.e., there
-is a test case which reproduces the bug). Assume that the program
-execution is paused on a breakpoint and the developer is suspicious
-about the value of an object property or a variable. The developer
-queries \textit{lastChange} on the value and it is due to debugger to
-locate and shows the last change of the object property or
-variable. Debugger reproduces the buggy execution and collects limited
-data and once the execution reaches the same place (i.e., the same
-breakpoint hit), call it \textit{reproduction point}, it pauses the
-execution, analyzes the collected data and shows the location of the
-last change to the developer. The developer can also examine the
-program state at the located point of execution, and continue
-debugging by more \textit{lastChange} queries from that point.
+value. It uses program re-execution similar to the practice
+in using breakpoints and log statements. 
+
+Imagine a program execution paused on a breakpoint and a developer
+suspicious about the value of an object property or a variable. The
+developer queries \textit{lastChange} on the value. The debugger
+locates and shows the last change of the object property or
+variable. Debugger reproduces the buggy execution and collects data
+and once the execution reaches the same place (i.e., the same
+breakpoint hit), it pauses the execution, analyzes the collected data
+and shows the location of the last change to the developer. The
+developer can also examine the program state at the located point of
+execution, and continue debugging by more \textit{lastChange} queries
+from that point.
+
+We refer to the breakpoint used in \textit{lastChange} as the
+\textit{reproduction point}: it is then point the developer knows
+reproduces the bug and it is the point were the \textit{lastChange}
+algorithm ends. The ability to identify this reproduction point, that
+is a test case and a breakpoint after the bug is appears, is the only
+prerequisite for \textit{lastChange} functionality.  This means
+\textit{lastChange} can be implemented on top of a conventional
+breakpoint debugger and it does not require a special environment to
+create identical, instruction by instruction, re-executions.
 
 Our contribution in this paper is the algorithm \textit{lastchange},
 which locates the last place a value is changed, gathers other values
