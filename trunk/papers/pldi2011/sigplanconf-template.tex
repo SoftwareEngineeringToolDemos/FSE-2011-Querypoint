@@ -997,20 +997,19 @@ the program when it is replayed. It makes use of checkpoints to reduce
 the time needed for re-execution.  Reverse watchpoint, is proposed by
 Maruyama et al., analyses the execution and moves the debugger to the
 last write access of a selected variable by re-executing the program
-from the \cite{Maruyama}.  Similar to bdb it relies on deterministic
+from the beginning\cite{Maruyama}.  Similar to bdb it relies on deterministic
 replay and uses a counter to correctly locate a point in the next
 execution. The main disadvantage of these appraoches is requiring the
 exactly the same executions. Even one instruction difference between
-in two executions leads to wrong results. This requirement is that
+two executions leads to wrong results. This requirement is that
 much restricting that after ten years from bdb paper publication,
 there is no newer implementation of this idea. On the other hand,
 \textit{lastChange} doesn't require any special feature in the
 re-rexecution and it is fit to everyday's developers' debugging
 practice.
 
-Among logging-based approaches are "omniscient" debuggers
-ODB\cite{Lewis} and Unstuck[]. Omniscient debuggers have been proposed
-as a solution for the problems of breakpoint-debugging. Both
+Among logging-based approaches are \textit{omniscient} debuggers
+ODB\cite{Lewis} and Unstuck\cite{Hofer}. Both
 approaches keep the log history in memory and hence can only record
 and store the complete history for a short period of time. These
 debuggers record all the events that occur during the buggy execution
@@ -1045,29 +1044,27 @@ addition to program trace and provides answers to why and why not
 questions to the user. Jive\cite{Czyz} depicts the history of
 execution by a sequence diagram and lets user to query on events
 database. Both tools suffer from similar issues with omniscient
-debuggers;
+debuggers.
 %both provide models for extending Querypoint debugging to obtain a better user interface while retaining the flexible conven-tional replay model of debugging.  
 
 A recent work by Lienhard et al.\cite{Lienhard} suggests virtual
-machine level support for keeping the object flow. It rep-laces every
+machine level support for keeping the object flow. It replaces every
 object reference with an alias object which keeps the history of
 changes to the object reference. In this way, when an object is
 collected by garbage collector, its track of changes (if it is not
-referenced by other alias-es) will be also collected. Though this
+referenced by other aliases) will be also collected. Though this
 approach incurs less runtime overhead (7 times to 115 times) in
 comparison to omniscient debuggers, it adds memory
-overhead. Querypoint debugging uses re-executions to gather
-infor-mation requested by the developer: the memory overhead depends
-on the query not the entire program. Moreover, the Lienhard et
-al. debugger significantly changes the virtual machine, while our
-approach is a generalization to conditional breakpoints and available
-debugger infrastructure can be adapted to support it.
+overhead. 
+
+Origin tracking of undefined and null values employing \textit{value piggybacking} technique proposed by
+Bond et al. \cite{Bond}. This approach has two main limitations comparing to \textit{lastChange}.
+First, it is limited to undefined and null values. Second, this approach dosen't return the last change
+of a null variable but the first place that the null value is originated.
+
+%Querypoint debugging uses re-executions to gather infor-mation requested by the developer: the memory overhead depends on the query not the entire program. Moreover, the Lienhard et al. debugger significantly changes the virtual machine, while our approach is a generalization to conditional breakpoints and available debugger infrastructure can be adapted to support it.
  
-\textit{lastChange} functionality does rely on a conventional
-breakpoint to begin queries, a requirement not shared by full logging
-solutions.  Here we leverage past experience of developers, but there
-are also new tools [] to help with this problem in the case of
-graphical and event based systems.
+%\textit{lastChange} functionality does rely on a conventional breakpoint to begin queries, a requirement not shared by full logging solutions.  Here we leverage past experience of developers, but there are also new tools [] to help with this problem in the case of graphical and event based systems.
 
 
 \section{Conclusions and Future Work}
@@ -1108,6 +1105,11 @@ Firebug. \newblock http://getfirebug.com.
 
 \bibitem[Firefox(2010)]{Firefox}
 Firefox. \newblock http://www.mozilla.com.
+
+\bibitem[Hofer(2006)]{Hofer}
+C. Hofer, M. Denker, and C. St\'{e}phane. \newblock Implementing a backward-in-time debugger.
+\newblock In Proceedings of\emph{NODe’06},
+volume P-88, pages 17–32. Lecture Notes in Informatics, 2006.
 
 \bibitem[Ko(2008)]{Ko}
 A.J. Ko, and B.A. Myers. \newblock Debugging reinvented: asking and answering why and why not questions about program behavior.
