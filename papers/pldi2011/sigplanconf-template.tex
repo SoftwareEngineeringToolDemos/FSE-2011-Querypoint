@@ -456,8 +456,10 @@ C  |  ... , scope 1
 
 \end{verbatim}
 \caption{A recursive call trace demonstrates the need for scope
-  id. Querying \textit{lastChange} on \texttt{x} at point C should
-  return point A not B.}
+  id. In the absence of scope id, querying \textit{lastChange} on \texttt{x}
+  at point C in scope 1 returns point B which is the last change of variable 
+  \texttt{x} but happens in another scope. However, the right answer is point A
+  which is in the same scope as point C.}
 \label{fig:recursive}
 \end{figure}
 
@@ -595,7 +597,7 @@ To verify the \textit{lastChange} algorithm we
 implemented it in an extension to the Firebug
 JavaScript debugger\cite{Firebug}. %\cite{firebug-version-1.6}. 
 Firebug itself is an extension of the Firefox browser\cite{Firefox}. %\cite{firefox-version-3.6}
-The Firefox JavaScript engine provides a JavaScript debugging interface \cite{JSD} and
+The Firefox JavaScript engine provides a JavaScript debugging interface [] and %\cite{JSD}
 \textit{Querypoint} is developed over this interface. Our prototype implementation defines our four primitive operations in JavaScript code and using techniques which are cumbersome and comparatively slow to execute.  A professionally useful debugger would implement these primitive operations in the Javasript engine.
 
 \subsection{\texttt{objectId()} operation}
@@ -625,7 +627,7 @@ excepting the global object is available.  For
 the our \textit{lastChange} prototype we created a version of
 \texttt{setPropertyChangeHook()}.  The basic strategy is to get a reference to the object just
 after its creation, then use \texttt{watch()} function to monitor
-property changes in the object.  Setting a flag\cite{JSD} into the Firefox
+property changes in the object.  Setting a flag[] into the Firefox %\cite{JSD}
 JavaScript engine we can get file URL and line number for each object
 creation (e.g., myFile.js, line 24). We set a hook on this line
 and analyze the source code to determine which object was created.
