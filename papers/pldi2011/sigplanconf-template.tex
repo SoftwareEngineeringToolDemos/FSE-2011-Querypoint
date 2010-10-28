@@ -52,9 +52,9 @@ other replay-based algorithms which require exactly the same
 re-executions, \textit{lastChange} only requires \textit{bug
   reproducibility}, a test case is available which reproduces the bug.
 
-As a proof of concept, we developed \textit{Querypointer}, a prototype
+As a proof of concept, we developed \textit{Querypoint}, a prototype
 which enhances a popular JavaScript debugger, Firebug, with
-\textit{lastChange} feature. Moreover, \textit{Querypointer} provides
+\textit{lastChange} feature. Moreover, \textit{Querypoint} provides
 mechanisms for automated bug reproduction, and a novel user interface
 to investigated execution points and results.
 
@@ -143,8 +143,8 @@ which locates the last place a value is changed, gathers other values
 from that execution point, and allows \textit{lastChange} operations
 from that point. The algorithm builds on existing breakpoint debugger
 technology. We demonstrate the feasibility of the algorithm with
-\textit{Querypointer}, an implementation extending the Firebug
-JavaScript debugger. \textit{Querypointer} also provides mechanism for
+\textit{Querypoint}, an implementation extending the Firebug
+JavaScript debugger. \textit{Querypoint} also provides mechanism for
 automated bug reproduction, and a novel user interface which
 summarizes investigated execution points and collected results.
 
@@ -397,17 +397,6 @@ owner of \texttt{foo}. In the next section, we describe how we use
 a slightly different version of this operation which is restricted 
 to only created objects in one location instead of all objects.
 
-\begin{figure}[htp]
-\includegraphics[width=.48\textwidth]{6-foo-changes1.jpg}
-\caption{The list of property \texttt{foo} change events and
-  \texttt{bar} id at the reproduction point which identifies the last
-  change of \texttt{bar.foo} in the list. Column 3 is also a change of
-  the object we want to study, id 1010, but it is not the last change;
-  Column 5 is also a change of a property \texttt{foo} but its not for
-  the object we are interested in.}
-\label{fig:foo-changes1}
-\end{figure}
-
 To see how these functions work, suppose the developer asks for the
 last change of \texttt{bar.foo} at the reproduction point in a
 program. The debugger calls \texttt{setPropertyChangeHook()} with
@@ -424,10 +413,21 @@ property \texttt{foo} change events in a hypothetical
 execution. \texttt{bar} id at the reproduction point is 1010, so the
 last change of \texttt{bar.foo} is the fourth column. 
 
+\begin{figure}[htp]
+\includegraphics[width=.48\textwidth]{6-foo-changes1.jpg}
+\caption{The list of property \texttt{foo} change events and
+  \texttt{bar} id at the reproduction point which identifies the last
+  change of \texttt{bar.foo} in the list. Column 3 is also a change of
+  the object we want to study, id 1010, but it is not the last change;
+  Column 5 is also a change of a property \texttt{foo} but its not for
+  the object we are interested in.}
+\label{fig:foo-changes1}
+\end{figure}
+
 \subsection{\textit{lastChange} on variable} 
 In JavaScript, every frame has a scope chain and every available
 variable in the frame comes from one of the scopes in the frame's
-scope chain. Once a developer asks for the last change of variable
+scope chain. Once a developer asks for the last change of a variable with name 
 \texttt{foo} at the reproduction point, the debugger first determines the
 variable's scope as follows: it iterates over the scopes in the scope
 chain and the first scope which has a variable with the same name is
@@ -435,6 +435,31 @@ the variable's scope. There are five different scope types: local,
 global, \texttt{with}, closure and \texttt{catch}. We explain these
 cases in two groups.
 
+\begin{figure}[htp]
+\begin{verbatim}
+
+  function f(){
+    var x;
+    x++;
+    if (!stop) f();
+  }
+
+Sample Trace:
+
+   f()
+A  |  x changes, scope 1 
+   |  f()
+   |  |  x changes, scope 2
+   |  |  f()
+B  |  |  |  x changes, scope 3 
+C  |  ... , scope 1
+
+\end{verbatim}
+\caption{A recursive call trace demonstrates the need for scope
+  id. Querying \textit{lastChange} on \texttt{x} at point C should
+  return point A not B.}
+\label{fig:recursive}
+\end{figure}
 
 \subsubsection{global and \texttt{with} scopes}
 Global scope is the the most outer scope in the scope chain and it is
@@ -459,31 +484,6 @@ objects. Scope object is usually a transient copy of a native object.
 Therefore, to track changes to a variable in these scopes we
 employ a different approach.
 
-\begin{figure}[htp]
-\begin{verbatim}
-
-  function f(){
-    var x;
-    x++;
-    if (!stop) f();
-  }
-
-Sample Trace:
-
-   f()
-A  |  x changes; 
-   |  f()
-   |  |  x changes;
-   |  |  f()
-B  |  |  |  x changes; 
-C  |  ?
-
-\end{verbatim}
-\caption{A recursive call trace demonstrates the need for scope
-  id. Querying \textit{lastChange} on \texttt{x} at point C should
-  return point A not B.}
-\label{fig:recursive}
-\end{figure}
 
 Having the scope chain and the source code, we can map every scope to % perhaps needs more explanation, how?
 a code block, enclosed the executing code. In
@@ -498,15 +498,14 @@ which is defined inside the block-, the function is called
 whenever the variable is changed. Figure ~\ref{fig:recursive} demonstrates a case that the same variable
 \texttt{x} is changed several times but in different scopes due to the
 recursive calls. Without considering the scopes calling \textit{lastChange(x)}
-at point C will return point B while the right answer is point A. Using
-\texttt{scopeId()} operation, the scope id is also stored at every variable
-change event.
-
-
+at point \texttt{C} in scope 1 will return point \texttt{B} which is a change of \texttt{x} in 
+scope 2 while the right answer is point \texttt{A}. To resolve this issue, an id
+is assigned to the scope by \texttt{ScopeId()} operation and the scope id is also stored 
+at every variable change event.
 
 If the developer asks for the last change of variable \texttt{foo} at the 
 reproduction point in a program, debugger calls 
-\texttt{setVariableChangeH-} \texttt{ook()} with the variable's defining
+\texttt{setVariableChang-} \texttt{eHook()} with the variable's defining
 block and name as parameters and re-executes the
 program. Whenever \texttt{foo} changes and the callback function is to
 be called, debugger first calls \texttt{scopeId()} on the
@@ -558,8 +557,9 @@ event. This algorithm does does a dependency analysis between all
 required to be collected at each change event. For example in the
 mentioned case, \texttt{baz} id-if it is available- should be
 collected at all points \texttt{x} changes. Having this additional
-data, locating point C, using \texttt{baz} id at point B is
-straightforward (Figure ~\ref{fig:lastchange-lastchange}).
+data, \texttt{baz} id at point B, it is enough to look at the list
+of \texttt{y} changes and find the last change event with the same 
+owner id (Figure ~\ref{fig:lastchange-lastchange}).
 
 \begin{algorithm}
 \caption{\textit{lastChange} queries dependency analysis.}
@@ -596,13 +596,13 @@ implemented it in an extension to the Firebug
 JavaScript debugger\cite{Firebug}. %\cite{firebug-version-1.6}. 
 Firebug itself is an extension of the Firefox browser\cite{Firefox}. %\cite{firefox-version-3.6}
 The Firefox JavaScript engine provides a JavaScript debugging interface \cite{JSD} and
-\textit{Querypointer} is developed over this interface. Our prototype implementation defines our four primitive operations in JavaScript code and using techniques which are cumbersome and comparatively slow to execute.  A professionally useful debugger would implement these primitive operations in the Javasript engine.
+\textit{Querypoint} is developed over this interface. Our prototype implementation defines our four primitive operations in JavaScript code and using techniques which are cumbersome and comparatively slow to execute.  A professionally useful debugger would implement these primitive operations in the Javasript engine.
 
 \subsection{\texttt{objectId()} operation}
 \texttt{objectId(obj)} first checks the argument \texttt{obj} for a property \texttt{\_objectId}.
 It returns the value if this property is already defined,
 otherwise it generates a new id and sets this property. The value of the id is simply an integer incremented 
-for each new \texttt{\_objectId} needed. To set %\textit{CHECK THAT} 
+for each new \texttt{\_objectId} needed. To set
 the property, we call the \texttt{defineProperty} standard JavaScript
 function. \texttt{defineProperty} receives an argument which specifies
 whether the property is enumerable or not. By setting the enumerable
@@ -657,28 +657,6 @@ have only one statement which creates a new object and it is assigned
 to \texttt{x.y}.
 
 
-\begin{figure}[htp]
-\begin{verbatim}
-(a) Case 1:
-20 x.y = new myConstructor();
-
-(b) Case 2:
-19  parentObject = {
-20   	  newObject : {
-21  			x : 5
-22  }}
-
-(c) Case 3:
-20 myFunction({myProperty:5});
-
-(d) Case 4:
-20 a[++i] = new myConstructor();
- 
-\end{verbatim}
-\caption{Examples of three types of JavaScript object creatin statements.}
-\label{fig:objectCreation}
-\end{figure}
-
 The new object can also be set as the property of a parent object by a
 colon (\texttt{:}). This case is also treated similar to previous case. The
 only difference is that the full path of property from the root parent
@@ -707,6 +685,28 @@ reveals that the object has been created in different location. This time,
 debugger re-executes the program considering both locations as possible 
 object creation locations.
 
+
+\begin{figure}[htp]
+\begin{verbatim}
+(a) Case 1:
+20 x.y = new myConstructor();
+
+(b) Case 2:
+19  parentObject = {
+20   	  newObject : {
+21  			x : 5
+22  }}
+
+(c) Case 3:
+20 myFunction({myProperty:5});
+
+(d) Case 4:
+20 a[++i] = new myConstructor();
+ 
+\end{verbatim}
+\caption{Examples of three types of JavaScript object creatin statements.}
+\label{fig:objectCreation}
+\end{figure}
 
 \subsection{\texttt{scopeId()} operation}
 The debugger sets a hook at the beginning of all code blocks needing
@@ -757,19 +757,19 @@ but in \texttt{secondChild} is a closure variable.
 \end{figure}
 
 \subsection{Re-Execution, reproduction point and data collection}
-\textit{Querypointer} needs a test case to reproduce the
+\textit{Querypoint} needs a test case to reproduce the
 execution and conditions to correctly recognize the reproduction point. 
-Although both elements can be directly provided by developer, \textit{Querypointer}
+Although both elements can be directly provided by developer, \textit{Querypoint}
 is also able to automatically create them from the first execution. 
 
-\textit{Querypointer} keeps track of breakpoint hits and single steps. For example, 
+\textit{Querypoint} keeps track of breakpoint hits and single steps. For example, 
 if developer query \textit{lastChange} at the third hit of breakpoint \textit{b}, in
 re-execution, third hit of breakpoint b recognized as the reproduction point. 
 
 To build a test case from one execution, two elements should be carefully 
 considered. First, the initial state should be the same as the initial state
 of execution. Second, similar actions and events should be applied to
-the program during the execution. \textit{Querypointer} supports two mechanism
+the program during the execution. \textit{Querypoint} supports two mechanism
 for automatic re-execution: local-reproduction, record-replay. The first one,
 recalls the function at the bottom of call stack with the same parameters. The idea
 behind this mechanism is that many bugs in web pages can be reproduced by firing
@@ -780,10 +780,10 @@ shorter re-execution cycles while the record-replay is more accurate about the
 initial state.
 
 In addition to the data collected at every change event for identifying the \textit{lastChange}
-result, \textit{Querypointer} partially stores values in program state. If developer asks for 
-some values which have not been stored, \textit{Querypointer} re-executes and collects the requested data.
+result, \textit{Querypoint} partially stores values in program state. If developer asks for 
+some values which have not been stored, \textit{Querypoint} re-executes and collects the requested data.
 There is a trade-off between the amount of data collected at every change event and the number of re-executions. 
-By default, \textit{Querypointer} stores values up to one level depth in objects.
+By default, \textit{Querypoint} stores values up to one level depth in objects.
 
 
 
@@ -1131,9 +1131,9 @@ Firebug. \newblock http://getfirebug.com.
 Firefox. \newblock http://www.mozilla.com.
 
 \bibitem[Hofer(2006)]{Hofer}
-C. Hofer, M. Denker, and C. St\'{e}phane. \newblock Implementing a backward-in-time debugger.
-\newblock In Proceedings of\emph{NODe�06},
-volume P-88, pages 17�32. Lecture Notes in Informatics, 2006.
+C. Hofer, M. Denker, and S. Ducasse. \newblock Implementing a backward-in-time debugger.
+\newblock In Proceedings of\emph{NODe'06},
+volume P-88, pages 17-32. Lecture Notes in Informatics, 2006.
 
 \bibitem[Ko(2008)]{Ko}
 A.J. Ko, and B.A. Myers. \newblock Debugging reinvented: asking and answering why and why not questions about program behavior.
