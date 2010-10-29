@@ -119,8 +119,7 @@ in using breakpoints and log statements.
 Imagine a program execution paused on a breakpoint and a developer
 suspicious about the value of an object property or a variable. The
 developer queries \textit{lastChange} on the value. The debugger
-locates and shows the last change of the object property or
-variable. Debugger reproduces the buggy execution and collects data
+reproduces the buggy execution and collects data
 and once the execution reaches the same place (i.e., the same
 breakpoint hit), it pauses the execution, analyzes the collected data
 and shows the location of the last change to the developer. The
@@ -129,10 +128,10 @@ execution, and continue debugging by more \textit{lastChange} queries
 from that point.
 
 We refer to the breakpoint used in \textit{lastChange} as the
-\textit{reproduction point}: it is then point the developer knows
+\textit{reproduction point}: this is a point where the developer knows
 reproduces the bug and it is the point were the \textit{lastChange}
-algorithm ends. The ability to identify this reproduction point, that
-is a test case and a breakpoint after the bug is appears, is the only
+algorithm ends. The ability to identify this reproduction point, i.e.
+ a test case and a breakpoint after the bug is appears, is the only
 prerequisite for \textit{lastChange} functionality.  This means
 \textit{lastChange} can be implemented on top of a conventional
 breakpoint debugger and it does not require a special environment to
@@ -1004,7 +1003,7 @@ of issues.
 the execution state logically earlier in the control flow. This
 support resembles a mixture of replay-based and logging-based
 debugging. Replay-based approaches capture limited data during
-execution and replay the bug-gy execution to reach past points. In
+execution and replay the buggy execution to reach past points. In
 contrast, logging-based approaches collect enough data during
 execution to relieve developer from re-execution. Replay-based
 approaches impose much less runtime overhead (about two orders of
@@ -1027,9 +1026,7 @@ from the beginning\cite{Maruyama}.  Similar to bdb it relies on deterministic
 replay and uses a counter to correctly locate a point in the next
 execution. The main disadvantage of these approaches is requiring the
 exactly the same executions. Even one instruction difference between
-two executions leads to wrong results. This requirement is that
-much restricting that after ten years from bdb paper publication,
-there is no newer implementation of this idea. On the other hand,
+two executions leads to wrong results. On the other hand,
 \textit{lastChange} doesn't require any special feature in the
 re-execution and it is fit to  developers' everyday debugging
 practice.
@@ -1061,18 +1058,6 @@ after reproducing bug without a capturing step.  Changing inputs or
 environment settings and re-executing to investigate the bug works as
 in conventional breakpoint debuggers.
 
-Two new directions in logging debuggers explore more detailed use of
-the log and more effective logging approaches. WhyLine\cite{Ko}
-provides visual interface to collected runtime information and let
-developer to move on execution log using queries expressed in terms of
-the programming objects. WhyLine stores the program user in-terface in
-addition to program trace and provides answers to why and why not
-questions to the user. Jive\cite{Czyz} depicts the history of
-execution by a sequence diagram and lets user to query on events
-database. Both tools suffer from similar issues with omniscient
-debuggers.
-%both provide models for extending Querypoint debugging to obtain a better user interface while retaining the flexible conven-tional replay model of debugging.  
-
 A recent work by Lienhard et al.\cite{Lienhard} suggests virtual
 machine level support for keeping the object flow. It replaces every
 object reference with an alias object which keeps the history of
@@ -1087,6 +1072,19 @@ Origin tracking of undefined and null values employing \textit{value piggybackin
 Bond et al. \cite{Bond}. This approach has two main limitations comparing to \textit{lastChange}.
 First, it is limited to undefined and null values. Second, this approach dosen't return the last change
 of a null variable but the first place that the null value is originated.
+
+Two new directions in logging debuggers explore more detailed use of
+the log and more effective logging approaches. WhyLine\cite{Ko}
+provides visual interface to collected runtime information and let
+developer to move on execution log using queries expressed in terms of
+the programming objects. WhyLine stores the program user interface in
+addition to program trace and provides answers to why and why not
+questions to the user. Jive\cite{Czyz} depicts the history of
+execution by a sequence diagram and lets user to query on events
+database. Both tools suffer from the requirement of gathering tracing information before their unique capabilities can be used.
+We imagine that the runtime queries we use in \textit{lastChange}  may be used to gather data incrementally for these kinds of debugging approaches.
+
+
 
 %Querypoint debugging uses re-executions to gather infor-mation requested by the developer: the memory overhead depends on the query not the entire program. Moreover, the Lienhard et al. debugger significantly changes the virtual machine, while our approach is a generalization to conditional breakpoints and available debugger infrastructure can be adapted to support it.
  
