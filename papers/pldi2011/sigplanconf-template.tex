@@ -596,17 +596,19 @@ To verify the \textit{lastChange} algorithm we
 implemented it in an extension to the Firebug
 JavaScript debugger\cite{Firebug}. %\cite{firebug-version-1.6}. 
 Firebug itself is an extension of the Firefox browser\cite{Firefox}. %\cite{firefox-version-3.6}
-The Firefox JavaScript engine provides a JavaScript debugging interface [] and %\cite{JSD}
+The Firefox JavaScript engine provides a JavaScript debugging interface \cite{JSD} and 
 \textit{Querypoint} is developed over this interface. Our prototype implementation defines our four primitive operations in JavaScript code and using techniques which are cumbersome and comparatively slow to execute.  A professionally useful debugger would implement these primitive operations in the Javasript engine.
 
 \subsection{\texttt{objectId()} operation}
 \texttt{objectId(obj)} first checks the argument \texttt{obj} for a property \texttt{\_objectId}.
 It returns the value if this property is already defined,
 otherwise it generates a new id and sets this property. The value of the id is simply an integer incremented 
-for each new \texttt{\_objectId} needed. To set
-the property, we call the \texttt{defineProperty} standard JavaScript
-function. \texttt{defineProperty} receives an argument which specifies
-whether the property is enumerable or not. By setting the enumerable
+for each new \texttt{\_objectId} needed. To assign the id to the object we 
+set the id as a regular object property. This might change
+the program behaviour due to the appearance of this property in 
+\texttt{for(property in object)} loops. \texttt{defineProperty} is a standard JavaScript
+function which is available in the next version of Firefox\footnote[1]{https://developer.mozilla.org/en/JavaScript/Reference/Global\_Objects\\/Object/defineProperty}. \texttt{defineProperty} receives 
+an argument which specifies whether the property is enumerable or not. By setting the enumerable
 field \texttt{false} for \texttt{\_objectId}, this property will not
 apear in \texttt{for(property in object)} loops and therfore has no
 effect on the program execution. Note that \texttt{\_objectId} is
@@ -1134,6 +1136,9 @@ Firefox. \newblock http://www.mozilla.com.
 C. Hofer, M. Denker, and S. Ducasse. \newblock Implementing a backward-in-time debugger.
 \newblock In Proceedings of\emph{NODe'06},
 volume P-88, pages 17-32. Lecture Notes in Informatics, 2006.
+
+\bibitem[JSD(2010)]{JSD}
+Mozila JavaScript Debugging Interface(JSD). \newblock http://www.mozilla.org/js/jsd.
 
 \bibitem[Ko(2008)]{Ko}
 A.J. Ko, and B.A. Myers. \newblock Debugging reinvented: asking and answering why and why not questions about program behavior.
