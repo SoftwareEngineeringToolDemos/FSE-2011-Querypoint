@@ -628,7 +628,7 @@ excepting the global object is available.  For
 the our \textit{lastChange} prototype we created a version of
 \texttt{setPropertyChangeHook()}.  The basic strategy is to get a reference to the object just
 after its creation, then use \texttt{watch()} function to monitor
-property changes in the object.  Setting a flag[] into the Firefox %\cite{JSD}
+property changes in the object. Setting a flag\footnote[2]{DISABLE\_OBJECT\_TRACE defined in jsdIDebuggerService.idl} into the Firefox %\cite{JSD}
 JavaScript engine we can get file URL and line number for each object
 creation (e.g., myFile.js, line 24). We set a hook on this line
 and analyze the source code to determine which object was created.
