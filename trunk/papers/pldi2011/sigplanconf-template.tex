@@ -938,10 +938,12 @@ object-oriented runtimes provide object identifiers[] and some
 provide access to object creation[]. In the particular case of
 the Firefox Web browser we used for our prototype, the primary barrier
 to practical implementation would likely be integration with the
-increasingly sophisticated just in time compilers []. 
+increasingly sophisticated just in time compilers []. In the case of
+tracking variable changes, \texttt{setVariableChangeHook()} can be implemented
+similar to \texttt{setPropertyChangeHook()} if JavaScript scopes-like regular 
+JavaScript objects-support \texttt{watch()} function.
 
 \subsection{In most cases \protect\texttt{lastChange} will be much faster than current alternatives}
-
 When developers try \textit{lastChange}, will they get results fast
 enough to benefit? While we only used our prototype on toy programs,
 \textit{lastChange} seemed as fast as re-execution.  Recall that we
@@ -1103,7 +1105,7 @@ We imagine that the runtime queries we use in \textit{lastChange}  may be used t
 
 % The bibliography should be embedded for final submission.
 
-\begin{thebibliography}{13}
+\begin{thebibliography}{16}
 \softraggedright
 
 \bibitem[Bond(2007)]{Bond}
@@ -1136,9 +1138,6 @@ Firefox. \newblock http://www.mozilla.com.
 C. Hofer, M. Denker, and S. Ducasse. \newblock Implementing a backward-in-time debugger.
 \newblock In Proceedings of\emph{NODe'06},
 volume P-88, pages 17-32. Lecture Notes in Informatics, 2006.
-
-\bibitem[JSD(2010)]{JSD}
-Mozila JavaScript Debugging Interface(JSD). \newblock http://www.mozilla.org/js/jsd.
 
 \bibitem[Ko(2008)]{Ko}
 A.J. Ko, and B.A. Myers. \newblock Debugging reinvented: asking and answering why and why not questions about program behavior.
