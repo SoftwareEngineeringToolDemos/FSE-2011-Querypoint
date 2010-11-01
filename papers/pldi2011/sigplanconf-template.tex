@@ -41,7 +41,7 @@ debugger. Their search must be backwards in time: the code causing the
 wrong value executed before the wrong value appeared. Searching with
 breakpoint- or log- based debuggers demands persistence and
 significant experience with the application being debugged. We propose
-a new approach, an algorithm \textit{lastChange}, which automatically
+a new approach, an algorithm called \textit{lastChange}, which automatically
 locates the last point that a value was changed and related
 information such as the call stack and program state. Starting from a
 program halted on a breakpoint, the \textit{lastChange} solution
