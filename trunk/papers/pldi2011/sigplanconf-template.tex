@@ -810,7 +810,7 @@ the execution can change each time we re-execute the buggy program,
 but the buggy result is the same.  The reproducibility of the bug
 means that the defect is very unlikely to depend on the order of
 events during the execution. When the developer selects a value and
-asks for \textit{lastChange}, they are expressing an hypothesis that
+asks for \textit{lastChange}, they are expressing the hypothesis that
 the value is related to the defect. Therefore the reproducibility of
 the bug makes it very unlikely that the \textit{lastChange} will
 depend upon order of events during execution.
@@ -824,7 +824,7 @@ array. The array contains numbers except one item which is
 \texttt{randomPermutation} function in line 11 which randomly
 permutes the array item. So at every execution the
 \texttt{undefined} item will be in a new place. Calling
-\textit{lastChange} on \texttt{x} at the place bug happens, gives a
+\textit{lastChange} on \texttt{x} at the place the bug happens, gives a
 point which shows line 14. Although this point exists at every
 re-execution but it can not be identified by a conditional breakpoint.
 
@@ -864,7 +864,7 @@ value from \textit{lastChange} is not. As in conventional breakpoint
 debugging, we can only determine this empirically, by observing
 multiple executions with different values. Unlike conventional
 breakpoint debugging, implementations of \textit{lastChange} readily
-aid in detecting such cases: as we work back through a series of
+help in detecting such cases: as we work back through a series of
 \textit{lastChange} requests we can compare values with previous
 executions. Different values on different executions will signal that
 the execution is not deterministic. In future we hope to compare
@@ -875,7 +875,7 @@ non-deterministic executions.
 
 \section{Discussion}
 
-We have presented the \textit{lastChange} algorithm and describe our
+We have presented the \textit{lastChange} algorithm and described our
 prototype implementation. Now we want to convince you that the
 algorithm has practical value. Ultimately, practical value can only be
 proven by developers in the field using the technique. This paper is
@@ -901,7 +901,7 @@ the developer needs to do?  Since ultimately programs are just
 transformation of state values, debugging is ultimately backtracking
 to find defects in program state change.  When a developer halts a
 program on a breakpoint they have three kinds of information: a model
-of the program in their head, a call stack showing what part of the
+of the program in their mind, a call stack showing what part of the
 program is halted, and the state at that point (a combination of the
 debugger's view of the program internal state and the output of the
 program up to this point of execution). If the model does not match
@@ -932,7 +932,7 @@ issue.
 
 \subsection{Practical implementations are feasible}
 
-We described our prototype implementation in Sec. 4. A fully usable
+We have described our prototype implementation in Sec. 4. A fully usable
 implementation would require access to the object id at the point of
 object creation and \texttt{setPropertyChangeHook()}. Many
 object-oriented runtimes provide object identifiers[] and some
@@ -1029,7 +1029,7 @@ Maruyama et al., analyses the execution and moves the debugger to the
 last write access of a selected variable by re-executing the program
 from the beginning\cite{Maruyama}.  Similar to bdb it relies on deterministic
 replay and uses a counter to correctly locate a point in the next
-execution. The main disadvantage of these approaches is requiring the
+execution. The main disadvantage of these approaches is that they require 
 exactly the same executions. Even one instruction difference between
 two executions leads to wrong results. On the other hand,
 \textit{lastChange} doesn't require any special feature in the
@@ -1075,13 +1075,13 @@ overhead.
 
 Origin tracking of undefined and null values employing \textit{value piggybacking} technique proposed by
 Bond et al. \cite{Bond}. This approach has two main limitations comparing to \textit{lastChange}.
-First, it is limited to undefined and null values. Second, this approach dosen't return the last change
+First, it is limited to undefined and null values. Second, this approach dose not return the last change
 of a null variable but the first place that the null value is originated.
 
 Two new directions in logging debuggers explore more detailed use of
 the log and more effective logging approaches. WhyLine\cite{Ko}
-provides visual interface to collected runtime information and let
-developer to move on execution log using queries expressed in terms of
+provides visual interface to collected runtime information and lets
+developer moves on execution log using queries expressed in terms of
 the programming objects. WhyLine stores the program user interface in
 addition to program trace and provides answers to why and why not
 questions to the user. Jive\cite{Czyz} depicts the history of
