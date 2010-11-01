@@ -77,21 +77,21 @@ monitor the buggy execution several times to understand the program's
 unexpected behavior. Trial and error, guess-work, and analyzing large
 and complicated data make debugging difficult and time-consuming. Any
 enhancement to debugging techniques and tools can save developers'
-time, reducing development costs and improve programs' quality.
+time, reduce development costs and improve programs' quality.
 
 A common strategy for locating defects starts from bug symptoms and
 works backwards, moving from a point in the program execution where a
 value appears to be incorrect back to the point were that value was
-set.  There are two conventional approaches used: breakpoint-based and
+set.  Two conventional approaches are used: breakpoint-based and
 log-based debugging. Both approaches require tedious steps of
 selecting data to be collected, collecting the data, then analyzing
 the results. 
 
 In breakpoint debugging, developers select data to be collected by
 searching through source files and setting breakpoints. To determine
-where a value was set incorrectly, a developer must list and set
-breakpoints at all possible points of the change for the value. At
-every breakpoint the developer must determine if the location is in
+where a value was set incorrectly, a developer must set
+breakpoints at all possible points where the value changes. At
+every breakpoint, the developer must determine if the location is in
 fact related to the questionable value change then study the complex
 debugger user interface and memorize values or manually collect
 data. As the number of breakpoint hits increases, the process of
@@ -101,9 +101,9 @@ becomes cumbersome.
 In log-based debugging, developers select data to be collected by
 inserting statements for all points of possible change.  While in
 breakpoint-based debugging, the whole program state is available to
-developer, in log-based debugging, developer has to decide about data
+developer, in log-based debugging, developer has to decide what data
 should be collected when inserts the log statement. It is very common
-that developer has to repeat this step several times due to
+that the developer has to repeat this step several times due to
 insufficient collected data, or to wait a long time because too much
 data is recorded. Once the adequate data is collected, it still
 requires analyzing and understanding. Developers usually end up in
@@ -111,7 +111,7 @@ dealing with long log files and analyzing huge collected data.  None
 of these approaches assist developer in finding origins to a wrong
 value.
 
-To address these problems, we propose a new functionality in
+To address these problems, we introduce a new functionality in
 debuggers, \textit{lastChange}, which locates the origin of a wrong
 value. It uses program re-execution similar to the practice
 in using breakpoints and log statements. 
@@ -131,14 +131,14 @@ We refer to the breakpoint used in \textit{lastChange} as the
 \textit{reproduction point}: this is a point where the developer knows
 reproduces the bug and it is the point were the \textit{lastChange}
 algorithm ends. The ability to identify this reproduction point, i.e.
- a test case and a breakpoint after the bug is appears, is the only
+ a test case and a breakpoint after the bug has appeared, is the only
 prerequisite for \textit{lastChange} functionality.  This means
 \textit{lastChange} can be implemented on top of a conventional
 breakpoint debugger and it does not require a special environment to
 create identical, instruction by instruction, re-executions.
 
 Our contribution in this paper is the algorithm \textit{lastChange},
-which locates the last place a value is changed, gathers other values
+which locates the last place a value has changed, gathers other values
 from that execution point, and allows \textit{lastChange} operations
 from that point. The algorithm builds on existing breakpoint debugger
 technology. We demonstrate the feasibility of the algorithm with
@@ -218,8 +218,9 @@ interesting, and what they do in practice may cause bugs.
 \label{fig:js-code}
 \end{figure}
 
-To start debugging, the developer sets a breakpoint
-on line 22 and, once the button is clicked, execution is paused at line
+By browsing through the code, the developer can quickly determine that the value displayed on the 
+button is set at line 22. To start debugging, the developer sets a breakpoint
+on line 22. Once the button is clicked, execution is paused at line
 22. Figure ~\ref{fig:example1} shows the Firebug debugger while the
 execution is paused. Firebug has several panels (e.g., HTML, CSS,
 Script, DOM, etc.) that each demonstrate one aspect of the Web page.
@@ -230,48 +231,47 @@ where the developer can examine object and variable values. In our case, the
 \texttt{myObject.myProperty} value at the paused point is zero. We expected this value to be \texttt{2}.
 
 To apply backward search strategy for locating defects, the developer
-first needs to know the origin to the wrong value. To achieve this
-goal using breakpoints, the developer should search code to find and
-set breakpoint at all possible places that
-\texttt{myObject.myProperty} might get a new value.  However, an
+first needs to know the origin of the wrong value. To achieve this
+goal using breakpoints, the developer should search code to find all possible places that
+\texttt{myObject.myProperty} might get a new value and set breakpoint at these locations. However, an
 object and property can be accessed and changed through different
 names and methods. There is no simple way to identify these alias or
 even their total number.  The developer can make a good guess and set
 breakpoints on lines where the property seems to be changed. Then they
 re-execute the program and examine the state looking for values that
 may lead to the incorrect value observed at line 22. All this work
-must be repeated if a new alias is discovered or if the some
+must be repeated if a new alias is discovered or if some
 information related to the buggy result was missed while stopped on
 one of the breakpoints.
 
-In contrast, we propose a high-level function in debugger,
+In contrast, we have added a high-level function in debugger,
 \textit{lastChange}, which provides the answer without tedious manual
 effort from the developer. By right clicking on
 \texttt{myObject.myProperty} in the Watch panel, the developer can run
 \textit{lastChange} command (Figure ~\ref{fig:example2}). Debugger
 re-executes the program and halts again at the breakpoint on line 22.
-However, it shows a new QP panel, centered on the source at line 29
+However, it shows a new panel, called QP, centered on the source at line 29
 (Figure ~\ref{fig:example3}), the point of \textit{lastChange}.  To
-the right, the TraceData panels shows values of properties from the
+the right, the TraceData panel shows values of properties of the
 program state when it passed through line 29.  These two panels
 resemble the Script and Watch panels, but they show data collected by
-the debugger at an execution point which is now past: these are
+the debugger at one execution point which is now past: these are
 'traces' or 'logs' of information collected during the re-execution.
 
 Looking at line 29, it seems that something is wrong with
 \texttt{myCondition.value} which causes line 29 execution. The
 developer examines \texttt{myCondition.value} and it is
 \texttt{undefined}. The next step is to know when this property got
-this value. To do so, the developer runs \textit{lastChange} command
+this value. To do so, the developer reruns \textit{lastChange} command
 on \texttt{myCondition.value} at this point. This re-executes the
 program and pauses at the reproduction point,  showing line 25-the
 place \texttt{oldValue} is assigned to
-\texttt{myCondition.value} (Figure ~\ref{fig:example3}). Now it is
+\texttt{myCondition.value} (Figure ~\ref{fig:example4}). Now it is
 clear that the bug occurs because \texttt{oldValue} is
 \texttt{undefined} once execution reaches line 25.
 
 
-As demonstrated in Figure ~\ref{fig:example-points}, the developer
+As demonstrated in Figure ~\ref{fig:example-points}, the developer has
 examined three points of execution. The first point, the reproduction point,  was the breakpoint set by the developer.
 The second and third points preceded the reproduction point in execution sequence.
 All three points-the history
@@ -279,17 +279,11 @@ of the search for the defect-are available through the debugger's
 interface. On the top of the left panel in Figure ~\ref{fig:example4}
 there is an opened list which shows all three examined points. The
 first one is the breakpoint on line 22, the second one is the point
-which is the last change of \texttt{myObject.myProperty} before
+which is when \texttt{myObject.myProperty} changed before
 reaching the breakpoint and finally the last one is the point of
 execution in which \texttt{myCondition.value} gets the
 \texttt{undefined} value. Moreover, the source lines related to these
 points are tagged with red-cycle icons.
-
-\begin{figure}[htp]
-\includegraphics{5-example-points.jpg}
-\caption{The examined points before locating the defect. The arrow represents the logical forward progress of the program. Three actual executions are superimposed on this arrow. All three stop at the reproduction point indicated by the circle 1. After the first execution, the developer asks for lastChange as described in \ref{sec:introExample}, yielding information  indicated by circle 2. After the second execution, another lastChange query causes a third execution, yielding information indicated by circle 3.}
-\label{fig:example-points}
-\end{figure}
 
 \begin{figure*}[htp]
 
@@ -326,34 +320,41 @@ on the
 \end{figure*}
 
 
+\begin{figure}[htp]
+\includegraphics{5-example-points.jpg}
+\caption{The examined points before locating the defect. The arrow represents the logical forward progress of the program. Three actual executions are superimposed on this arrow. All three stop at the reproduction point indicated by the circle 1. After the first execution, the developer asks for lastChange as described in \ref{sec:introExample}, yielding information  indicated by circle 2. After the second execution, another lastChange query causes a third execution, yielding information indicated by circle 3.}
+\label{fig:example-points}
+\end{figure}
+
+
 Notice that in our example, \textit{lastChange} combines some aspects
 of breakpoint and of log-based debugging. Like breakpoint debugging,
 the developer re-executes a live runtime without changing the source
 and without a special execution environment beyond the debugger. The
-state of the program memory and the call stack are available at the
+state of the program memory and the call stack are available at each
 lastChange point. Like log-based debugging, the program state and the
 call stack are recorded during program execution. We can't halt the
-program at \textit{lastChange} because we don't know which is the last
+program at \textit{lastChange} because we don't know which point is the last
 one until we return to the original breakpoint. (In section 5 we
 discuss cases were it is possible to pause at lines of \textit{lastChange}).
 
 \section{\textit{lastChange} Algorithm}
 
 The \textit{lastChange} algorithm is based on program re-execution of
-a program halted on a breakpoint. The breakpoint hit becomes the
-\textit{reproduction point}. The algorithm starts when developer
+a program halted on a breakpoint. The algorithm starts when developer
 examines the program state at a breakpoint hit and asks for the
-\textit{lastChange} of a value.  Debugger sets hooks (a callback
+\textit{lastChange} of a value. The breakpoint hit becomes the
+\textit{reproduction point}. Debugger sets hooks (a callback
 function dependent upon the underlying runtime) on all instructions
 that might be the result of \textit{lastChange} query. Then the
 debugger re-executes the program and every time a hook hits it
 checks for a \textit{change event}. In the case of a change, it stores
 part of the program state values.  Once the execution reaches the
 reproduction point, it analyzes the collected data and shows the
-result.  The program state at the execution point for the last change
+result.  The program state at the execution point of the last change
 event is the \textit{lastChange}.
 
-While \textit{lastChange} itself is not a different kind \textit{breakpoint},
+As \textit{lastChange} itself is not a different kind of \textit{breakpoint},
 all of the assumptions developers already have for breakpoints hold
 for \textit{lastChange}. In particular the re-execution is just the
 same operation developers use to debug with breakpoints. Because
@@ -385,16 +386,16 @@ two operations. The first operation is \texttt{objectId()}: given a
 JavaScript object it returns an integer as its identifier. This
 identifier is unique to the object during one execution.  By using an
 object id instead of an object reference we allow the garbage
-collector to reclaim the space for dead objects just at would in the
+collector to reclaim the space for dead objects just as it would in the
 absence of the debugger. The second
 operation is \texttt{setPropertyChangeHook()}: given a function and a
 string, the function is called whenever a property changes and its
-name matches the string For example, if the property might be
+name matches the string For example, if the is 
 \texttt{foo} so changes to \texttt{bar.foo} or \texttt{baz.foo} would
 call the function.  The callback function receives a reference to the
 owner of \texttt{foo}. In the next section, we describe how we use
 a slightly different version of this operation which is restricted 
-to only created objects in one location instead of all objects.
+to the created objects in one location instead of all objects.
 
 To see how these functions work, suppose the developer asks for the
 last change of \texttt{bar.foo} at the reproduction point in a
@@ -438,7 +439,7 @@ cases in two groups.
 \begin{verbatim}
 
   function f(){
-    var x;
+    var x = 0;
     x++;
     if (!stop) f();
   }
@@ -471,12 +472,12 @@ global variable is a property of global object. Similarly,
 scope is created by a \texttt{with()} block with an object as the
 parameter. Every property of this parameter object is available inside the
 block as a variable. \textit{lastChange} treats the case where variable's scope
-is global or \texttt{with}, like \textit{lastChange} on an object
+is global or \texttt{with}, like it does on an object
 property.
 
 \subsubsection{local, closure and \texttt{catch} scopes}
 Local scope refers to the most nested scope in the scope
-chain and contains the local variables. Closure scope refers to the 
+chain which contains the local variables. Closure scope refers to the 
 scope which is created for a nested function and contains variables 
 defined in the outer block. Catch scope is the scope created in the catch
 block of try-catch statements and contains the exception
@@ -488,15 +489,15 @@ employ a different approach.
 
 Having the scope chain and the source code, we can map every scope to % perhaps needs more explanation, how?
 a code block, enclosed the executing code. In
-JavaScript, a code block can be identified by the file url and the 
-the block's first instruction program counter. Given this information, debugger is
+JavaScript, a code block can be identified by the file url and  
+the block's first instruction program counter. Given this information, the debugger is
 able to recognize the code block once it is loaded.
 Similar to \textit{lastChange} on object property, we define two basic operations: 
-\texttt{scopeId()} and \texttt{setVariableChangeHook()}. The first one 
-given a scope returns an integer as the scope's identifier. The second one 
+\texttt{scopeId()} and \texttt{setVariableChangeHook()}. The first one, 
+given a scope returns an integer as the scope's identifier. The second one, 
 given a callback function, a code block and a variable name-
 which is defined inside the block-, the function is called
-whenever the variable is changed. Figure ~\ref{fig:recursive} demonstrates a case that the same variable
+whenever the variable is changed. Figure ~\ref{fig:recursive} demonstrates a case in which the same syntactically variable
 \texttt{x} is changed several times but in different scopes due to the
 recursive calls. Without considering the scopes calling \textit{lastChange(x)}
 at point \texttt{C} in scope 1 will return point \texttt{B} which is a change of \texttt{x} in 
@@ -529,7 +530,7 @@ at the reproduction point (Figure ~\ref{fig:foo-changes2}).
  
 \subsection{\textit{lastChange} on \textit{lastChange}}
 The algorithm we explained so far needs an enhancement to support
-cascades of \textit{lastChange}s. We explain first the issue
+cascades of \textit{lastChange}s. We first explain the issue
 and then the solution. Consider the following points:
 
 \begin{center}
@@ -552,8 +553,8 @@ arises in recognizing point C. To recognize point C, we need
 \texttt{baz} id has not been collected at this point.
 
 To address this issue, we use Algorithm \ref{dependency-analysis}, to
-create the list of additional data should be collected at a change
-event. This algorithm does does a dependency analysis between all
+create the list of additional data (object id or scope id) should be collected at a change
+event. This algorithm does a dependency analysis between all
 \textit{lastChange} queries and computes the list of additional data
 required to be collected at each change event. For example in the
 mentioned case, \texttt{baz} id-if it is available- should be
@@ -644,13 +645,13 @@ of one object, we monitor all new objects created in the line.
 An object might be created by one of these statements: object
 initializer (\texttt{\{...\}}), \textit{new} operator (\texttt{new 
 constructor()}) or function definition statment (\texttt{function()}). 
-By parsing the source code we can easily recognize the statements 
+By parsing the source code we can recognize the statements that
 create an object. The next step is getting a reference to the new object.
 
-The new object can be assigned to an object property or variable by
+The new object can be assigned to an object property or a variable by
 an assignment (\texttt{=}). In these cases we keep the assignee statement 
 at the left side. The idea is that we create a list of assignee statements 
-that the new objects are assigned to them. We set a hook on the creation
+that the new objects are assigned to. We set a hook on the creation
 line. Once the hook hits, we evaluate all assignee statements. Then 
 we do stepping(step-over) and after each step we evaluate the
 statements. Every statement which has a new value, we consider the new
@@ -675,11 +676,11 @@ cases instead of step-over we use step-in and we get the corresponding
 argument as a new object.
 
 Although this approach is successful in many ordinary cases, there are some 
-cases that this approach doesn't work. For example in a case
+cases where this approach doesn't work. For example in a case
 where the new object is assigned to \texttt{a[++i]} where i is a variable
 (Figure ~\ref{fig:objectCreation}(d)), \texttt{a[++i]} is kept in the list
 of assignee statements. Obviously, evaluating this statement doesn't return
-a reference to the new object. Our prototype implementation does not yet handle these kinds of unusual cases.
+a reference to the new object. Our prototype implementation does not handle these kinds of unusual cases yet.
 
 Throughout this section we implicitly assumed that the object will be created at 
 the same location in the next execution. So, what does happens if it
@@ -713,8 +714,8 @@ object creation locations.
 
 \subsection{\texttt{scopeId()} operation}
 The debugger sets a hook at the beginning of all code blocks needing
-a scope id whenever the block is loaded. The scope id is kept as a variable with name 
-\texttt{\_scopeId} in the scope. Whenever the hook hits,  meaning a new scope
+a scope id. The scope id is kept as a variable with name 
+\texttt{\_scopeId} in the scope. Whenever the hook is hit,  meaning a new scope
 is created, \texttt{\_scopeId} is set by calling JavaScript's dynamic compilation 
 function \texttt{eval()}. For example, executing \texttt{eval( var \_scopeId = 10)} creates a
 variable with name \texttt{\_scopeId} and value \texttt{10} in the
@@ -723,14 +724,14 @@ operation returns the value of \texttt{\_scopeId} in the scope.
 
 \subsection{\texttt{setVariableChangeHook()} operation}
 Variables defined in local, closure, and catch scopes are only changed in
-their scope; that includes the defining scope and scopes nested inside of them.
+their scope; that includes the defining scope and scopes nested whithin them.
 For example in Figure ~\ref{fig:js-closure}, variable \texttt{var1} in line 11 can only be
 changed in lines 10 to 23. Therefore, after locating the function in
 which the variable is defined, it is enough to parse the code inside
 the function block and set a hook on all lines where the variable is
 assigned a new value. 
 We also set a hook at the first line of the function which is
-corresponding to the line variable is defined. In Figure
+corresponding to the line where the variable is defined. In Figure
 ~\ref{fig:js-closure}, if the execution is paused at line 17 and the
 last change of \texttt{var1} is queried, two hooks on lines 16 and 17
 will be set, but if the execution is paused at line 20 , four hooks on
@@ -766,15 +767,15 @@ Although both elements can be directly provided by developer, \textit{Querypoint
 is also able to automatically create them from the first execution. 
 
 \textit{Querypoint} keeps track of breakpoint hits and single steps. For example, 
-if developer query \textit{lastChange} at the third hit of breakpoint \textit{b}, in
-re-execution, third hit of breakpoint b recognized as the reproduction point. 
+if the developer queries \textit{lastChange} at the third hit of breakpoint \textit{b}, in
+re-execution, the third hit is recognized as the reproduction point. 
 
 To build a test case from one execution, two elements should be carefully 
 considered. First, the initial state should be the same as the initial state
 of execution. Second, similar actions and events should be applied to
 the program during the execution. \textit{Querypoint} supports two mechanism
 for automatic re-execution: local-reproduction, record-replay. The first one,
-recalls the function at the bottom of call stack with the same parameters. The idea
+recalls the function at the bottom of the call stack with the same parameters. The idea
 behind this mechanism is that many bugs in web pages can be reproduced by firing
 an event like clicking on a button. The second one, in the first execution, record phase, 
 stores the initial page url and captures user actions. In the replay phase, it opens
