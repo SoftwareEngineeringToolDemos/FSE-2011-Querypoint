@@ -876,11 +876,10 @@ non-deterministic executions.
 \section{Discussion}
 
 We have presented the \textit{lastChange} algorithm and described our
-prototype implementation. Now we want to convince you that the
-algorithm has practical value. Ultimately, practical value can only be
-proven by developers in the field using the technique. This paper is
-one step to convince implementers to put \textit{lastChange} in the
-field.  Thus our goal here is a persuasive argument for potential implementors.
+prototype implementation. Our goal is practical improvements in debugging. To achieve our goal we need practical JavaScript engines
+to add new debug primitives so that developers in the field can use our new technique. This paper is
+one step to convince implementers to enable \textit{lastChange}.
+Thus we summarize here our arguments that \textit{lastChange} should be supported.
 
 The key ingredients in our argument are: 
 \begin{enumerate}
@@ -984,8 +983,7 @@ with an interactive debugger and detecting that we are in a high
 overhead loop is simply a matter of checking our internal counter. In
 such unusual cases we may simply offer the developer the option of
 studying the loop code then omitting it from \textit{lastChange}
-operations. As a practical result, this is no different from similar
-issues developers face with any debugger today: occasionally a
+operations. Developers face this issue with any debugger today: occasionally a
 debugger causes too much overhead to be useful for debugging. On
 balance we think \textit{lastChange} will rarely encounter these kinds
 of issues.
@@ -1004,7 +1002,7 @@ of issues.
 \section{Related Work}
 \label{sec:relatedWork}
 
-\textit{lastChange} functionality supports obtaining information about
+The algorithm we presented in this paper provides a way to obtain information about
 the execution state logically earlier in the control flow. This
 support resembles a mixture of replay-based and logging-based
 debugging. Replay-based approaches capture limited data during
