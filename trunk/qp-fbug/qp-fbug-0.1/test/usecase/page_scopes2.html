@@ -1,0 +1,51 @@
+<html>
+    <head>
+        <title>
+            PAGE_SIMPLE
+        </title>
+        <script type="text/javascript">
+
+        <!--
+            compute = function(){
+                console.log("start");
+                var myfun = parent();
+                var children = myfun();
+                children[1]();
+                children[0]();
+            }
+
+            function parent(){
+                var var1;
+                var1 = 1;
+                var myfun = function(){
+                    var1 = 2;
+                    function firstChild(){
+                   	    var var1;
+                        var1 = 3;
+                    }
+                    function secondChild(){
+                        var1 = 4;
+                    }
+                    return [firstChild, secondChild];
+                }
+                return myfun;
+            }
+        -->
+        </script>
+
+    </head>
+
+    <body id="myBody">
+    <p>
+      This page contains an object "myObject",
+      whenever user clicks, "myObject.myProperty" value increases.
+    </P>
+    <button id="myParagraph" onclick="compute()">
+      1
+    </button>
+    <p id>
+
+    </p>
+    </body>
+
+</html>

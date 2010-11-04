@@ -1,0 +1,11 @@
+
+
+todo for version 0.1.0
+- record-replay reproduction
+- object creation - construction
+- execution monitor improvements
+- last change for cases like a.b.c.d.e ?
+- lastChange on lastChange complete implementation.
+- better interface for manager/debug session
+- root variables is (?) 
+  setting bp in assignment line

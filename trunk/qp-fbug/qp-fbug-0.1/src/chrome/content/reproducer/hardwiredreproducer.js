@@ -35,7 +35,6 @@ __owner.HardWiredReproducer = function(){
                         var tabBrowser = $("content");
                         tabBrowser.removeTab(oldTab);
 
-
                         var openNewTab = function(url, callback)
                         {
                             var tabbrowser = getBrowser();

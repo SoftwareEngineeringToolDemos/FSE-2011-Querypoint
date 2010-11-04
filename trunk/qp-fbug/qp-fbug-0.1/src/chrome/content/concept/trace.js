@@ -185,6 +185,9 @@ with (Lang){
                     if (!scope)
                         return null;
 
+                    if (!QPFBUG.Conf.COLLECT_DATA)
+                        return  new TraceScope(null, "", {}); //returns empty scope
+
                     var traceScope;
                     var parentScope, jsClassName, variables, values;
 

@@ -24,6 +24,10 @@ with (Lang){
             this.listeningToFunctions = 0;
             this.nextListenerId = 0;
             this.nextJSObjectId = 0;
+
+            this.counterInterrupt = 0;
+            this.counterFunction = 0;
+            this.counterBreakpoint = 0;
         };
 
         constructor.prototype =
@@ -256,6 +260,7 @@ with (Lang){
 
             //------------------------------------------ jsd hooks -------------------------------------------------
             onInterrupt: function(context, frame, type, rv){
+                this.counterInterrupt++;
                 var copy = cloneObject(this.interruptListeners);
                 for (var i in copy){
                     var interruptListener = copy[i];
@@ -268,6 +273,7 @@ with (Lang){
             },
 
             onFunction: function(context, frame, type){
+                this.counterFunction++;
                 var copy = cloneObject(this.functionListeners);
                 for (var i in copy){
                     var functionListener = copy[i]; 
@@ -280,6 +286,7 @@ with (Lang){
             },
 
             onBreakpoint: function(context, frame, type, rv){
+                this.counterBreakpoint++;
                 var eventRequests = context.qpfbug.eventRequests;
                 var eventRequest;
                 var script = frame.script;

@@ -40,7 +40,7 @@ with (QPFBUG.Classes){
                             try{
                                 return f.apply(this, arguments); //we use "this" instead of "obj" to make sure "this" is the same as normal execution.
                             }catch(exc){
-                                QPFBUG.Classes.Lang.trace("Error : " + exc, exc);
+                                Lang.trace("Error : " + exc, exc);
                             }
                         }
                     }(p, obj_p);
@@ -136,6 +136,16 @@ with (QPFBUG.Classes){
                 return copy;
             }
             return object;
+        },
+
+        wait: function(millis)
+        {
+            var time = Lang.currentTimeMillis();
+            var curDate = null;
+
+            do {
+                curDate = Lang.currentTimeMillis();
+            }while(curDate-time < millis);
         },
 
         //--------------------------------- from firebug lib.js -----------------------------

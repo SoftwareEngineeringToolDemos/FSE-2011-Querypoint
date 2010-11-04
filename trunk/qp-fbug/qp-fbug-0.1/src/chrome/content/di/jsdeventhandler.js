@@ -17,14 +17,10 @@ var __owner = QPFBUG.Classes;
 
 __owner.JSDEventHandler = function(){
 
-        var constructor = function(ds,fbs){
-            this.ds = ds;
-            this.fbs = fbs;
+        var constructor = function(){
+            this.ds = DebugService.getInstance();
+            this.fbs = QPFBUG.fbs;
             this.cachedContexts = {}; // map <context.uid, executionContext.tag>
-            this.counter = 0;
-            this.counterInterrupt = 0;
-            this.counterFunction = 0;
-            this.counterBreakpoint = 0;
         };
 
         constructor.prototype =
@@ -41,18 +37,18 @@ __owner.JSDEventHandler = function(){
                 // ----- jsd hooks -----
                 //this.replaceFBSFunction("onScriptCreated");
                 //this.replaceFBSFunction("onScriptDestroyed");
-                this.replaceFBSFunction("onDebugger");
+                //this.replaceFBSFunction("onDebugger");
                 //this.replaceFBSFunction("onDebug");
-                this.replaceFBSFunction("onBreakpoint");
+                //this.replaceFBSFunction("onBreakpoint");
                 //this.replaceFBSFunction("onThrow");
                 //this.replaceFBSFunction("onError");
                 //this.replaceFBSFunction("onTopLevel");
-                this.replaceFBSFunction("onInterrupt");
-                this.replaceFBSFunction("onFunction");
+                //this.replaceFBSFunction("onInterrupt");
+                //this.replaceFBSFunction("onFunction");
 
                 // ----- hook/unhook -----
-                //this.replaceFBSFunction("hookScripts");
-                //this.replaceFBSFunction("unhookScripts");
+                this.replaceFBSFunction("hookScripts");
+                this.replaceFBSFunction("unhookScripts");
                 this.replaceFBSFunction("hookInterrupts");
                 this.replaceFBSFunction("unhookInterrupts");
                 this.replaceFBSFunction("hookFunctions");
@@ -76,7 +72,7 @@ __owner.JSDEventHandler = function(){
             },
 
             // ---------------------------------------   fbs functions -----------------------------
-            // Do not use "this" in the following methods.
+            // Important: Do not use "this" in the following methods.
             // because it can be jsdEventHandler or fbs.
             // enables debugger
             enableDebugger : function(){
@@ -127,10 +123,12 @@ __owner.JSDEventHandler = function(){
 
                 var returnValue = Ci.jsdIExecutionHook.RETURN_CONTINUE;
 
+                //The special case we use for halting by debugger keyword.
                 if (frame.thisValue && frame.thisValue.getWrappedValue() instanceof HaltObject)
                     return ds.onDebugger(frame, type, rv);
 
-                var returnValue = jsdEventHandler.fbs_onDebugger.apply(fbs, arguments);
+//                var returnValue = jsdEventHandler.fbs_onDebugger.apply(fbs, arguments);
+                var returnValue = fbs.onDebugger.apply(fbs, arguments);
                 return returnValue;
             },
 
@@ -145,16 +143,19 @@ __owner.JSDEventHandler = function(){
 
             // jsd.breakpointHook
             onBreakpoint: function(frame, type, rv){
+                Monitor.getInstance().counterBreakpoint++;
+
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
                 var returnValue = Ci.jsdIExecutionHook.RETURN_CONTINUE;
-                jsdEventHandler.counterBreakpoint++;
 
                 var context = jsdEventHandler.getContextFromFrame(frame);
                 if (context)
                     returnValue = ds.onBreakpoint(context, frame, type, rv);
 
+                if (context && !context.qpfbug)//only for debugging
+                    return returnValue;
                 // fbs removes the breakpoint from the script if it doesn't have
                 // the breakpoint in its list, so it should be called
                 // if this breakpoint is one of its breakpoints.
@@ -165,7 +166,8 @@ __owner.JSDEventHandler = function(){
                     return returnValue;
                 var bp = fbs.findBreakpointByScript(frame.script, frame.pc);
                 if (bp){
-                    returnValue = jsdEventHandler.fbs_onBreakpoint.apply(fbs,arguments);
+//                    returnValue = jsdEventHandler.fbs_onBreakpoint.apply(fbs,arguments);
+                    returnValue = fbs.onBreakpoint.apply(fbs,arguments);
                 }
 
                 return returnValue;
@@ -200,11 +202,12 @@ __owner.JSDEventHandler = function(){
 
             // jsd.interruptHook
             onInterrupt: function(frame, type, rv){
+                Monitor.getInstance().counterInterrupt++;
+
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
                 var returnValue = Ci.jsdIExecutionHook.RETURN_CONTINUE;
-                jsdEventHandler.counterInterrupt++;
 
                 if (jsdEventHandler.ds_hooksState.interruptHook){
                     var context = jsdEventHandler.getContextFromFrame(frame);
@@ -214,18 +217,19 @@ __owner.JSDEventHandler = function(){
                 }
 
                 if (jsdEventHandler.fbs_hooksState.interruptHook)
-                    returnValue = jsdEventHandler.fbs_onInterrupt.apply(fbs, arguments);
+                    returnValue = fbs.onInterrupt.apply(fbs, arguments);
 
                 return returnValue;
             },
 
             // jsd.functionHook
             onFunction: function(frame, type){
+                Monitor.getInstance().counterFunction++;
+
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
                 var returnValue = Ci.jsdIExecutionHook.RETURN_CONTINUE;
-                jsdEventHandler.counterFunction++;
 
                 if (jsdEventHandler.ds_hooksState.functionHook){
                     var context = jsdEventHandler.getContextFromFrame(frame);
@@ -235,7 +239,7 @@ __owner.JSDEventHandler = function(){
                 }
 
                 if (jsdEventHandler.fbs_hooksState.functionHook)
-                    returnValue = jsdEventHandler.fbs_onFunction.apply(fbs, arguments);
+                    returnValue = fbs.onFunction.apply(fbs, arguments);
 
                 return returnValue;
             },
@@ -245,8 +249,18 @@ __owner.JSDEventHandler = function(){
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
+                var jsd =  fbs.getJSD()
 
                 jsdEventHandler.fbs_hookScripts.apply(fbs, arguments);
+
+                //replace hooks
+                jsd.debuggerHook = {onExecute: jsdEventHandler.onDebugger};
+//                jsd.debugHook = ;
+                jsd.breakpointHook = {onExecute: jsdEventHandler.onBreakpoint};
+//                jsd.throwHook = ;
+//                jsd.errorHook = ;
+//                jsd.topLevelHook = ;
+
             },
             
             unhookScripts: function(){
@@ -261,6 +275,7 @@ __owner.JSDEventHandler = function(){
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
+                var jsd =  fbs.getJSD()
 
                 if (this == jsdEventHandler){
                     jsdEventHandler.ds_hooksState.interruptHook = true;
@@ -269,6 +284,9 @@ __owner.JSDEventHandler = function(){
                 }
 
                 jsdEventHandler.fbs_hookInterrupts.apply(fbs, arguments);
+
+                //replace hooks
+                jsd.interruptHook = {onExecute: jsdEventHandler.onInterrupt};
             },
             
             unhookInterrupts: function(){
@@ -285,12 +303,15 @@ __owner.JSDEventHandler = function(){
                     return; // do not unhook
 
                 jsdEventHandler.fbs_unhookInterrupts.apply(fbs, arguments);
+
+                Monitor.getInstance().counter = 0;
             },
             
             hookFunctions: function(){
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
+                var jsd =  fbs.getJSD()
 
                 if (this == jsdEventHandler){
                     jsdEventHandler.ds_hooksState.functionHook = true;
@@ -298,6 +319,9 @@ __owner.JSDEventHandler = function(){
                     jsdEventHandler.fbs_hooksState.functionHook = true;
                 }
                 jsdEventHandler.fbs_hookFunctions.apply(fbs, arguments);
+
+                //replace hooks
+                jsd.functionHook = {onCall: jsdEventHandler.onFunction};
             },
             
             unhookFunctions: function(){
@@ -345,7 +369,8 @@ __owner.JSDEventHandler = function(){
 
             getContextFromFrame: function(frame)
             {
-                this.counter++;
+                Monitor.getInstance().counter++;
+
                 var context = null;
 
                   //todo contextexecution tag is not a safe way to recognize context
@@ -394,9 +419,7 @@ __owner.JSDEventHandler = function(){
         constructor.getInstance = function(){
             if (!QPFBUG.jsdEventHandler)
             {
-                var ds = DebugService.getInstance();
-                var fbs = QPFBUG.fbs;
-                QPFBUG.jsdEventHandler = new JSDEventHandler(ds ,fbs);
+                QPFBUG.jsdEventHandler = new JSDEventHandler();
                 Lang.wrapFunctionsWithTryCatch(QPFBUG.jsdEventHandler);
                 QPFBUG.jsdEventHandler.init();
             }
