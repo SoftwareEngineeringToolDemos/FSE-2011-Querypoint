@@ -24,13 +24,21 @@
 \title{Debugging by \textit{lastChange}}
 \subtitle{}
 
-\authorinfo{Salman Mirghasemi\and Claude Petitpierre}
+%\authorinfo{Salman Mirghasemi\and Claude Petitpierre}
+%           {Ecole Polytechnique F\'ed\'erale de Lausanne}
+%           {\{salman.mirghasemi,claude.petitpierre\}@epfl.ch}
+
+\authorinfo{Salman Mirghasemi}
            {Ecole Polytechnique F\'ed\'erale de Lausanne}
-           {\{salman.mirghasemi,claude.petitpierre\}@epfl.ch}
+           {salman.mirghasemi@epfl.ch}
 
 \authorinfo{John J. Barton}
            {IBM Research - Almaden}
            {johnjbarton@johnjbarton.com}
+
+\authorinfo{Claude Petitpierre}
+           {Ecole Polytechnique F\'ed\'erale de Lausanne}
+           {claude.petitpierre@epfl.ch}
 
 \maketitle
 
@@ -810,7 +818,7 @@ the execution can change each time we re-execute the buggy program,
 but the buggy result is the same.  The reproducibility of the bug
 means that the defect is very unlikely to depend on the order of
 events during the execution. When the developer selects a value and
-asks for \textit{lastChange}, they are expressing the hypothesis that
+asks for \textit{lastChange}, the developer is expressing the hypothesis that
 the value is related to the defect. Therefore the reproducibility of
 the bug makes it very unlikely that the \textit{lastChange} will
 depend upon order of events during execution.
