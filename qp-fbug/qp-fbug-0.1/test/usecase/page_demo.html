@@ -6,6 +6,45 @@
         <script type="text/javascript">
 
         <!--
+
+            var conf = false;
+            
+            var compute = function(){
+                console.log("start");
+                step1();
+                step2();
+            };
+
+            var step1 = function(){
+                for (var p in map){
+                    var record = map[p];
+                    record.bar = true;
+                    try{
+                       record.special.length;
+                       if (record.random > 50){
+                           record.bar = false;}
+                    }catch(exc){
+                       //ignore
+                    }
+                }
+            };
+
+            var step2 = function(){
+                //foo;
+                for (var p in map){
+                    var record = map[p];
+                    var baz = record.random;
+                    if (record.bar || conf){
+                        //record.bar = false;
+                        myObject.foo = baz*2
+                    }else{
+                        myObject.foo = record.random;
+                    }
+                    if (myObject.foo>100)
+                        console.log("foo value is not correct : " + myObject.foo);
+                }
+            };
+
             var map = {
                 B:{random:100, special:"'B", value:14},
                 H:{random:77, special:"H", value:45},
@@ -13,42 +52,15 @@
                 Y:{random:77, special:"Y", value: 17},
             };
 
-            conf = false;
-            
-            compute = function(){
-                console.log("start");
-                step1();
-                step2();
-            }
+            myObject = {
+                foo:0,
+                bar:1
+            };
 
-            step1 = function(){
-                for (var p in map){
-                    var record = map[p];
-                    record.bar = true;
-                    try{
-                       record.special.length;
-                       record.bar = false;
-                    }catch(exc){
-                       //ignore
-                    }
-                }
-            }
-
-            step2 = function(){
-                //foo;
-                for (var p in map){
-                    var record = map[p];
-                    var baz = record.random;
-                    if (record.bar || conf){
-                        record.bar = false;
-                        foo = baz*2
-                    }else{
-                        foo = record.random;
-                    }
-                    if (foo>100)
-                        alert("foo value is not correct : " + foo);
-                }
-            }
+            myObject2 = {
+                foo:0,
+                bar:1
+            };
         -->
         </script>
 

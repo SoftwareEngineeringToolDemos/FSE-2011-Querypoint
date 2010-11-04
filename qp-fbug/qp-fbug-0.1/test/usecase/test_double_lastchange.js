@@ -1,4 +1,5 @@
-// Test entry point.                
+//TODO Note: This test is not complete!
+// Test entry point.
 function runTest()
 {
 
@@ -55,13 +56,13 @@ function runTest()
     }
 
     var clickOn_MyObject = function(){
-        var myObjectElt = FW.FBL.getElementsByClass(testData.watchesPanelNode, "memberLabel userLabel")[1];
+        var myObjectElt = FW.FBL.getElementsByClass(testData.watchesPanelNode, "memberLabel userLabel")[1]; //myObject
         FBTest.click(myObjectElt);
         setTimeout(lastChangeOn_MyProperty, 100);
     }
 
     var lastChangeOn_MyProperty = function(){
-        var myPropertyElt = FW.FBL.getElementsByClass(testData.watchesPanelNode, "memberLabel userLabel")[2];
+        var myPropertyElt = FW.FBL.getElementsByClass(testData.watchesPanelNode, "memberLabel userLabel")[2]; //myProperty
         FBTest.executeContextMenuCommand(myPropertyElt, "lastChange", function()
         {
             setTimeout(end, 10000000);

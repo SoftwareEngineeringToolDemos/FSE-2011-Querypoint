@@ -1,5 +1,5 @@
 // Although this file may be for every new window
-// the js files are loaded only once fore thw whole firefox process.
+// the js files are loaded only once fore the whole firefox process.
 
 var loadScript = function(path, scope)
 {
@@ -74,6 +74,8 @@ loadScript("resource://qpfbug/di/haltobject.js");
 loadScript("resource://qpfbug/di/executionmonitor.js");
 loadScript("resource://qpfbug/di/steppingdriver.js");
 loadScript("resource://qpfbug/di/scriptanalyzer.js");
+loadScript("resource://qpfbug/di/monitor.js");
+
 
 loadScript("resource://qpfbug/parser/jsparser.js");
 
