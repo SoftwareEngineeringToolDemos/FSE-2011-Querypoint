@@ -20,7 +20,10 @@ with (Lang){
         constructor.prototype = {
 
             start: function(callBack, propertyName, frame, type, rv){
-                this.steppingDriver = DebugService.getInstance().getSteppingDriver(this, this.context);
+                trace("ExecutionMonitor starts: " + frame.script.fileName + " " + frame.line);
+                this.steppingDriver = DebugService.getInstance().getSteppingDriver(this.context);
+                this.fileName = frame.script.fileName;
+                this.line = frame.line;
                 this.startScriptTag = frame.script.tag;
                 this.startPC = frame.pc;
                 this.startStackFrameDepth = callStackDepth(frame);
@@ -40,12 +43,13 @@ with (Lang){
                     var refValue = evalInFrame(frame, monitorRef);
                     this.monitorRefValues.push(refValue);
                 }
-                this.steppingDriver.step(3, this.startScriptTag, frame.line, this.startPC); //todo correct line number
+                this.steppingDriver.step(this, 3, this.startScriptTag, this.line, this.startPC); //todo correct line number
             },
 
             stop: function(){
                 this.isStopped = true;
                 DebugService.getInstance().releaseSteppingDriver(this.steppingDriver);
+                trace("ExecutionMonitor ends: " + this.fileName + " " + this.line);
             },
 
             //todo
@@ -66,6 +70,7 @@ with (Lang){
 
                 for (var i=0 ; i<this.monitorRefs.length ; i++){
                     var monitorRef = this.monitorRefs[i];
+                    trace("assignee: " + monitorRef);
                     var refValue = evalInFrame(frame, monitorRef);
                     if (refValue != this.monitorRefValues[i]){
                         this.monitorRefValues[i] = refValue;
@@ -77,17 +82,26 @@ with (Lang){
                             //Object.defineProperty(refValue, "__QPFBUG_ID", { value: objectId });
                             // code for firefox 3.5+
                             //refValue.__defineGetter__("__QPFBUG_ID", function(){return objectId;})
+                            //refValue.__objectId = objectId;
                             this.monitorRefGotNewValue[i] = true;
                             refValue.watch(this.propertyName, bind(this.callBack, this, refValue));
                         }
                     }
                 }
+
                 var shouldContinue = false;
                 for (var i=0 ; i<this.monitorRefs.length ; i++){
                     if (!this.monitorRefGotNewValue[i])
                         shouldContinue = true;
                 }
-                //trace("()()()()()() " + shouldContinue, this.monitorRefGotNewValue);
+
+
+//                var nextPCLine = frame.script.pcToLine(frame.pc+1, Ci.jsdIScript.PCMAP_SOURCETEXT);
+                //TODO IT is not a complet solution , it should be the last pc//there is no next pc so the current one is the last one //TODO be care full about loops!!!
+                if ( frame.line === frame.script.baseLineNumber +frame.script.lineExtent -1 ) //the last line
+                    shouldContinue = false
+//                trace("shouldContinue: " + shouldContinue + " " + frame.pc + " " + nextPCLine + " " +nextPCLine2+" "+nextPCLine10);
+
                 if (!shouldContinue){
                     this.stop();
                     return;
@@ -96,7 +110,7 @@ with (Lang){
                 this.lastScriptTag = frame.script.tag;
                 this.lastPC = frame.pc;
                 if (!this.isStopped){ //is this check necessary?
-                    this.steppingDriver.step(3, this.lastScriptTag, 0, this.lastPC );
+                    this.steppingDriver.step(this, 3, this.lastScriptTag, 0, this.lastPC );
                 }
             },
 

@@ -212,6 +212,7 @@ __owner.JSDEventHandler = function(){
                 if (jsdEventHandler.ds_hooksState.interruptHook){
                     var context = jsdEventHandler.getContextFromFrame(frame);
 
+                    Monitor.getInstance().test++;
                     if (context)
                         returnValue = ds.onInterrupt(context, frame, type, rv);
                 }
@@ -304,7 +305,6 @@ __owner.JSDEventHandler = function(){
 
                 jsdEventHandler.fbs_unhookInterrupts.apply(fbs, arguments);
 
-                Monitor.getInstance().counter = 0;
             },
             
             hookFunctions: function(){
@@ -399,9 +399,13 @@ __owner.JSDEventHandler = function(){
                         var context = DebugService.getInstance().registeredContexts[uid];
                         if (context.window == rootWindow)
                         {
-                            this.cachedContexts[frame.executionContext.tag] = context.uid;
+                            if(!this.cachedContexts[frame.executionContext.tag])
+                                this.cachedContexts[frame.executionContext.tag] = {id:context.uid, counter:1};
                             return context;
                         }
+//                        else{
+//                            trace(":::: " + frame.script.fileName + " " + frame.line);
+//                        }
                     }
                 }
                 return null;

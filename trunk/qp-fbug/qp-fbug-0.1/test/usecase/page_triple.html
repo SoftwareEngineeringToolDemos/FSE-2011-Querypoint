@@ -8,9 +8,13 @@
         <!--
             myObject = {myProperty : 1};
             var oldValue;
-            myCondition = {value : 1};
-            var anotherValue = 1;
+            myCondition = {
+                value : 1};
+            anotherCondition = {
+                value : 1};
+
             increaseMyProperty = function(){
+                Joo();
                 foo();
                 myObject.myProperty++;
                 bar();
@@ -21,8 +25,12 @@
                 var myParagraph = document.getElementById("myParagraph");
                 myParagraph.innerHTML =  myObject.myProperty;
             }
+            function Joo(){
+                anotherCondition.value = false;
+            }
             function foo(){
-                myCondition.value = oldValue;
+                if (!anotherCondition.value)
+                    myCondition.value = oldValue;
             }
             function bar(){
                 if (!myCondition.value){
