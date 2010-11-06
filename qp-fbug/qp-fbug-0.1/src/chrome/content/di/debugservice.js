@@ -25,9 +25,6 @@ with (Lang){
             this.nextListenerId = 0;
             this.nextJSObjectId = 0;
 
-            this.counterInterrupt = 0;
-            this.counterFunction = 0;
-            this.counterBreakpoint = 0;
         };
 
         constructor.prototype =
@@ -116,8 +113,8 @@ with (Lang){
 
 
             //--------------------------------- SteppingDriver ----------------------------
-            getSteppingDriver: function(stepHandler, context){
-                return new SteppingDriver(this.nextListenerId++, stepHandler, context);
+            getSteppingDriver: function(context){
+                return new SteppingDriver(this.nextListenerId++, context);
             },
 
             releaseSteppingDriver: function(steppingDriver){
@@ -260,7 +257,7 @@ with (Lang){
 
             //------------------------------------------ jsd hooks -------------------------------------------------
             onInterrupt: function(context, frame, type, rv){
-                this.counterInterrupt++;
+                QPFBUG.monitor.ds_counterInterrupt++;
                 var copy = cloneObject(this.interruptListeners);
                 for (var i in copy){
                     var interruptListener = copy[i];
@@ -273,7 +270,7 @@ with (Lang){
             },
 
             onFunction: function(context, frame, type){
-                this.counterFunction++;
+                QPFBUG.monitor.ds_counterFunction++;
                 var copy = cloneObject(this.functionListeners);
                 for (var i in copy){
                     var functionListener = copy[i]; 
@@ -286,7 +283,7 @@ with (Lang){
             },
 
             onBreakpoint: function(context, frame, type, rv){
-                this.counterBreakpoint++;
+                QPFBUG.monitor.ds_counterBreakpoint++;
                 var eventRequests = context.qpfbug.eventRequests;
                 var eventRequest;
                 var script = frame.script;

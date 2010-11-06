@@ -9,17 +9,16 @@ with (Lang){
 
     //Note: There is one assumption behind current Stepping Driver implementation:
     //  It supports only one thread's interrupts/functions during one step.
-    //  Considering restricting events to a context if we assumet that
+    //  Considering restricting events to a context if we assume that
     //  a context only has one running thread, we can have the above assumption.
     //
     //--------------------------- Stepping Driver ----------------------
     __owner.SteppingDriver = function(){
 
-        var constructor = function(id, stepHandler, context){
+        var constructor = function(id, context){
             this.id = id;
             this.steppingMode = SteppingDriver.STEP_MODES.STEP_MIN; //default
             this.debugService = DebugService.getInstance();
-            this.stepHandler = stepHandler;
             this.context = context;
             this.registeredForInterrupts = false;
             this.registeredForFunctions = false;
@@ -30,7 +29,8 @@ with (Lang){
         constructor.prototype = {
 
             //stops at the first interrupt in this context
-            start: function(){
+            stepSoon: function(stepHandler){
+                this.stepHandler = stepHandler;
                 this.isStopped = false;
                 this.steppingMode = SteppingDriver.STEP_MODES.STEP_MIN; 
                 this.registerAsInterruptListener();
@@ -40,7 +40,8 @@ with (Lang){
                 this.startPC = -1;
             },
 
-            step: function(steppingMode, startScriptTag, startLineNo, startPC){
+            step: function(stepHandler, steppingMode, startScriptTag, startLineNo, startPC){
+                this.stepHandler = stepHandler;
                 this.isStopped = false;
                 this.steppingMode = steppingMode;
                 this.startScriptTag = startScriptTag;
@@ -114,6 +115,7 @@ with (Lang){
 
             // ------------------------------ functions called by debug service -------------
             onInterrupt: function(context, frame, type, rv){
+                trace("steppingDriver : onInterrupt " + type + " " + frame.line+ " " + frame.script.baseLineNumber + " " +frame.script.lineExtent);
                 if (context != this.context)
                     return;
                 with(SteppingDriver.STEP_MODES){
@@ -147,6 +149,7 @@ with (Lang){
             },
 
             onFunction: function(context, frame, type){
+                trace("steppingDriver : onFunction " + type + " " + frame.line);
                 var rv = null;
                 var stackDepthChange = 0;
 
