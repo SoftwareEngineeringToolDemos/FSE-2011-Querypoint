@@ -1,0 +1,52 @@
+<html>
+    <head>
+        <title>
+            lastChange Usage
+        </title>
+        <script type="text/javascript">
+
+        <!--
+            myObject = {
+                myProperty : 0
+            }
+            increaseMyProperty = function(){
+                myObject.myProperty++;
+                myObject.myProperty++;
+                myObject.myProperty++;
+                var myParagraph = document.getElementById("myParagraph");
+                myParagraph.innerHTML = "myObject.myProperty = " + myObject.myProperty;
+            }
+        -->
+        </script>
+
+    </head>
+
+    <body id="myBody" onclick="increaseMyProperty()">
+    <p>
+      This page contains an object "myObject",
+      whenever user clicks, "myObject.myProperty" value increases by 3.
+    </p>
+
+    <p>
+      To see how <i>lastChange</i> works set a breakpoint on line 17-where
+        the value is written on the page. Reload the page and click.
+        The breakpoint hits. In the right panel, check the value of <b>this.myObject.myProperty</b>.
+        The value is 3. Now right click on <b>myProperty</b> and select <i>lastChange</i>.
+        As you see, in QP panel you can see the location of the last change of <b>myObject.myProperty</b>
+        and the program state at the right side.
+        You can still ask for another <i>lastChange</i>. From the right panel select <b>window.myObject.myProperty</b>.
+        Right click on <b>myProperty</b> and select <i>lastChange</i>. Now debugger shows
+        a new location.
+        All three locations, breakpoint, the first last change and the second last change are listed
+        in the menu at the top of the panel.
+    </P>
+
+    <h2 id="myParagraph">
+      myObject.myProperty = 0;
+    </h2>
+    <p id>
+
+    </p>
+    </body>
+
+</html>
