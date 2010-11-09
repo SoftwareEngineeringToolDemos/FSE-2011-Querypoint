@@ -86,6 +86,27 @@ with (QPFBUG.Classes){
             return size;
         },
 
+        //bind function adds the args at the end or function args but bindFirst insert them at the head.
+        bindAtHead: function()  // fn, thisObject, args => thisObject.fn(arguments, args);
+        {
+           var args = Lang.cloneArray(arguments), fn = args.shift(), object = args.shift();
+           return function bind() { return fn.apply(object, Lang.arrayInsert(Lang.cloneArray(args), arguments.length, arguments)); }
+        },
+
+
+        callAll: function(functions){     //arguments -: [functions, args]
+            var args = Lang.cloneArray(arguments);
+            var functions = args.shift();
+            if (!functions || !functions.length)
+                return;
+            var returnValue;
+            for (var i=0 ; i<functions.length ; i++){
+                Lang.trace("functions[i] ", functions[i]);
+                returnValue = functions[i].apply(this, args);  //"this" is not necessary!
+            }
+            return returnValue;
+        },
+        
         evalInFrame: function(frame, expr){
             var value = null;
             var result = {};
@@ -131,6 +152,8 @@ with (QPFBUG.Classes){
             {
                 var copy = {};
                 for (p in object){
+                    if (p === "___qpfbug_objectId___" || p === "___qpfbug_watch___")  //ignore these variables
+                        continue;
                     copy[p] = this.copyObject(object[p], depth-1);
                 }
                 return copy;

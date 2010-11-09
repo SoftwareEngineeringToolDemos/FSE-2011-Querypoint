@@ -9,6 +9,7 @@ with (Lang){
     QPFBUG.Classes.ScriptAnalyzer =
         function(){
 
+            //The source is pretty-printed
             var constructor = function(source){
                 this.jsParser = JSParser.getInstance();
 

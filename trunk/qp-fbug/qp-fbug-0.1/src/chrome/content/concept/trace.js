@@ -85,9 +85,7 @@ with (Lang){
                         var parent;
                         if (!parentRef){//todo parent is a scope
 
-                            trace("((((((((((((((((((((((((((((((((((((((((");
                             parent = this.findScopeForPropertyName(frame.scope, propertyName);
-                            trace(")))))))))))))))))))))))))))))))))))))))))", parent);
 
                             //traceData = new TraceData(queryData, null, exprValue)
                         }else{
@@ -149,7 +147,6 @@ with (Lang){
                 },
 
                 findScopeForPropertyName: function(scope, propertyName){
-                    trace("**********"+propertyName);
                     if (!scope)
                         return null;
 
