@@ -31,10 +31,31 @@ with (Lang){
                 this.propertyName = propertyName;
                 this.isStopped = false;
 
-                //trace("source: " + frame.script.functionSource);
+                this.endPC = -1;
+//                if (frame.line === frame.script.baseLineNumber +frame.script.lineExtent -1) //it is the last line
+//                {
+//                    trace("The end line : " + frame.line);
+//                }else{
+//                    trace("---line--- " + frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT));
+//                    var pcToLine_pp = frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_PRETTYPRINT);
+//
+//                    //find next executable line in pp
+//                    var toAdd = 1;
+//                    while (!frame.script.isLineExecutable(pcToLine_pp+toAdd, Ci.jsdIScript.PCMAP_PRETTYPRINT)){
+//                        toAdd++;
+//                    }
+//
+//                    var nextLinePC_pp = frame.script.lineToPc(pcToLine_pp + toAdd , Ci.jsdIScript.PCMAP_PRETTYPRINT);
+//                    var nextLine = frame.script.pcToLine(nextLinePC_pp , Ci.jsdIScript.PCMAP_SOURCETEXT);
+//                    trace("---line--- " + pcToLine_pp + " " + nextLinePC_pp + " " + nextLine);
+//
+//                    this.endPC = nextLinePC_pp;
+//                    this.endPC = 35;
+//                }
+
+                trace("--------script ---- \n", frame.script.functionSource);
                 this.scriptAnalyzer = new ScriptAnalyzer(frame.script.functionSource);
                 this.monitorRefs = this.scriptAnalyzer.getRefsToCreatedObjects(true);
-
                 this.monitorRefValues = [];
                 this.monitorRefGotNewValue = [];
                 for (var i=0 ; i<this.monitorRefs.length ; i++){
@@ -70,21 +91,37 @@ with (Lang){
 
                 for (var i=0 ; i<this.monitorRefs.length ; i++){
                     var monitorRef = this.monitorRefs[i];
-                    trace("assignee: " + monitorRef);
+//                    trace("assignee: " + monitorRef);
                     var refValue = evalInFrame(frame, monitorRef);
                     if (refValue != this.monitorRefValues[i]){
                         this.monitorRefValues[i] = refValue;
                         if (typeof(refValue) == "object")
                         {
-                            var objectId = DebugService.getInstance().getNextJSObjectId();
-                            // Code for Gecko 2 (fireforx 4)
-                            //trace(Object.getOwnPropertyNames(Object).sort().join(","));
-                            //Object.defineProperty(refValue, "__QPFBUG_ID", { value: objectId });
-                            // code for firefox 3.5+
-                            //refValue.__defineGetter__("__QPFBUG_ID", function(){return objectId;})
-                            //refValue.__objectId = objectId;
-                            this.monitorRefGotNewValue[i] = true;
-                            refValue.watch(this.propertyName, bind(this.callBack, this, refValue));
+                            var objectId = refValue["___qpfbug_objectId___"];
+                            //JSD doesn't give us the watch call back then we need to keep it here.
+                            var watchCallbacks = refValue["___qpfbug_watch___"]; // list of callbacks
+                            var watchCallback = bindAtHead(this.callBack, this, refValue);
+
+                            if (!objectId){ //no id for this object
+                                objectId = DebugService.getInstance().getNextJSObjectId();
+                                // Code for Gecko 2 (fireforx 4)
+                                //trace(Object.getOwnPropertyNames(Object).sort().join(","));
+                                //Object.defineProperty(refValue, "__QPFBUG_ID", { value: objectId });
+                                // code for firefox 3.5+
+                                //refValue.__defineGetter__("__QPFBUG_ID", function(){return objectId;})
+                                this.monitorRefGotNewValue[i] = true;
+    //                            var oldCallBack = refValue.unwatch(this.propertyName);
+    //                            if (!!oldCallBack)
+    //                                trace("OldCallBack : ", oldCallBack);
+
+                                refValue["___qpfbug_objectId___"] = objectId;
+                                watchCallbacks = [watchCallback];
+                            }else{ //the object has id and therefore another watch callback
+                                watchCallbacks.push(watchCallback);
+                            }
+                            refValue["___qpfbug_watch___"] = watchCallbacks;
+                            refValue.watch(this.propertyName, bindAtHead(callAll, this, watchCallbacks));
+                            trace(monitorRef + ".watch(" + this.propertyName + ") is called.");
                         }
                     }
                 }
@@ -98,7 +135,7 @@ with (Lang){
 
 //                var nextPCLine = frame.script.pcToLine(frame.pc+1, Ci.jsdIScript.PCMAP_SOURCETEXT);
                 //TODO IT is not a complet solution , it should be the last pc//there is no next pc so the current one is the last one //TODO be care full about loops!!!
-                if ( frame.line === frame.script.baseLineNumber +frame.script.lineExtent -1 ) //the last line
+                if ( frame.line === frame.script.baseLineNumber +frame.script.lineExtent -1 || frame.pc === this.endPC ) //the last line
                     shouldContinue = false
 //                trace("shouldContinue: " + shouldContinue + " " + frame.pc + " " + nextPCLine + " " +nextPCLine2+" "+nextPCLine10);
 

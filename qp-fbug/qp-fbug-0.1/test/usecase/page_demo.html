@@ -1,7 +1,7 @@
 <html>
     <head>
         <title>
-            PAGE_SIMPLE
+            PAGE_DEMO
         </title>
         <script type="text/javascript">
 
@@ -36,12 +36,14 @@
                     var baz = record.random;
                     if (record.bar || conf){
                         //record.bar = false;
-                        myObject.foo = baz*2
+                        myObject.foo = baz*2;
+                        console.log("myObject.foo : " + myObject.foo);
                     }else{
                         myObject.foo = record.random;
-                    }
-                    if (myObject.foo>100)
+                    };
+                    if  (myObject.foo > 100){
                         console.log("foo value is not correct : " + myObject.foo);
+                    }
                 }
             };
 
@@ -53,11 +55,6 @@
             };
 
             myObject = {
-                foo:0,
-                bar:1
-            };
-
-            myObject2 = {
                 foo:0,
                 bar:1
             };

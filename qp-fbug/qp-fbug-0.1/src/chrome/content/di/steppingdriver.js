@@ -115,7 +115,7 @@ with (Lang){
 
             // ------------------------------ functions called by debug service -------------
             onInterrupt: function(context, frame, type, rv){
-                trace("steppingDriver : onInterrupt " + type + " " + frame.line+ " " + frame.script.baseLineNumber + " " +frame.script.lineExtent);
+//                trace("steppingDriver : onInterrupt " + type + " " + frame.line+ " " +frame.pc + " "+ frame.script.baseLineNumber + " " +frame.script.lineExtent);
                 if (context != this.context)
                     return;
                 with(SteppingDriver.STEP_MODES){
@@ -149,7 +149,7 @@ with (Lang){
             },
 
             onFunction: function(context, frame, type){
-                trace("steppingDriver : onFunction " + type + " " + frame.line);
+//                trace("steppingDriver : onFunction " + type + " " + frame.line);
                 var rv = null;
                 var stackDepthChange = 0;
 
