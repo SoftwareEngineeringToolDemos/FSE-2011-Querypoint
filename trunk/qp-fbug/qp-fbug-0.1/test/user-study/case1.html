@@ -1,12 +1,11 @@
 <html>
     <head>
         <title>
-            PAGE_DEMO
+            Case 1: Salary Calculation.
         </title>
         <script type="text/javascript">
 
         <!--
-
             var compute = function(){
                 var records = getRecords();
                 console.log("start");
@@ -51,18 +50,28 @@
                     if (record.tax){
                         finalSalary.value = record.salary;
                     }else{
-                        finalSalary.value = baz*2;
+                        finalSalary.value = record.salary*2;
                     };
-                    if  (finalSalary.value > 200000){
-                        console.log("Salary is higher than limit : " + finalSalary.value + " > 200000");
+                    if  (finalSalary.value >= 200000){
+                        console.log("Error : Salary is higher than limit : " + finalSalary.value + " >= 200000");
+                    } else {
+                        console.log(i + ") The salary amount is : " + finalSalary.value)
                     }
                 }
             };
 
             var getRecords = function(){
                 return {
-                A:{id:33, name:"John", lastName:"Barton", company:"IBM", age:"54", salary:"100000"},
-                B:{id:33, name:"John", lastName:"Barton", company:"IBM", age:"44", salary:"100000"}
+                a:{name:"John", lastName:"Barton", company:"IBM", age:"44", salary:"100001"},
+                c:{name:"John", lastName:"Barton", company:"IBM", age:"44", salary:"100005"},
+                e:{name:"John", lastName:"Barton", company:"IBM", age:"44", salary:"100007"},
+                j:{name:"John", lastName:"Barton", company:"IBM", age:"54", salary:"100000"},
+                d:{name:"John", lastName:"Barton", company:"IBM", age:"44", salary:"100555"},
+                g:{name:"John", lastName:"Barton", company:"IBM", age:"44", salary:"106666"},
+                f:{name:"John", lastName:"Barton", company:"IBM", age:"44", salary:"107777"},
+                h:{name:"John", lastName:"Barton", company:"IBM", age:"44", salary:"106666"},
+                b:{name:"John", lastName:"Barton", company:"IBM", age:"44", salary:"155555"},
+                i:{name:"John", lastName:"Barton", company:"IBM", age:"44", salary:"177777"},
                 };
             };
 
@@ -71,11 +80,21 @@
 
     </head>
 
-    <body id="myBody" onclick="compute()">
+    <body id="myBody">
+    <h3>
+        Background:
+    </h3>
     <p>
+        Open firebug and select console panel. Once you click on the button (Calculate Salaries!), a
+            list of calculated salaries will appear. In one of lines you see an error.
+            Locate the defect cause this error.
+        
     </P>
-    <p id="myParagraph">
-    </P>
+
+    <button id="myParagraph" onclick="compute()">
+      Calculate Salaries!
+    </button>
+
     <p id>
 
     </p>

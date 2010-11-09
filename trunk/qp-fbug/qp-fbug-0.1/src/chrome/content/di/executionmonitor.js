@@ -61,6 +61,7 @@ with (Lang){
                 for (var i=0 ; i<this.monitorRefs.length ; i++){
                     var monitorRef = this.monitorRefs[i];
                     this.monitorRefGotNewValue.push(false);
+                    trace("--------monitor ref ---- "+monitorRef);
                     var refValue = evalInFrame(frame, monitorRef);
                     this.monitorRefValues.push(refValue);
                 }
@@ -135,7 +136,7 @@ with (Lang){
 
 //                var nextPCLine = frame.script.pcToLine(frame.pc+1, Ci.jsdIScript.PCMAP_SOURCETEXT);
                 //TODO IT is not a complet solution , it should be the last pc//there is no next pc so the current one is the last one //TODO be care full about loops!!!
-                if ( frame.line === frame.script.baseLineNumber +frame.script.lineExtent -1 || frame.pc === this.endPC ) //the last line
+                if ( frame.line === frame.script.baseLineNumber +frame.script.lineExtent -1 || frame.pc === this.endPC || frame.pc < this.startPC ) //the last line  or start of the loop
                     shouldContinue = false
 //                trace("shouldContinue: " + shouldContinue + " " + frame.pc + " " + nextPCLine + " " +nextPCLine2+" "+nextPCLine10);
 

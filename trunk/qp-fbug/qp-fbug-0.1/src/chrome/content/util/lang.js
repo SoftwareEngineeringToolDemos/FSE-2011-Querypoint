@@ -117,6 +117,8 @@ with (QPFBUG.Classes){
             if (!value)
                 return null;
             value = value.getWrappedValue();
+            if (!value)
+                return value;
             if (value.stack && value.message && value.name=="ReferenceError"){ //Exception
                 return null;
             }
@@ -152,8 +154,8 @@ with (QPFBUG.Classes){
             {
                 var copy = {};
                 for (p in object){
-                    if (p === "___qpfbug_objectId___" || p === "___qpfbug_watch___")  //ignore these variables
-                        continue;
+//                    if (p === "___qpfbug_objectId___" || p === "___qpfbug_watch___")  //ignore these variables
+//                        continue;
                     copy[p] = this.copyObject(object[p], depth-1);
                 }
                 return copy;
