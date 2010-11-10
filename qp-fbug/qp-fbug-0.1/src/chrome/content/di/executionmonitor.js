@@ -19,7 +19,7 @@ with (Lang){
 
         constructor.prototype = {
 
-            start: function(callBack, propertyName, frame, type, rv){
+            start: function(callBack, eventRequest, frame, type, rv){
                 trace("ExecutionMonitor starts: " + frame.script.fileName + " " + frame.line);
                 this.steppingDriver = DebugService.getInstance().getSteppingDriver(this.context);
                 this.fileName = frame.script.fileName;
@@ -28,7 +28,7 @@ with (Lang){
                 this.startPC = frame.pc;
                 this.startStackFrameDepth = callStackDepth(frame);
                 this.callBack = callBack;
-                this.propertyName = propertyName;
+                this.eventRequest = eventRequest;
                 this.isStopped = false;
 
                 this.endPC = -1;
@@ -99,30 +99,17 @@ with (Lang){
                         if (typeof(refValue) == "object")
                         {
                             var objectId = refValue["___qpfbug_objectId___"];
-                            //JSD doesn't give us the watch call back then we need to keep it here.
-                            var watchCallbacks = refValue["___qpfbug_watch___"]; // list of callbacks
-                            var watchCallback = bindAtHead(this.callBack, this, refValue);
-
                             if (!objectId){ //no id for this object
                                 objectId = DebugService.getInstance().getNextJSObjectId();
                                 // Code for Gecko 2 (fireforx 4)
-                                //trace(Object.getOwnPropertyNames(Object).sort().join(","));
                                 //Object.defineProperty(refValue, "__QPFBUG_ID", { value: objectId });
                                 // code for firefox 3.5+
                                 //refValue.__defineGetter__("__QPFBUG_ID", function(){return objectId;})
                                 this.monitorRefGotNewValue[i] = true;
-    //                            var oldCallBack = refValue.unwatch(this.propertyName);
-    //                            if (!!oldCallBack)
-    //                                trace("OldCallBack : ", oldCallBack);
-
                                 refValue["___qpfbug_objectId___"] = objectId;
-                                watchCallbacks = [watchCallback];
-                            }else{ //the object has id and therefore another watch callback
-                                watchCallbacks.push(watchCallback);
                             }
-                            refValue["___qpfbug_watch___"] = watchCallbacks;
-                            refValue.watch(this.propertyName, bindAtHead(callAll, this, watchCallbacks));
-                            trace(monitorRef + ".watch(" + this.propertyName + ") is called.");
+                            this.callBack(this.eventRequest, refValue);
+                            trace(monitorRef + ".watch() is called.");
                         }
                     }
                 }

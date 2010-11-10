@@ -23,6 +23,8 @@ __owner.Monitor = function(){
             this.ds_counterInterrupt = 0;
             this.ds_counterFunction = 0;
             this.ds_counterBreakpoint = 0;
+            this.ds_objectCreation = 0;
+            this.ds_propertyChanged = 0;
 
             this.test = 0;
         };

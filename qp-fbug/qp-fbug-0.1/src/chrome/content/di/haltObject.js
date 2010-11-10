@@ -10,8 +10,8 @@ var __owner = QPFBUG.Classes;
 //--------------------------------- EventRequest --------------------------------
 __owner.HaltObject = function(){
 
-        var constructor = function(context, callBack){
-            this.context = context;
+        var constructor = function(callBack){
+//            this.context = context;
             this.callBack = callBack;
         };
 

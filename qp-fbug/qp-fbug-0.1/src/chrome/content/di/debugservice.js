@@ -24,6 +24,7 @@ with (Lang){
             this.listeningToFunctions = 0;
             this.nextListenerId = 0;
             this.nextJSObjectId = 0;
+            this.nextEventId = 0;
 
         };
 
@@ -36,7 +37,6 @@ with (Lang){
             // url & lineNo that the object is created there.
             createModificationWatchpointRequest: function(context, callBack, w_ownerCreationUrl,
                                                           ownerCreationLineNo, propertyName){
-                trace(":::::::::::::::::::::::::::::::::::::::::::::::::");
                 var eventRequest = new EventRequest(EventRequest.TYPES.WATCHPOINT, callBack, context,
                                                     null, null,
                                                     w_ownerCreationUrl, ownerCreationLineNo, propertyName
@@ -90,21 +90,34 @@ with (Lang){
                 context.qpfbug.eventRequests = null;
             },
 
-            onModificationWatchpointEvent: function(eventRequest, frame, type, rv, object, propertyName, oldValue, newValue){
+            onModificationWatchpointEvent: function(eventRequests, object, propertyName, oldValue, newValue, frame, type, rv){
 
+                var eventId = this.getNextEventId();
                 //ignore frames onPropertyChanged() frame
+                trace("eventRequests : " + eventRequests, eventRequests);
+                trace("object : " + object, object);
+                trace("propertyName : " + propertyName, propertyName);
+                trace("oldValue : " + oldValue, oldValue);
+                trace("newValue : " + newValue, newValue);
+                trace("frame : " + frame, frame);
+                trace("type : " + type, type);
+                trace("rv : " + rv, rv);
                 var targetFrame = frame.callingFrame;
 
-                if (!eventRequest.w_ownerCreationUrl){ // a root variable
-                    //ignore bind functions
+//                if (!eventRequest.w_ownerCreationUrl){ // a root variable todo: correct these conditions
+//                    //ignore bind functions
+//                    targetFrame = targetFrame.callingFrame;
+//                }else{
+                    //ignore bind? bind functions
                     targetFrame = targetFrame.callingFrame;
-                }else{
-                    //ignore bind callAll bind bind functions
-                    targetFrame = targetFrame.callingFrame.callingFrame.callingFrame.callingFrame;
+//                }
+                var eventRequest;
+                for (var i=0; i<eventRequests.length; i++){
+                    eventRequest = eventRequests[i];
+
+
+                    eventRequest.callBack(eventRequest,  targetFrame, type, rv, object, propertyName, oldValue, newValue);
                 }
-
-
-                eventRequest.callBack(eventRequest,  targetFrame, type, rv, object, propertyName, oldValue, newValue);
             },
 
             onBreakpointEvent: function(eventRequest, frame, type, rv){
@@ -125,6 +138,11 @@ with (Lang){
             //----------------------------------JSObject id getter-----------------------------------
             getNextJSObjectId: function(){
                 return ++this.nextJSObjectId;
+            },
+
+            //----------------------------------Event id getter-----------------------------------
+            getNextEventId: function(){
+                return ++this.nextEventId;
             },
 
             //--------------------------------- register/unregister listeners ----------------------------
@@ -209,8 +227,8 @@ with (Lang){
             },
 
             //----------------------------------------- halt functions ---------------------------------------------
-            halt: function(context, callBack){
-                var haltObject = new HaltObject(context, callBack);
+            halt: function(callBack){
+                var haltObject = new HaltObject(callBack);
                 haltObject.halt();
             },
 
@@ -303,16 +321,18 @@ with (Lang){
                                 if ( bp.scriptsWithBreakpoint[iScript] && (bp.scriptsWithBreakpoint[iScript].tag == script.tag) && (bp.pc[iScript] == pc) )
                                 {
                                     trace("On Breakpoint : " + bp.href +  ": " + bp.lineNo);
+
                                     if (eventRequest.isBreakpoint())
                                     {
                                         this.onBreakpointEvent(eventRequest, frame, type, rv);
                                     }
-                                    if (eventRequest.isWatchpoint()) 
+                                    if (eventRequest.isWatchpoint())
                                     {
                                         //todo monitor should be saved in a list
                                         executionMonitor = new ExecutionMonitor(context);
                                         eventRequest.executionMonitors.push(executionMonitor);
-                                        executionMonitor.start(bindAtHead(this.onPropertyChanged, this, eventRequest), eventRequest.w_propertyName, frame, type, rv);
+                                        executionMonitor.start(bind(this.onObjectCreation, this), eventRequest, frame, type, rv);
+//                                        executionMonitor.start(bindAtHead(this.onPropertyChanged, this, eventRequest), eventRequest.w_propertyName, frame, type, rv);
                                     }
                                 }
                             }
@@ -328,13 +348,34 @@ with (Lang){
                 return this.onHalt(frame, type, rv);
             },
 
-            onPropertyChanged: function(eventRequest, object, propertyName, oldValue, newValue ){
-                var onModificationWatchpointEvent = this.onModificationWatchpointEvent;
+            onObjectCreation: function(eventRequest, object){
+                QPFBUG.monitor.ds_objectCreation++;
 
-                var callBack = function(frame, type, rv){
-                    onModificationWatchpointEvent(eventRequest, frame, type, rv, object, propertyName, oldValue, newValue);
+                var objectId = object["___qpfbug_objectId___"];
+                //JSD doesn't give us the watch call back then we need to keep it here.
+//                            var oldCallBack = object.unwatch(this.propertyName);
+                var watchEventRequests = object["___qpfbug_watchRequests___"]; // list of watchEventRequests
+
+                var propertyName = eventRequest.w_propertyName;
+                if (!watchEventRequests){
+                    watchEventRequests = {};
                 }
-                this.halt(eventRequest.context, callBack);
+                if (!watchEventRequests[propertyName]){
+                    watchEventRequests[propertyName] = [eventRequest];
+                }else{ //the object has id and therefore another watch callback
+                    watchEventRequests[propertyName].push(eventRequest);
+                }
+                object["___qpfbug_watchRequests___"] = watchEventRequests;
+
+                object.watch(propertyName, bindAtHead(this.onPropertyChanged, this, watchEventRequests[propertyName], object));
+            },
+
+            onPropertyChanged: function(eventRequests, object, propertyName, oldValue, newValue){
+                QPFBUG.monitor.ds_propertyChanged++;
+//                var onModificationWatchpointEvent = this.onModificationWatchpointEvent;
+
+                this.halt(bindAtHead(this.onModificationWatchpointEvent, this,
+                          eventRequests, object, propertyName, oldValue, newValue));
 
                 return newValue;
             },
