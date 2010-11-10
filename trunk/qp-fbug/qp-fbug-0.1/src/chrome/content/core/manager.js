@@ -159,30 +159,20 @@ with (Lang){
                 var context = eventRequest.context;
                 var reproduction = context.qpfbug.debugSession.currentReproduction;
                 var querypoint = eventRequest.querypoint;
-                var tracepoint;
-                if (querypoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE)
-                {
-                    tracepoint = reproduction.trace.addLastChangeTracepoint(querypoint, context, frame, object, oldValue, newValue);
-                    reproduction.trace.assignTracepoint(querypoint, tracepoint); //todo it is not correct change it
-                }
+                this.collectData(context, querypoint, frame, object, oldValue, newValue);
             },
 
             onBreakpointEvent: function(eventRequest, frame, type ,rv){
                 var context = eventRequest.context;
                 var reproduction = context.qpfbug.debugSession.currentReproduction;
                 var querypoint = eventRequest.querypoint;
-                var tracepoint;
-                if (querypoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT)
-                {
-                    tracepoint = reproduction.trace.addBreakpointTracepoint(querypoint, context, frame);
-                    reproduction.trace.assignTracepoint(querypoint, tracepoint);
 
-                    if (context.qpfbug.debugSession.moreQuerypointsToFind()){
-                        this.resume(context);
-                    }else{
-                        //show new found querypoints
-                        context.qpfbug.newResults = true;
-                    }
+                this.collectData(context, querypoint, frame);
+                if (context.qpfbug.debugSession.moreQuerypointsToFind()){   //todo: && there is no more reproduction point to visit
+                    this.replay(context);
+                }else{
+                    //show new found querypoints
+                    context.qpfbug.newResults = true;
                 }
             },
 
@@ -200,7 +190,7 @@ with (Lang){
                     //todo move this tag to another place
                     context.qpfbug.newResults = true;
 
-                    this.resume(context);
+                    this.replay(context);
                 }
             },
 
@@ -221,19 +211,15 @@ with (Lang){
                     // todo get breakpoint from context
 
                     var href = context.executingSourceFile.href;
-                    var line = context.stoppedFrame.line;
-                    var fileName = context.stoppedFrame.script.fileName;
+                    var frame = context.stoppedFrame;
+                    var line = frame.line;
+                    var fileName = frame.script.fileName;
                     var bp = getFirebugService().findBreakpoint(href, line);
-                    var querypointA, querypointB;
+                    var querypoint, querypointB;
                     if (bp)
                     {
                         //todo set the correct hit count
                         querypoint = debugModel.addQuerypoint_Breakpoint(href, line, 0);
-
-                        context.qpfbug.toBeCollected = [];
-                        context.qpfbug.toBeCollected.push(querypoint);
-                        context.qpfbug.stoppedFrame = context.stoppedFrame;
-
 
                         //todo set the correct frame number
                         var querypointB = debugModel.addQuerypoint_LastChange(querypoint, 0, propertyPath);
@@ -241,40 +227,37 @@ with (Lang){
                         //todo move this tag to another place
                         context.qpfbug.newResults = true;
 
-                        this.resume(context);
+                        this.collectData(context, querypoint, frame);
+                        this.replay(context);
                     }
                 }
             },
 
-            collectData: function(context){
+            collectData: function(context, querypoint, frame, object, oldValue, newValue){
                 var querypoints = context.qpfbug.toBeCollected;
                 var debugSession = context.qpfbug.debugSession;
                 var reproduction = context.qpfbug.debugSession.currentReproduction;
+                var tracepoint;
 
-                var frame = context.qpfbug.stoppedFrame;
-                if (!frame)
-                    return;
-                var querypoint;
-                for (var i=0 ; i<querypoints.length ; i++){
-                    querypoint = querypoints[i];
-                    // collect data
-                    var tracepoint = reproduction.trace.addBreakpointTracepoint(querypoint, context, frame);
-                    if (querypoint.queryType == 0){ //breakpoint todo change it
-                        reproduction.trace.assignTracepoint(querypoint, tracepoint);
-                        //todo assign other tracepoints
-                    }
+                if (querypoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE)
+                {
+                    tracepoint = reproduction.trace.addLastChangeTracepoint(querypoint, context, frame, object, oldValue, newValue);
+                    reproduction.trace.assignTracepoint(querypoint, tracepoint); //todo it is not correct change it
                 }
-                context.qpfbug.toBeCollected = [];
+                if (querypoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT)
+                {
+                    tracepoint = reproduction.trace.addBreakpointTracepoint(querypoint, context, frame);
+                    reproduction.trace.assignTracepoint(querypoint, tracepoint);
+                    //todo assign other tracepoints
+                }
 
+                context.qpfbug.toBeCollected = [];
             },
             
-            resume: function(context){
-                this.collectData(context);
-
+            replay: function(context){
                 var debugSession = context.qpfbug.debugSession;
                 var reproduction = context.qpfbug.debugSession.currentReproduction;
 
-                context.qpfbug.stoppedFrame = null;
                 var newReproduction = debugSession.nextReproduction();
                 this.disableQuerypoints(context);
                 Reproducer.getInstance().reproduce(context.qpfbug.reproducer, context, debugSession.id, newReproduction.id);

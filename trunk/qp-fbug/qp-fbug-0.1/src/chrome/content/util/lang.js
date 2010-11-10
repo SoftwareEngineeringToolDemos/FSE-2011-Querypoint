@@ -90,7 +90,7 @@ with (QPFBUG.Classes){
         bindAtHead: function()  // fn, thisObject, args => thisObject.fn(arguments, args);
         {
            var args = Lang.cloneArray(arguments), fn = args.shift(), object = args.shift();
-           return function bind() { return fn.apply(object, Lang.arrayInsert(Lang.cloneArray(args), arguments.length, arguments)); }
+           return function bind() { return fn.apply(object, Lang.arrayInsert(Lang.cloneArray(args), args.length, arguments)); }
         },
 
 
@@ -101,7 +101,6 @@ with (QPFBUG.Classes){
                 return;
             var returnValue;
             for (var i=0 ; i<functions.length ; i++){
-                Lang.trace("functions[i] ", functions[i]);
                 returnValue = functions[i].apply(this, args);  //"this" is not necessary!
             }
             return returnValue;
