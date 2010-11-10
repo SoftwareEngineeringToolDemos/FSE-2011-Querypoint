@@ -21,6 +21,7 @@ with (Lang){
                 // lastChange
                 // what we are looking for its last change
                 this.refQueryexpr = refQueryexpr;
+                this.dependentQuerypoints = [];
 
                 // breakpoint
                 this.url = url;
@@ -35,6 +36,11 @@ with (Lang){
                 addQueryData : function(queryData){
                     this.queryDataList.push(queryData);
                     return queryData;
+                },
+
+                addDependentQuerypoint : function(querypoint){
+                    this.dependentQuerypoints.push(querypoint);
+                    return querypoint;
                 },
 
                 toString: function()

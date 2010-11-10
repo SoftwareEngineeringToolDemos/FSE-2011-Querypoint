@@ -107,9 +107,9 @@ with (Lang){
                                 //refValue.__defineGetter__("__QPFBUG_ID", function(){return objectId;})
                                 this.monitorRefGotNewValue[i] = true;
                                 refValue["___qpfbug_objectId___"] = objectId;
+                                trace(monitorRef + " with id '" + objectId + "' was created.");
                             }
                             this.callBack(this.eventRequest, refValue);
-                            trace(monitorRef + ".watch() is called.");
                         }
                     }
                 }

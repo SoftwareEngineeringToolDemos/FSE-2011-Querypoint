@@ -15,7 +15,7 @@ with (QPFBUG.Classes){
 
         assert : function(bool, object){
             if (!bool){
-                throw (" Assertion Error : " + assert + ", " + object);// +  this.printStackTrace());//( + object);
+                throw (" Assertion Error : " + bool + ", " + object);// +  this.printStackTrace());//( + object);
             }
         },
 

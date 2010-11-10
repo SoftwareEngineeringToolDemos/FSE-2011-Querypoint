@@ -29,11 +29,6 @@ with (Lang){
 
                 addQuerypoint_LastChange : function(refQuerypoint, valueFrameNo, valueRef){
 
-                    // updates refQuerypoint queryDataList
-                    var type = QueryData.TYPES.PARENT_CREATIONDATA | QueryData.TYPES.PARENT_VALUE;
-                    var queryData = new QueryData(type, valueFrameNo, valueRef);
-                    refQuerypoint.addQueryData(queryData);
-
                     // makes querypoint
                     var refQueryexpr = new QueryExpr(valueFrameNo, valueRef);
                     var id = ++this.nextQuerypointId;
@@ -50,6 +45,12 @@ with (Lang){
                     this.querypoints[id] = querypoint;
                     this.querypointsSize++;
 
+                    // updates refQuerypoint queryDataList
+                    refQuerypoint.addDependentQuerypoint(querypoint);
+                    var type = QueryData.TYPES.PARENT_CREATIONDATA | QueryData.TYPES.PARENT_VALUE;
+                    var queryData = new QueryData(type, valueFrameNo, valueRef);
+                    refQuerypoint.addQueryData(queryData);
+
                     return querypoint;
                 },
 
@@ -61,6 +62,9 @@ with (Lang){
 
                     this.querypoints[id] = querypoint;
                     this.querypointsSize++;
+
+                    // updates refQuerypoint queryDataList
+                    refQuerypoint.addDependentQuerypoint(querypoint);
 
                     return querypoint;
                 },
@@ -80,7 +84,7 @@ with (Lang){
 //                    var iDontUnderstandThisDataStructure = this.querypoints[this.nextQuerypointId - 1];  // I guess this one has to exist ?
 //                    if (iDontUnderstandThisDataStructure)
 //                    	list.push(iDontUnderstandThisDataStructure);
-                    trace("getQuerypoints "+list.length, {list: list, list0: list[0], list1: list[1]});
+//                    trace("getQuerypoints "+list.length, {list: list, list0: list[0], list1: list[1]});
                     return list;
                 },
 

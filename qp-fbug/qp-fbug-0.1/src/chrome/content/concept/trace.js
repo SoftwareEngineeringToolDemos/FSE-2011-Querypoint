@@ -21,9 +21,9 @@ with (Lang){
 
             constructor.prototype = {
 
-                addLastChangeTracepoint: function(querypoint, context, frame, parent, oldValue, newValue){
+                addLastChangeTracepoint: function(querypoint, context, eventId, frame, parent, oldValue, newValue){
 
-                    var tracepoint = this.addTracepoint(querypoint, context, frame);
+                    var tracepoint = this.addTracepoint(querypoint, context, eventId, frame);
 
                     //add .owner trace object
                     var queryData;
@@ -51,13 +51,13 @@ with (Lang){
                     return tracepoint;
                 },
 
-                addBreakpointTracepoint: function(querypoint, context, frame){
-                    var tracepoint = this.addTracepoint(querypoint, context, frame);
+                addBreakpointTracepoint: function(querypoint, context, eventId, frame){
+                    var tracepoint = this.addTracepoint(querypoint, context, eventId, frame);
                     trace("Breakpoint Tracepoint", tracepoint);
                     return tracepoint;
                 },
 
-                addTracepoint: function(querypoint, context, frame)
+                addTracepoint: function(querypoint, context, eventId, frame)
                 {
                     var querypointId = querypoint.id;
                     if (!this.tracepoints[querypointId]){
@@ -66,7 +66,7 @@ with (Lang){
 
                     var stackTraceXB = QPFBUG.FBL.getCorrectedStackTrace(frame, context);
                     var traceFrame = new TraceFrame(stackTraceXB, this.getTraceScope(frame.scope));
-                    var tracepoint = new Tracepoint(++this.nextTracepointId, querypoint, traceFrame);
+                    var tracepoint = new Tracepoint(++this.nextTracepointId, eventId, querypoint, traceFrame);
 
                     for (var i=0 ; i<querypoint.queryDataList.length ; i++)
                     {
@@ -128,6 +128,57 @@ with (Lang){
                     if (!this.assignedTracepoints[querypoint.id])//todo this line is unneccary
                         this.assignedTracepointsSize++;          
                     this.assignedTracepoints[querypoint.id] = tracepoint;
+
+                    this.assignDependentQuerypoints(querypoint, tracepoint);
+                },
+
+                assignDependentQuerypoints: function(querypoint, tracepoint){
+                    var dependentQuerypoints = querypoint.dependentQuerypoints;
+                    var qp, tp;
+                    var expr, parent;
+                    for (var i=0 ; i<dependentQuerypoints.length ; i++){
+                        qp = dependentQuerypoints[i];
+                        var assigned = false;
+
+                        //todo change all these part it is dependent to changes in querydata and tracedata
+                        // use object id for comparing parents
+                        if (qp.queryType == DebugModel.QUERY_TYPES.LASTCHANGE)
+                        {
+                            expr = qp.refQueryexpr.expr;
+                            trace("::::::::::: exor " + expr);
+                            for (var j=0 ; j<tracepoint.traceDataList.length ; j++)
+                            {
+                                if (tracepoint.traceDataList[j].queryData.expr === expr){
+                                    parent = tracepoint.traceDataList[j].parentValue
+                                    break;
+                                }
+                            }
+                            trace("++++++++++ trace--- "+ qp.id ,this);
+                            trace("-------   parent " , parent);
+                            var qpTracepoints = this.tracepoints[qp.id];
+                            if (!qpTracepoints) //if there is not racepoint for this querytype
+                                continue;
+
+                            for (var k=qpTracepoints.length-1 ; k>-1 ; k--)
+                            {
+                                 tp = qpTracepoints[k];
+                                 if (tp.eventId >= tracepoint.eventId) //it is lastChange so it should be before this tracepoint
+                                    continue;
+                                 trace("-------   parentValue " , tp.traceDataList[0].parentValue);
+                                 for (var l=0 ; l<tp.traceDataList.length ; l++){
+                                     if (tp.traceDataList[l].queryData.expr===".owner" &&
+                                         parent === tp.traceDataList[l].parentValue){
+                                        this.assignTracepoint(qp, tp); //todo it is not correct change it
+                                        assigned = true;
+                                        break;
+                                     }
+                                 }
+                                 if (assigned)
+                                    break;
+                                 //if (tracepoint.traceData)
+                            }
+                        }
+                    }
                 },
 
                 getTraceData: function(pointRef, frameNo, objectRef)
@@ -138,12 +189,13 @@ with (Lang){
                     return null;
                 },
 
-                getLastTracepointByQuerypoint: function(querypoint)
+                getAssignedTracepointByQuerypoint: function(querypoint)
                 {
-                    var points = this.tracepoints[querypoint.id];
-                    trace("getLastTracepointByQuerypoint "+points, {querypoint: querypoint, tracepoints: this.tracepoints});
-                    if (points && points.length)
-                        return points[points.length - 1];
+                    return this.assignedTracepoints[querypoint.id];
+//                    var points = this.tracepoints[];
+//                    trace("getLastTracepointByQuerypoint "+points, {querypoint: querypoint, tracepoints: this.tracepoints});
+//                    if (points && points.length)
+//                        return points[points.length - 1];
                 },
 
                 findScopeForPropertyName: function(scope, propertyName){
