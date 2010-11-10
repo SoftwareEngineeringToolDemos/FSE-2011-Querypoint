@@ -206,6 +206,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
             FBTrace.sysout("QPSourceViewPanel.getObjectDescription from tracepoint "+tracepoint, tracepoint);
         try
         {
+            FBTrace.sysout("TPPP",tracepoint);
             var frameXBs =  tracepoint.getStackFrames();
             if (FBTrace.DBG_QUERYPOINT)
                 FBTrace.sysout("querypoints.getObjectDescription frame "+frameXBs, frameXBs);
@@ -582,11 +583,6 @@ Firebug.Querypoint.ReproductionsRep = domplate(Firebug.Rep,
     getNextReproduction: function(object)
     {
         return (object.id + 1) +">"
-    },
-
-    getTracepoints: function(reproduction)
-    {
-        return reproduction.trace.tracepoints;
     },
 
     className: "QuerypointReprodution",

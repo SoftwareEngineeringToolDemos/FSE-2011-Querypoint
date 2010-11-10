@@ -71,11 +71,11 @@ var __owner = QPFBUG.Classes;
                 Lang.trace("getTracepoints "+trace, trace);
                 if (trace)
                 {
-                    var qps = this.debugModel.getQuerypoints();
-                    Lang.trace("getTracepoints qps "+qps.length, qps);
-                    for (var i = 0; i < qps.length; i++)
+                    var qps = this.debugModel.querypoints;
+                    Lang.trace("getTracepoints qps "+ this.debugModel.querypointsSize, qps);
+                    for (var i in qps)
                     {
-                        var tp = trace.getLastTracepointByQuerypoint(qps[i]);
+                        var tp = trace.getAssignedTracepointByQuerypoint(qps[i]);
                         if (tp)
                             tps.push(tp);
                     }

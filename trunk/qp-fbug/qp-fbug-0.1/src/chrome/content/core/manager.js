@@ -155,19 +155,19 @@ with (Lang){
             },
 
             //------------------------------- call backs ---------------------------------------
-            onModificationWatchpointEvent: function(eventRequest,  frame, type, rv, object, propertyName, oldValue, newValue){
+            onModificationWatchpointEvent: function(eventRequest, eventId, frame, type, rv, object, propertyName, oldValue, newValue){
                 var context = eventRequest.context;
                 var reproduction = context.qpfbug.debugSession.currentReproduction;
                 var querypoint = eventRequest.querypoint;
-                this.collectData(context, querypoint, frame, object, oldValue, newValue);
+                this.collectData(context, querypoint, eventId, frame, object, oldValue, newValue);
             },
 
-            onBreakpointEvent: function(eventRequest, frame, type ,rv){
+            onBreakpointEvent: function(eventRequest, eventId, frame, type ,rv){
                 var context = eventRequest.context;
                 var reproduction = context.qpfbug.debugSession.currentReproduction;
                 var querypoint = eventRequest.querypoint;
 
-                this.collectData(context, querypoint, frame);
+                this.collectData(context, querypoint, eventId, frame);
                 if (context.qpfbug.debugSession.moreQuerypointsToFind()){   //todo: && there is no more reproduction point to visit
                     this.replay(context);
                 }else{
@@ -227,33 +227,31 @@ with (Lang){
                         //todo move this tag to another place
                         context.qpfbug.newResults = true;
 
-                        this.collectData(context, querypoint, frame);
+                        this.collectData(context, querypoint, -1, frame); //todo eventId == -1  ? centerlize eventid and give a coorect one here
                         this.replay(context);
                     }
                 }
             },
 
-            collectData: function(context, querypoint, frame, object, oldValue, newValue){
-                var querypoints = context.qpfbug.toBeCollected;
+            collectData: function(context, querypoint, eventId, frame, object, oldValue, newValue){
                 var debugSession = context.qpfbug.debugSession;
                 var reproduction = context.qpfbug.debugSession.currentReproduction;
                 var tracepoint;
 
                 if (querypoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE)
                 {
-                    tracepoint = reproduction.trace.addLastChangeTracepoint(querypoint, context, frame, object, oldValue, newValue);
-                    reproduction.trace.assignTracepoint(querypoint, tracepoint); //todo it is not correct change it
+                    tracepoint = reproduction.trace.addLastChangeTracepoint(querypoint, context, eventId,  frame, object, oldValue, newValue);
+//                    reproduction.trace.assignTracepoint(querypoint, tracepoint); //todo it is not correct change it
                 }
                 if (querypoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT)
                 {
-                    tracepoint = reproduction.trace.addBreakpointTracepoint(querypoint, context, frame);
+                    tracepoint = reproduction.trace.addBreakpointTracepoint(querypoint, context, eventId, frame);
                     reproduction.trace.assignTracepoint(querypoint, tracepoint);
-                    //todo assign other tracepoints
+
                 }
 
-                context.qpfbug.toBeCollected = [];
             },
-            
+
             replay: function(context){
                 var debugSession = context.qpfbug.debugSession;
                 var reproduction = context.qpfbug.debugSession.currentReproduction;

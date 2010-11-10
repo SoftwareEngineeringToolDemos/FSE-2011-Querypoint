@@ -94,14 +94,6 @@ with (Lang){
 
                 var eventId = this.getNextEventId();
                 //ignore frames onPropertyChanged() frame
-                trace("eventRequests : " + eventRequests, eventRequests);
-                trace("object : " + object, object);
-                trace("propertyName : " + propertyName, propertyName);
-                trace("oldValue : " + oldValue, oldValue);
-                trace("newValue : " + newValue, newValue);
-                trace("frame : " + frame, frame);
-                trace("type : " + type, type);
-                trace("rv : " + rv, rv);
                 var targetFrame = frame.callingFrame;
 
 //                if (!eventRequest.w_ownerCreationUrl){ // a root variable todo: correct these conditions
@@ -116,12 +108,13 @@ with (Lang){
                     eventRequest = eventRequests[i];
 
 
-                    eventRequest.callBack(eventRequest,  targetFrame, type, rv, object, propertyName, oldValue, newValue);
+                    eventRequest.callBack(eventRequest, eventId, targetFrame, type, rv, object, propertyName, oldValue, newValue);
                 }
             },
 
             onBreakpointEvent: function(eventRequest, frame, type, rv){
-                eventRequest.callBack(eventRequest, frame, type, rv);
+                var eventId = this.getNextEventId();
+                eventRequest.callBack(eventRequest, eventId, frame, type, rv);
             },
 
 
@@ -368,6 +361,7 @@ with (Lang){
                 object["___qpfbug_watchRequests___"] = watchEventRequests;
 
                 object.watch(propertyName, bindAtHead(this.onPropertyChanged, this, watchEventRequests[propertyName], object));
+                trace("Object('"+ objectId + "') watch() was called.");
             },
 
             onPropertyChanged: function(eventRequests, object, propertyName, oldValue, newValue){
