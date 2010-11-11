@@ -19,13 +19,17 @@ var loadScript = function(path, scope)
 //qpfbug basics
 loadScript("resource://qpfbug/basics.js");
 // to be available as a basic utility function
-QPFBUG.loadScript = loadScript; 
+QPFBUG.loadScript = loadScript;
 
 //--------------------- all following modules will be loaded in QPFBUG
 
 //from firebug
 loadScript("resource://firebug/firebug-service.js", QPFBUG);
 loadScript("resource://firebug/firebug-trace-service.js", QPFBUG);
+
+// QPFBUG.Classes from basics.js meets traceConsoleService I hope
+QPFBUG.Classes.FBTrace = QPFBUG.traceConsoleService.getTracer("extensions.firebug");
+
 //load lib.js
 
 //following objects are created once per window, one of them is enough
