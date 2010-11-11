@@ -56,10 +56,12 @@ __owner.FBTestReproducer = function(){
                     this.observerService.removeObserver(this.trackFBTest, "fbtest-start-case");
             },
 
-            toString: function()
+            toString: function()  // todo to base class
             {
-                return "[FBTestReproducer]";
+                return "["+this.name+"Reproducer]";
             },
+
+            name: "FBTest",
 
         };
 

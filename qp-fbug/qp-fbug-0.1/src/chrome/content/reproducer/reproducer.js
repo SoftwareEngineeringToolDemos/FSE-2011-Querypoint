@@ -31,8 +31,8 @@ __owner.Reproducer = function(){
 
             reproduce : function (reproducerKind, context, debugSessionId, reproductionId)
             {
-            	var reproducer = this.getReproducer(reproducerKind);
-            	
+                var reproducer = this.getReproducer(reproducerKind);
+
                 trace("reproduce "+reproducerKind, {context: context, debugSessionId: debugSessionId, reproductionId: reproductionId});
 
                 reproducer.reproduce(context, debugSessionId, reproductionId);
@@ -40,14 +40,19 @@ __owner.Reproducer = function(){
 
             getReproducer: function(kind)
             {
-                if (kind === "hardwired") return this.hardWiredReproducer;
-                else if (kind === "replay") return this.replayReproducer;
-                else if (kind === "fbtest") return this.fbTestReproducer;
-                else if (kind === "local") return this.localReproducer;
+                if (kind === this.hardWiredReproducer.name) return this.hardWiredReproducer;
+                else if (kind === this.replayReproducer.name) return this.replayReproducer;
+                else if (kind === this.fbTestReproducer.name) return this.fbTestReproducer;
+                else if (kind === this.localReproducer) return this.localReproducer;
                 //default
                 return this.hardWiredReproducer;
 //                return this.localReproducer;
             },
+
+            getReproducers: function()
+            {
+                return [ this.hardWiredReproducer, this.replayReproducer, this.fbTestReproducer,  this.localReproducer];
+            }
 
         };
 
