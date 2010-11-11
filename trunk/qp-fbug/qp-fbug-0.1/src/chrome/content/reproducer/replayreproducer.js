@@ -26,7 +26,7 @@ __owner.ReplayReproducer = function(){  // todo inherit from Reproducer
                 reproduce: function (context, debugSessionId, reproductionId)
                 {
                     trace("Reproduction Starts: " + reproductionId + ".");
-                    var  win = context.qpfbug.firefoxWindow;
+                    var  win = context.window;
                     var url = context.window.location.toString();
 
                     var record = context.qpfbug.debugSession.record;

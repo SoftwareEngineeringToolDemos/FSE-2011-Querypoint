@@ -64,7 +64,6 @@ with (Lang){
 
                 //set qpfbug data holder for the context
                 context.qpfbug = {
-                    firefoxWindow : win, //sometimes we need access to main firefox window
                     tab : selectedTab,
                     debugSession : debugSession,
                     newResults : false, //todo
@@ -178,7 +177,7 @@ with (Lang){
 
             //------------------------------- actions ---------------------------------------
             findLastChangeFromQuerypoint: function(context, querypoint, propertyPath){
-                var win = context.qpfbug.firefoxWindow;
+                var win = context.window;
                 with(win){
                     var debugSession = context.qpfbug.debugSession;
                     var reproduction = context.qpfbug.debugSession.currentReproduction;
@@ -195,7 +194,7 @@ with (Lang){
             },
 
             findLastChangeFromBreakpoint: function(context, propertyPath){
-                var win = context.qpfbug.firefoxWindow;
+                var win = context.window;
                 with(win){
                     var debugSession = context.qpfbug.debugSession;
                     var reproduction = context.qpfbug.debugSession.currentReproduction;
