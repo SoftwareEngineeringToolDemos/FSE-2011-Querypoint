@@ -145,7 +145,6 @@ with (Lang){
                         if (qp.queryType == DebugModel.QUERY_TYPES.LASTCHANGE)
                         {
                             expr = qp.refQueryexpr.expr;
-                            trace("::::::::::: exor " + expr);
                             for (var j=0 ; j<tracepoint.traceDataList.length ; j++)
                             {
                                 if (tracepoint.traceDataList[j].queryData.expr === expr){
@@ -153,8 +152,6 @@ with (Lang){
                                     break;
                                 }
                             }
-                            trace("++++++++++ trace--- "+ qp.id ,this);
-                            trace("-------   parent " , parent);
                             var qpTracepoints = this.tracepoints[qp.id];
                             if (!qpTracepoints) //if there is not racepoint for this querytype
                                 continue;
@@ -164,7 +161,6 @@ with (Lang){
                                  tp = qpTracepoints[k];
                                  if (tp.eventId >= tracepoint.eventId) //it is lastChange so it should be before this tracepoint
                                     continue;
-                                 trace("-------   parentValue " , tp.traceDataList[0].parentValue);
                                  for (var l=0 ; l<tp.traceDataList.length ; l++){
                                      if (tp.traceDataList[l].queryData.expr===".owner" &&
                                          parent === tp.traceDataList[l].parentValue){
