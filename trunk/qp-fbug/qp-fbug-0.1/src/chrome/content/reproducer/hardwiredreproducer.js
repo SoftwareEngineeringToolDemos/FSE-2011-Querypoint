@@ -16,10 +16,12 @@ __owner.HardWiredReproducer = function(){
 
         constructor.prototype =
         {
-                toString: function()
+                toString: function()  // todo to base class
                 {
-                    return "[HardWiredReproducer]";
+                    return "["+this.name+"Reproducer]";
                 },
+
+                name: "Hardwired",
 
                 reproduce: function (context, debugSessionId, reproductionId)
                 {

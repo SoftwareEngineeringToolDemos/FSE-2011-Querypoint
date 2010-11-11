@@ -70,6 +70,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         this.panelSplitter = $("fbPanelSplitter");
         this.sidePanelDeck = $("fbSidePanelDeck");
         this.onScroll = bind(this.onScroll, this);
+        this.reproducer = 'hardwired';
 
         Firebug.SourceBoxPanel.initialize.apply(this, arguments);
     },
@@ -206,7 +207,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
             FBTrace.sysout("QPSourceViewPanel.getObjectDescription from tracepoint "+tracepoint, tracepoint);
         try
         {
-            FBTrace.sysout("TPPP",tracepoint);
+            FBTrace.sysout("querypoints.getObjectLocation ",tracepoint);
             var frameXBs =  tracepoint.getStackFrames();
             if (FBTrace.DBG_QUERYPOINT)
                 FBTrace.sysout("querypoints.getObjectDescription frame "+frameXBs, frameXBs);
@@ -371,18 +372,21 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
     {
         var items = [];
 
-        items.push(
-                {label: "Callstack Reproducer", command: bindFixed(this.selectReproducer, this, "local") },
-                {label: "Scripted Reproducer", command: bindFixed(this.selectReproducer, this, "hardwired") },
-                {label: "Replay Reproducer", command: bindFixed(this.selectReproducer, this, "replay") },
-                {label: "FBTest Reproducer", command: bindFixed(this.selectReproducer, this, "fbtest") }
+        var reproducers = Reproducer.getInstance().getReproducers();
+        for (var i = 0; i < reproducers.length; i++)
+        {
+            var reproducer = reproducers[i];
+            var doChecked = (this.reproducer === reproducer);
+            items.push(
+                    {label: reproducer.toString(), checked: doChecked, type: "radio", command: bindFixed(this.selectReproducer, this, reproducer) }
             );
+        }
         return items;
     },
 
-    selectReproducer: function(name)
+    selectReproducer: function(reproducer)
     {
-        Reproducer.getInstance().select(name);
+        this.reproducer = reproducer;
     },
 
 });

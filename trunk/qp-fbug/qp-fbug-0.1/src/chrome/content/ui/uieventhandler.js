@@ -75,7 +75,7 @@ __owner.UIEventHandler = function(){
                                 propertyPath = propertyPath.substring(propertyPath.indexOf(".")+1, propertyPath.length);
                             }
 
-                            if (domPanel.selection instanceof JSDConstants.jsdIStackFrame){ //watches panel
+                            if (domPanel.selection instanceof JSDConstants.jsdIStackFrame) { //watches panel
                                 if (domPanel.context.stopped){
                                     var isWatch = false;
                                     isWatch = hasClass(row, "watchRow");
@@ -87,21 +87,15 @@ __owner.UIEventHandler = function(){
                                                   });
                                     }
                                 }
-                            }else
-//                            if (domPanel.selection != domPanel.context.window){ //dom panel
-//                                if (domPanel.context.stopped){
-//
-//                                }
-//                            }else
-//                            if (domPanel.selection instanceof DebugModel){  //tracedata //todo correct it
-
+                            } else {
+                                var previousQP = domPanel.currentTracepoint ? domPanel.currentTracepoint.querypoint : null;
                                 items.push({label: "Last Change",  id: "lastChange",
                                             command: bindFixed(uiEventHandler.lastChangeOnQuerypointyAction,
                                             uiEventHandler, domPanel.context,
-                                            domPanel.currentTracepoint.querypoint,
+                                            previousQP,
                                             propertyPath)
                                           });
-//                            }
+                            }
                         }
 
                         return items;

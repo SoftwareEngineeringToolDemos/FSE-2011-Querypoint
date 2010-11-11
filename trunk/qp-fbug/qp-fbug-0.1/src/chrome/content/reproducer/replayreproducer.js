@@ -9,17 +9,19 @@ var __owner = QPFBUG.Classes;
 
 //--------------------------------- Reproducer --------------------------------
 
-__owner.ReplayReproducer = function(){
+__owner.ReplayReproducer = function(){  // todo inherit from Reproducer
 
         var constructor = function(){
         };
 
         constructor.prototype =
         {
-                toString: function()
+                toString: function()  // todo to base class
                 {
-                    return "[ReplayReproducer]";
+                    return "["+this.name+"Reproducer]";
                 },
+
+                name: "Replay",
 
                 reproduce: function (context, debugSessionId, reproductionId)
                 {
@@ -47,7 +49,7 @@ __owner.ReplayReproducer = function(){
                         var attributes = {debugSessionId:debugSessionId,
                                          reproductionId:reproductionId};
 
-                        var newTab = openNewTab(win, url, attributes, 
+                        var newTab = openNewTab(win, url, attributes,
                                 callback = function(win)
                                 {
                                     replayer.start(unwrapObject(win));

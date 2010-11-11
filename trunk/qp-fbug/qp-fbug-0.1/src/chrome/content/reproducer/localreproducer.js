@@ -26,10 +26,12 @@ __owner.LocalReproducer = function(){
                 Firebug.Debugger.rerun(context);
             },
 
-            toString: function()
+            toString: function()  // todo to base class
             {
-                return "[CallStackReproducer]";
+                return "["+this.name+"Reproducer]";
             },
+
+            name: "Callstack",
 
         };
 
