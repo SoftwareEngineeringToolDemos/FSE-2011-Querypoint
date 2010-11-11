@@ -245,7 +245,7 @@ with (Lang){
                             try{
 //                                variableValues[prop] = JSON.parse(JSON.stringify(unWrappedScope[prop]));
                                 variableValues[prop] = null;
-                                variableValues[prop] = copyObject(unWrappedScope[prop], 3);
+                                variableValues[prop] = copyObject(unWrappedScope[prop], 2);
                             }catch(exc){
                                 trace("Error in copyObject(): " + exc.message, exc);
                             }
