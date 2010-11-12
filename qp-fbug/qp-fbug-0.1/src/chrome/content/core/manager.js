@@ -14,6 +14,8 @@ with (Lang){
             this.fbs = fbs;
             this.debugSessions = [];
             this.nextDebugSessionId = 0;
+            var reproducerName = Firebug.getPref("extensions.firebug", "querypoints.reproducer");
+            this.reproducer = Reproducer.getInstance().getReproducer(reproducerName);
         };
 
         constructor.prototype =
@@ -37,6 +39,16 @@ with (Lang){
                     }
                 }
                 return null;
+            },
+
+            setReproducer: function(reproducer)
+            {
+                this.reproducer = reproducer;
+            },
+
+            getReproducer: function()
+            {
+                return this.reproducer;
             },
 
             //------------------------------- Context lifeCycle ---------------------------------------
@@ -64,10 +76,9 @@ with (Lang){
 
                 //set qpfbug data holder for the context
                 context.qpfbug = {
-                    tab : selectedTab,
                     debugSession : debugSession,
                     newResults : false, //todo
-                    reproducer: win.Firebug.getPref("extensions.firebug", "querypoints.reproducer"),
+                    reproducer: this.reproducer,
                     recorder: null,
                 };
 //                if (debugSession.getNumberOfQuerypoints > 0){
@@ -237,6 +248,9 @@ with (Lang){
                 var reproduction = context.qpfbug.debugSession.currentReproduction;
                 var tracepoint;
 
+                if (!reproduction.trace)
+                    reproduction.start(context);
+
                 if (querypoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE)
                 {
                     tracepoint = reproduction.trace.addLastChangeTracepoint(querypoint, context, eventId,  frame, object, oldValue, newValue);
@@ -257,7 +271,7 @@ with (Lang){
 
                 var newReproduction = debugSession.nextReproduction();
                 this.disableQuerypoints(context);
-                Reproducer.getInstance().reproduce(context.qpfbug.reproducer, context, debugSession.id, newReproduction.id);
+                this.getReproducer().reproduce(context, debugSession.id, newReproduction.id);
             }
 
         };
