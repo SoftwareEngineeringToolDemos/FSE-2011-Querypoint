@@ -189,7 +189,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
     {
         if (FBTrace.DBG_QUERYPOINT)
             FBTrace.sysout("highlightExecutionLine "+this.executionLineNo);
-        var highlightingAttribute = "exe_line";
+        var highlightingAttribute = "tracepoint_line";
         if (this.executionLine)  // could point to any node in any sourcebox, private to this function
             this.executionLine.removeAttribute(highlightingAttribute);
 
