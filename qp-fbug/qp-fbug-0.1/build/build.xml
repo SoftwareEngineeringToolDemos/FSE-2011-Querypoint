@@ -28,7 +28,7 @@
 
     <!-- project tasks -->
     <target name="deploy-qpfbug">
-        <!--<antcall target="FirefoxClose"/>-->
+        <antcall target="FirefoxClose"/>
         <copy todir="${firefox.extensions}\salman.mirghasemi@gmail.com">
             <fileset dir = "./src/chrome"></fileset>
         </copy>

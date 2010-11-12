@@ -1,0 +1,58 @@
+<html>
+    <head>
+        <title>
+            Introductory Example
+        </title>
+        <script type="text/javascript">
+
+        <!--
+            myObject = {myProperty : 1};
+            var oldValue;
+            myCondition = {
+                value : 1};
+            increaseMyProperty = function(){
+                foo();
+                myObject.myProperty++;
+                bar();
+                baz();
+                updateButton();
+            }
+            updateButton = function(){
+                var myParagraph = document.getElementById("myParagraph");
+                myParagraph.innerHTML =  myObject.myProperty;
+            }
+            function foo(){
+                myCondition.value = oldValue;
+            }
+            function bar(){
+                if (!myCondition.value){
+                    myObject.myProperty = 0;
+                }
+            }
+            function baz()
+            {
+                var blah = "blah";
+                var blahblah = "blahblah";
+                var blahblahblah = "blahblah";
+                var hoozah = blah+blahblahblah;
+                return hoozah + "!";
+            }
+        -->
+        </script>
+
+    </head>
+
+    <body id="myBody">
+    <p>
+      This page contains an object "myObject",
+      whenever user clicks, "myObject.myProperty" value increases.
+    </P>
+    <button id="myParagraph" onclick="increaseMyProperty()">
+      1
+    </button>
+    <p id>
+
+    </p>
+    </body>
+
+</html>

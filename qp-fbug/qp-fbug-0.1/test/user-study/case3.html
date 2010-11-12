@@ -1,0 +1,169 @@
+<html>
+    <head>
+        <title>
+            Case 3: Shift It!
+        </title>
+        <script type="text/javascript">
+
+
+        <!--
+            var compute = function(){
+                console.log("start ..............");
+
+                //start of the test case
+                var next = buttons[1].tdElement.value;
+                console.log("Clicks on " + next + ".");
+                move(1,0);
+                console.log(next + " moved.");
+                next = buttons[5].tdElement.value ;
+                console.log("Clicks on " + next + ".");
+                move(1,1);
+                console.log(next + " moved.");
+                var wrong = next;
+                next = buttons[4].tdElement.value;
+                console.log("Clicks on " + next + ".");
+                move(0,1);
+                console.log("Error: instead of " + next + ", "+ wrong +" shifted back to its first place.");
+                //end of the test case
+
+                console.log("..............  end.");
+            };
+
+
+        -->
+        </script>
+
+    </head>
+
+    <body id="myBody">
+    <h3>
+        Case 3: Shift It!
+    </h3>
+    <p>
+        This page contains a simple <b>ShiftIt</b> 4x4 game. The buttons are numbered
+            from 1 to 16. The first one, zero, is at the first row and the first column.
+            The last one is at the last row and the last column.
+            Unfortunately, the game doesn't work properly. If you shift button 2(1,2), then button 6(2,2),
+            then button 5(2,1) you can see the bug. Instead of button 5(2,1) another button shifts!
+            Open firebug console and click on "Reproduce the bug!" button.`
+
+    </P>
+
+    <button id="myParagraph" onclick="compute()">
+      Reproduce the bug!
+    </button>
+
+    <center><BR><br>
+    <form name=pad>
+        <table border=2 cellpadding=2 cellspacing=2>
+            <tr>
+                <td colspan=4 align=center>Shift It 4x4 Game</td>
+            </tr>
+
+        <script type="text/javascript">
+
+             <!------
+                var buttons = [];
+                function makeButtons(){
+                    var button;
+                    for (var y=0;y<4;y++) {
+                        document.write('<tr>');
+                        for (var x=0;x<4;x++) {
+                            button = {};
+                            button.id=y*4+x;
+                            button.x = x;
+                            button.y = y;
+                            buttons.push(button);
+                            document.write('<td align="center"><tt><input type=button value="  "');
+                            document.write('onclick="move('+x+','+y+');"></tt></td>');
+                            button.tdElement =  document.pad.elements[y*4+x];
+                        }
+                        document.write('</tr>');
+                    }
+
+                    for (var i=0 ; i<buttons.length ; i++){
+                        var button = buttons[i];
+                        var x = button.x;
+                        var y = button.y;
+                        button.east = getButton(x+1, y);
+                        button.west = getButton(x-1, y);
+                        button.north =  getButton(x, y-1);
+                        button.south = getButton(x, y+1)
+                    }
+
+                }
+
+                function rndize() {
+                    alpha="ABCDEFGHIJKLMNO ";
+                    var x=0;
+                    var y=0;
+                    for (var i=0;i<15;i++) {
+                        while (document.pad.elements[4*y+x].value!="  " || (x==0 && y==0)) {
+                            x=Math.floor(Math.random()*4);
+                            y=Math.floor(Math.random()*4);
+                        }
+                        document.pad.elements[4*y+x].value=alpha.substring(i,i+1);
+                    }
+                    console.log("ready!");
+                }
+
+                function getButton(x, y){
+                    var button;
+                    for (var i=0 ; i<buttons.length ; i++)
+                    {
+                        button = buttons[i];
+                        if (button.x == x && button.y == y)
+                            return button;
+                    }
+                }
+                function move(x, y) {
+                    var button = getButton(x,y);
+                    if (button.tdElement.value == "  ") //is it the blank button
+                        return;
+
+                    var blankButton;
+                    if (button.east && button.east.tdElement.value =="  "){
+                        blankButton = button.east;
+                        blankButton.x--;
+                        button.x++;
+                    }
+                    if (button.west && button.west.tdElement.value =="  "){
+                        blankButton = button.west;
+                        blankButton.x++;
+                        button.x--;
+                    }
+                    if (button.north && button.north.tdElement.value =="  "){
+                        blankButton = button.north;
+                        blankButton.y++;
+                        button.y--;
+                    }
+                    if (button.south && button.south.tdElement.value =="  "){
+                        blankButton = button.south;
+                        blankButton.y--;
+                        button.y++;
+                    }
+                    if (!blankButton) //it is not the neighbor of blank button
+                        return;
+
+                    var value = blankButton.tdElement.value;
+                    blankButton.tdElement.value = button.tdElement.value;
+                    button.tdElement.value = value;
+                }
+
+
+                makeButtons();
+                rndize();
+             // ------>
+        </script>
+            <!--<tr>-->
+                <!--<td colspan=4><input disabled type=text size=20 name=msg></td>-->
+            <!--</tr>-->
+        </table>
+    </form>
+
+
+    </center>
+
+    </body>
+
+</html>
