@@ -65,7 +65,7 @@ with (Lang){
                     }
 
                     var stackTraceXB = QPFBUG.FBL.getCorrectedStackTrace(frame, context);
-                    var traceFrame = new TraceFrame(stackTraceXB, this.getTraceScope(frame.scope, 1));
+                    var traceFrame = new TraceFrame(stackTraceXB, this.getTraceScope(frame.scope, 2));
                     var traceThis = copyObject(unwrapIValueObject(frame.thisValue), 2);
                     var tracepoint = new Tracepoint(++this.nextTracepointId, eventId, querypoint, traceFrame, traceThis);
 
@@ -264,7 +264,7 @@ with (Lang){
 
 //                    if (depth>0)
 //                        depth--;
-                    depth = 0;
+//                    depth = 0;
                     var parentTraceScope = this.getTraceScope(scope.jsParent, depth);
                     traceScope = new TraceScope(parentTraceScope, jsClassName, variableValues);
 
