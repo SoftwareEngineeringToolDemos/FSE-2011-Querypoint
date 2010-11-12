@@ -27,26 +27,23 @@ __owner.HardWiredReproducer = function(){
                 {
                     var  win = context.window;
                     with(win){
-                    with(FBL){
+                    with(QPFBUG.FBL){
 
                         var url = context.window.location.toString();
 
-                        var oldTab = context.qpfbug.tab;
-
-                        //close the old tab
-                        var tabBrowser = $("content");
-                        tabBrowser.removeTab(oldTab);
+                        // I don't know if Firebug is in scope here, I guess not. But anyway the code below does not work.
+                        var oldTab = Firebug.getTabForWindow(context.window);
 
                         var openNewTab = function(url, callback)
                         {
-                            var tabbrowser = getBrowser();
+                            var tabbrowser = $("content");
 
                             // Open new tab and mark as 'test' so it can be closed automatically.
                             var newTab = tabbrowser.addTab(url);
                             newTab.setAttribute("debugSessionId", debugSessionId);
                             newTab.setAttribute("reproductionId", reproductionId);
                             tabbrowser.selectedTab = newTab;
-
+                            tabbrowser.removeTab(oldTab);   //close the old tab
                             // Wait till the new window is loaded.
                             var browser = tabbrowser.getBrowserForTab(newTab);
                             waitForWindowLoad(browser, callback);
@@ -83,7 +80,7 @@ __owner.HardWiredReproducer = function(){
                                 // Execute callback after 100ms timout (the inspector tests need it for now),
                                 // but this shoud be set to 0.
                                 if (loaded && painted)
-                                    setTimeout(executeCallback, 100);
+                                    context.setTimeout(executeCallback, 100);
                             }
 
                             // All expected events have been fired, execute the callback.
@@ -116,7 +113,6 @@ __owner.HardWiredReproducer = function(){
                         var newTab = openNewTab(url,
                           callback = function(win)
                           {
-
                             var node = win.document.getElementById("myParagraph");
                             // on cliec
                             var doc = node.ownerDocument, event = doc.createEvent("MouseEvents");
