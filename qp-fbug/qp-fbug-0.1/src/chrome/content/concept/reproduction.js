@@ -20,10 +20,11 @@ __owner.Reproduction =
                     ["stop", "paused", "stopped"]
                     ];
 
-            var constructor = function(id, debugSession){
+            var constructor = function(id, debugSession, previousReproduction){
                this.stateMachine = new StateMachine(states, "notstarted", transitions);
                this.id = id;
                this.debugSession = debugSession;
+               this.previousReproduction = previousReproduction;
                this.trace = null;
                this.context = null;
             };

@@ -30,12 +30,17 @@ with (Lang){
 
                 //obj should be traced at this point
                 this.queryDataList = [];
+                this.queryWatchList = [];  // a list of watch expressions
             };
 
             constructor.prototype = {
                 addQueryData : function(queryData){
                     this.queryDataList.push(queryData);
                     return queryData;
+                },
+
+                addQueryWatch : function(expr){
+                    this.queryWatchList.push(expr);
                 },
 
                 addDependentQuerypoint : function(querypoint){

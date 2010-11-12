@@ -11,17 +11,23 @@ with (Lang){
     // trace point is kept in debug model.
     __owner.Tracepoint =
         function(){
-            var constructor = function(id, eventId, querypoint, traceFrame){
+            var constructor = function(id, eventId, querypoint, traceFrame, traceThis){
                 this.id = id;
                 this.eventId = eventId;
                 this.querypoint = querypoint;
                 this.traceFrame = traceFrame;
+                this.traceThis = traceThis;
                 this.traceDataList = [];
+                this.traceWatches = {};
             };
 
             constructor.prototype = {
                 addTraceData: function(traceData){
                     this.traceDataList.push(traceData);
+                },
+
+                addTraceWatch: function(watchExpr, value){
+                    this.traceWatches[watchExpr] = value;
                 },
 
                 getTraceData: function(frameNo, ref){

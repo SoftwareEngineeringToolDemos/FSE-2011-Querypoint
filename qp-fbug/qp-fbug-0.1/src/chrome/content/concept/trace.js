@@ -65,8 +65,10 @@ with (Lang){
                     }
 
                     var stackTraceXB = QPFBUG.FBL.getCorrectedStackTrace(frame, context);
-                    var traceFrame = new TraceFrame(stackTraceXB, this.getTraceScope(frame.scope));
-                    var tracepoint = new Tracepoint(++this.nextTracepointId, eventId, querypoint, traceFrame);
+                    var traceFrame = new TraceFrame(stackTraceXB, this.getTraceScope(frame.scope, 1));
+                    var traceThis = copyObject(unwrapIValueObject(frame.thisValue), 2);
+                    var tracepoint = new Tracepoint(++this.nextTracepointId, eventId, querypoint, traceFrame, traceThis);
+
 
                     for (var i=0 ; i<querypoint.queryDataList.length ; i++)
                     {
@@ -117,6 +119,13 @@ with (Lang){
 
                         tracepoint.addTraceData(traceData);
 
+                    }
+
+                    for (var i=0 ; i<querypoint.queryWatchList.length ; i++)
+                    {
+                        var queryWatch = querypoint.queryWatchList[i];
+                        var evalValue = evalInFrame(frame, queryWatch);
+                        tracepoint.addTraceWatch(queryWatch, copyObject(evalValue, 2));
                     }
 
                     this.tracepoints[querypointId].push(tracepoint);
@@ -225,8 +234,9 @@ with (Lang){
                     
                 },
 
-                getTraceScope: function (scope)
+                getTraceScope: function (scope, depth)
                 {
+
                     if (!scope)
                         return null;
 
@@ -236,7 +246,6 @@ with (Lang){
                     var traceScope;
                     var parentScope, jsClassName, variables, values;
 
-                    var parentTraceScope = this.getTraceScope(scope.jsParent);
                     var jsClassName = scope.jsClassName;
                     var unWrappedScope  = unwrapIValueObject(scope);
                     var variableValues = {};
@@ -245,13 +254,18 @@ with (Lang){
                             try{
 //                                variableValues[prop] = JSON.parse(JSON.stringify(unWrappedScope[prop]));
                                 variableValues[prop] = null;
-                                variableValues[prop] = copyObject(unWrappedScope[prop], 2);
+                                variableValues[prop] = copyObject(unWrappedScope[prop], depth);
                             }catch(exc){
                                 trace("Error in copyObject(): " + exc.message, exc);
                             }
                         else
                             variableValues[prop] = unWrappedScope[prop];
                     }
+
+//                    if (depth>0)
+//                        depth--;
+                    depth = 0;
+                    var parentTraceScope = this.getTraceScope(scope.jsParent, depth);
                     traceScope = new TraceScope(parentTraceScope, jsClassName, variableValues);
 
                     return traceScope;
