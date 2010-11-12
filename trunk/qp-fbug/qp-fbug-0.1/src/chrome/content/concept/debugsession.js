@@ -20,8 +20,7 @@ var __owner = QPFBUG.Classes;
             // It is supposed that there is only one current reproduction.
             // In the future it may support more than on running reproduction at the same
             // time for faster data collection.
-            this.previousReproduction = null;
-            this.currentReproduction = this.nextReproduction();
+            this.reproduction = this.nextReproduction();
 
 
             this.debugModel = new DebugModel();
@@ -34,11 +33,11 @@ var __owner = QPFBUG.Classes;
                 //todo end the current reproduction
 
                 var id = this.nextReproductionId++;
-                var reproduction = new Reproduction(id, this);
+                var reproduction = new Reproduction(id, this, this.reproduction);
                 this.reproductions[id]= reproduction;
 
-                this.previousReproduction = this.currentReproduction;
-                this.currentReproduction = reproduction;
+                this.previousReproduction = this.reproduction;
+                this.reproduction = reproduction;
                 // call produce
                 return reproduction;
             },
@@ -51,15 +50,15 @@ var __owner = QPFBUG.Classes;
 
             getLastTraceData: function(pointRef, frameNo, objRef)
             {
-                if (this.previousReproduction)
-                    return this.previousReproduction.trace.getTraceData(pointRef, frameNo, objRef);
+                if (this.reproduction.previousReproduction)
+                    return this.reproduction.previousReproduction.trace.getTraceData(pointRef, frameNo, objRef);
                 return null;
             },
 
             getNewestTrace: function()
             {
-                if (this.currentReproduction)
-                    return this.currentReproduction.trace;
+                if (this.reproduction)
+                    return this.reproduction.trace;
                 return null;
             },
 
@@ -87,8 +86,20 @@ var __owner = QPFBUG.Classes;
                 return this.debugModel.querypointsSize;
             },
 
+            needsAnotherReproduction: function(){
+                if (this.getNumberOfQuerypoints() > this.reproduction.trace.assignedTracepointsSize){
+                    if (this.reproduction.previousReproduction) //could we find any new tracepoint in the last two reproductions
+                        if (this.reproduction.previousReproduction.previousReproduction)
+                            if (this.reproduction.trace.assignedTracepointsSize == this.reproduction.previousReproduction.previousReproduction.trace.assignedTracepointsSize)
+                                 return false;
+
+                    return true;
+                }
+                return false;
+            },
+
             moreQuerypointsToFind: function(){
-               return (this.getNumberOfQuerypoints() > this.currentReproduction.trace.assignedTracepointsSize);
+                return (this.getNumberOfQuerypoints() > this.reproduction.trace.assignedTracepointsSize);
             },
 
         }

@@ -20,7 +20,7 @@ with (Lang){
          },
 
          getReproduction: function(context){
-            return context.qpfbug.debugSession.currentReproduction;
+            return context.qpfbug.debugSession.reproduction;
          },
 
          getTracepoints: function(context){

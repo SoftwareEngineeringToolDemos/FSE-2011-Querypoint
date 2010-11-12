@@ -146,8 +146,11 @@ with (QPFBUG.Classes){
         },
 
         copyObject: function(object, depth){
-            if (object === null || depth ==0)
+            if (object === null)
                 return null;
+
+            if (depth == 0)
+                return "? [NOT_COLLECTED]";
 
             if (typeof(object) == "object")
             {

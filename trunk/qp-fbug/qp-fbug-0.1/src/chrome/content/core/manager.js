@@ -70,7 +70,7 @@ with (Lang){
                 else
                     debugSession = this.getDebugSession(debugSessionId);
 
-                reproduction = debugSession.currentReproduction;
+                reproduction = debugSession.reproduction;
 
                 //todo if !debugSession || !reproduction then ?
 
@@ -167,18 +167,18 @@ with (Lang){
             //------------------------------- call backs ---------------------------------------
             onModificationWatchpointEvent: function(eventRequest, eventId, frame, type, rv, object, propertyName, oldValue, newValue){
                 var context = eventRequest.context;
-                var reproduction = context.qpfbug.debugSession.currentReproduction;
+                var reproduction = context.qpfbug.debugSession.reproduction;
                 var querypoint = eventRequest.querypoint;
                 this.collectData(context, querypoint, eventId, frame, object, oldValue, newValue);
             },
 
             onBreakpointEvent: function(eventRequest, eventId, frame, type ,rv){
                 var context = eventRequest.context;
-                var reproduction = context.qpfbug.debugSession.currentReproduction;
+                var reproduction = context.qpfbug.debugSession.reproduction;
                 var querypoint = eventRequest.querypoint;
 
                 this.collectData(context, querypoint, eventId, frame);
-                if (context.qpfbug.debugSession.moreQuerypointsToFind()){   //todo: && there is no more reproduction point to visit
+                if (context.qpfbug.debugSession.needsAnotherReproduction()){   //todo: && there is no more reproduction point to visit
                     this.replay(context);
                 }else{
                     //show new found querypoints
@@ -191,7 +191,7 @@ with (Lang){
                 var win = context.window;
                 with(win){
                     var debugSession = context.qpfbug.debugSession;
-                    var reproduction = context.qpfbug.debugSession.currentReproduction;
+                    var reproduction = context.qpfbug.debugSession.reproduction;
                     var debugModel = debugSession.debugModel;
 
                     //todo set the correct frame number
@@ -208,7 +208,7 @@ with (Lang){
                 var win = context.window;
                 with(win){
                     var debugSession = context.qpfbug.debugSession;
-                    var reproduction = context.qpfbug.debugSession.currentReproduction;
+                    var reproduction = context.qpfbug.debugSession.reproduction;
                     var debugModel = debugSession.debugModel;
 
                     if (!context.stopped)
@@ -245,7 +245,7 @@ with (Lang){
 
             collectData: function(context, querypoint, eventId, frame, object, oldValue, newValue){
                 var debugSession = context.qpfbug.debugSession;
-                var reproduction = context.qpfbug.debugSession.currentReproduction;
+                var reproduction = context.qpfbug.debugSession.reproduction;
                 var tracepoint;
 
                 if (!reproduction.trace)
@@ -267,7 +267,7 @@ with (Lang){
 
             replay: function(context){
                 var debugSession = context.qpfbug.debugSession;
-                var reproduction = context.qpfbug.debugSession.currentReproduction;
+                var reproduction = context.qpfbug.debugSession.reproduction;
 
                 var newReproduction = debugSession.nextReproduction();
                 this.disableQuerypoints(context);

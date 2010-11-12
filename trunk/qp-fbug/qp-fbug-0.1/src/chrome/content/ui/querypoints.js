@@ -444,6 +444,13 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
         }
 
         var traceMembers = [];
+
+        for (var watch in tracepoint.traceWatches){
+            this.addMember({expr: watch, value: tracepoint.traceWatches[watch] }, "watch", traceMembers, watch, tracepoint.traceWatches[watch], 0 );
+        }
+
+        this.addMember({expr: "this", value: tracepoint.traceThis }, "watch", traceMembers, "this", tracepoint.traceThis, 0 );
+
         if (tracepoint.getQueryType() === "lastChange")
         {
             var expr =  tracepoint.querypoint.getQueryObjectExpression();
