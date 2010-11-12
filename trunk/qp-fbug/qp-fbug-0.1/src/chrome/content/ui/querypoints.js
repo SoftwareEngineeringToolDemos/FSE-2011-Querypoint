@@ -24,8 +24,6 @@ Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
     {
         context.Firebug = Firebug; // I guess.
         Firebug.Debugger.addListener(this);
-        context.qpfbug.reproducer = Firebug.getPref("extensions.firebug", "querypoints.reproducer");
-        FBTrace.sysout("QPModule initContext context.qpfbug.reproducer "+context.qpfbug.reproducer+' in context '+context.getName());
     },
 
     onQuerypointHit: function(context)
@@ -180,12 +178,33 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         if (FBTrace.DBG_QUERYPOINT)
             FBTrace.sysout("querypoints frame "+frame, frame);
         this.showSourceFile(frame.sourceFile);
-
-        var lineNumber = frame.line;
-        this.scrollToLine(null, lineNumber, bind(this.highlightExecutionLine, this, lineNumber, "tracepoint_line"));
+        this.executionLineNo = frame.line;
+        this.scrollToLine(null, frame.line, bind(this.highlightExecutionLine, this, frame.line, "tracepoint_line"));
 
         if (FBTrace.DBG_QUERYPOINT)
             FBTrace.sysout("QPSourceViewPanel.updateLocation "+tracepoint, tracepoint);
+    },
+
+    highlightExecutionLine: function(sourceBox)
+    {
+        if (FBTrace.DBG_QUERYPOINT)
+            FBTrace.sysout("highlightExecutionLine "+this.executionLineNo);
+        var highlightingAttribute = "exe_line";
+        if (this.executionLine)  // could point to any node in any sourcebox, private to this function
+            this.executionLine.removeAttribute(highlightingAttribute);
+
+        var sourceBox = this.selectedSourceBox;
+        var lineNode = sourceBox.getLineNode(this.executionLineNo);
+        this.executionLine = lineNode;  // if null, clears
+
+        if (this.executionLine)
+        {
+            lineNode.setAttribute(highlightingAttribute, "true");
+            if (FBTrace.DBG_BP || FBTrace.DBG_STACK || FBTrace.DBG_SOURCEFILES)
+                FBTrace.sysout("sourceBox.highlightExecutionLine lineNo: "+this.executionLineNo+" lineNode="+lineNode+" in "+sourceBox.repObject.href);
+        }
+
+        return (this.executionLineNo > 0); // sticky if we have a valid line
     },
 
     /*
@@ -373,10 +392,11 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         var items = [];
 
         var reproducers = Reproducer.getInstance().getReproducers();
+        var current = Manager.getInstance().getReproducer();
         for (var i = 0; i < reproducers.length; i++)
         {
             var reproducer = reproducers[i];
-            var doChecked = (this.reproducer === reproducer);
+            var doChecked = (current === reproducer);
             items.push(
                     {label: reproducer.toString(), checked: doChecked, type: "radio", command: bindFixed(this.selectReproducer, this, reproducer) }
             );
@@ -386,7 +406,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
     selectReproducer: function(reproducer)
     {
-        this.reproducer = reproducer;
+        Manager.getInstance().setReproducer(reproducer); // should just be QPFBUG.manager.setReproducer()
     },
 
 });
