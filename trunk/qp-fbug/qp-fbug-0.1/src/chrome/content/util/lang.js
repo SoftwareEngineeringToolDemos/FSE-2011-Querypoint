@@ -153,8 +153,8 @@ with (QPFBUG.Classes){
             {
                 var copy = {};
                 for (p in object){
-//                    if (p === "___qpfbug_objectId___" || p === "___qpfbug_watch___")  //ignore these variables
-//                        continue;
+                    if (p === "___qpfbug_objectId___" || p === "___qpfbug_watchRequests___")  //ignore these variables
+                        continue;
                     copy[p] = this.copyObject(object[p], depth-1);
                 }
                 return copy;
