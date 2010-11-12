@@ -10,9 +10,10 @@ with (Lang){
     //------------------------------- TraceFrame ----------------------------------
     __owner.TraceFrame =
         function(){
-            var constructor = function(stackTraceXB, traceScope){
+            var constructor = function(stackTraceXB, traceScope, traceThis){
                 this.stackTraceXB = stackTraceXB;
                 this.traceScope = traceScope;
+                this.traceThis = traceThis;
             };
 
             constructor.prototype = {
