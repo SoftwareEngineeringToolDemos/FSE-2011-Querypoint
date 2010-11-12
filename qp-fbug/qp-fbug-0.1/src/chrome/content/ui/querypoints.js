@@ -449,7 +449,7 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
             this.addMember({expr: watch, value: tracepoint.traceWatches[watch] }, "watch", traceMembers, watch, tracepoint.traceWatches[watch], 0 );
         }
 
-        this.addMember({expr: "this", value: tracepoint.traceThis }, "watch", traceMembers, "this", tracepoint.traceThis, 0 );
+        this.addMember({expr: "this", value: tracepoint.traceFrame.traceThis }, "watch", traceMembers, "this", tracepoint.traceFrame.traceThis, 0 );
 
         if (tracepoint.getQueryType() === "lastChange")
         {

@@ -65,9 +65,10 @@ with (Lang){
                     }
 
                     var stackTraceXB = QPFBUG.FBL.getCorrectedStackTrace(frame, context);
-                    var traceFrame = new TraceFrame(stackTraceXB, this.getTraceScope(frame.scope, 2));
-                    var traceThis = copyObject(unwrapIValueObject(frame.thisValue), 2);
-                    var tracepoint = new Tracepoint(++this.nextTracepointId, eventId, querypoint, traceFrame, traceThis);
+                    var traceThis;
+                    traceThis = copyObject(unwrapIValue(frame.thisValue), 2);
+                    var traceFrame = new TraceFrame(stackTraceXB, this.getTraceScope(frame.scope, 2), traceThis);
+                    var tracepoint = new Tracepoint(++this.nextTracepointId, eventId, querypoint, traceFrame);
 
 
                     for (var i=0 ; i<querypoint.queryDataList.length ; i++)
@@ -250,15 +251,11 @@ with (Lang){
                     var unWrappedScope  = unwrapIValueObject(scope);
                     var variableValues = {};
                     for (var prop in unWrappedScope){
-                        if (unWrappedScope[prop])
-                            try{
+                        if (unWrappedScope[prop]){
 //                                variableValues[prop] = JSON.parse(JSON.stringify(unWrappedScope[prop]));
                                 variableValues[prop] = null;
                                 variableValues[prop] = copyObject(unWrappedScope[prop], depth);
-                            }catch(exc){
-                                trace("Error in copyObject(): " + exc.message, exc);
-                            }
-                        else
+                        }else
                             variableValues[prop] = unWrappedScope[prop];
                     }
 

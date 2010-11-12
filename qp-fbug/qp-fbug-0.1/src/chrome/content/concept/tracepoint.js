@@ -11,12 +11,11 @@ with (Lang){
     // trace point is kept in debug model.
     __owner.Tracepoint =
         function(){
-            var constructor = function(id, eventId, querypoint, traceFrame, traceThis){
+            var constructor = function(id, eventId, querypoint, traceFrame){
                 this.id = id;
                 this.eventId = eventId;
                 this.querypoint = querypoint;
                 this.traceFrame = traceFrame;
-                this.traceThis = traceThis;
                 this.traceDataList = [];
                 this.traceWatches = {};
             };

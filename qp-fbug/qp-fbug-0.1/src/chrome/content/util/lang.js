@@ -152,13 +152,20 @@ with (QPFBUG.Classes){
             if (depth == 0)
                 return "? [NOT_COLLECTED]";
 
-            if (typeof(object) == "object")
+            var type = typeof(object);
+            if (type == "object")
             {
                 var copy = {};
                 for (p in object){
                     if (p === "___qpfbug_objectId___" || p === "___qpfbug_watchRequests___")  //ignore these variables
                         continue;
-                    copy[p] = this.copyObject(object[p], depth-1);
+                    try{
+                        type = typeof(object[p]);
+                        copy[p] = this.copyObject(object[p], depth-1);
+                    }catch(exc){
+                        Lang.trace("Error in copyObject(): " + type + " - " + exc.message, exc);
+                        break;
+                    }
                 }
                 return copy;
             }
