@@ -433,6 +433,7 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
 
         if (FBTrace.DBG_QUERYPOINT)
             FBTrace.sysout("TraceDataPanel.updateSelection "+tracepoint, tracepoint);
+
         if( ! (tracepoint instanceof Tracepoint) )
             return;
 
@@ -445,18 +446,24 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
 
         var traceMembers = [];
 
+        // Put the lastChange values at top TODO diff
         for (var watch in tracepoint.traceWatches){
             this.addMember({expr: watch, value: tracepoint.traceWatches[watch] }, "query", traceMembers, watch, tracepoint.traceWatches[watch], 0 );
         }
 
-        this.addMember({expr: "this", value: tracepoint.traceFrame.traceThis }, "watch", traceMembers, "this", tracepoint.traceFrame.traceThis, 0 );
-
-        var members = this.generateScopeChain(tracepoint.traceFrame.traceScope, traceMembers);
         if (FBTrace.DBG_QUERYPOINT)
-            FBTrace.sysout("TraceDataPanel.rebuild traceData: "+members.length, members);
+            FBTrace.sysout("TraceDataPanel.rebuild traceWatches: "+tracepoint.traceWatches, tracepoint.traceWatches);
 
-        this.expandMembers(members, this.toggles, 0, 0, this.context);
-        this.showMembers(members, !newTracepoint);
+        // At QP we show some data
+        this.addMember({expr: "this", value: tracepoint.traceFrame.traceThis }, "scopes", traceMembers, "this", tracepoint.traceFrame.traceThis, 0 );
+
+        var scope = tracepoint.traceFrame.traceScope;
+        traceMembers.push.apply(traceMembers, this.getMembers(scope.variableValues, 0, this.context));
+
+        this.appendScopeChain(scope.parentScope, traceMembers);
+
+        this.expandMembers(traceMembers, this.toggles, 0, 0, this.context);
+        this.showMembers(traceMembers, !newTracepoint);
     },
 
     onPanelNavigate: function(object, panel)
@@ -475,7 +482,7 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
         FirebugReps.Warning.tag.replace({object: "NoMembersWarning"}, this.panelNode);
     },
 
-    generateScopeChain: function (scope, members)
+    appendScopeChain: function (scope, members)
     {
         while (scope) {
             var scopeVars;
@@ -505,7 +512,7 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
             else
             {
                 if (FBTrace.DBG_ERRORS)
-                    FBTrace.sysout("tracedata.generateScopeChain: bad scopeVars");
+                    FBTrace.sysout("tracedata.appendScopeChain: bad scopeVars");
             }
             scope = scope.parentScope;
         }
