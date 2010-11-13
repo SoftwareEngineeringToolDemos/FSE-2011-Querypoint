@@ -25,7 +25,8 @@ with (QPFBUG.Classes){
 
         trace: function(message, obj)
         {
-            TraceUtils.trace(arguments.callee.caller, message, obj);
+            if (FBTrace.DBG_QUERYPOINT)
+                TraceUtils.trace(arguments.callee.caller, message, obj);
         },
 
         wrapFunctionsWithTryCatch: function(obj)
@@ -105,7 +106,7 @@ with (QPFBUG.Classes){
             }
             return returnValue;
         },
-        
+
         evalInFrame: function(frame, expr){
             var value = null;
             var result = {};
@@ -159,12 +160,13 @@ with (QPFBUG.Classes){
                 for (p in object){
                     if (p === "___qpfbug_objectId___" || p === "___qpfbug_watchRequests___")  //ignore these variables
                         continue;
-                    try{
+                    try {
                         type = typeof(object[p]);
                         copy[p] = this.copyObject(object[p], depth-1);
-                    }catch(exc){
-                        Lang.trace("Error in copyObject(): " + type + " - " + exc.message, exc);
-                        break;
+                    } catch(exc) {
+                        // Access to some objects will fail, that's life in Mozilla land
+                        // Lang.trace("Error in copyObject(): " + type + " - " + exc.message, exc);
+                        // break;
                     }
                 }
                 return copy;
@@ -211,7 +213,7 @@ with (QPFBUG.Classes){
 
         $ : QPFBUG.FBL.$,
 
-        FBTrace: QPFBUG.traceConsoleService.getTracer("extensions.firebug"),        
+        FBTrace: QPFBUG.traceConsoleService.getTracer("extensions.firebug"),
     };
 }
 }
