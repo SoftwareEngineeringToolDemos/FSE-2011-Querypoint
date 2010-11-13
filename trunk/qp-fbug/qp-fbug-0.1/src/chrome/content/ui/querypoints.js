@@ -458,7 +458,11 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
         this.addMember({expr: "this", value: tracepoint.traceFrame.traceThis }, "scopes", traceMembers, "this", tracepoint.traceFrame.traceThis, 0 );
 
         var scope = tracepoint.traceFrame.traceScope;
-        traceMembers.push.apply(traceMembers, this.getMembers(scope.variableValues, 0, this.context));
+        var scopeMembers = this.getMembers(scope.variableValues, 0, this.context);
+        if (FBTrace.DBG_QUERYPOINT)
+            FBTrace.sysout("TraceDataPanel.rebuild scopeMembers: "+scopeMembers, scopeMembers);
+
+        traceMembers.push.apply(traceMembers, scopeMembers);
 
         this.appendScopeChain(scope.parentScope, traceMembers);
 
@@ -492,28 +496,20 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
             if (scope.jsClassName == "Call") {
                 var scopeVars = scope.variableValues;
                 scopeVars.toString = function() {return "Closure Scope";}
+            } else if (scope.jsClassName == "Block") {
+                    var scopeVars = scope.variableValues;
+                    scopeVars.toString = function() {return "Block Scope";}
             } else {
                 scopeVars = scope.variableValues;
+                (function() {
+                    var className = scope.jsClassName;
+                    scopeVars.toString = function() {
+                        return $STR(className + " Scope");
+                    };
+                })();
             }
 
-            if (scopeVars && scopeVars.hasOwnProperty)
-            {
-                if (!scopeVars.hasOwnProperty("toString")) {
-                    (function() {
-                        var className = scope.jsClassName;
-                        scopeVars.toString = function() {
-                            return $STR(className + " Scope");
-                        };
-                    })();
-                }
-
-                this.addMember(scopeVars, "scopes", members, scopeVars.toString(), scopeVars, 0);
-            }
-            else
-            {
-                if (FBTrace.DBG_ERRORS)
-                    FBTrace.sysout("tracedata.appendScopeChain: bad scopeVars");
-            }
+            this.addMember(scopeVars, "scopes", members, scopeVars.toString(), scopeVars, 0);
             scope = scope.parentScope;
         }
 
