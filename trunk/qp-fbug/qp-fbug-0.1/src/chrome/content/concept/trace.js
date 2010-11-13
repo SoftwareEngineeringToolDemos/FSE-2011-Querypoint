@@ -266,7 +266,7 @@ with (Lang){
                     traceScope = new TraceScope(parentTraceScope, jsClassName, variableValues);
 
                     return traceScope;
-                },
+                },                                                          
 
             };
 

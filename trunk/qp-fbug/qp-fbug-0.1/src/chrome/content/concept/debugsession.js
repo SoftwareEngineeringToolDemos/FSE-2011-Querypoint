@@ -17,13 +17,14 @@ var __owner = QPFBUG.Classes;
 
             this.nextReproductionId = 0;
 
+            this.debugModel = new DebugModel();
+
             // It is supposed that there is only one current reproduction.
             // In the future it may support more than on running reproduction at the same
             // time for faster data collection.
             this.reproduction = this.nextReproduction();
 
 
-            this.debugModel = new DebugModel();
 
         }
 
@@ -86,16 +87,18 @@ var __owner = QPFBUG.Classes;
                 return this.debugModel.querypointsSize;
             },
 
-            needsAnotherReproduction: function(){
-                if (this.getNumberOfQuerypoints() > this.reproduction.trace.assignedTracepointsSize){
-                    if (this.reproduction.previousReproduction) //could we find any new tracepoint in the last two reproductions
-                        if (this.reproduction.previousReproduction.previousReproduction)
-                            if (this.reproduction.trace.assignedTracepointsSize == this.reproduction.previousReproduction.previousReproduction.trace.assignedTracepointsSize)
-                                 return false;
+            needsAnotherReproduction: function(){ //todo it only works for one reproduction point
+                if (this.reproduction.numberOfQuerypoints == this.reproduction.previousReproduction.numberOfQuerypoints) //if there is no new querypoint
+                    return false;
 
-                    return true;
-                }
-                return false;
+
+//                if (this.getNumberOfQuerypoints() > this.reproduction.trace.assignedTracepointsSize){
+//                    if (this.reproduction.previousReproduction) //could we find any new tracepoint in the last two reproductions
+//                            if (this.reproduction.previousReproduction.previousReproduction)
+//                                if (this.reproduction.trace.assignedTracepointsSize == this.reproduction.previousReproduction.previousReproduction.trace.assignedTracepointsSize)
+//                                     return false;
+
+                return true;
             },
 
             moreQuerypointsToFind: function(){

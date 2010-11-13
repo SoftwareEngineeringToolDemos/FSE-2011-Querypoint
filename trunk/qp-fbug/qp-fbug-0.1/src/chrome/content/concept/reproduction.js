@@ -25,6 +25,7 @@ __owner.Reproduction =
                this.id = id;
                this.debugSession = debugSession;
                this.previousReproduction = previousReproduction;
+               this.numberOfQuerypoints = debugSession.debugModel.querypointsSize;
                this.trace = null;
                this.context = null;
             };
