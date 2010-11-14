@@ -411,6 +411,13 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
 });
 
+
+Firebug.Querypoint.TraceDataDiff = function createTraceDataDiff(oldValue, newValue)
+{
+    this.oldValue = oldValue;
+    this.newValue = newValue;
+}
+
 /*
  * TraceDataPanel, shows objects of type QPFBUG.Classes.TraceData
  */
@@ -448,7 +455,8 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
 
         // Put the lastChange values at top TODO diff
         for (var watch in tracepoint.traceWatches){
-            this.addMember({expr: watch, value: tracepoint.traceWatches[watch] }, "query", traceMembers, watch, tracepoint.traceWatches[watch], 0 );
+            var diff = new Firebug.Querypoint.TraceDataDiff(tracepoint.traceWatches[watch], "?");
+            this.addMember({expr: watch, value: diff }, "query", traceMembers, watch, diff, 0 );
         }
 
         if (FBTrace.DBG_QUERYPOINT)
@@ -800,6 +808,30 @@ Firebug.Querypoint.LastChangeTracepointRep = domplate(Firebug.Querypoint.Tracepo
 
     });
 
+Firebug.Querypoint.TraceDataDiffRep = domplate(Firebug.Rep,
+{
+    tag: FirebugReps.OBJECTBOX(
+            TAG("$object.oldValue|getTag", {object: "$object.oldValue"}),
+            SPAN({"class": "objectEqual", role: "presentation"}, "&larr;"),
+            TAG("$object.newValue|getTag", {object: "$object.newValue"})
+         ),
+
+    getTag: function(object)
+    {
+        var rep = Firebug.getRep(object);
+        var tag = rep.shortTag || rep.tag;
+        return tag;
+    },
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    className: "traceDataDiff",
+
+    supportsObject: function(object, type)
+    {
+        return (object instanceof Firebug.Querypoint.TraceDataDiff);
+    },
+
+});
+
 
 /*
  * TraceStackPanel, shows objects of type QPFBUG.Classes.TraceFrame
@@ -850,6 +882,9 @@ Firebug.Querypoint.TraceStackPanel.prototype = extend(Firebug.CallstackPanel.pro
 
 });
 
+
+
+
 Firebug.registerModule(Firebug.Querypoint.QPModule);
 Firebug.registerStylesheet("chrome://qpfbug/content/ui/querypoints.css");
 Firebug.registerPreference("querypoints.enableSites", false);
@@ -862,5 +897,7 @@ Firebug.registerPanel(Firebug.Querypoint.ReproductionsPanel);
 
 Firebug.registerRep(Firebug.Querypoint.BreakpointTracepointRep);
 Firebug.registerRep(Firebug.Querypoint.LastChangeTracepointRep);
+Firebug.registerRep(Firebug.Querypoint.TraceDataDiffRep);
+
 
 }}});
