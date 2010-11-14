@@ -119,7 +119,7 @@ with (QPFBUG.Classes){
             value = value.getWrappedValue();
             if (!value)
                 return value;
-            if (value.stack && value.message && value.name=="ReferenceError"){ //Exception
+            if (value.stack && value.message && (value.name=="ReferenceError" || value.name=="TypeError")){ //Exception
                 return null;
             }
             return value;
