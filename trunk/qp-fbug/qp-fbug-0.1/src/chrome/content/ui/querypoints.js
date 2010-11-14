@@ -455,8 +455,14 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
 
         // Put the lastChange values at top TODO diff
         for (var watch in tracepoint.traceWatches){
-            var diff = new Firebug.Querypoint.TraceDataDiff(tracepoint.traceWatches[watch], "?");
-            this.addMember({expr: watch, value: diff }, "query", traceMembers, watch, diff, 0 );
+            this.addMember({expr: watch, value: tracepoint.traceWatches[watch] }, "query", traceMembers, watch, tracepoint.traceWatches[watch], 0 );        
+        }
+
+        if (tracepoint.getQueryType() === "lastChange")
+        {
+            var diff = new Firebug.Querypoint.TraceDataDiff(tracepoint.oldValue, tracepoint.newValue);
+            var lastChangeExpr = tracepoint.querypoint.refQueryexpr.expr;
+            this.addMember({expr: lastChangeExpr, value: diff }, "query", traceMembers, lastChangeExpr, diff, 0 );
         }
 
         if (FBTrace.DBG_QUERYPOINT)

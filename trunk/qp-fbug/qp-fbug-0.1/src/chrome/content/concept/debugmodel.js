@@ -41,8 +41,6 @@ with (Lang){
                     queryData = new QueryData(type, 0, ".owner" );
                     querypoint.addQueryData(queryData)
 
-                    querypoint.addQueryWatch(valueRef);
-
                     // add trace point to the list
                     this.querypoints[id] = querypoint;
                     this.querypointsSize++;

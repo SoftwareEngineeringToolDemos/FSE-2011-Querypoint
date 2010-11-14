@@ -9,8 +9,20 @@
             myObject = {
                 myProperty : 0
             }
+
+            myObject2 = {
+                myProperty2 : {
+                    myProperty3 : 0
+                }
+            }
+
             increaseMyProperty = function(){
                 myObject.myProperty++;
+
+                myObject2.myProperty2 = {
+                    myProperty4 : 1,
+                }
+                
                 updatePage();
             }
             updatePage = function(){

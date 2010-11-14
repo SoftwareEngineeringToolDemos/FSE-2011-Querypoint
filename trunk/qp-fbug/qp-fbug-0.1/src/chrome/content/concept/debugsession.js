@@ -90,8 +90,8 @@ var __owner = QPFBUG.Classes;
             needsAnotherReproduction: function(){ //todo it only works for one reproduction point
                 if (this.reproduction.numberOfQuerypoints == this.reproduction.previousReproduction.numberOfQuerypoints) //if there is no new querypoint
                     return false;
-//                if (this.getNumberOfQuerypoints() === this.reproduction.trace.assignedTracepointsSize);
-//                    return false;
+                if (this.getNumberOfQuerypoints() === this.reproduction.trace.assignedTracepointsSize)// todo
+                    return false;
 
 
 //                if (this.getNumberOfQuerypoints() > this.reproduction.trace.assignedTracepointsSize){

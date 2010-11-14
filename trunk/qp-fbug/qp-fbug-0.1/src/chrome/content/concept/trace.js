@@ -23,7 +23,7 @@ with (Lang){
 
                 addLastChangeTracepoint: function(querypoint, context, eventId, frame, parent, oldValue, newValue, isObjectCreation){
 
-                    var tracepoint = this.addTracepoint(querypoint, context, eventId, frame);
+                    var tracepoint = this.addTracepoint(querypoint, context, eventId, frame, oldValue, newValue);
 
                     if (isObjectCreation){ //correct last frame line number
                         //todo change it  perhaps you can keep the creation url, line number in querypoint as a traceResult summary itself
@@ -79,7 +79,7 @@ with (Lang){
                     return tracepoint;
                 },
 
-                addTracepoint: function(querypoint, context, eventId, frame)
+                addTracepoint: function(querypoint, context, eventId, frame, oldValue, newValue)
                 {
                     var querypointId = querypoint.id;
                     if (!this.tracepoints[querypointId]){
@@ -89,7 +89,9 @@ with (Lang){
                     var stackTraceXB = QPFBUG.FBL.getCorrectedStackTrace(frame, context);
                     var traceThis = copyObject(unwrapIValue(frame.thisValue), 2);
                     var traceFrame = new TraceFrame(stackTraceXB, this.getTraceScope(frame.scope, 2), traceThis);
-                    var tracepoint = new Tracepoint(++this.nextTracepointId, eventId, querypoint, traceFrame);
+                    var traceOldValue = copyObject(oldValue, 2);
+                    var traceNewValue = copyObject(newValue, 2);
+                    var tracepoint = new Tracepoint(++this.nextTracepointId, eventId, querypoint, traceFrame, traceOldValue, traceNewValue);
 
 
                     for (var i=0 ; i<querypoint.queryDataList.length ; i++)
