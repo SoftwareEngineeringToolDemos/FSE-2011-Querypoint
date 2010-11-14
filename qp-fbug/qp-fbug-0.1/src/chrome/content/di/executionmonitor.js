@@ -109,7 +109,7 @@ with (Lang){
                                 refValue["___qpfbug_objectId___"] = objectId;
                                 trace(monitorRef + " with id '" + objectId + "' was created.");
                             }
-                            this.callBack(this.eventRequest, refValue);
+                            this.callBack(this.eventRequest, refValue, frame, type, rv);
                         }
                     }
                 }

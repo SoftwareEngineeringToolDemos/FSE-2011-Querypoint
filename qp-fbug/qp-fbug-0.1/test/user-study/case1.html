@@ -16,11 +16,8 @@
             };
 
             var sortRecords = function(records){
-                var list = [];
-                for (var p in records)
-                    list.push(records[p]);
-                list.sort(function(a,b){return a.baseSalary-b.baseSalary;});
-                return list;
+                records.sort(function(a,b){return a.baseSalary-b.baseSalary;});
+                return records;
             };
 
             var calculateSalary = function(records){
@@ -59,20 +56,33 @@
             };
 
             var getRecords = function(){
-                return {
-                ID_3345:{name:"A", company:"IBM", baseSalary: 92000 ,senior:1, married:0, children: 0,  age:44, bonusPoint:220},
-                ID_5566:{name:"B", company:"GOOGLE", baseSalary: 88000 ,senior:1, married:0, children: 0, age:34, bonusPoint:25},
-                ID_1234:{name:"C", company:"MICROSOFT", baseSalary:90000 ,senior:1, married:1, children: 0, age:40, bonusPoint:100},
-                ID_4566:{name:"E", company:"INTEL", baseSalary: 90000 ,senior:0, married:0, children: 1, age:54, bonusPoint:70},
-                ID_2234:{name:"F", company:"IBM", baseSalary: 89000 ,senior:1, married:1, children: 0, age:44, bonusPoint:350},
-                ID_4353:{name:"G", company:"IBM", baseSalary: 91000 ,senior:0, married:1, children: 3, age:50, bonusPoint:150},
-                ID_3333:{name:"H", company:"INTEL", baseSalary: 88000 ,senior:0, married:0, children: 0, age:28, bonusPoint:20},
-                ID_1232:{name:"I", company:"GOOGLE", baseSalary: 85000 ,senior:1, married:0, children: 3, age:39, bonusPoint:250},
-                ID_3344:{name:"J", company:"YAHOO", baseSalary: 91000 ,senior:0, married:1, children: 2, age:36, bonusPoint:300},
-                ID_2084:{name:"K", company:"HP", baseSalary: 84000 ,senior:0, married:1, children: 0, ages:54, bonusPoint:10},
-                ID_3400:{name:"L", company:"YAHOO", baseSalary: 83000 ,senior:0, married:0, children: 0, age:61, bonusPoint:90},
-                ID_7794:{name:"M", company:"IBM", baseSalary: 85000 ,senior:1, married:0, children: 0,  age:29, bonusPoint:0},
-                };
+                var records = [];
+                var record;
+                record = {name:"A", company:"IBM", baseSalary: 92000 ,senior:1, married:0, children: 0,  age:44, bonusPoint:220};
+                records.push(record);
+                record = {name:"B", company:"GOOGLE", baseSalary: 88000 ,senior:1, married:0, children: 0, age:34, bonusPoint:25};
+                records.push(record);
+                record = {name:"C", company:"MICROSOFT", baseSalary:90000 ,senior:1, married:1, children: 0, age:40, bonusPoint:100};
+                records.push(record);
+                record = {name:"E", company:"INTEL", baseSalary: 90000 ,senior:0, married:0, children: 1, age:54, bonusPoint:70};
+                records.push(record);
+                record = {name:"F", company:"IBM", baseSalary: 89000 ,senior:1, married:1, children: 0, age:44, bonusPoint:350};
+                records.push(record);
+                record = {name:"G", company:"IBM", baseSalary: 91000 ,senior:0, married:1, children: 3, age:50, bonusPoint:150};
+                records.push(record);
+                record = {name:"H", company:"INTEL", baseSalary: 88000 ,senior:0, married:0, children: 0, age:28, bonusPoint:20};
+                records.push(record);
+                record = {name:"I", company:"GOOGLE", baseSalary: 85000 ,senior:1, married:0, children: 3, age:39, bonusPoint:250};
+                records.push(record);
+                record = {name:"J", company:"YAHOO", baseSalary: 91000 ,senior:0, married:1, children: 2, age:36, bonusPoint:300};
+                records.push(record);
+                record = {name:"K", company:"HP", baseSalary: 84000 ,senior:0, married:1, children: 0, ages:54, bonusPoint:10};
+                records.push(record);
+                record = {name:"L", company:"YAHOO", baseSalary: 83000 ,senior:0, married:0, children: 0, age:61, bonusPoint:90};
+                records.push(record);
+                record = {name:"M", company:"IBM", baseSalary: 85000 ,senior:1, married:0, children: 0,  age:29, bonusPoint:0};
+                records.push(record);
+                return records;
             };
 
         -->

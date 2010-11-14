@@ -90,25 +90,28 @@ with (Lang){
                 context.qpfbug.eventRequests = null;
             },
 
-            onModificationWatchpointEvent: function(eventRequests, object, propertyName, oldValue, newValue, frame, type, rv){
+            onModificationWatchpointEvent: function(eventRequests, object, propertyName, oldValue, newValue, frame, type, rv, isObjectCreation){
 
                 var eventId = this.getNextEventId();
-                //ignore frames onPropertyChanged() frame
-                var targetFrame = frame.callingFrame;
 
-//                if (!eventRequest.w_ownerCreationUrl){ // a root variable todo: correct these conditions
-//                    //ignore bind functions
-//                    targetFrame = targetFrame.callingFrame;
-//                }else{
-                    //ignore bind? bind functions
+                //Note this method might be called indirectly by watch, onPropertyChange->halt , onHalst -> onModificationWatchpoint
+                // or it might be called executionMonitor -> onObjectCreation -> onModification
+                var targetFrame = frame;
+
+                if (!isObjectCreation){ //so it is from onPropertyChanged
+//                if (unwrapIValue(targetFrame.thisValue) === this){ //it is in debugServcie and is the call from onPropertyChanged.
+                //ignore frames onPropertyChanged()
                     targetFrame = targetFrame.callingFrame;
-//                }
+                    // remove bindAtHead    
+                    targetFrame = targetFrame.callingFrame;
+                }
+
                 var eventRequest;
                 for (var i=0; i<eventRequests.length; i++){
                     eventRequest = eventRequests[i];
 
 
-                    eventRequest.callBack(eventRequest, eventId, targetFrame, type, rv, object, propertyName, oldValue, newValue);
+                    eventRequest.callBack(eventRequest, eventId, targetFrame, type, rv, object, propertyName, oldValue, newValue, isObjectCreation);
                 }
             },
 
@@ -341,26 +344,37 @@ with (Lang){
                 return this.onHalt(frame, type, rv);
             },
 
-            onObjectCreation: function(eventRequest, object){
+            onObjectCreation: function(eventRequest, object, frame, type, rv){
                 QPFBUG.monitor.ds_objectCreation++;
 
                 var objectId = object["___qpfbug_objectId___"];
-                //JSD doesn't give us the watch call back then we need to keep it here.
-//                            var oldCallBack = object.unwatch(this.propertyName);
+                //JSD doesn't give us txhe watch call back then we need to keep it here.
+
                 var watchEventRequests = object["___qpfbug_watchRequests___"]; // list of watchEventRequests
 
-                var propertyName = eventRequest.w_propertyName;
                 if (!watchEventRequests){
                     watchEventRequests = {};
+                    object["___qpfbug_watchRequests___"] = watchEventRequests;
                 }
-                if (!watchEventRequests[propertyName]){
-                    watchEventRequests[propertyName] = [eventRequest];
-                }else{ //the object has id and therefore another watch callback
-                    watchEventRequests[propertyName].push(eventRequest);
-                }
-                object["___qpfbug_watchRequests___"] = watchEventRequests;
 
-                object.watch(propertyName, bindAtHead(this.onPropertyChanged, this, watchEventRequests[propertyName], object));
+                var propertyName = eventRequest.w_propertyName;
+                var watchRequests = watchEventRequests[propertyName];
+
+                if (!watchRequests){
+                    watchRequests = [eventRequest];
+                }else{ //the object has id and therefore another watch callback
+                    watchRequests.push(eventRequest);
+                }
+
+                watchEventRequests[propertyName] = watchRequests;
+
+                var undefinedValue;
+                var newValue = object[propertyName];
+                if (typeof(newValue) !== "undefined"){ //if propertyName is set consider it as a property change
+                    this.onModificationWatchpointEvent(watchRequests, object, propertyName, undefinedValue, newValue, frame, type, rv, true); // the old value is undefined
+                }
+
+                object.watch(propertyName, bindAtHead(this.onPropertyChanged, this, watchRequests, object));
                 trace("Object('"+ objectId + "') watch() was called.");
             },
 
