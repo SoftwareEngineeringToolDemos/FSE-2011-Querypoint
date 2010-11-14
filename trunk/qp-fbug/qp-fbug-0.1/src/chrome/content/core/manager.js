@@ -165,11 +165,11 @@ with (Lang){
             },
 
             //------------------------------- call backs ---------------------------------------
-            onModificationWatchpointEvent: function(eventRequest, eventId, frame, type, rv, object, propertyName, oldValue, newValue){
+            onModificationWatchpointEvent: function(eventRequest, eventId, frame, type, rv, object, propertyName, oldValue, newValue, isObjectCreation){
                 var context = eventRequest.context;
                 var reproduction = context.qpfbug.debugSession.reproduction;
                 var querypoint = eventRequest.querypoint;
-                this.collectData(context, querypoint, eventId, frame, object, oldValue, newValue);
+                this.collectData(context, querypoint, eventId, frame, object, oldValue, newValue, isObjectCreation);
             },
 
             onBreakpointEvent: function(eventRequest, eventId, frame, type ,rv){
@@ -243,7 +243,7 @@ with (Lang){
                 }
             },
 
-            collectData: function(context, querypoint, eventId, frame, object, oldValue, newValue){
+            collectData: function(context, querypoint, eventId, frame, object, oldValue, newValue, isObjectCreation){
                 var debugSession = context.qpfbug.debugSession;
                 var reproduction = context.qpfbug.debugSession.reproduction;
                 var tracepoint;
@@ -253,7 +253,7 @@ with (Lang){
 
                 if (querypoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE)
                 {
-                    tracepoint = reproduction.trace.addLastChangeTracepoint(querypoint, context, eventId,  frame, object, oldValue, newValue);
+                    tracepoint = reproduction.trace.addLastChangeTracepoint(querypoint, context, eventId,  frame, object, oldValue, newValue, isObjectCreation);
 //                    reproduction.trace.assignTracepoint(querypoint, tracepoint); //todo it is not correct change it
                 }
                 if (querypoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT)

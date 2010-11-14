@@ -21,9 +21,31 @@ with (Lang){
 
             constructor.prototype = {
 
-                addLastChangeTracepoint: function(querypoint, context, eventId, frame, parent, oldValue, newValue){
+                addLastChangeTracepoint: function(querypoint, context, eventId, frame, parent, oldValue, newValue, isObjectCreation){
 
                     var tracepoint = this.addTracepoint(querypoint, context, eventId, frame);
+
+                    if (isObjectCreation){ //correct last frame line number
+                        //todo change it  perhaps you can keep the creation url, line number in querypoint as a traceResult summary itself
+                        var traceData = context.qpfbug.debugSession.getLastTraceData(
+                                     querypoint.refQuerypoint,
+                                     querypoint.refQueryexpr.frameNo,
+                                     querypoint.refQueryexpr.expr
+                                     );
+
+                        if (traceData){
+                            var lineNo = traceData.parentCreatorLine;
+
+                            if (!lineNo){
+                                lineNo = traceData.parentConstructorLine;
+                            }
+
+                            if (typeof(lineNo) !== "undefined"){
+                                tracepoint.traceFrame.stackTraceXB.frames[0].line = lineNo;
+                            }
+                        }
+                    }
+
 
                     //add .owner trace object
                     var queryData;
@@ -65,8 +87,7 @@ with (Lang){
                     }
 
                     var stackTraceXB = QPFBUG.FBL.getCorrectedStackTrace(frame, context);
-                    var traceThis;
-                    traceThis = copyObject(unwrapIValue(frame.thisValue), 2);
+                    var traceThis = copyObject(unwrapIValue(frame.thisValue), 2);
                     var traceFrame = new TraceFrame(stackTraceXB, this.getTraceScope(frame.scope, 2), traceThis);
                     var tracepoint = new Tracepoint(++this.nextTracepointId, eventId, querypoint, traceFrame);
 
@@ -95,7 +116,7 @@ with (Lang){
                             parent = evalInFrame(frame, parentRef);
                         }
 
-                        if (!parent)
+                        if (!parent || typeof(parent)!="object")
                             continue;
 
                         //wrapValue returns the jsd wrapper
@@ -117,7 +138,6 @@ with (Lang){
                             traceData.parentConstructorURL = parentJSDIObject.constructorURL;
                             traceData.parentConstructorLine = parentJSDIObject.constructorLine;
                         }
-
                         tracepoint.addTraceData(traceData);
 
                     }
