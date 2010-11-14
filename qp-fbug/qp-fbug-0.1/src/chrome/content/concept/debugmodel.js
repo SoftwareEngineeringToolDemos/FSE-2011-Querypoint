@@ -16,11 +16,23 @@ with (Lang){
             };
 
             constructor.prototype = {
-                addQuerypoint_Breakpoint : function(url, lineNumber, hitCount){
+                addQuerypoint_Breakpoint : function(url, lineNo, hitCount){
+
+                    //if it is already added return that
+                    for (var id in this.querypoints){
+                         var qp = this.querypoints[id];
+                         if (qp.queryType === DebugModel.QUERY_TYPES.BREAKPOINT){
+                             if (qp.url === url
+                                && qp.lineNo === lineNo
+                                && qp.hitCount === hitCount)
+                                return qp;
+                         }
+                    }
+
                     var id = ++this.nextQuerypointId;
                     var querypoint = new Querypoint(id, DebugModel.QUERY_TYPES.BREAKPOINT,
                                                     null, null,
-                                                    url, lineNumber, hitCount);
+                                                    url, lineNo, hitCount);
 
                     this.querypoints[id] = querypoint;
                     this.querypointsSize++;
@@ -28,6 +40,17 @@ with (Lang){
                 },
 
                 addQuerypoint_LastChange : function(refQuerypoint, valueFrameNo, valueRef){
+
+                    //if it is already added return that
+                    for (var id in this.querypoints){
+                         var qp = this.querypoints[id];
+                         if (qp.queryType === DebugModel.QUERY_TYPES.LASTCHANGE){
+                             if (qp.refQuerypoint === refQuerypoint
+                                && qp.refQueryexpr.frameNo === valueFrameNo
+                                && qp.refQueryexpr.expr === valueRef)
+                                return qp;
+                         }
+                    }
 
                     // makes querypoint
                     var refQueryexpr = new QueryExpr(valueFrameNo, valueRef);
