@@ -369,12 +369,18 @@ with (Lang){
                 watchEventRequests[propertyName] = watchRequests;
 
                 var undefinedValue;
-                var newValue = object[propertyName];
-                if (typeof(newValue) !== "undefined"){ //if propertyName is set consider it as a property change
-                    this.onModificationWatchpointEvent(watchRequests, object, propertyName, undefinedValue, newValue, frame, type, rv, true); // the old value is undefined
+                var hasOwnProperty = object.hasOwnProperty(propertyName);
+                if (hasOwnProperty){ //if propertyName is set consider it as a property change
+                    this.onModificationWatchpointEvent(watchRequests, object, propertyName, undefinedValue, object[propertyName], frame, type, rv, true); // the old value is undefined
                 }
 
                 object.watch(propertyName, bindAtHead(this.onPropertyChanged, this, watchRequests, object));
+
+                //watch adds a property with propertyName if it doesn't exist, so it should be removed
+                if (!hasOwnProperty){
+                   delete object[propertyName];
+               }
+
                 trace("Object('"+ objectId + "') watch() was called.");
             },
 
