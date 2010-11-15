@@ -7,8 +7,6 @@ QPFBUG.Classes = {};
 //Configuration
 QPFBUG.Conf = {};
 
-QPFBUG.Conf.COLLECT_DATA = true;
-
 //Debugging
 
 QPFBUG.DBG = false;
