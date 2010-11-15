@@ -26,7 +26,11 @@ __owner.Monitor = function(){
             this.ds_objectCreation = 0;
             this.ds_propertyChanged = 0;
 
+            //copyObject
+            this.counterCopyObject = 0,
             this.test = 0;
+
+
         };
 
         constructor.prototype =

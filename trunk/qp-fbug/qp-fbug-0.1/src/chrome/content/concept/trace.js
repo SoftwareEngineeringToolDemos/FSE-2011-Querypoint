@@ -264,8 +264,10 @@ with (Lang){
                     if (!scope)
                         return null;
 
-                    if (depth == 0)
-                        return  new TraceScope(null, "", {}); //returns empty scope
+                    var parentTraceScope = this.getTraceScope(scope.jsParent, depth-1);
+                    var jsClassName = scope.jsClassName;
+                    if (depth <= 0)
+                        return  new TraceScope(parentTraceScope, jsClassName, {}); //returns empty scope
 
                     var traceScope;
                     var parentScope, jsClassName, variables, values;
@@ -282,7 +284,6 @@ with (Lang){
                             variableValues[prop] = unWrappedScope[prop];
                     }
 
-                    var parentTraceScope = this.getTraceScope(scope.jsParent, depth);
                     traceScope = new TraceScope(parentTraceScope, jsClassName, variableValues);
 
                     return traceScope;

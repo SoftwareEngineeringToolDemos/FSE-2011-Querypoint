@@ -70,6 +70,7 @@ with (QPFBUG.Classes){
         },
 
         cloneObject: function(object){
+            ///todo consider the case where object is an array
             var copy = {};
             for (var i in object){
                 copy[i] = object[i];
@@ -149,15 +150,20 @@ with (QPFBUG.Classes){
         notCollected: {value: "[NOT_COLLECTED]"},
 
         copyObject: function(object, depth){
+            Monitor.getInstance().counterCopyObject++;
             if (object === null)
                 return null;
-
-            if (depth <= 0)
-                return this.notCollected;
+            if (object === undefined)
+                return undefined;
 
             var type = typeof(object);
-            if (type == "object")
-            {
+
+            if (type !== "object")
+                return object;
+            else {
+                if (depth <= 0)
+                    return this.notCollected;
+
                 var copy = {};
                 for (p in object){
                     if (p === "___qpfbug_objectId___" || p === "___qpfbug_watchRequests___")  //ignore these variables
