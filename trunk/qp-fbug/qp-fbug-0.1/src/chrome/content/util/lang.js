@@ -146,12 +146,14 @@ with (QPFBUG.Classes){
                     object[p] = parent[p];
         },
 
+        notCollected: {value: "[NOT_COLLECTED]"},
+
         copyObject: function(object, depth){
             if (object === null)
                 return null;
 
             if (depth == 0)
-                return "? [NOT_COLLECTED]";
+                return this.notCollected;
 
             var type = typeof(object);
             if (type == "object")
