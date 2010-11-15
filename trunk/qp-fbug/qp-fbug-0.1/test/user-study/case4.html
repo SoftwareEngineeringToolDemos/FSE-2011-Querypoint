@@ -1,67 +1,105 @@
 <html>
     <head>
         <title>
-            PAGE_TRIPLE
+            Case 4: Shapes.
         </title>
         <script type="text/javascript">
 
         <!--
-            myObject = {myProperty : 1};
-            var oldValue;
-            myCondition = {
-                value : 1};
-            anotherCondition = {
-                value : 1};
+            var compute = function(){
+                console.log("start ..............");
+                var shapes = getShapes();
 
-            increaseMyProperty = function(){
-                Joo();
-                foo();
-                myObject.myProperty++;
-                bar();
-                baz();
-                updateButton();
-            }
-            updateButton = function(){
-                var myParagraph = document.getElementById("myParagraph");
-                myParagraph.innerHTML =  myObject.myProperty;
-            }
-            function Joo(){
-                anotherCondition.value = false;
-            }
-            function foo(){
-                if (!anotherCondition.value)
-                    myCondition.value = oldValue;
-            }
-            function bar(){
-                if (!myCondition.value){
-                    myObject.myProperty = 0;
+                for (var i=0 ; i<shapes.length ; i++){
+                    perimeter(shapes[i]);
+                    area(shapes[i]);
                 }
-            }
-            function baz()
-            {
-                var blah = "blah";
-                var blahblah = "blahblah";
-                var blahblahblah = "blahblah";
-                var hoozah = blah+blahblahblah;
-                return hoozah + "!";
-            }
-            //window.addEventListener('load', updateButton, false);
+
+                shapes.sort(function(a,b){return a.type>b.type;});
+
+                for (var i=0 ; i<shapes.length ; i++){
+                    checkShape(shapes[i]);
+                }
+
+                console.log("..............  end.");
+            };
+
+            var perimeter  = function(shape){
+                if (shape.type === "circle"){
+                    shape.perimeter = 2*Math.PI*shape.radius;
+                }
+                if (shape.type === "rectangle"){
+                    shape.perimeter = 2*(shape.length+shape.width);
+                }
+                if (shape.type === "square"){
+                    shape.perimeter = 4*shape.length;
+                }
+                if (shape.type === "triangle"){
+                    shape.perimeter = shape.base+shape.side1+shape.side2;
+                }
+                if (shape.type === "Parallelogram"){
+                    shape.perimeter = 2*(shape.base+shape.side);
+                }
+            };
+
+            var area = function(shape){
+                if (shape.type === "circle"){
+                    shape.area = Math.PI*shape.radius*shape.radius;
+                }
+                if (shape.type === "rectangle"){
+                    shape.area = shape.length*shape.width;
+                }
+                if (shape.type === "square"){
+                    shape.area = shape.length*shape.lnegth;
+                }
+                if (shape.type === "triangle"){
+                    shape.area = shape.base*shape.height;
+                }
+                if (shape.type === "Parallelogram"){
+                    shape.area = shape.base*shape.height;
+                }
+            };
+
+            var checkShape = function(shape){
+                if (!shape.perimeter || !shape.area)
+                    console.log("Error : Perimeter or Area has not been been calculated");
+            };
+
+            var getShapes = function(){
+                var shapes = [];
+                var shape = {type:"circle", color:"blue", radius:5};
+                shapes.push(shape);
+                var shape = {type:"square", color:"red", length:3};
+                shapes.push(shape);
+                var shape = {type:"rectangle", color:"red", length:3, width:4 };
+                shapes.push(shape);
+                var shape = {type:"triangle", color:"yellow", base:3, height:4, side1:4, side2:5 };
+                shapes.push(shape);
+                var shape = {type:"Parallelogram", color:"blue", base:3, height:4, side:5 };
+                shapes.push(shape);
+                var shape = {type:"rectangle", color:"red", length:3, width:4 };
+                shapes.push(shape);
+                return shapes;
+            };
+
         -->
         </script>
 
     </head>
 
     <body id="myBody">
+    <h3>
+        Case 4: Shapes.
+    </h3>
     <p>
-      This page contains an object "myObject",
-      whenever user clicks, "myObject.myProperty" value increases.
+        This page calculates Perimeter and Area for a list of shapes. Open the firebug console and
+           click on the button. An error message appears. Locate the defect cause this bug.
     </P>
-    <button id="myParagraph" onclick="increaseMyProperty()">
-      1
-    </button>
-    <p id>
 
-    </p>
-    </body>
+    <button id="myParagraph" onclick="compute()">
+      Calculate Perimeter/Area !
+    </button>
+
+  </body>
 
 </html>
