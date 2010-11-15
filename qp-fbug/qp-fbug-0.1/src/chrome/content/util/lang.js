@@ -152,7 +152,7 @@ with (QPFBUG.Classes){
             if (object === null)
                 return null;
 
-            if (depth == 0)
+            if (depth <= 0)
                 return this.notCollected;
 
             var type = typeof(object);

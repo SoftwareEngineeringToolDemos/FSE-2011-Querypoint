@@ -18,7 +18,8 @@ FBL.ns(function() { with (FBL)
         // A new Module event handler is created for every new firefox window
         Firebug.registerModule(ModuleEventHandler.getInstance(window));
 
-//        FBTrace.DBG_QUERYPOINT = true;
+        FBTrace.DBG_QUERYPOINT = false;
+        QPFBUG.Conf.DATA_COLLECTION_DEPTH = 1;
 
     }
 }});
