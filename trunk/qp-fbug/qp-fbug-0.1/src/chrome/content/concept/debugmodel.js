@@ -78,6 +78,16 @@ with (Lang){
                 },
 
                 addQuerypoint_LastCondition : function(refQuerypoint){
+
+                    //if it is already added return that
+                    for (var id in this.querypoints){
+                         var qp = this.querypoints[id];
+                         if (qp.queryType === DebugModel.QUERY_TYPES.LASTCONDITION){
+                             if (qp.refQuerypoint === refQuerypoint)
+                                return qp;
+                         }
+                    }
+
                     var id = ++this.nextQuerypointId;
                     var querypoint = new Querypoint(id, DebugModel.QUERY_TYPES.LASTCONDITION,
                                                     refQuerypoint, null,
