@@ -2,7 +2,7 @@
 
 .panelNode-tracepoints {
     overflow: hidden;
-    font-family: Monaco, monospace;
+    font-family: monospace;
 }
 
 .sourceRow[tracepoint_line="true"] {
@@ -54,4 +54,17 @@
     border-bottom: 1px solid #BEBEBE;
 }
 
+.qpDataNotCollectedBox {
+     color: #000088;
+     cursor: pointer;
+     /* twisty */
+     background-image: url(chrome://firebug/skin/win/twistyClosed.png);
+     background-repeat: no-repeat;
+     background-position: 2px 2px;
+     min-height: 12px;
+}
+
+.qpDataNotCollected {
+    padding-left: 15px;
+    }
 

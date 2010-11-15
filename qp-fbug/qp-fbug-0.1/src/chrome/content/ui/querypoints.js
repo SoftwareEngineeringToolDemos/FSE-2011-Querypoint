@@ -814,9 +814,30 @@ Firebug.Querypoint.LastChangeTracepointRep = domplate(Firebug.Querypoint.Tracepo
 
     });
 
+Firebug.Querypoint.TraceDataNotCollectedRep = domplate(Firebug.Rep,
+{
+    tag: FirebugReps.OBJECTBOX({"class": "qpDataNotCollectedBox ", onclick:"$onCollectOnRerun"},
+            SPAN({"class": "qpDataNotCollected", role: "presentation"},"rerun")
+            ),
+
+    onCollectOnRerun:function(event)
+    {
+        var row = getAncestorByClass(event.target, "memberRow");
+        FBTrace.sysout("Rerun to collect data requested for "+row.textContent, event);
+    },
+
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    className: "traceDataNotCollected",
+
+    supportsObject: function(object, type)
+    {
+        return (object && object.value &&  object.value === "[NOT_COLLECTED]");
+    },
+});
+
 Firebug.Querypoint.TraceDataDiffRep = domplate(Firebug.Rep,
 {
-    tag: FirebugReps.OBJECTBOX(
+    tag: DIV(
             TAG("$object.oldValue|getTag", {object: "$object.oldValue"}),
             SPAN({"class": "objectEqual", role: "presentation"}, "&larr;"),
             TAG("$object.newValue|getTag", {object: "$object.newValue"})
@@ -904,6 +925,6 @@ Firebug.registerPanel(Firebug.Querypoint.ReproductionsPanel);
 Firebug.registerRep(Firebug.Querypoint.BreakpointTracepointRep);
 Firebug.registerRep(Firebug.Querypoint.LastChangeTracepointRep);
 Firebug.registerRep(Firebug.Querypoint.TraceDataDiffRep);
-
+Firebug.registerRep(Firebug.Querypoint.TraceDataNotCollectedRep);
 
 }}});
