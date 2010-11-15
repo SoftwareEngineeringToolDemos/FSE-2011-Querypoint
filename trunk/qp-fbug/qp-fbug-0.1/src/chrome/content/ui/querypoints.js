@@ -839,7 +839,7 @@ Firebug.Querypoint.TraceDataDiffRep = domplate(Firebug.Rep,
 {
     tag: DIV(
             TAG("$object.oldValue|getTag", {object: "$object.oldValue"}),
-            SPAN({"class": "objectEqual", role: "presentation"}, "&larr;"),
+            SPAN({"class": "objectEqual", role: "presentation"}, "&rarr;"),
             TAG("$object.newValue|getTag", {object: "$object.newValue"})
          ),
 
