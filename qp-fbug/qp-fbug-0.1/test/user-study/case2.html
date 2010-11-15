@@ -101,13 +101,18 @@
             };
 
             var getGraphs = function(){
-                return {
-                g1:{numberOfNodes:7, connections:[[0,1],[0,6],[1,2],[6,5],[3,2],[4,5]]},
-                g2:{numberOfNodes:6, connections:[[0,1],[0,3],[1,2],[3,5],[4,5]]},
-                g3:{numberOfNodes:7, connections:[[0,1],[0,6],[1,2],[6,5],[3,2],[4,5],[4,3]]},
-                g4:{numberOfNodes:9, connections:[[0,1],[0,6],[1,2],[6,5],[3,2],[4,5],[8,0],[6,7]]},
-                g5:{numberOfNodes:8, connections:[[0,1],[0,6],[1,2],[6,5],[3,2],[4,5],[0,7]]},
-                };
+                var graphs = [];
+                var graph = {numberOfNodes:7, connections:[[0,1],[0,6],[1,2],[6,5],[3,2],[4,5]]};
+                graphs.push(graph);
+                graph = {numberOfNodes:6, connections:[[0,1],[0,3],[1,2],[3,5],[4,5]]};
+                graphs.push(graph);
+                graph = {numberOfNodes:7, connections:[[0,1],[0,6],[1,2],[6,5],[3,2],[4,5],[4,3]]};
+                graphs.push(graph);
+                graph = {numberOfNodes:9, connections:[[0,1],[0,6],[1,2],[6,5],[3,2],[4,5],[8,0],[6,7]]};
+                graphs.push(graph);
+                graph = {numberOfNodes:8, connections:[[0,1],[0,6],[1,2],[6,5],[3,2],[4,5],[0,7]]};
+                graphs.push(graph);
+                return graphs;
             };
 
         -->
