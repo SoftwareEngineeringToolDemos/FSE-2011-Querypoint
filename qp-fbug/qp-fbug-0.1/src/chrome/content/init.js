@@ -19,7 +19,7 @@ FBL.ns(function() { with (FBL)
         Firebug.registerModule(ModuleEventHandler.getInstance(window));
 
         FBTrace.DBG_QUERYPOINT = false;
-        QPFBUG.Conf.DATA_COLLECTION_DEPTH = 1;
+        QPFBUG.Conf.DATA_COLLECTION_DEPTH = 2;
 
     }
 }});
