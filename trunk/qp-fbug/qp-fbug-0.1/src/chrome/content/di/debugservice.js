@@ -388,6 +388,9 @@ with (Lang){
                 QPFBUG.monitor.ds_propertyChanged++;
 //                var onModificationWatchpointEvent = this.onModificationWatchpointEvent;
 
+                //TODO: check later. it seems that "sometimes" oldValue is wrong!! we use this workaround
+                oldValue = object[propertyName];
+
                 this.halt(bindAtHead(this.onModificationWatchpointEvent, this,
                           eventRequests, object, propertyName, oldValue, newValue));
 
