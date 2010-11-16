@@ -93,7 +93,7 @@
                 for (var i=0 ; i<graph.nodes.length ; i++){
                     var node = graph.nodes[i];
                     if (!node.visited){
-                        console.log("Error : This node is not visited!", node);
+                        throw new Error("Error : This node is not visited!");
                         return;
                     }
                 }
@@ -125,12 +125,16 @@
         Graph Traversal.
     </h3>
     <p>
-        This page contains an implementation of Breadth First Search(BFS) for graph traversal. To test
-        it we test it on a number of graphs. Unfortunately for one case it doesn't work correctly.
-        To run the program, open firebug and select console panel. Once you click on the button
-        (Traverse Graphs!), program runs BFS algorithm on every given graph and error message
-        appears. Locate the defect cause this error.
-    </P>
+            This page contains an implementation of Breadth First Search(BFS) for graph traversal.
+            Go through these steps:
+           <ol>
+           <li> Click on the button.</li>
+           <li> You see an error in Firebug console, set a breakpoint on the error (red dot), then re-run to halt on the error message .</li>
+           <li> Locate the defect causes the error.</li>
+           </ol>
+
+     <b>Note:</b>  In this case, <i>lastChange</i> queries might take longer time, be patient.
+        </p>
 
     <button id="myParagraph" onclick="compute()">
       Traverse Graphs!

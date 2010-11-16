@@ -46,9 +46,10 @@
                     var finalSalary = {};
                     finalSalary.value = salary.value - salary.tax*salary.value;
                     if  (finalSalary.value >= 120000){
-                        console.log("Warning : Salary is higher than maximum limit : " + finalSalary.value + " >= 120000");
+                        // do nothing
+                        //throw new Error("Warning : Salary is higher than maximum limit : " + finalSalary.value + " >= 120000");
                     } else if (finalSalary.value < 80000){
-                        console.log("Error : Salary is lower than minimum limit : " + finalSalary.value + " < 80000");
+                        throw new Error("Error : Salary is lower than minimum limit : " + finalSalary.value + " < 80000");
                     } else {
                         console.log(i + ") The salary amount is : " + finalSalary.value)
                     }
@@ -95,10 +96,15 @@
          Salary Calculation.
     </h3>
     <p>
-        Open firebug and select console panel. Once you click on the button (Calculate Salaries!), a
-            list of calculated salaries will appear. In the printed lines you see one Warning and one Error.
-            Find the record causes the Warning and the defect causes the Error.
-    </P>
+        This page calculates salaries of a list of employees.
+        Go through these steps:
+       <ol>
+       <li> Click on the button.</li>
+       <li> You see an error in Firebug console, set a breakpoint on the error (red dot), then re-run to halt on the error message .</li>
+       <li> Locate the defect causes the error.</li>
+       </ol>
+    </p>
+
 
     <button id="myParagraph" onclick="compute()">
       Calculate Salaries!
