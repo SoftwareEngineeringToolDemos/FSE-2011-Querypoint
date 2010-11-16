@@ -1,88 +1,85 @@
 <html>
     <head>
         <title>
-            Case 1: Salary Calculation.
+            Case 1: Shapes.
         </title>
         <script type="text/javascript">
 
         <!--
             var compute = function(){
                 console.log("start ..............");
-                var records = getRecords();
-                records = sortRecords(records)
-                var salariesBeforeTaxReduction = calculateSalary(records);
-                reduceTax(salariesBeforeTaxReduction);
+                var shapes = getShapes();
+
+                for (var i=0 ; i<shapes.length ; i++){
+                    perimeter(shapes[i]);
+                    area(shapes[i]);
+                }
+
+                shapes.sort(function(a,b){return a.type>b.type;});
+
+                for (var i=0 ; i<shapes.length ; i++){
+                    checkShape(shapes[i]);
+                }
+
                 console.log("..............  end.");
             };
 
-            var sortRecords = function(records){
-                records.sort(function(a,b){return a.baseSalary-b.baseSalary;});
-                return records;
-            };
-
-            var calculateSalary = function(records){
-                result = [];
-                for (var i=0; i<records.length ; i++){
-                    var record = records[i];
-                    var salary = {};
-                    salary.tax = .1;
-                    try{
-                       //record.lastName.length;
-                       salary.value = record.baseSalary + record.bonusPoint*100 + record.married*3000 + record.children*4000 + record.senior*10000;
-                       if (salary.value<90000 && record.age > 50){
-                           salary.tax = 0;}
-                    }catch(exc){
-                       //ignore
-                    }
-                    result.push(salary);
+            var perimeter  = function(shape){
+                if (shape.type === "circle"){
+                    shape.perimeter = 2*Math.PI*shape.radius;
                 }
-                return result;
-            };
-
-            var reduceTax = function(salariesBeforeTaxReduction){
-
-                for (var i=0; i<salariesBeforeTaxReduction.length; i++){
-                    var salary = salariesBeforeTaxReduction[i];
-                    var finalSalary = {};
-                    finalSalary.value = salary.value - salary.tax*salary.value;
-                    if  (finalSalary.value >= 120000){
-                        console.log("Warning : Salary is higher than maximum limit : " + finalSalary.value + " >= 120000");
-                    } else if (finalSalary.value < 80000){
-                        console.log("Error : Salary is lower than minimum limit : " + finalSalary.value + " < 80000");
-                    } else {
-                        console.log(i + ") The salary amount is : " + finalSalary.value)
-                    }
+                if (shape.type === "rectangle"){
+                    shape.perimeter = 2*(shape.length+shape.width);
+                }
+                if (shape.type === "square"){
+                    shape.perimeter = 4*shape.length;
+                }
+                if (shape.type === "triangle"){
+                    shape.perimeter = shape.base+shape.side1+shape.side2;
+                }
+                if (shape.type === "Parallelogram"){
+                    shape.perimeter = 2*(shape.base+shape.side);
                 }
             };
 
-            var getRecords = function(){
-                var records = [];
-                var record;
-                record = {name:"A", company:"IBM", baseSalary: 92000 ,senior:1, married:0, children: 0,  age:44, bonusPoint:220};
-                records.push(record);
-                record = {name:"B", company:"GOOGLE", baseSalary: 88000 ,senior:1, married:0, children: 0, age:34, bonusPoint:25};
-                records.push(record);
-                record = {name:"C", company:"MICROSOFT", baseSalary:90000 ,senior:1, married:1, children: 0, age:40, bonusPoint:100};
-                records.push(record);
-                record = {name:"E", company:"INTEL", baseSalary: 90000 ,senior:0, married:0, children: 1, age:54, bonusPoint:70};
-                records.push(record);
-                record = {name:"F", company:"IBM", baseSalary: 89000 ,senior:1, married:1, children: 0, age:44, bonusPoint:350};
-                records.push(record);
-                record = {name:"G", company:"IBM", baseSalary: 91000 ,senior:0, married:1, children: 3, age:50, bonusPoint:150};
-                records.push(record);
-                record = {name:"H", company:"INTEL", baseSalary: 88000 ,senior:0, married:0, children: 0, age:28, bonusPoint:20};
-                records.push(record);
-                record = {name:"I", company:"GOOGLE", baseSalary: 85000 ,senior:1, married:0, children: 3, age:39, bonusPoint:250};
-                records.push(record);
-                record = {name:"J", company:"YAHOO", baseSalary: 91000 ,senior:0, married:1, children: 2, age:36, bonusPoint:300};
-                records.push(record);
-                record = {name:"K", company:"HP", baseSalary: 84000 ,senior:0, married:1, children: 0, ages:54, bonusPoint:10};
-                records.push(record);
-                record = {name:"L", company:"YAHOO", baseSalary: 83000 ,senior:0, married:0, children: 0, age:61, bonusPoint:90};
-                records.push(record);
-                record = {name:"M", company:"IBM", baseSalary: 85000 ,senior:1, married:0, children: 0,  age:29, bonusPoint:0};
-                records.push(record);
-                return records;
+            var area = function(shape){
+                if (shape.type === "circle"){
+                    shape.area = Math.PI*shape.radius*shape.radius;
+                }
+                if (shape.type === "rectangle"){
+                    shape.area = shape.length*shape.width;
+                }
+                if (shape.type === "square"){
+                    shape.area = shape.length*shape.lnegth;
+                }
+                if (shape.type === "triangle"){
+                    shape.area = shape.base*shape.height;
+                }
+                if (shape.type === "Parallelogram"){
+                    shape.area = shape.base*shape.height;
+                }
+            };
+
+            var checkShape = function(shape){
+                if (!shape.perimeter || !shape.area)
+                    console.log("Error : Perimeter or Area has not been been calculated");
+            };
+
+            var getShapes = function(){
+                var shapes = [];
+                var shape = {type:"circle", color:"blue", radius:5};
+                shapes.push(shape);
+                var shape = {type:"square", color:"red", length:3};
+                shapes.push(shape);
+                var shape = {type:"rectangle", color:"red", length:3, width:4 };
+                shapes.push(shape);
+                var shape = {type:"triangle", color:"yellow", base:3, height:4, side1:4, side2:5 };
+                shapes.push(shape);
+                var shape = {type:"Parallelogram", color:"blue", base:3, height:4, side:5 };
+                shapes.push(shape);
+                var shape = {type:"rectangle", color:"red", length:3, width:4 };
+                shapes.push(shape);
+                return shapes;
             };
 
         -->
@@ -92,21 +89,17 @@
 
     <body id="myBody">
     <h3>
-         Case 1: Salary Calculation.
+        Case 1: Shapes.
     </h3>
     <p>
-        Open firebug and select console panel. Once you click on the button (Calculate Salaries!), a
-            list of calculated salaries will appear. In the printed lines you see one Warning and one Error.
-            Find the record causes the Warning and the defect causes the Error.
+        This page calculates Perimeter and Area for a list of shapes. Open the firebug console and
+           click on the button. An error message appears. Locate the defect cause this bug.
     </P>
 
     <button id="myParagraph" onclick="compute()">
-      Calculate Salaries!
+      Calculate Perimeter/Area !
     </button>
 
-    <p id>
-
-    </p>
-    </body>
+  </body>
 
 </html>
