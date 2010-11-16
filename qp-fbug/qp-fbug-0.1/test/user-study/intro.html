@@ -1,7 +1,7 @@
 <html>
     <head>
         <title>
-            lastChange Usage
+            Introduction to lastChange Usage
         </title>
         <script type="text/javascript">
 
@@ -25,10 +25,7 @@
     <p>
       This page contains an object "myObject",
       whenever user clicks, "myObject.myProperty" value increases by 3.
-    </p>
-
-    <p>
-      To see how <i>lastChange</i> works set a breakpoint on line 17-where
+       To see how <i>lastChange</i> works set a breakpoint on line 17-where
         the value is written on the page. Reload the page and click.
         The breakpoint hits. In the right panel, check the value of <b>this.myObject.myProperty</b>.
         The value is 3. Now right click on <b>myProperty</b> and select <i>lastChange</i>.
@@ -40,7 +37,10 @@
         All three locations, breakpoint, the first last change and the second last change are listed
         in the menu at the top of the panel.
     </P>
-
+    <p>
+        <b>Note:</b> The implementation of <i>lastChange</i> is not yet complete for some cases (e.g., root variables). In
+            such cases you don't get any result from <i>lastChange</i> query.
+    </p>
     <h2 id="myParagraph">
       myObject.myProperty = 0;
     </h2>

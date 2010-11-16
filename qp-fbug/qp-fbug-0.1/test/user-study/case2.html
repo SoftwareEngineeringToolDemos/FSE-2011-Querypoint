@@ -1,119 +1,52 @@
 <html>
     <head>
         <title>
-            Case 2: Graph Traversal.
+            Case 2: Moving Circle.
         </title>
         <script type="text/javascript">
 
         <!--
+            var circle = {color:"#FF1C0A"};
+            var vector = {};
+            var defaultValues = {x : 100, y:100, r:10};
             var compute = function(){
                 console.log("start ..............");
-                var graphs = getGraphs();
-                graphs = sortGraphs(graphs)
-                buildNodes_Edges(graphs);
-
-                for (var i=0; i<graphs.length; i++){
-                    console.log("Graph "+i+":");
-                    bfs(graphs[i]);
-                    checkGraph(graphs[i]);
-                }
-
-                console.log("..............  end.");
+                window.setInterval("drawCircle(getRandomVector())", 1000);
             };
 
-            var sortGraphs = function(graphs){
-                var list = [];
-                for (var p in graphs)
-                    list.push(graphs[p]);
-                list.sort(function(a,b){return a.numberOfNodes-b.numberOfNodes;});
-                return list;
+
+            var drawCircle = function(vector){
+                //get a reference to the canvas
+                var ctx = document.getElementById("canvas").getContext("2d");
+
+                if (circle.x!==vector.x || circle.y!==vector.y || circle.r!==vector.r){
+                    //remove the old one
+                    ctx.clearRect(0,0,canvas.width,canvas.height); 
+                    circle.x = vector.x;
+                    circle.y = vector.y;
+                    circle.r = vector.r;
+                }
+
+                if (circle.r === 0)
+                    alert("Error : Radius is zero, use the default value!");
+                //draw a circle
+                ctx.fillStyle = "#FF1C0A";
+                ctx.beginPath();
+                ctx.arc(circle.x, circle.y, circle.r, 0, Math.PI*2, true);
+                ctx.closePath();
+                ctx.fill();
             };
 
-            var buildNodes_Edges = function(graphs){
-                for (var i=0; i<graphs.length ; i++){
-                    var graph = graphs[i];
-                    graph.nodes = [];
-                    var node;
-                    for (var j=0 ; j<graph.numberOfNodes ; j++){
-                        node = {};
-                        node.edges = [];
-                        node.id = j;
-                        node.visited = false;
-                        graph.nodes.push(node);
-                    }
-
-                    graph.edges = [];
-                    var edge;
-                    var n0,n1;
-                    for (var k=0 ; k<graph.connections.length ; k++){
-                        var connection = graph.connections[k];
-                        n0 = graph.nodes[connection[0]];
-                        n1 = graph.nodes[connection[1]];
-
-                        edge = {};
-                        edge.traversed = false;
-                        edge.n0 = n0;
-                        edge.n1 = n1;
-
-                        n0.edges.push(edge);
-                        n1.edges.push(edge);
-
-                        graph.edges.push(edge);
-                    }
-                }
-            };
-
-            var bfs = function(graph){
-                var queue = [];
-                graph.nodes[0].visited = true;
-                queue.push(graph.nodes[0]);
-
-                var node, edge, neighbor;
-                while (queue.length > 0) {
-                    node = queue.pop();
-                    for (var i=0 ; i<node.edges.length ; i++)
-                    {
-                        edge = node.edges[i];
-                        if (!edge.traversed)
-                        {
-                            edge.traversed = !edge.traversed;
-                            if (edge.n0 == node)
-                                neighbor = edge.n1;
-                            else
-                                neighbor = edge.n0;
-
-                            neighbor.visited = !neighbor.visited;
-                            queue.splice(0, 0, neighbor);
-                        }
-                    }
-                }
+            var getRandomVector = function(circle){
+                vector.x = Math.floor(Math.random()*300);
+                vector.y = Math.floor(Math.random()*300);
+                vector.r = Math.floor(Math.random()*10)*3;
+                if (vector.r !== 0 && vector.r < 30);
+                    return vector;
+                vector.r = defaultValues.r;
+                return vector;
             }
 
-            var checkGraph = function(graph){
-                for (var i=0 ; i<graph.nodes.length ; i++){
-                    var node = graph.nodes[i];
-                    if (!node.visited){
-                        console.log("Error : This node is not visited!", node);
-                        return;
-                    }
-                }
-                console.log("Ok!");
-            };
-
-            var getGraphs = function(){
-                var graphs = [];
-                var graph = {numberOfNodes:7, connections:[[0,1],[0,6],[1,2],[6,5],[3,2],[4,5]]};
-                graphs.push(graph);
-                graph = {numberOfNodes:6, connections:[[0,1],[0,3],[1,2],[3,5],[4,5]]};
-                graphs.push(graph);
-                graph = {numberOfNodes:7, connections:[[0,1],[0,6],[1,2],[6,5],[3,2],[4,5],[4,3]]};
-                graphs.push(graph);
-                graph = {numberOfNodes:9, connections:[[0,1],[0,6],[1,2],[6,5],[3,2],[4,5],[8,0],[6,7]]};
-                graphs.push(graph);
-                graph = {numberOfNodes:8, connections:[[0,1],[0,6],[1,2],[6,5],[3,2],[4,5],[0,7]]};
-                graphs.push(graph);
-                return graphs;
-            };
 
         -->
         </script>
@@ -122,20 +55,17 @@
 
     <body id="myBody">
     <h3>
-        Case 2: Graph Traversal.
+        Case 2: Moving Circle.
     </h3>
     <p>
-        This page contains an implementation of Breadth First Search(BFS) for graph traversal. To test
-        it we test it on a number of graphs. Unfortunately for one case it doesn't work correctly.
-        To run the program, open firebug and select console panel. Once you click on the button
-        (Traverse Graphs!), program runs BFS algorithm on every given graph and error message
-        appears. Locate the defect cause this error.
+        This page shows a moving circle. After some time an error message appears. Locate the defect
+           causes this error.
+    <button id="myParagraph" onclick="compute()">
+      Start !
+    </button>
     </P>
 
-    <button id="myParagraph" onclick="compute()">
-      Traverse Graphs!
-    </button>
-
-  </body>
+    <canvas id="canvas" width="300" height="300"></canvas>
+    </body>
 
 </html>
