@@ -62,7 +62,7 @@
 
             var checkShape = function(shape){
                 if (!shape.perimeter || !shape.area)
-                    console.log("Error : Perimeter or Area has not been been calculated");
+                    throw new Error("Perimeter or Area has not been been calculated");
             };
 
             var getShapes = function(){
