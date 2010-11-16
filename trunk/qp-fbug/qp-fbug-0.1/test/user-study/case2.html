@@ -28,7 +28,8 @@
                 }
 
                 if (circle.r === 0)
-                    alert("Error : Radius is zero, use the default value!");
+                    throw new Error("Error : Radius is zero, use the default value!");
+
                 //draw a circle
                 ctx.fillStyle = "#FF1C0A";
                 ctx.beginPath();
@@ -58,8 +59,16 @@
         Moving Circle.
     </h3>
     <p>
-        This page shows a moving circle. After some time an error message appears. Locate the defect
-           causes this error.
+        This page shows a moving circle.
+        Go through these steps:
+       <ol>
+       <li> Click on the button.</li>
+       <li> When you see the error in Firebug console, set a breakpoint on the error (red dot), then re-run to halt on the error message .</li>
+       <li> Locate the defect causes the error.</li>
+       </ol>
+    </p>
+
+    <p>
     <button id="myParagraph" onclick="compute()">
       Start !
     </button>
