@@ -21,6 +21,7 @@ __owner.JSDEventHandler = function(){
             this.ds = DebugService.getInstance();
             this.fbs = QPFBUG.fbs;
             this.cachedContexts = {}; // map <context.uid, executionContext.tag>
+
         };
 
         constructor.prototype =
@@ -31,6 +32,7 @@ __owner.JSDEventHandler = function(){
 
                 // ----- fbs functions -----
                 this.replaceFBSFunction("enableDebugger");
+                this.replaceFBSFunction("onDebuggerActivated");
                 //this.replaceFBSFunction("onBreak");
 
 
@@ -55,20 +57,29 @@ __owner.JSDEventHandler = function(){
                 this.replaceFBSFunction("unhookFunctions");
                 //this.replaceFBSFunction("hookCalls");
 
-                // ---- update jsd ----
-                this.fbs.unhookScripts();
-                this.fbs.getJSD().flags = 0;
-                this.fbs.hookScripts();
+                var jsd = this.fbs.getJSD();
+
+                if (jsd){  //if jsd already loaded to firebug-service (in case of running chromebug)
+                    // ---- update jsd ----
+                    this.fbs.unhookScripts();
+
+                    jsd.flags = 0;
+
+                    this.fbs.hookScripts();
+
+                    this.fbs_hooksState = {regularHooks: true,
+                        interruptHook: !!jsd.interruptHook,
+                        functionHook: !!jsd.functionHook}
+                }else{
+                    this.fbs_hooksState = {regularHooks: true,
+                        interruptHook: false,
+                        functionHook: false}
+                }
 
                 this.ds_hooksState = {regularHooks: true,
                      interruptHook: false,
-                     functionHook: false
-                }
+                     functionHook: false }
 
-                this.fbs_hooksState = {regularHooks: true,
-                    interruptHook: !!this.fbs.getJSD().interruptHook,
-                    functionHook: !!this.fbs.getJSD().functionHook
-                    }
             },
 
             // ---------------------------------------   fbs functions -----------------------------
@@ -82,7 +93,19 @@ __owner.JSDEventHandler = function(){
                 var returnValue = jsdEventHandler.fbs_enableDebugger.apply(fbs, arguments);
 
                 //activate object tracing
-                this.fbs.getJSD().flags = 0;
+                jsdEventHandler.fbs.getJSD().flags = 0;
+
+                return returnValue;
+            },
+
+            onDebuggerActivated : function(){
+                var jsdEventHandler = QPFBUG.jsdEventHandler;
+                var ds = jsdEventHandler.ds;
+                var fbs = jsdEventHandler.fbs;
+                var returnValue = jsdEventHandler.fbs_onDebuggerActivated.apply(fbs, arguments);
+
+                //activate object tracing
+                jsdEventHandler.fbs.getJSD().flags = 0;
 
                 return returnValue;
             },
