@@ -455,7 +455,7 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
 
         // Put the lastChange values at top TODO diff
         for (var watch in tracepoint.traceWatches){
-            this.addMember({expr: watch, value: tracepoint.traceWatches[watch] }, "query", traceMembers, watch, tracepoint.traceWatches[watch], 0 );        
+            this.addMember({expr: watch, value: tracepoint.traceWatches[watch] }, "query", traceMembers, watch, tracepoint.traceWatches[watch], 0 );
         }
 
         if (tracepoint.getQueryType() === "lastChange")
@@ -816,14 +816,29 @@ Firebug.Querypoint.LastChangeTracepointRep = domplate(Firebug.Querypoint.Tracepo
 
 Firebug.Querypoint.TraceDataNotCollectedRep = domplate(Firebug.Rep,
 {
-    tag: FirebugReps.OBJECTBOX({"class": "qpDataNotCollectedBox ", onclick:"$onCollectOnRerun"},
+    tag: FirebugReps.OBJECTBOX({"class": "qpDataNotCollectedBox ", onclick:"$onCollectOnRerun", _repObject: "$object"},
             SPAN({"class": "qpDataNotCollected", role: "presentation"},"rerun")
             ),
 
     onCollectOnRerun:function(event)
     {
         var row = getAncestorByClass(event.target, "memberRow");
-        FBTrace.sysout("Rerun to collect data requested for "+row.textContent, event);
+        var panel = Firebug.getElementPanel(row);
+        var path = panel.getPropertyPath(row);
+        var tracepoint = panel.mainPanel.location;
+        FBTrace.sysout("onCollectOnRerun "+path.join('')+" row "+row+" location: "+tracepoint, tracepoint);
+
+
+        try
+        {
+            tracepoint.querypoint.addQueryWatch(path.join(''));
+            QPFBUG.Classes.Manager.getInstance().replay(panel.mainPanel.context);
+            FBTrace.sysout("Rerun to collect data requested for "+row.textContent+" set depth "+QPFBUG.Conf.DATA_COLLECTION_DEPTH, event);
+        }
+        catch(exc)
+        {
+            FBTrace.sysout("rerun FAILS "+exc, exc);
+        }
     },
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
