@@ -20,10 +20,17 @@ Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
 {
     dispatchName: "qpModule",
 
+    initialize: function()
+    {
+        Firebug.Debugger.addListener(this);
+        FBTrace.sysout("Querypoint.QPModule.initialize ",Firebug.Debugger);
+    },
+
     initContext: function(context, persistedState)
     {
         context.Firebug = Firebug; // I guess.
-        Firebug.Debugger.addListener(this);
+        Firebug.Querypoint.timestamp = new Date().getTime();
+        FBTrace.sysout("Querypoint initContext "+context.getName());
     },
 
     onQuerypointHit: function(context)
@@ -35,8 +42,11 @@ Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
 
     onStartDebugging: function(context)
     {
-        if (FBTrace.DBG_QUERYPOINT)
-            FBTrace.sysout("onStartDebugging tracepoints.show "+context.qpfbug.newResults);
+        //if (FBTrace.DBG_QUERYPOINT)
+        var now = new Date().getTime();
+        var delta = now - Firebug.Querypoint.timestamp;
+        Firebug.Querypoint.timestamp = now;
+            FBTrace.sysout("Querypoint user start debugging, new QP results: "+context.qpfbug.newResults+" time "+delta);
         if (context.qpfbug.newResults)
         {
 //            context.qpfbug.inSession = true;  // I don't know how we will get out of this state
@@ -827,7 +837,6 @@ Firebug.Querypoint.TraceDataNotCollectedRep = domplate(Firebug.Rep,
         var path = panel.getPropertyPath(row);
         var tracepoint = panel.mainPanel.location;
         FBTrace.sysout("onCollectOnRerun "+path.join('')+" row "+row+" location: "+tracepoint, tracepoint);
-
 
         try
         {
