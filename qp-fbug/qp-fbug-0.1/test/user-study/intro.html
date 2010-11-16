@@ -6,7 +6,7 @@
         <script type="text/javascript">
 
         <!--
-            myObject = {
+            var myObject = {
                 myProperty : 0
             }
             increaseMyProperty = function(){
@@ -22,20 +22,29 @@
     </head>
 
     <body id="myBody" onclick="increaseMyProperty()">
+    <h1>Introduction to Debugging by lastChange</h1>
     <p>
-      This page contains an object "myObject",
-      whenever user clicks, "myObject.myProperty" value increases by 3.
-       To see how <i>lastChange</i> works set a breakpoint on line 17-where
-        the value is written on the page. Reload the page and click.
-        The breakpoint hits. In the right panel, check the value of <b>this.myObject.myProperty</b>.
-        The value is 3. Now right click on <b>myProperty</b> and select <i>lastChange</i>.
-        As you see, in QP panel you can see the location of the last change of <b>myObject.myProperty</b>
-        and the program state at the right side.
-        You can still ask for another <i>lastChange</i>. From the right panel select <b>this.myObject.myProperty</b>.
+
+      This page contains an object <code>myObject</code>.
+      Whenever the user clicks on the page, <code>myObject.myProperty</code> value increases by 3 and the displayed value changes.
+    </p>
+    <p>
+       To see how <i>lastChange</i> works:
+       <ol>
+       <li> set a breakpoint on line 17, where
+        the value is written on the page.</li>
+        <li> Reload the page and click on it. The breakpoint hits.</li>
+        <li> In the Watch panel on the right side, check the value of <b>this.myObject.myProperty</b>.
+        The value should be 3.
+        <li>Now right-click on <b>myProperty</b> and select <i>lastChange</i>. The panel will switch to QP</li>
+        <li>In the QP panel you can see the location of the last change of <b>myObject.myProperty</b>
+        and the program state  at that point at the right side.</li>
+        <li> You can ask for another, cascaded <i>lastChange</i>. From the TraceData panel on the right side select <b>this.myObject.myProperty</b>.
         Right click on <b>myProperty</b> and select <i>lastChange</i>. Now debugger shows
-        a new location.
+        a new location.</li>
+       </ol>
         All three locations, breakpoint, the first last change and the second last change are listed
-        in the menu at the top of the panel.
+        in the menu at the top of the panel.</li>
     </P>
     <p>
         <b>Note:</b> The implementation of <i>lastChange</i> is not yet complete for some cases (e.g., root variables). In
