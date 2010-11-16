@@ -34,7 +34,8 @@ with (Lang){
             {
             for(var i = 0; i < tps.length; i++)
             {
-                FBTrace.sysout("qp.eachTracepoint "+i+"/"+tps.length, tps[i]);
+                if (FBTrace.DBG_QUERYPOINT)
+                    FBTrace.sysout("qp.eachTracepoint "+i+"/"+tps.length, tps[i]);
 
                 fnOfTracepoint(tps[i]);
             }
@@ -60,11 +61,11 @@ with (Lang){
          {
             return tracepoint.querypoint;
          },
-         
+
          getTraceData: function(tracepoint)
          {
-        	 // Salman, need help here.
-        	 return {expr: "traceDataExpr", traceData: {value: "traceDataValue", otherProps: "here"} };
+             // Salman, need help here.
+             return {expr: "traceDataExpr", traceData: {value: "traceDataValue", otherProps: "here"} };
          },
      };
 }}
