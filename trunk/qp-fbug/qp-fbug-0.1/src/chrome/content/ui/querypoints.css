@@ -46,10 +46,21 @@
     position: absolute;
     float: right;
 }
+
 /* traceData */
 .queryRow {
     margin-right: 1px;
     background-color: #D9D9B6;
+    border-top: 1px solid #BEBEBE;
+    border-bottom: 1px solid #BEBEBE;
+}
+
+.resultLabel {
+    color: #000000;
+}
+.resultRow {
+    margin-right: 1px;
+    background-color: #C64B4B;
     border-top: 1px solid #BEBEBE;
     border-bottom: 1px solid #BEBEBE;
 }

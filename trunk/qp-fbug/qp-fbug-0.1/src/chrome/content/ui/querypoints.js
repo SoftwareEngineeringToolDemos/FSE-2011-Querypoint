@@ -471,15 +471,15 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
         if (tracepoint.getQueryType() === "lastChange")
         {
             var diff = new Firebug.Querypoint.TraceDataDiff(tracepoint.oldValue, tracepoint.newValue);
-            var lastChangeExpr = tracepoint.querypoint.refQueryexpr.expr;
-            this.addMember({expr: lastChangeExpr, value: diff }, "query", traceMembers, lastChangeExpr, diff, 0 );
+            var lastChangeExpr = "["+tracepoint.querypoint.refQueryexpr.expr+"]";
+            this.addMember({expr: lastChangeExpr, value: diff }, "result", traceMembers, lastChangeExpr, diff, 0 );
         }
 
         if (FBTrace.DBG_QUERYPOINT)
             FBTrace.sysout("TraceDataPanel.rebuild traceWatches: "+tracepoint.traceWatches, tracepoint.traceWatches);
 
         // At QP we show some data
-        this.addMember({expr: "this", value: tracepoint.traceFrame.traceThis }, "scopes", traceMembers, "this", tracepoint.traceFrame.traceThis, 0 );
+        this.addMember({expr: "this", value: tracepoint.traceFrame.traceThis }, "user", traceMembers, "this", tracepoint.traceFrame.traceThis, 0 );
 
         var scope = tracepoint.traceFrame.traceScope;
         var scopeMembers = this.getMembers(scope.variableValues, 0, this.context);
