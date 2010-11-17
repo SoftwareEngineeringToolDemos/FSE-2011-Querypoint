@@ -44,10 +44,15 @@
 
     <body id="myBody">
     <p>
-      This page contains an object "myObject",
-      whenever user clicks, "myObject.myProperty" value increases. If you click
-      on the button, instead of two, zero appears. Why? (hint: the button text
-        is updated in line 22.)
+      This page contains an object with name "myObject", whenever user clicks, "myObject.myProperty" value increases.
+        Go through these steps:
+       <ol>
+       <li> Click on the button.</li>
+       <li> When you see the error in Firebug console, set a breakpoint on the error (red dot), then re-run to halt on the error message .</li>
+       <li> Locate the defect causes the error. (hint: the button text
+        is updated in line 22.)</li>
+       </ol>
+
     </P>
     <button id="myParagraph" onclick="increaseMyProperty()">
       1
