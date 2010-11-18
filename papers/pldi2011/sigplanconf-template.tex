@@ -8,7 +8,8 @@
 
 \usepackage{amsmath}
 \usepackage{graphicx}
-\usepackage{subfigure}
+\usepackage[tight,normalsize]{subfigure}
+%\usepackage{caption}
 \usepackage{algorithmic}
 \usepackage{algorithm}
 
@@ -62,7 +63,7 @@ wrong value executed before the wrong value appeared. Searching with
 breakpoint- or log- based debuggers demands persistence and
 significant experience with the application being debugged. We propose a new 
 practical technique called \textit{lastChange}, which automatically
-locates the last point that a variable or an object property  was changed and provides related
+locates the last point that a variable or an object property was changed and provides related
 information such as the call stack and program state. Starting from a
 program halted on a breakpoint, the \textit{lastChange} solution
 applies queries to the live program during re-execution. Thus
@@ -241,7 +242,7 @@ interesting, and what they do in practice may cause bugs.
 By browsing through the code, the developer can quickly determine that the value displayed on the 
 button is set at line 22. To start debugging, the developer sets a breakpoint
 on line 22. Once the button is clicked, execution is paused at line
-22. Figure ~\ref{fig:example1} shows the Firebug debugger while the
+22. Figure~\ref{fig:example1} shows the Firebug debugger while the
 execution is paused. Firebug has several panels (e.g., HTML, CSS,
 Script, DOM, etc.) that each demonstrate one aspect of the Web page.
 The Script panel contains the list of all loaded source
@@ -268,10 +269,10 @@ In contrast, we have added a high-level function in debugger,
 \textit{lastChange}, which provides the answer without tedious manual
 effort from the developer. By right clicking on
 \texttt{myObject.myProperty} in the Watch panel, the developer can run
-\textit{lastChange} command (Figure ~\ref{fig:example2}). Debugger
+\textit{lastChange} command (Figure ~\ref{fig:example1}). Debugger
 re-executes the program and halts again at the breakpoint on line 22.
 However, it shows a new panel, called QP, centered on the source at line 29
-(Figure ~\ref{fig:example3}), the point of \textit{lastChange}.  To
+(Figure~\ref{fig:example3}), the point of \textit{lastChange}.  To
 the right, the TraceData panel shows values of properties of the
 program state when it passed through line 29.  These two panels
 resemble the Script and Watch panels, but they show data collected by
@@ -286,54 +287,42 @@ this value. To do so, the developer reruns \textit{lastChange} command
 on \texttt{myCondition.value} at this point. This re-executes the
 program and pauses at the reproduction point,  showing line 25-the
 place \texttt{oldValue} is assigned to
-\texttt{myCondition.value} (Figure ~\ref{fig:example4}). Now it is
-clear that the bug occurs because \texttt{oldValue} is
-\texttt{undefined} once execution reaches line 25.
-
-
-As demonstrated in Figure ~\ref{fig:example-points}, the developer has
-examined three points of execution. The first point, the reproduction point,  was the breakpoint set by the developer.
-The second and third points preceded the reproduction point in execution sequence.
-All three points-the history
-of the search for the defect-are available through the debugger's
-interface. On the top of the left panel in Figure ~\ref{fig:example4}
-there is an opened list which shows all three examined points. The
-first one is the breakpoint on line 22, the second one is the point
-which is when \texttt{myObject.myProperty} changed before
-reaching the breakpoint and finally the last one is the point of
-execution in which \texttt{myCondition.value} gets the
-\texttt{undefined} value. Moreover, the source lines related to these
-points are tagged with red-cycle icons.
+\texttt{myCondition.value}. To examine \texttt{oldValue}
+ at this point, developer enters it to the watch box and after re-execution the value
+ is available. Now it is clear that the bug occurs because \texttt{oldValue} is
+\texttt{undefined} once execution reaches line 25 (Figure~\ref{fig:example4}).
 
 \begin{figure*}[htp]
 
-\subfigure[A screen shot of the Firebug debugger while running the example code from Fig.~\ref{fig:example2}. The Script
+
+\subfigure[A screen shot of the Firebug debugger while running the example code from Fig.~\ref{fig:js-code}. The Script
   panel is selected; it gives access to
   all loaded source files and allows breakpoints to be set on lines. In this
   figure, the execution is paused at line 22 by a regular
   breakpoint. The Watch panel at the right shows the program state at
   the paused
-  point. ]{\label{fig:example1}\includegraphics[width=1.0\textwidth,
-    height=.17\textheight]{1-bp22.jpg}}
+  point. Developer can query \textit{lastChange} on a \texttt{myObject.myProperty} by right-clicking on the value of \texttt{myProperty}. ]{\label{fig:example1}\includegraphics[width=1.0\textwidth, height=.17\textheight
+  ]{1-bp22.jpg}}
 
-\subfigure[Developer can query \textit{lastChange} on a value by right-clicking 
-on the
-  value of \texttt{myProperty}.]{\label{fig:example2}\includegraphics[width=1.0\textwidth,
-    height=.17\textheight]{2-bp22-lastChange.jpg}}
+%\subfigure[Developer can query \textit{lastChange} on a value by right-clicking 
+%on the
+%  value of \texttt{myProperty}.]{\label{fig:example2}\includegraphics[width=1.0\textwidth,
+%    height=.17\textheight]{2-bp22-lastChange.jpg}}
 
 \subfigure[The result of \textit{lastChange} query for
   \texttt{myObject.myProperty}. The left panel, QP, shows the source
   code at the point of \textit{lastChange}; The right panel,
   TraceData, shows the collected data at the
-  point.]{\label{fig:example3}\includegraphics[width=1.0\textwidth,
-    height=.21\textheight]{3-lastChange.jpg}}
+  point.]{\label{fig:example3}\includegraphics[width=1.0\textwidth,% height=.21\textheight
+  ]{3-lastChange.jpg}}
 
 \subfigure[The result of \textit{lastChange} query for
-  \texttt{myCondition.value}. The opened list on the top of the left
-  panel shows the visited execution points. Clicking on each point in
+  \texttt{myCondition.value}. To evaluate an expression (e.g., oldValue) at this point, developer can
+  enter the expression in the watch box and after re-execution the result is available.
+  The opened list on the top of the left panel shows the visited execution points. Clicking on each point in
   the list shows the corresponding code and
-  data.]{\label{fig:example4}\includegraphics[width=1.0\textwidth,
-    height=.23\textheight]{4-lastChange2.jpg}}
+  data.]{\label{fig:example4}\includegraphics[width=1.0\textwidth%,height=.25\textheight
+    ]{4-lastChange2.jpg}}
 
 \caption{The stages of locating the defect using \textit{lastChange} feature.}
 \label{fig:lastChange}
@@ -345,6 +334,22 @@ on the
 \caption{The examined points before locating the defect. The arrow represents the logical forward progress of the program. Three actual executions are superimposed on this arrow. All three stop at the reproduction point indicated by the circle 1. After the first execution, the developer asks for lastChange as described in \ref{sec:introExample}, yielding information  indicated by circle 2. After the second execution, another lastChange query causes a third execution, yielding information indicated by circle 3.}
 \label{fig:example-points}
 \end{figure}
+
+
+
+As demonstrated in Figure ~\ref{fig:example-points}, the developer has
+examined three points of execution. The first point, the reproduction point,  was the breakpoint set by the developer.
+The second and third points preceded the reproduction point in execution sequence.
+All three points-the history
+of the search for the defect-are available through the debugger's
+interface. On the top of the left panel in Figure~\ref{fig:example4}
+there is an opened list which shows all three examined points. The
+first one is the breakpoint on line 22, the second one is the point
+which is when \texttt{myObject.myProperty} changed before
+reaching the breakpoint and finally the last one is the point of
+execution in which \texttt{myCondition.value} gets the
+\texttt{undefined} value. Moreover, the source lines related to these
+points are marked with red-cycle icons.
 
 
 Notice that in our example, \textit{lastChange} combines some aspects
