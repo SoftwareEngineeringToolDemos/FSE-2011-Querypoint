@@ -415,7 +415,7 @@ collector to reclaim the space for dead objects just as it would in the
 absence of the debugger. The second
 operation is \texttt{setPropertyChangeHook()}: given a function and a
 string, the function is called whenever a property changes and its
-name matches the string For example, if the is 
+name matches the string. For example, if the string is 
 \texttt{foo} so changes to \texttt{bar.foo} or \texttt{baz.foo} would
 call the function.  The callback function receives a reference to the
 owner of \texttt{foo}. In the next section, we describe how we use
@@ -489,7 +489,7 @@ C  |  ... , scope 1
 \end{figure}
 
 \subsubsection{global and \texttt{with} scopes}
-Global scope is the the most outer scope in the scope chain and it is
+Global scope is the most outer scope in the scope chain and it is
 also referred to as the global object (the \texttt{window}
 object in Web pages). This scope is a regular JavaScript object and therefore every
 global variable is a property of global object. Similarly,
@@ -516,17 +516,16 @@ Having the scope chain and the source code, we can map every scope to % perhaps 
 a code block, enclosed the executing code. In
 JavaScript, a code block can be identified by the file url and  
 the block's first instruction program counter. Given this information, the debugger is
-able to recognize the code block once it is loaded.
+able to recognize the code block in loaded scripts or once it is loaded.
 Similar to \textit{lastChange} on object property, we define two basic operations: 
 \texttt{scopeId()} and \texttt{setVariableChangeHook()}. The first one, 
 given a scope returns an integer as the scope's identifier. The second one, 
-given a callback function, a code block and a variable name-
-which is defined inside the block-, the function is called
+given a callback function, a code block and a variable name-which is defined inside the block, the function is called
 whenever the variable is changed. Figure ~\ref{fig:recursive} demonstrates a case in which the same syntactically variable
 \texttt{x} is changed several times but in different scopes due to the
-recursive calls. Without considering the scopes calling \textit{lastChange(x)}
-at point \texttt{C} in scope 1 will return point \texttt{B} which is a change of \texttt{x} in 
-scope 2 while the right answer is point \texttt{A}. To resolve this issue, an id
+recursive calls. Without considering the scopes the last change of x
+at point \texttt{C} in scope 1 is point \texttt{B} which is a change of \texttt{x} in 
+scope 2 while the right last change is point \texttt{A}. To resolve this issue, an id
 is assigned to the scope by \texttt{ScopeId()} operation and the scope id is also stored 
 at every variable change event.
 
