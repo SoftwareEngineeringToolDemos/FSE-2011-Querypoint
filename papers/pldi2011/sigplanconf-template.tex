@@ -317,7 +317,7 @@ place \texttt{oldValue} is assigned to
   ]{3-lastChange.jpg}}
 
 \subfigure[The result of \textit{lastChange} query for
-  \texttt{myCondition.value}. To evaluate an expression (e.g., oldValue) at this point, developer can
+  \texttt{myCondition.value}. To evaluate an expression (e.g., oldValue) at this point, developer can %TODO should we remove it?
   enter the expression in the watch box and after re-execution the result is available.
   The opened list on the top of the left panel shows the visited execution points. Clicking on each point in
   the list shows the corresponding code and
@@ -635,7 +635,7 @@ the program behaviour due to the appearance of this property in
 function which is available in the next version of Firefox\footnote[1]{https://developer.mozilla.org/en/JavaScript/Reference/Global\_Objects\\/Object/defineProperty}. \texttt{defineProperty} receives 
 an argument which specifies whether the property is enumerable or not. By setting the enumerable
 field \texttt{false} for \texttt{\_objectId}, this property will not
-apear in \texttt{for(property in object)} loops and therfore has no
+apear in \texttt{for(property in object)} loops and therefore has no
 effect on the program execution. Note that \texttt{\_objectId} is
 not set for all objects but only those objects that need an id.
 
@@ -707,7 +707,7 @@ of assignee statements. Obviously, evaluating this statement doesn't return
 a reference to the new object. Our prototype implementation does not handle these kinds of unusual cases yet.
 
 Throughout this section we implicitly assumed that the object will be created at 
-the same location in the next execution. So, what does happens if it
+the same location in the next execution. So, what does happen if it
 is not true? Well, once the execution reaches the reproduction point, it
 reveals that the object has been created in different location. This time,
 debugger re-executes the program considering both locations as possible 
@@ -814,20 +814,11 @@ There is a trade-off between the amount of data collected at every change event 
 By default, \textit{Querypoint} stores values up to one level depth in objects.
 
 
-
 % Discuss what happens when assumptions changes, like object creation location.
 
 \section{Reproducible Non-deterministic Execution}
-
-By construction \textit{lastChange} works whenever conventional
-breakpoint debugging works. By that we mean that, since we use
-conventional breakpoint debugging technology under the covers,
-\textit{lastChange} works whenever breakpoint debugging
-works. However, there are cases where breakpoint debugging fails but
-\textit{lastChange} works.  These are cases of \textit{reproducible
-  non-deterministic} execution.
-
-A bug is \textit{reproducible} for a developer when the developer can
+We claimed that the only prerequisite for \textit{lastChange} function is bug
+reproducibility. A bug is \textit{reproducible} for a developer when the developer can
 start from a determined initial state, operate on the program with a
 list of actions, and reproduce the symptoms of the bug. The details of
 the execution can change each time we re-execute the buggy program,
@@ -837,12 +828,22 @@ events during the execution. When the developer selects a value and
 asks for \textit{lastChange}, the developer is expressing the hypothesis that
 the value is related to the defect. Therefore the reproducibility of
 the bug makes it very unlikely that the \textit{lastChange} will
-depend upon order of events during execution.
+depend upon order of events during execution. In this section we discuss issues regarding to non-determinism.
 
-Since \textit{lastChange} does not rely on determinism, some bugs that
-confound breakpoint debuggers will be easier to find with
-\textit{lastChange}.  Consider the example in 
-Figure ~\ref{fig:counter-example}. It shows a function which processes an
+\subsection{Pausing at \textit{lastChange} Result}
+A \textit{lastChange} result can be recognized early when it occurs if it can
+be defined by a conditional breakpoint. A proposal for the condition is the event index
+in the history of change events. This condition obviously works for deterministic 
+executions. Therefore, if developer specifies an execution determinitic, every lastChange
+will become pausable. Moroever, it works in a non-deterministic execution if non-determinism
+has no effect on the event index. If in several executions, the \textit{lastChange} result happens at
+the same index in the list of change events, it is very likely that in the next execution, the 
+same index be the result. Debugger can propose it as a pausable point to the developer or optimizes data
+collection by focusing on this point. The correctness of this guess can be verified at the reproduction
+point.
+
+There are cases where finding the appropriate condition requires developer's knowledge.
+Consider the example in Figure~\ref{fig:counter-example}. It shows a function which processes an
 array. The array contains numbers except one item which is
 \texttt{undefined} and it causes a bug in line 30. There is a call to
 \texttt{randomPermutation} function in line 11 which randomly
@@ -850,7 +851,8 @@ permutes the array item. So at every execution the
 \texttt{undefined} item will be in a new place. Calling
 \textit{lastChange} on \texttt{x} at the place the bug happens, gives a
 point which shows line 14. Although this point exists at every
-re-execution but it can not be identified by a conditional breakpoint.
+re-execution but it can not be identified by any condition excepting
+the value of item.
 
 \begin{figure}[htp]
 \begin{verbatim}
@@ -867,23 +869,19 @@ re-execution but it can not be identified by a conditional breakpoint.
 \caption{A counter-example for transforming \textit{lastChange} to a conditional breakpoint.}
 \label{fig:counter-example}
 \end{figure}
- 
 
-Thus in the case of a non-deterministic program, a \textit{lastChange}
-is not equivalent to any series of conventional watchpoints or
-breakpoints. The extra power of \textit{lastChange} derives from its
-analysis of the entire execution up to the reproduction point and its
-memory of previous work on the defect.  Each time we re-execute a
-non-deterministic program, the details of execution instruction order
-may change. For example, if we record the source code lines every time
+
+\subsection{\textit{lastChange} Result Consistency}
+Each time we re-execute a non-deterministic program, 
+the details of execution instruction order may change. 
+For example, if we record the source code lines every time
 a conventional watchpoint hits, the record may differ each time we
 re-execute. But \textit{lastChange} does not ask the developer to
-consider these single points.  Rather we analyze all of the
-watchpoints in an entire execution at the reproduction point where we
-know the defect has already occurred and only show the final result to
-the developer.
+consider these single points. Rather it analyzes all of the
+change events in an entire execution at the reproduction point where the bug
+has already occurred and shows the final result to the developer.
 
-Of course there can be cases where the defect is reproducible but the
+Of course there can be cases where the bug is reproducible but the
 value from \textit{lastChange} is not. As in conventional breakpoint
 debugging, we can only determine this empirically, by observing
 multiple executions with different values. Unlike conventional
@@ -891,9 +889,30 @@ breakpoint debugging, implementations of \textit{lastChange} readily
 help in detecting such cases: as we work back through a series of
 \textit{lastChange} requests we can compare values with previous
 executions. Different values on different executions will signal that
-the execution is not deterministic. In future we hope to compare
-queries from successive executions as a tool for learning about
-non-deterministic executions.
+the execution is not deterministic. Consider the example in Figure~\ref{fig:nondeterministic-values}. 
+Assume that at the first exeuction, developers sees that \texttt{a} is \texttt{true} and asks
+for the \textit{lastChange} of \texttt{a} at breakpoint. In the re-exeuction, \texttt{a} is \texttt{false},
+and \texttt{b} is \texttt{b} is \texttt{true} at the reproduction point. It means that \texttt{lastChange}
+result shows line 10, which is a correct answer for this execution but not for the previous one.
+When user asks for the \textit{lastChange} on variable \texttt{a}, debugger stores \texttt{a} value and compares
+it to the \texttt{a} value in the next executions. So if this value is different, debuggers inform the developer
+that the \textit{lastChange} query is made on a different value. In cases that the value is not a primitive but an object,
+the properties of the object examined by the developer are stored and compared.
+
+\begin{figure}[htp]
+\begin{verbatim}
+10 a = false;
+11 b = false;
+...
+20 if ( random() ) { a = true; } else { b = true; }
+...
+30 if (a || b) { bug();  /* breakpoint */ }
+\end{verbatim}
+\caption{\textit{lastChange} on non-deterministic values.}
+\label{fig:nondeterministic-values}
+\end{figure}
+
+
 
 %\subsection{Reproduction point}
 
@@ -903,6 +922,7 @@ non-deterministic executions.
 %Four experienced Javascript developers used the Firebug debugger on four small programs we provided. Each developer first used breakpoint debugging on two programs. Then we had them read sections YY - ZZ of this paper. Finally each developer applied the Querypoint prototype to two more programs. The programs were preselected so each developer saw them in a different order. Figure AA compares the human and computing times for these tests. [results]
 
 % Of course these programs were designed to highlight lastChange and all kinds of debugging issues have been hidden by the design of our tests. Our results show that when a defect relates to incorrect values and a developer recognizes that this, then the operational mechanics of lastChange lead to the defect much more quickly than breakpoints.
+
 
 \section{Discussion}
 
@@ -923,6 +943,7 @@ invested development time,
 alternatives.
 \end{enumerate}
 
+%TODOWe have also developed a prototype implementation of the debugger control part of lastChange for Java. The main differences (one or two sentences). We will report on this implementation in a later publication
 \subsection{Developers need an operation like \protect\textit{lastChange} }
 
 We have shown how \textit{lastChange} identifies the prior point in
