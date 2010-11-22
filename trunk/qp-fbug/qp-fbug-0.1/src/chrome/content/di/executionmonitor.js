@@ -98,17 +98,9 @@ with (Lang){
                         this.monitorRefValues[i] = refValue;
                         if (typeof(refValue) == "object")
                         {
-                            var objectId = refValue["___qpfbug_objectId___"];
-                            if (!objectId){ //no id for this object
-                                objectId = DebugService.getInstance().getNextJSObjectId();
-                                // Code for Gecko 2 (fireforx 4)
-                                //Object.defineProperty(refValue, "__QPFBUG_ID", { value: objectId });
-                                // code for firefox 3.5+
-                                //refValue.__defineGetter__("__QPFBUG_ID", function(){return objectId;})
-                                this.monitorRefGotNewValue[i] = true;
-                                refValue["___qpfbug_objectId___"] = objectId;
-                                trace(monitorRef + " with id '" + objectId + "' was created.");
-                            }
+                            var objectId = getObjectId(refValue);
+                            this.monitorRefGotNewValue[i] = true;
+                            trace(monitorRef + " with id '" + objectId + "' was created.");
                             this.callBack(this.eventRequest, refValue, frame, type, rv);
                         }
                     }

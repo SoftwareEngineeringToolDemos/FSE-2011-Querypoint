@@ -12,14 +12,16 @@ with (Lang){
 
     __owner.TraceData =
         function(){
-            var constructor = function(queryData, parentValue, value){
+            var constructor = function(queryData, parentTraceObject, value){
                 this.queryData = queryData;
-                this.parentValue = parentValue ;
+
+                this.parentTraceObject = parentTraceObject;
                 this.value = value;
-                this.parentCreatorURL = null;
-                this.parentCreatorLine = 0;
-                this.parentConstructorURL = null;
-                this.parentConstructorLine = 0;
+
+//                this.scopeType;
+
+
+                //scopeType
             };
 
             constructor.prototype = {
@@ -27,7 +29,10 @@ with (Lang){
                 {
                     return "[TraceData]";
                 }
+
+
             };
+
 
             return constructor;
         }();

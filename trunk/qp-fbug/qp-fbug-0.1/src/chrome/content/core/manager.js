@@ -134,12 +134,12 @@ with (Lang){
                                      );
 
                         if (traceData){
-                            var url = traceData.parentCreatorURL;
-                            var lineNo = traceData.parentCreatorLine;
+                            var url = traceData.parentTraceObject.creatorURL;
+                            var lineNo = traceData.parentTraceObject.creatorLine;
 
                             if (!url){
-                                url = traceData.parentConstructorURL;
-                                lineNo = traceData.parentConstructorLine;
+                                url = traceData.parentTraceObject.constructorURL;
+                                lineNo = traceData.parentTraceObject.constructorLine;
                             }
                             if (url){    //todo
                                 url = normalizeURL(url);

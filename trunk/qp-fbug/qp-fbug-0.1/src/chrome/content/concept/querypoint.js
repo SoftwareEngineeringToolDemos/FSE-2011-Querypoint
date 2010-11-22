@@ -29,8 +29,8 @@ with (Lang){
                 this.hitCount = hitCount;
 
                 //obj should be traced at this point
-                this.queryDataList = [];
-                this.queryWatchList = [];  // a list of watch expressions
+                this.queryDataList = [];   // the list of query expressions (QueryExpr) 
+                this.queryWatchList = [];  // the list of watch expressions
             };
 
             constructor.prototype = {
