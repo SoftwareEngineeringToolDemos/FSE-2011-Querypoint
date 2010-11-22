@@ -60,8 +60,8 @@ with (Lang){
                                                     null, null, null);
 
                     // updates querypoint queryDataList
-                    type = QueryData.TYPES.PARENT_CREATIONDATA | QueryData.TYPES.PARENT_VALUE;
-                    queryData = new QueryData(type, 0, ".owner" );
+                    var type = 0;
+                    var queryData = new QueryExpr(0, ".owner" );
                     querypoint.addQueryData(queryData)
 
                     // add trace point to the list
@@ -70,8 +70,8 @@ with (Lang){
 
                     // updates refQuerypoint queryDataList
                     refQuerypoint.addDependentQuerypoint(querypoint);
-                    var type = QueryData.TYPES.PARENT_CREATIONDATA | QueryData.TYPES.PARENT_VALUE;
-                    var queryData = new QueryData(type, valueFrameNo, valueRef);
+
+                    queryData = new QueryExpr(valueFrameNo, valueRef);
                     refQuerypoint.addQueryData(queryData);
 
                     return querypoint;
