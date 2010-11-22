@@ -347,7 +347,7 @@ with (Lang){
             onObjectCreation: function(eventRequest, object, frame, type, rv){
                 QPFBUG.monitor.ds_objectCreation++;
 
-                var objectId = object["___qpfbug_objectId___"];
+                var objectId = getObjectId(object);
                 //JSD doesn't give us txhe watch call back then we need to keep it here.
 
                 var watchEventRequests = object["___qpfbug_watchRequests___"]; // list of watchEventRequests

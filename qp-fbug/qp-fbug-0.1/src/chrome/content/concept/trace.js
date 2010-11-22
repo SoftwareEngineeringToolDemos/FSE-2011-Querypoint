@@ -23,7 +23,7 @@ with (Lang){
 
                 addLastChangeTracepoint: function(querypoint, context, eventId, frame, parent, oldValue, newValue, isObjectCreation){
 
-                    var tracepoint = this.addTracepoint(querypoint, context, eventId, frame, oldValue, newValue);
+                    var tracepoint = this.addTracepoint(querypoint, context, eventId, frame, parent, oldValue, newValue);
 
                     if (isObjectCreation){ //correct last frame line number
                         //todo change it  perhaps you can keep the creation url, line number in querypoint as a traceResult summary itself
@@ -46,29 +46,6 @@ with (Lang){
                         }
                     }
 
-
-                    //add .owner trace object
-                    var queryData;
-                    for (var i=0 ; i<querypoint.queryDataList.length ; i++){
-                        if (querypoint.queryDataList[i].expr == ".owner"){
-                            queryData = querypoint.queryDataList[i];
-                            break;
-                        }
-                    }
-
-                    var parentJSDIValue = QPFBUG.fbs.getJSD().wrapValue(parent);
-                    var traceData = new TraceData(queryData, parent, oldValue);
-
-                    var parentJSDIObject = parentJSDIValue.objectValue;
-                    if (parentJSDIObject)
-                    {
-                        traceData.parentCreatorURL = parentJSDIObject.creatorURL;
-                        traceData.parentCreatorLine = parentJSDIObject.creatorLine;
-                        traceData.parentConstructorURL = parentJSDIObject.constructorURL;
-                        traceData.parentConstructorLine = parentJSDIObject.constructorLine;
-                    }
-
-                    tracepoint.addTraceData(traceData);
                     trace("LastChange Tracepoint", tracepoint);
                     return tracepoint;
                 },
@@ -79,7 +56,7 @@ with (Lang){
                     return tracepoint;
                 },
 
-                addTracepoint: function(querypoint, context, eventId, frame, oldValue, newValue)
+                addTracepoint: function(querypoint, context, eventId, frame, parent, oldValue, newValue)
                 {
                     var dataCollectionDepth = QPFBUG.Conf.DATA_COLLECTION_DEPTH;
                     var querypointId = querypoint.id;
@@ -98,58 +75,61 @@ with (Lang){
                     for (var i=0 ; i<querypoint.queryDataList.length ; i++)
                     {
                         var queryData = querypoint.queryDataList[i];
-
-                        //todo find the right frame based on queryData.frameNo
-                        var valueRef = queryData.expr;
-
-                        var propertyName = queryData.propertyName;
-                        var parentRef = queryData.parentRef;
-
-                        //var exprValue;
-                        var parentValue;
-
                         var traceData;
-                        var parent;
-                        if (!parentRef){//todo parent is a scope
 
-                            parent = this.findScopeForPropertyName(frame.scope, propertyName);
+                        if (queryData.isSpecial()){
+                            //add .owner trace object
+                            if (queryData.expr == ".owner"){
+                                var traceData = new TraceData(queryData, this.getTraceObject(parent), oldValue);
+                            }
+                        }
+                        if (queryData.isProperty()){
+                            //todo find the right frame based on queryData.frameNo
+                            var valueRef = queryData.expr;
 
-                            //traceData = new TraceData(queryData, null, exprValue)
-                        }else{
+                            var propertyName = queryData.propertyName;
+                            var parentRef = queryData.parentRef;
+
+                            var parent;
                             parent = evalInFrame(frame, parentRef);
+
+                            if (!parent || typeof(parent)!="object") //todo how can it happen?
+                                continue;
+
+                            //wrapValue returns the jsd wrapper
+                            var parentJSDIValue = QPFBUG.fbs.getJSD().wrapValue(parent);
+                            // This one for is a wrapper for security reasons
+                            // specially when this object is going to be used
+                            // by other modules/extenstions
+                            // var xpSafeWrappedValue = XPCSafeJSObjectWrapper(jsValue);
+
+                            // Gecko2 (firefox 4)
+                            // var parentId = Object.getProperty(object, "__QPFBUG_ID");
+                            traceData = new TraceData(queryData, this.getTraceObject(parent), parent[propertyName])
                         }
 
-                        if (!parent || typeof(parent)!="object")
-                            continue;
+                        if (queryData.isVariable()){
+                            //find the corresponding scope
+//                            var scope
+                            
+//                            if (!parentRef){//todo parent is a scope
+//
+//                                parent = this.findScopeForPropertyName(frame.scope, propertyName);
+//
+//                                //traceData = new TraceData(queryData, null, exprValue)
+//                            }else{
 
-                        //wrapValue returns the jsd wrapper
-                        var parentJSDIValue = QPFBUG.fbs.getJSD().wrapValue(parent);
-                        // This one for is a wrapper for security reasons
-                        // specially when this object is going to be used
-                        // by other modules/extenstions
-                        // var xpSafeWrappedValue = XPCSafeJSObjectWrapper(jsValue);
-
-                        // Gecko2 (firefox 4)
-                        // var parentId = Object.getProperty(object, "__QPFBUG_ID");
-                        traceData = new TraceData(queryData, parent, parent[propertyName])
-
-                        var parentJSDIObject = parentJSDIValue.objectValue;
-                        if (parentJSDIObject)
-                        {
-                            traceData.parentCreatorURL = parentJSDIObject.creatorURL;
-                            traceData.parentCreatorLine = parentJSDIObject.creatorLine;
-                            traceData.parentConstructorURL = parentJSDIObject.constructorURL;
-                            traceData.parentConstructorLine = parentJSDIObject.constructorLine;
                         }
+
+
                         tracepoint.addTraceData(traceData);
-
                     }
 
                     for (var i=0 ; i<querypoint.queryWatchList.length ; i++)
                     {
                         var queryWatch = querypoint.queryWatchList[i];
                         var evalValue = evalInFrame(frame, queryWatch);
-                        tracepoint.addTraceWatch(queryWatch, copyObject(evalValue, dataCollectionDepth));
+                        tracepoint.addTraceWatch(queryWatch, copyObject(evalValue, 2));
                     }
 
                     this.tracepoints[querypointId].push(tracepoint);
@@ -168,7 +148,7 @@ with (Lang){
                 assignDependentQuerypoints: function(querypoint, tracepoint){
                     var dependentQuerypoints = querypoint.dependentQuerypoints;
                     var qp, tp;
-                    var expr, parent;
+                    var expr, parentId;
                     for (var i=0 ; i<dependentQuerypoints.length ; i++){
                         qp = dependentQuerypoints[i];
                         var assigned = false;
@@ -181,7 +161,7 @@ with (Lang){
                             for (var j=0 ; j<tracepoint.traceDataList.length ; j++)
                             {
                                 if (tracepoint.traceDataList[j].queryData.expr === expr){
-                                    parent = tracepoint.traceDataList[j].parentValue
+                                    parentId = tracepoint.traceDataList[j].parentTraceObject.id
                                     break;
                                 }
                             }
@@ -196,7 +176,7 @@ with (Lang){
                                     continue;
                                  for (var l=0 ; l<tp.traceDataList.length ; l++){
                                      if (tp.traceDataList[l].queryData.expr===".owner" &&
-                                         parent === tp.traceDataList[l].parentValue){
+                                         parentId === tp.traceDataList[l].parentTraceObject.id){
                                         this.assignTracepoint(qp, tp); //todo it is not correct change it
                                         assigned = true;
                                         break;
@@ -264,7 +244,11 @@ with (Lang){
                     if (!scope)
                         return null;
 
-                    var parentTraceScope = this.getTraceScope(scope.jsParent, depth-1);
+                    var parentDepth = 1;
+                    if (depth <=0)
+                        parentDepth = 0;
+                    var parentTraceScope = this.getTraceScope(scope.jsParent, parentDepth);
+                    
                     var jsClassName = scope.jsClassName;
                     if (depth <= 0)
                         return  new TraceScope(parentTraceScope, jsClassName, {}); //returns empty scope
@@ -287,7 +271,24 @@ with (Lang){
                     traceScope = new TraceScope(parentTraceScope, jsClassName, variableValues);
 
                     return traceScope;
-                },                                                          
+                },
+
+                getTraceObject: function(object){
+                    var jsdIValue = QPFBUG.fbs.getJSD().wrapValue(object);
+                    var traceObject = new TraceObject();
+
+                    traceObject.id = getObjectId(object);
+
+                    var jsdIObject = jsdIValue.objectValue;
+                    if (jsdIObject)
+                    {
+                        traceObject.creatorURL = jsdIObject.creatorURL;
+                        traceObject.creatorLine = jsdIObject.creatorLine;
+                        traceObject.constructorURL = jsdIObject.constructorURL;
+                        traceObject.constructorLine = jsdIObject.constructorLine;
+                    }
+                    return traceObject;
+                },
 
             };
 
