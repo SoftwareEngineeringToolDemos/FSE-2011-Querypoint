@@ -31,11 +31,11 @@ with (Lang){
                     this.traceWatches[watchExpr] = value;
                 },
 
-                getTraceData: function(frameNo, ref){
+                getTraceData: function(frameNo, expr){
                     for (var i=0; i<this.traceDataList.length ; i++)
                     {
-                        if (this.traceDataList[i].queryData.frameNo == frameNo &&
-                            this.traceDataList[i].queryData.expr == ref)
+                        if (this.traceDataList[i].queryExpr.frameNo == frameNo &&
+                            this.traceDataList[i].queryExpr.expr == expr)
                             return this.traceDataList[i];
                     }
                     return null;

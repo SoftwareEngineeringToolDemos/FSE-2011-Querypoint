@@ -22,13 +22,13 @@ with (Lang){
                 if (expr.indexOf(".")=== 0){ //starts with dot
                     this.type = QueryExpr.TYPES.SPECIAL;
                     this.specialRef = expr.substring(1);
-                }else if (expr.lastIndexOf(".") >= 0){
+                }else if (expr.lastIndexOf(".") > 0){
                     this.type = QueryExpr.TYPES.PROPERTY;
                     this.propertyName = expr.substring(expr.lastIndexOf(".")+1, expr.length);
                     this.parentRef = expr.substring(0, expr.lastIndexOf("."));
                 }else{
                     this.type = QueryExpr.TYPES.VARIABLE;
-                    this.variableName = expr;
+                    this.propertyName = this.variableName = expr; //todo you can also remove variableName
                 }
 
             };
