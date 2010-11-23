@@ -68,11 +68,11 @@ var __owner = QPFBUG.Classes;
             {
                 var tps = [];
                 var trace = this.reproductions[reproductionId].trace;
-                Lang.trace("getTracepoints "+trace, trace);
+                Lang.log("getTracepoints "+trace, trace);
                 if (trace)
                 {
                     var qps = this.debugModel.querypoints;
-                    Lang.trace("getTracepoints qps "+ this.debugModel.querypointsSize, qps);
+                    Lang.log("getTracepoints qps "+ this.debugModel.querypointsSize, qps);
                     for (var i in qps)
                     {
                         var tp = trace.getAssignedTracepointByQuerypoint(qps[i]);

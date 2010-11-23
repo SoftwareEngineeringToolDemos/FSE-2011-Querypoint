@@ -427,7 +427,7 @@ __owner.JSDEventHandler = function(){
                             return context;
                         }
 //                        else{
-//                            trace(":::: " + frame.script.fileName + " " + frame.line);
+//                            log(":::: " + frame.script.fileName + " " + frame.line);
 //                        }
                     }
                 }

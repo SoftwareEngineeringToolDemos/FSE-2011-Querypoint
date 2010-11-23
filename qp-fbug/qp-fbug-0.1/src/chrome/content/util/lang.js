@@ -23,10 +23,10 @@ with (QPFBUG.Classes){
             return (new Date()).getTime();
         },
 
-        trace: function(message, obj)
+        log: function(message, obj)
         {
             if (FBTrace.DBG_QUERYPOINT)
-                TraceUtils.trace(arguments.callee.caller, message, obj);
+                LogUtils.log(arguments.callee.caller, message, obj);
         },
 
         wrapFunctionsWithTryCatch: function(obj)
@@ -41,7 +41,7 @@ with (QPFBUG.Classes){
                             try{
                                 return f.apply(this, arguments); //we use "this" instead of "obj" to make sure "this" is the same as normal execution.
                             }catch(exc){
-                                Lang.trace("Error : " + exc, exc);
+                                Lang.log("Error : " + exc, exc);
                             }
                         }
                     }(p, obj_p);
@@ -173,7 +173,7 @@ with (QPFBUG.Classes){
                         copy[p] = this.copyObject(object[p], depth-1);
                     } catch(exc) {
                         // Access to some objects will fail, that's life in Mozilla land
-                        // Lang.trace("Error in copyObject(): " + type + " - " + exc.message, exc);
+                        // Lang.log("Error in copyObject(): " + type + " - " + exc.message, exc);
                         // break;
                     }
                 }
@@ -215,9 +215,9 @@ with (QPFBUG.Classes){
 
         getCorrectedStackTrace : QPFBUG.FBL.getCorrectedStackTrace,
 
-        getCorrectedStackTrace : QPFBUG.FBL.clearNode,
+        clearNode : QPFBUG.FBL.clearNode,
 
-        getCorrectedStackTrace : QPFBUG.FBL.createMenuItem,
+        createMenuItem : QPFBUG.FBL.createMenuItem,
 
         $ : QPFBUG.FBL.$,
 

@@ -25,7 +25,7 @@ with (Lang){
                 }
 
                 this.root = this.jsParser.parse(source)
-                trace("ScriptAnalyzer : ROOT", this.root);
+                log("ScriptAnalyzer : ROOT", this.root);
             };
 
             constructor.prototype = {

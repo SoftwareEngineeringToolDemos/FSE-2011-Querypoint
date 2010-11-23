@@ -116,7 +116,7 @@ with (Lang){
 //                    var iDontUnderstandThisDataStructure = this.querypoints[this.nextQuerypointId - 1];  // I guess this one has to exist ?
 //                    if (iDontUnderstandThisDataStructure)
 //                    	list.push(iDontUnderstandThisDataStructure);
-//                    trace("getQuerypoints "+list.length, {list: list, list0: list[0], list1: list[1]});
+//                    log("getQuerypoints "+list.length, {list: list, list0: list[0], list1: list[1]});
                     return list;
                 },
 

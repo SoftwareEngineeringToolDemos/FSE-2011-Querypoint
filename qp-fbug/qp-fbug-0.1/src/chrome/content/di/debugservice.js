@@ -354,7 +354,7 @@ with (Lang){
 
             onBreakpoint: function(context, frame, type, rv){
                 QPFBUG.monitor.ds_counterBreakpoint++;
-                trace("On Breakpoint : " + frame.line);
+                log("On Breakpoint : " + frame.line);
                 var eventRequests = context.qpfbug.eventRequests;
                 var eventRequest;
                 var script = frame.script;
@@ -371,7 +371,7 @@ with (Lang){
                             {
                                 if ( bp.scriptsWithBreakpoint[iScript] && (bp.scriptsWithBreakpoint[iScript].tag == script.tag) && (bp.pc[iScript] == pc) )
                                 {
-                                    trace("On Breakpoint : " + bp.href +  ": " + bp.lineNo);
+                                    log("On Breakpoint : " + bp.href +  ": " + bp.lineNo);
 
                                     if (eventRequest.isBreakpoint())
                                     {
@@ -420,7 +420,7 @@ with (Lang){
                    delete object[propertyName];
                }
 
-                trace("Object('"+ objectId + "') watch() was called.");
+                log("Object('"+ objectId + "') watch() was called.");
             },
 
             onPropertyChanged: function(eventRequests, object, propertyName, oldValue, newValue){

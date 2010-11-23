@@ -45,13 +45,13 @@ with (Lang){
                         }
                     }
 
-                    trace("LastChange Tracepoint", tracepoint);
+                    log("LastChange Tracepoint", tracepoint);
                     return tracepoint;
                 },
 
                 addBreakpointTracepoint: function(querypoint, context, eventId, frame){
                     var tracepoint = this.addTracepoint(querypoint, context, eventId, frame);
-                    trace("Breakpoint Tracepoint", tracepoint);
+                    log("Breakpoint Tracepoint", tracepoint);
                     return tracepoint;
                 },
 
@@ -206,7 +206,7 @@ with (Lang){
                 {
                     return this.assignedTracepoints[querypoint.id];
 //                    var points = this.tracepoints[];
-//                    trace("getLastTracepointByQuerypoint "+points, {querypoint: querypoint, tracepoints: this.tracepoints});
+//                    log("getLastTracepointByQuerypoint "+points, {querypoint: querypoint, tracepoints: this.tracepoints});
 //                    if (points && points.length)
 //                        return points[points.length - 1];
                 },
@@ -242,8 +242,8 @@ with (Lang){
 
                     var id;
 
-//                        trace("::::::::::::::::::::::",scope);
-//                        trace("----------------------",unwrapObject(unWrappedScope));
+//                        log("::::::::::::::::::::::",scope);
+//                        log("----------------------",unwrapObject(unWrappedScope));
                     if (jsClassName == "Call"){
 //                        var id = DebugService.getInstance().getScopeId(scope);
 //                        traceScope.id = id;

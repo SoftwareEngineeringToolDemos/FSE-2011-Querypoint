@@ -154,9 +154,9 @@ with (Lang){
                     var fbs = this.fbs;
                     return function(frame, type, val){
                          if (DBG_DOUBLEDEBUGGER)
-                             trace("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<, stopped: " + QPFBUG.doubleDebugger.stopped);
+                             log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<, stopped: " + QPFBUG.doubleDebugger.stopped);
 //                         if (DBG_DOUBLEDEBUGGER)
-//                             trace("Execution hook, "+ frame.script.fileName + ", " +frame.line , frame);
+//                             log("Execution hook, "+ frame.script.fileName + ", " +frame.line , frame);
 
                          if (QPFBUG.doubleDebugger.stopped == 2) // we let 2 pauses and therefore 2 debuggers at a time
                              return Ci.jsdIExecutionHook.RETURN_CONTINUE;
@@ -178,7 +178,7 @@ with (Lang){
 //                         fbs.unhookFunctions();
 
                          if (DBG_DOUBLEDEBUGGER)
-                             trace("----------------------------------, stopped: " + QPFBUG.doubleDebugger.stopped);
+                             log("----------------------------------, stopped: " + QPFBUG.doubleDebugger.stopped);
                          //because debugFrame may not exist later due to our artificial
                          // changes by calling unPause() we keep
                          // execution context reference.
@@ -205,7 +205,7 @@ with (Lang){
                              rv =  fn.apply(fbs, arguments);
                          }catch(e)
                          {
-                             trace("FBS onBreakpoint Exception! : " + e, e)
+                             log("FBS onBreakpoint Exception! : " + e, e)
                          }
 
                          if (QPFBUG.doubleDebugger.stopped == 1 
@@ -230,7 +230,7 @@ with (Lang){
                          QPFBUG.doubleDebugger.stopped--;
 
                          if (DBG_DOUBLEDEBUGGER)
-                             trace(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>, stopped: " + QPFBUG.doubleDebugger.stopped);
+                             log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>, stopped: " + QPFBUG.doubleDebugger.stopped);
                          return rv;
 
                     }

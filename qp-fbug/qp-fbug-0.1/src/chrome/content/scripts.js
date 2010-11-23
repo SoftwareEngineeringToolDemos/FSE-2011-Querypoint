@@ -41,7 +41,7 @@ QPFBUG.Classes.FB = {};
 loadScript("resource://qpfbug/util/lang.js");
 loadScript("resource://qpfbug/util/statemachine.js");
 loadScript("resource://qpfbug/util/timer.js");
-loadScript("resource://qpfbug/util/traceutils.js");
+loadScript("resource://qpfbug/util/logutils.js");
 loadScript("resource://qpfbug/util/monitor.js");
 
 loadScript("resource://qpfbug/concept/debugmodel.js");
