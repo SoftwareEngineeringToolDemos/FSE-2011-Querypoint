@@ -47,7 +47,7 @@ with (Lang){
 //            //todo change it
 //            onStartDebugging: function(context)
 //            {
-//                trace("onStartDebugging tracepoints.show "+context.qpfbug.inQuery);
+//                log("onStartDebugging tracepoints.show "+context.qpfbug.inQuery);
 //                if (context.qpfbug.newResults)
 //                {
 //                    context.qpfbug.firefoxWindow.Firebug.chrome.selectSupportingPanel(UIUtils.getDebugModel(context), context, true);

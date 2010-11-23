@@ -17,13 +17,13 @@ __owner.Replayer = function(){
         constructor.prototype =
         {
             start : function(win) {
-                trace("record items: " + this.record.length ,this.record);
-                trace("win: " ,win);
+                log("record items: " + this.record.length ,this.record);
+                log("win: " ,win);
                 for (var i=0 ; i<this.record.length ; i++){
-                    trace("replayer: " + this.record[i].originalEvent.type);
+                    log("replayer: " + this.record[i].originalEvent.type);
                     if (this.record[i].originalEvent.type != "resize")
                         ReplayUtils.fireEvent(win.document, win.document, this.record[i]);
-                    trace("**************");
+                    log("**************");
                     
                 }
             },

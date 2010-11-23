@@ -25,7 +25,7 @@ __owner.ReplayReproducer = function(){  // todo inherit from Reproducer
 
                 reproduce: function (context, debugSessionId, reproductionId)
                 {
-                    trace("Reproduction Starts: " + reproductionId + ".");
+                    log("Reproduction Starts: " + reproductionId + ".");
                     var  win = context.window;
                     var url = context.window.location.toString();
 
@@ -36,7 +36,7 @@ __owner.ReplayReproducer = function(){  // todo inherit from Reproducer
                     };
 
                     if (!record){
-                        trace("Error: There is no record to replay!")
+                        log("Error: There is no record to replay!")
                         return;
                     };
 
@@ -56,7 +56,7 @@ __owner.ReplayReproducer = function(){  // todo inherit from Reproducer
                                 }
                         );
 
-                        trace("Reproduction Ends: " + reproductionId + ".");
+                        log("Reproduction Ends: " + reproductionId + ".");
                     }
 
 

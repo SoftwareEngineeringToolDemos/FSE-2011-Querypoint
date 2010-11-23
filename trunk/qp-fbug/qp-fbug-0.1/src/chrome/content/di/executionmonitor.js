@@ -20,7 +20,7 @@ with (Lang){
         constructor.prototype = {
 
             start: function(callBack, eventRequest, frame, type, rv){
-                trace("ExecutionMonitor starts: " + frame.script.fileName + " " + frame.line);
+                log("ExecutionMonitor starts: " + frame.script.fileName + " " + frame.line);
                 this.steppingDriver = DebugService.getInstance().getSteppingDriver(this.context);
                 this.fileName = frame.script.fileName;
                 this.line = frame.line;
@@ -34,9 +34,9 @@ with (Lang){
                 this.endPC = -1;
 //                if (frame.line === frame.script.baseLineNumber +frame.script.lineExtent -1) //it is the last line
 //                {
-//                    trace("The end line : " + frame.line);
+//                    log("The end line : " + frame.line);
 //                }else{
-//                    trace("---line--- " + frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT));
+//                    log("---line--- " + frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT));
 //                    var pcToLine_pp = frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_PRETTYPRINT);
 //
 //                    //find next executable line in pp
@@ -47,13 +47,13 @@ with (Lang){
 //
 //                    var nextLinePC_pp = frame.script.lineToPc(pcToLine_pp + toAdd , Ci.jsdIScript.PCMAP_PRETTYPRINT);
 //                    var nextLine = frame.script.pcToLine(nextLinePC_pp , Ci.jsdIScript.PCMAP_SOURCETEXT);
-//                    trace("---line--- " + pcToLine_pp + " " + nextLinePC_pp + " " + nextLine);
+//                    log("---line--- " + pcToLine_pp + " " + nextLinePC_pp + " " + nextLine);
 //
 //                    this.endPC = nextLinePC_pp;
 //                    this.endPC = 35;
 //                }
 
-                trace("--------script ---- \n", frame.script.functionSource);
+                log("--------script ---- \n", frame.script.functionSource);
                 this.scriptAnalyzer = new ScriptAnalyzer(frame.script.functionSource);
                 this.monitorRefs = this.scriptAnalyzer.getRefsToCreatedObjects(true);
                 this.monitorRefValues = [];
@@ -61,7 +61,7 @@ with (Lang){
                 for (var i=0 ; i<this.monitorRefs.length ; i++){
                     var monitorRef = this.monitorRefs[i];
                     this.monitorRefGotNewValue.push(false);
-                    trace("--------monitor ref ---- "+monitorRef);
+                    log("--------monitor ref ---- "+monitorRef);
                     var refValue = evalInFrame(frame, monitorRef);
                     this.monitorRefValues.push(refValue);
                 }
@@ -71,7 +71,7 @@ with (Lang){
             stop: function(){
                 this.isStopped = true;
                 DebugService.getInstance().releaseSteppingDriver(this.steppingDriver);
-                trace("ExecutionMonitor ends: " + this.fileName + " " + this.line);
+                log("ExecutionMonitor ends: " + this.fileName + " " + this.line);
             },
 
             //todo
@@ -92,7 +92,7 @@ with (Lang){
 
                 for (var i=0 ; i<this.monitorRefs.length ; i++){
                     var monitorRef = this.monitorRefs[i];
-//                    trace("assignee: " + monitorRef);
+//                    log("assignee: " + monitorRef);
                     var refValue = evalInFrame(frame, monitorRef);
                     if (refValue != this.monitorRefValues[i]){
                         this.monitorRefValues[i] = refValue;
@@ -100,7 +100,7 @@ with (Lang){
                         {
                             var objectId = DebugService.getInstance().getObjectId(refValue, true);
                             this.monitorRefGotNewValue[i] = true;
-                            trace(monitorRef + " with id '" + objectId + "' was created.");
+                            log(monitorRef + " with id '" + objectId + "' was created.");
                             this.callBack(this.eventRequest, refValue, frame, type, rv);
                         }
                     }
@@ -117,7 +117,7 @@ with (Lang){
                 //TODO IT is not a complet solution , it should be the last pc//there is no next pc so the current one is the last one //TODO be care full about loops!!!
                 if ( frame.line === frame.script.baseLineNumber +frame.script.lineExtent -1 || frame.pc === this.endPC || frame.pc < this.startPC ) //the last line  or start of the loop
                     shouldContinue = false
-//                trace("shouldContinue: " + shouldContinue + " " + frame.pc + " " + nextPCLine + " " +nextPCLine2+" "+nextPCLine10);
+//                log("shouldContinue: " + shouldContinue + " " + frame.pc + " " + nextPCLine + " " +nextPCLine2+" "+nextPCLine10);
 
                 if (!shouldContinue){
                     this.stop();

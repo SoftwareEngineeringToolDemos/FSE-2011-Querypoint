@@ -6,36 +6,36 @@ loadModule = function(QPFBUG)
 with (QPFBUG.Classes){
 with (Lang){
 
-    //--------------------------------- TraceUtils --------------------------------
+    //--------------------------------- LogUtils --------------------------------
 
-    QPFBUG.Classes.TraceUtils = {
+    QPFBUG.Classes.LogUtils = {
 
         wrappedClasses : [],
 
-        traceClassesFunctionCalls: function(list){
+        logClassesFunctionCalls: function(list){
             for (var i=0 ; i<list.length ; i++){
-                    TraceUtils.traceClassFunctionCalls(list[i]);
+                    LogUtils.logClassFunctionCalls(list[i]);
             }
         },
 
-        traceClassFunctionCalls: function(className)
+        logClassFunctionCalls: function(className)
         {
-            if (arrayContainsObject(TraceUtils.wrappedClasses, className))
+            if (arrayContainsObject(LogUtils.wrappedClasses, className))
                 return;
             var class = QPFBUG.Classes[className];
             if (!class){
-                trace("there is no class with this name : " + className);
+                log("there is no class with this name : " + className);
                 return;
             }
 
-            TraceUtils.traceDataFunctionCalls(className, class);
+            LogUtils.logDataFunctionCalls(className, class);
             if (class.prototype)
-                TraceUtils.traceDataFunctionCalls(className, class.prototype);
+                LogUtils.logDataFunctionCalls(className, class.prototype);
 
-            TraceUtils.wrappedClasses.push(className);
+            LogUtils.wrappedClasses.push(className);
         },
 
-        traceDataFunctionCalls: function(objName, obj, functionName) //todo instead of getting one function name get a list
+        logDataFunctionCalls: function(objName, obj, functionName) //todo instead of getting one function name get a list
         {
             for (var p in obj)
             {
@@ -47,14 +47,14 @@ with (Lang){
                                                      //todo parse f.toSource() and pass arguments names
                             return function(){
                                     var caller = arguments.callee.caller;
-                                    var thread = TraceUtils.enterThread(caller, f);
-                                    var space = TraceUtils.getPre(thread);
+                                    var thread = LogUtils.enterThread(caller, f);
+                                    var space = LogUtils.getPre(thread);
                                     var argumentsCopy = cloneArray(arguments); //because "arguments" is not longer available when function returns
-                                    QPFBUG.Classes.Lang.trace(space + objName + " - " + fName , {object:this, arguments:argumentsCopy});
+                                    QPFBUG.Classes.Lang.log(space + objName + " - " + fName , {object:this, arguments:argumentsCopy});
                                     var rv = f.apply(this, arguments);
                                     if (rv)
-                                        QPFBUG.Classes.Lang.trace(space + objName + " - " + fName + " returns." , rv);
-                                    TraceUtils.exitThread(thread, caller);
+                                        QPFBUG.Classes.Lang.log(space + objName + " - " + fName + " returns." , rv);
+                                    LogUtils.exitThread(thread, caller);
                                     return rv;
                             }
                         }(p, obj_p);
@@ -68,8 +68,8 @@ with (Lang){
         // That is the currentObject is not the same in two threads
 
         getThread: function(callee){
-            for (var i=0 ; i<TraceUtils.threads.length ; i++){
-                var thread = TraceUtils.threads[i];
+            for (var i=0 ; i<LogUtils.threads.length ; i++){
+                var thread = LogUtils.threads[i];
                 if (thread.lastCallee == callee){
                     return thread;
                 }
@@ -78,7 +78,7 @@ with (Lang){
         },
 
         enterThread: function(caller, callee){
-            var thread = TraceUtils.getThread(caller);
+            var thread = LogUtils.getThread(caller);
             if (thread){
                 thread.lastCallee = callee;
                 thread.depth++;
@@ -86,7 +86,7 @@ with (Lang){
                 return thread;
             }
             thread = {lastCallee: callee, depth: 1, messageNo: 1};
-            TraceUtils.threads.push(thread);
+            LogUtils.threads.push(thread);
             return thread;
         },
 
@@ -94,7 +94,7 @@ with (Lang){
             thread.depth --;
             if (thread.depth == 0 || !caller)
             {
-                arrayRemoveObject(TraceUtils.threads, thread);
+                arrayRemoveObject(LogUtils.threads, thread);
                 return;
             }
             thread.lastCallee = caller;
@@ -110,26 +110,26 @@ with (Lang){
 
             if (thread.messageNo == 1)
                 return "->[1]";
-            if (!TraceUtils.spaces[depth]){
+            if (!LogUtils.spaces[depth]){
                 var space = "";
                 for (var i=0 ; i<depth-1 ; i++){
                     space +="---|";
                 }
-                TraceUtils.spaces[depth] = space;
+                LogUtils.spaces[depth] = space;
             }
 
             var messageNo = thread.messageNo;
-            return TraceUtils.spaces[depth] + "[" + messageNo + "]";
+            return LogUtils.spaces[depth] + "[" + messageNo + "]";
         },
 
-        trace: function(caller, message, obj)
+        log: function(caller, message, obj)
         {
 
-            var thread = TraceUtils.getThread(caller);
+            var thread = LogUtils.getThread(caller);
             var pre = "";
             if (thread){
                 thread.messageNo++;
-                pre = TraceUtils.getPre(thread);
+                pre = LogUtils.getPre(thread);
             }
 
             var message = pre + message;

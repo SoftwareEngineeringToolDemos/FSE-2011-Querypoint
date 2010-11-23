@@ -88,7 +88,7 @@ __owner.ReplayUtils = {
         },
 
         fireEvent : function(document, element, event){
-            trace("-------------------------------");
+            log("-------------------------------");
             var evt = document.createEvent("HTMLEvents");
             evt.initEvent(event, true, true ); // event type,bubbling,cancelable
             return !element.dispatchEvent(evt);
