@@ -851,13 +851,70 @@ reproducibility. A bug is \textit{reproducible} for a developer when the develop
 start from a determined initial state, operate on the program with a
 list of actions, and reproduce the symptoms of the bug. The details of
 the execution can change each time we re-execute the buggy program,
-but the buggy result is the same.  The reproducibility of the bug
+but the buggy result is the same.  All modern debuggers in wide use that we know 
+about rely on reproducible but non-deterministic execution for simple practical reasons: 
+developers must reproduce a bug to study it and modern execution environments 
+are not deterministic.  
+
+ In this section we discuss non-determinism and \textit{lastChange}. However we want 
+to emphasize that when developers have to think about non-determistic execution 
+it usually means that bugs are not reproducible. 
+The reproducibility of the bug
 means that the defect is very unlikely to depend on the order of
-events during the execution. When the developer selects a value and
+events during the execution. Conversely, if the defect depends on order of execution, 
+it will likely fail to reproduce on every execution. By relying on reproducibility but 
+not requiring deterministic execution, \textit{lastChange} covers the common case 
+developers focus on while not adding addition complexity to the implementation.
+
+\subsection{\textit{lastChange} Result Consistency}
+Each time we re-execute a non-deterministic program, 
+the details of execution instruction order may change. 
+For example, if we record the source code lines every time
+a conventional watchpoint hits, the record may differ each time we
+re-execute. But \textit{lastChange} does not ask the developer to
+consider these single points. Rather it analyzes all of the
+change events in an entire execution at the reproduction point where the bug
+has already occurred and shows the final result to the developer. 
+Neither the data gathering nor the analysis require deterministic execution.
+
+When the developer selects a value and
 asks for \textit{lastChange}, the developer is expressing the hypothesis that
-the value is related to the defect. Therefore the reproducibility of
+the value is related to the defect. Since the defect does not depend on
+ exeuction order, the reproducibility of
 the bug makes it very unlikely that the \textit{lastChange} will
-depend upon order of events during execution. In this section we discuss issues regarding to non-determinism.
+depend upon order of events during execution.
+Of course there can be rare cases where the bug is reproducible but the
+value from \textit{lastChange} is not. As in conventional breakpoint
+debugging, we can only determine this empirically, by observing
+multiple executions with different values. Unlike conventional
+breakpoint debugging, implementations of \textit{lastChange} readily
+help in detecting such cases: as we work back through a series of
+\textit{lastChange} requests we can compare values with previous
+executions. Different values on different executions will signal that
+the execution is not deterministic. 
+
+Consider the example in Figure~\ref{fig:nondeterministic-values}. 
+Assume that at the first exeuction, developers sees that \texttt{a} is \texttt{true} and asks
+for the \textit{lastChange} of \texttt{a} at breakpoint. In the re-exeuction, \texttt{a} is \texttt{false},
+and \texttt{b} is \texttt{b} is \texttt{true} at the reproduction point. It means that \texttt{lastChange}
+result shows line 10, which is a correct answer for this execution but not for the previous one.
+When user asks for the \textit{lastChange} on variable \texttt{a}, debugger stores \texttt{a} value and compares
+it to the \texttt{a} value in the next executions. So if this value is different, debuggers inform the developer
+that the \textit{lastChange} query is made on a different value. In cases that the value is not a primitive but an object,
+the properties of the object examined by the developer are stored and compared.
+
+\begin{figure}[htp]
+\begin{verbatim}
+10 a = false;
+11 b = false;
+...
+20 if ( random() ) { a = true; } else { b = true; }
+...
+30 if (a || b) { bug();  /* breakpoint */ }
+\end{verbatim}
+\caption{\textit{lastChange} on non-deterministic values.}
+\label{fig:nondeterministic-values}
+\end{figure}
 
 \subsection{Pausing at \textit{lastChange} Result}
 A \textit{lastChange} result can be recognized early when it occurs if it can
@@ -900,46 +957,7 @@ the value of item.
 \end{figure}
 
 
-\subsection{\textit{lastChange} Result Consistency}
-Each time we re-execute a non-deterministic program, 
-the details of execution instruction order may change. 
-For example, if we record the source code lines every time
-a conventional watchpoint hits, the record may differ each time we
-re-execute. But \textit{lastChange} does not ask the developer to
-consider these single points. Rather it analyzes all of the
-change events in an entire execution at the reproduction point where the bug
-has already occurred and shows the final result to the developer.
 
-Of course there can be cases where the bug is reproducible but the
-value from \textit{lastChange} is not. As in conventional breakpoint
-debugging, we can only determine this empirically, by observing
-multiple executions with different values. Unlike conventional
-breakpoint debugging, implementations of \textit{lastChange} readily
-help in detecting such cases: as we work back through a series of
-\textit{lastChange} requests we can compare values with previous
-executions. Different values on different executions will signal that
-the execution is not deterministic. Consider the example in Figure~\ref{fig:nondeterministic-values}. 
-Assume that at the first exeuction, developers sees that \texttt{a} is \texttt{true} and asks
-for the \textit{lastChange} of \texttt{a} at breakpoint. In the re-exeuction, \texttt{a} is \texttt{false},
-and \texttt{b} is \texttt{b} is \texttt{true} at the reproduction point. It means that \texttt{lastChange}
-result shows line 10, which is a correct answer for this execution but not for the previous one.
-When user asks for the \textit{lastChange} on variable \texttt{a}, debugger stores \texttt{a} value and compares
-it to the \texttt{a} value in the next executions. So if this value is different, debuggers inform the developer
-that the \textit{lastChange} query is made on a different value. In cases that the value is not a primitive but an object,
-the properties of the object examined by the developer are stored and compared.
-
-\begin{figure}[htp]
-\begin{verbatim}
-10 a = false;
-11 b = false;
-...
-20 if ( random() ) { a = true; } else { b = true; }
-...
-30 if (a || b) { bug();  /* breakpoint */ }
-\end{verbatim}
-\caption{\textit{lastChange} on non-deterministic values.}
-\label{fig:nondeterministic-values}
-\end{figure}
 
 
 
