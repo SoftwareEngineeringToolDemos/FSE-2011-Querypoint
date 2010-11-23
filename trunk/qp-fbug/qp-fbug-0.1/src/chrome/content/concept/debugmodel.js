@@ -46,33 +46,32 @@ with (Lang){
                          var qp = this.querypoints[id];
                          if (qp.queryType === DebugModel.QUERY_TYPES.LASTCHANGE){
                              if (qp.refQuerypoint === refQuerypoint
-                                && qp.refQueryexpr.frameNo === valueFrameNo
-                                && qp.refQueryexpr.expr === valueRef)
+                                && qp.refQueryExpr.frameNo === valueFrameNo
+                                && qp.refQueryExpr.expr === valueRef)
                                 return qp;
                          }
                     }
 
                     // makes querypoint
-                    var refQueryexpr = new QueryExpr(valueFrameNo, valueRef);
+                    var refQueryExpr = new QueryExpr(valueFrameNo, valueRef);
                     var id = ++this.nextQuerypointId;
                     var querypoint = new Querypoint(id, DebugModel.QUERY_TYPES.LASTCHANGE,
-                                                    refQuerypoint, refQueryexpr,
+                                                    refQuerypoint, refQueryExpr,
                                                     null, null, null);
 
-                    // updates querypoint queryDataList
+                    // updates querypoint queryExprList
                     var type = 0;
-                    var queryData = new QueryExpr(0, ".owner" );
-                    querypoint.addQueryData(queryData)
+                    var queryExpr = new QueryExpr(0, ".parent" );
+                    querypoint.addQueryExpr(queryExpr)
 
                     // add trace point to the list
                     this.querypoints[id] = querypoint;
                     this.querypointsSize++;
 
-                    // updates refQuerypoint queryDataList
+                    // updates refQuerypoint queryExprList
                     refQuerypoint.addDependentQuerypoint(querypoint);
 
-                    queryData = new QueryExpr(valueFrameNo, valueRef);
-                    refQuerypoint.addQueryData(queryData);
+                    refQuerypoint.addQueryExpr(refQueryExpr);
 
                     return querypoint;
                 },
@@ -96,7 +95,7 @@ with (Lang){
                     this.querypoints[id] = querypoint;
                     this.querypointsSize++;
 
-                    // updates refQuerypoint queryDataList
+                    // updates refQuerypoint queryExprList
                     refQuerypoint.addDependentQuerypoint(querypoint);
 
                     return querypoint;

@@ -141,6 +141,59 @@ with (Lang){
                 return ++this.nextEventId;
             },
 
+            getObjectId: function(object, set){
+                var id = object["___qpfbug_objectId___"];
+                if (!id && set){
+                    id = DebugService.getInstance().getNextJSObjectId();
+                    object["___qpfbug_objectId___"] = id;
+                }
+                return id;
+
+                // Code for Gecko 2 (fireforx 4)
+                //Object.defineProperty(refValue, "__QPFBUG_ID", { value: objectId });
+                // code for firefox 3.5+
+                //refValue.__defineGetter__("__QPFBUG_ID", function(){return objectId;})
+            },
+
+            //JSD doesn't give us the watch call back then we need to keep old watch call backs in this way
+            addWatchRequest: function(object, propertyName, watchRequest){
+
+                var allWatchRequests = object["___qpfbug_watchRequests___"]; // list of allWatchRequests
+
+                if (!allWatchRequests){
+                    allWatchRequests = {};
+                    object["___qpfbug_watchRequests___"] = allWatchRequests;
+                }
+
+                var watchRequests = allWatchRequests[propertyName];
+
+                if (!watchRequests){
+                    watchRequests = [watchRequest];
+                }else{ //the object has id and therefore another watch callback
+                    watchRequests.push(watchRequest);
+                }
+
+                allWatchRequests[propertyName] = watchRequests;
+
+                return watchRequests;
+            },
+
+            getScopeId: function(scope){
+                var id = scope["___qpfbug_scopeId___"];
+                return id;
+            },
+
+            setScopeId: function(frame){
+                var scope = frame.scope;
+                var unWrappedScope  = unwrapIValueObject(scope);
+                var id = unWrappedScope["___qpfbug_scopeId___"];
+                if (!id){
+                    id = DebugService.getInstance().getNextJSObjectId();
+                    evalInFrame(frame, "var ___qpfbug_scopeId___ = "+id);
+                }
+                return id;
+            },
+
             //--------------------------------- register/unregister listeners ----------------------------
             // interrupt
             registerInterruptListener: function(interruptListener){
@@ -180,7 +233,9 @@ with (Lang){
             enableEventRequest: function(context, eventRequest){
                 if (eventRequest.type == EventRequest.TYPES.WATCHPOINT  && !eventRequest.w_ownerCreationUrl){ //todo improve it
                     var unwrapped = unwrapObject(context.window);
-                    unwrapped.watch(eventRequest.w_propertyName, bindAtHead(this.onPropertyChanged, this, eventRequest, context.window));
+                    this.getObjectId(unwrapped, true); //sets object id for window
+                    var watchRequests = this.addWatchRequest(unwrapped, eventRequest.w_propertyName, eventRequest);
+                    unwrapped.watch(eventRequest.w_propertyName, bindAtHead(this.onPropertyChanged, this, watchRequests, context.window));
                 };
 
                 //set hooks for already loaded sourcefiles
@@ -347,26 +402,10 @@ with (Lang){
             onObjectCreation: function(eventRequest, object, frame, type, rv){
                 QPFBUG.monitor.ds_objectCreation++;
 
-                var objectId = getObjectId(object);
-                //JSD doesn't give us txhe watch call back then we need to keep it here.
-
-                var watchEventRequests = object["___qpfbug_watchRequests___"]; // list of watchEventRequests
-
-                if (!watchEventRequests){
-                    watchEventRequests = {};
-                    object["___qpfbug_watchRequests___"] = watchEventRequests;
-                }
+                var objectId = this.getObjectId(object, false);
 
                 var propertyName = eventRequest.w_propertyName;
-                var watchRequests = watchEventRequests[propertyName];
-
-                if (!watchRequests){
-                    watchRequests = [eventRequest];
-                }else{ //the object has id and therefore another watch callback
-                    watchRequests.push(eventRequest);
-                }
-
-                watchEventRequests[propertyName] = watchRequests;
+                var watchRequests = this.addWatchRequest(object, propertyName, eventRequest);
 
                 var undefinedValue;
                 var hasOwnProperty = object.hasOwnProperty(propertyName);

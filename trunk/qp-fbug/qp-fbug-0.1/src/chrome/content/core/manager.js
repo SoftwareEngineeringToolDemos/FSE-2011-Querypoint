@@ -129,25 +129,25 @@ with (Lang){
                     if (querypoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE){
                         var traceData = context.qpfbug.debugSession.getLastTraceData(
                                      querypoint.refQuerypoint,
-                                     querypoint.refQueryexpr.frameNo,
-                                     querypoint.refQueryexpr.expr
+                                     querypoint.refQueryExpr.frameNo,
+                                     querypoint.refQueryExpr.expr
                                      );
 
                         if (traceData){
-                            var url = traceData.parentTraceObject.creatorURL;
-                            var lineNo = traceData.parentTraceObject.creatorLine;
+                            var url = traceData.parentTrace.creatorURL;
+                            var lineNo = traceData.parentTrace.creatorLine;
 
                             if (!url){
-                                url = traceData.parentTraceObject.constructorURL;
-                                lineNo = traceData.parentTraceObject.constructorLine;
+                                url = traceData.parentTrace.constructorURL;
+                                lineNo = traceData.parentTrace.constructorLine;
                             }
                             if (url){    //todo
                                 url = normalizeURL(url);
                                 eventRequest = DebugService.getInstance().createModificationWatchpointRequest(
-                                    context, bind(this.onModificationWatchpointEvent, this), url, lineNo, querypoint.refQueryexpr.propertyName);
+                                    context, bind(this.onModificationWatchpointEvent, this), url, lineNo, querypoint.refQueryExpr.propertyName);
                             }else{
                                 eventRequest = DebugService.getInstance().createModificationWatchpointRequest(
-                                    context, bind(this.onModificationWatchpointEvent, this), null, null, querypoint.refQueryexpr.propertyName);
+                                    context, bind(this.onModificationWatchpointEvent, this), null, null, querypoint.refQueryExpr.propertyName);
                             }
 
                         }

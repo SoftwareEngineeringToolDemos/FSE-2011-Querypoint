@@ -179,21 +179,7 @@ with (QPFBUG.Classes){
                 }
                 return copy;
             }
-            return object;
-        },
-
-        getObjectId: function(object){
-            var id = object["___qpfbug_objectId___"];
-            if (!id){
-                id = DebugService.getInstance().getNextJSObjectId();
-                object["___qpfbug_objectId___"] = id;
-            }
-            return id;
-
-            // Code for Gecko 2 (fireforx 4)
-            //Object.defineProperty(refValue, "__QPFBUG_ID", { value: objectId });
-            // code for firefox 3.5+
-            //refValue.__defineGetter__("__QPFBUG_ID", function(){return objectId;})
+            return object; 
         },
 
         wait: function(millis)

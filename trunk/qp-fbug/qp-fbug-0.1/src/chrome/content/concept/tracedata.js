@@ -12,16 +12,12 @@ with (Lang){
 
     __owner.TraceData =
         function(){
-            var constructor = function(queryData, parentTraceObject, value){
-                this.queryData = queryData;
+            var constructor = function(queryExpr, value){
+                this.queryExpr = queryExpr;
 
-                this.parentTraceObject = parentTraceObject;
+                this.parentTrace = null;  //a traceObject or a traceScope
+
                 this.value = value;
-
-//                this.scopeType;
-
-
-                //scopeType
             };
 
             constructor.prototype = {

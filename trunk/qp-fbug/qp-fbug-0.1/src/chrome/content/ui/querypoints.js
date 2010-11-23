@@ -471,7 +471,7 @@ Firebug.Querypoint.TraceDataPanel.prototype = extend(Firebug.WatchPanel.prototyp
         if (tracepoint.getQueryType() === "lastChange")
         {
             var diff = new Firebug.Querypoint.TraceDataDiff(tracepoint.oldValue, tracepoint.newValue);
-            var lastChangeExpr = "["+tracepoint.querypoint.refQueryexpr.expr+"]";
+            var lastChangeExpr = "["+tracepoint.querypoint.refQueryExpr.expr+"]";
             this.addMember({expr: lastChangeExpr, value: diff }, "result", traceMembers, lastChangeExpr, diff, 0 );
         }
 

@@ -47,7 +47,6 @@ loadScript("resource://qpfbug/util/monitor.js");
 loadScript("resource://qpfbug/concept/debugmodel.js");
 loadScript("resource://qpfbug/concept/querypoint.js");
 loadScript("resource://qpfbug/concept/queryexpr.js");
-//loadScript("resource://qpfbug/concept/querydata.js");
 loadScript("resource://qpfbug/concept/trace.js");
 loadScript("resource://qpfbug/concept/tracepoint.js");
 loadScript("resource://qpfbug/concept/tracedata.js");

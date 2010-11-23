@@ -12,7 +12,7 @@ with (Lang){
     __owner.TraceObject =
         function(){
             var constructor = function(){
-                this.id = 0;
+                this.id = null;
                 this.creatorURL = null;
                 this.creatorLine = 0;
                 this.constructorURL = null;

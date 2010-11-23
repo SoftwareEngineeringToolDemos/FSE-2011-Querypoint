@@ -98,7 +98,7 @@ with (Lang){
                         this.monitorRefValues[i] = refValue;
                         if (typeof(refValue) == "object")
                         {
-                            var objectId = getObjectId(refValue);
+                            var objectId = DebugService.getInstance().getObjectId(refValue, true);
                             this.monitorRefGotNewValue[i] = true;
                             trace(monitorRef + " with id '" + objectId + "' was created.");
                             this.callBack(this.eventRequest, refValue, frame, type, rv);
