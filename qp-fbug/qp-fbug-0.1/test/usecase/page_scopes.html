@@ -28,6 +28,12 @@
                 return function(){
                     with(myScope){
                         inside2++;
+                        try{
+                            throw new Error("Error!");
+                        }catch(e){
+                            var inside3 = { value:0};
+                            inside3.value++;
+                        }
                         var myParagraph = document.getElementById("myParagraph");
                         myParagraph.innerHTML = "myObject.myProperty = " + myObject.myProperty;
                     }

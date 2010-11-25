@@ -19,7 +19,7 @@ with (Lang){
 
         constructor.prototype = {
 
-            start: function(callBack, eventRequest, frame, type, rv){
+            start: function(callBack, eventRequests, frame, type, rv){
                 log("ExecutionMonitor starts: " + frame.script.fileName + " " + frame.line);
                 this.steppingDriver = DebugService.getInstance().getSteppingDriver(this.context);
                 this.fileName = frame.script.fileName;
@@ -28,7 +28,7 @@ with (Lang){
                 this.startPC = frame.pc;
                 this.startStackFrameDepth = callStackDepth(frame);
                 this.callBack = callBack;
-                this.eventRequest = eventRequest;
+                this.eventRequests = eventRequests;
                 this.isStopped = false;
 
                 this.endPC = -1;
@@ -101,7 +101,7 @@ with (Lang){
                             var objectId = DebugService.getInstance().getObjectId(refValue, true);
                             this.monitorRefGotNewValue[i] = true;
                             log(monitorRef + " with id '" + objectId + "' was created.");
-                            this.callBack(this.eventRequest, refValue, frame, type, rv);
+                            this.callBack(this.eventRequests, refValue, frame, type, rv);
                         }
                     }
                 }

@@ -4,8 +4,10 @@ FBL.ns(function() { with (FBL)
 {
     with(QPFBUG.Classes){
 
-        if (QPFBUG.DBG)
-            TraceUtils.traceClassesFunctionCalls(QPFBUG.DBG_Filter);
+        if (QPFBUG.DBG){
+            LogUtils.logClassesFunctionCalls(QPFBUG.DBG_LIST);
+            FBTrace.DBG_QUERYPOINT = true;
+        }
 
         //store firebug classes
 
@@ -18,7 +20,6 @@ FBL.ns(function() { with (FBL)
         // A new Module event handler is created for every new firefox window
         Firebug.registerModule(ModuleEventHandler.getInstance(window));
 
-        FBTrace.DBG_QUERYPOINT = false;
         QPFBUG.Conf.DATA_COLLECTION_DEPTH = 2;
 
     }

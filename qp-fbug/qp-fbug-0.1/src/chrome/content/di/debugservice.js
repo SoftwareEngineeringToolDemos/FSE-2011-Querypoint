@@ -90,9 +90,7 @@ with (Lang){
                 context.qpfbug.eventRequests = null;
             },
 
-            onModificationWatchpointEvent: function(eventRequests, object, propertyName, oldValue, newValue, frame, type, rv, isObjectCreation){
-
-                var eventId = this.getNextEventId();
+            onModificationWatchpointEvent: function(eventId, eventRequests, object, propertyName, oldValue, newValue, frame, type, rv, isObjectCreation){
 
                 //Note this method might be called indirectly by watch, onPropertyChange->halt , onHalst -> onModificationWatchpoint
                 // or it might be called executionMonitor -> onObjectCreation -> onModification
@@ -115,7 +113,7 @@ with (Lang){
                 }
             },
 
-            onBreakpointEvent: function(eventRequest, frame, type, rv){
+            onBreakpointEvent: function(eventId, eventRequest, frame, type, rv){
                 var eventId = this.getNextEventId();
                 eventRequest.callBack(eventRequest, eventId, frame, type, rv);
             },
@@ -232,10 +230,10 @@ with (Lang){
             //--------------------------------- EventRequest-SourceFile --------------------------------
             enableEventRequest: function(context, eventRequest){
                 if (eventRequest.type == EventRequest.TYPES.WATCHPOINT  && !eventRequest.w_ownerCreationUrl){ //todo improve it
-                    var unwrapped = unwrapObject(context.window);
-                    this.getObjectId(unwrapped, true); //sets object id for window
-                    var watchRequests = this.addWatchRequest(unwrapped, eventRequest.w_propertyName, eventRequest);
-                    unwrapped.watch(eventRequest.w_propertyName, bindAtHead(this.onPropertyChanged, this, watchRequests, context.window));
+                    var window = unwrapObject(context.window);
+                    this.getObjectId(window, true); //sets object id for window
+                    var watchRequests = this.addWatchRequest(window, eventRequest.w_propertyName, eventRequest);
+                    window.watch(eventRequest.w_propertyName, bindAtHead(this.onPropertyChanged, this, watchRequests, window));
                 };
 
                 //set hooks for already loaded sourcefiles
@@ -355,10 +353,12 @@ with (Lang){
             onBreakpoint: function(context, frame, type, rv){
                 QPFBUG.monitor.ds_counterBreakpoint++;
                 log("On Breakpoint : " + frame.line);
+                var eventId = this.getNextEventId();
                 var eventRequests = context.qpfbug.eventRequests;
                 var eventRequest;
                 var script = frame.script;
                 var pc = frame.pc;
+                var eventRequestsForObjectCreation = [];
                 for (var i=0 ; i<eventRequests.length ; i++){
 
                     eventRequest = eventRequests[i];
@@ -375,15 +375,11 @@ with (Lang){
 
                                     if (eventRequest.isBreakpoint())
                                     {
-                                        this.onBreakpointEvent(eventRequest, frame, type, rv);
+                                        this.onBreakpointEvent(eventId, eventRequest, frame, type, rv);
                                     }
                                     if (eventRequest.isWatchpoint())
                                     {
-                                        //todo monitor should be saved in a list
-                                        executionMonitor = new ExecutionMonitor(context);
-                                        eventRequest.executionMonitors.push(executionMonitor);
-                                        executionMonitor.start(bind(this.onObjectCreation, this), eventRequest, frame, type, rv);
-//                                        executionMonitor.start(bindAtHead(this.onPropertyChanged, this, eventRequest), eventRequest.w_propertyName, frame, type, rv);
+                                        eventRequestsForObjectCreation.push(eventRequest);
                                     }
                                 }
                             }
@@ -391,6 +387,13 @@ with (Lang){
                     }
                 }
 
+                if (eventRequestsForObjectCreation.length>0){
+                    //todo monitor should be saved in a list
+                    var executionMonitor = new ExecutionMonitor(context);
+                    eventRequest.executionMonitors.push(executionMonitor);
+                    executionMonitor.start(bind(this.onObjectCreation, this), eventRequestsForObjectCreation, frame, type, rv);
+//                  executionMonitor.start(bindAtHead(this.onPropertyChanged, this, eventRequest), eventRequest.w_propertyName, frame, type, rv);
+                }
                 //find eventRequests related to this breakpoint
                 return Ci.jsdIExecutionHook.RETURN_CONTINUE;
             },
@@ -399,39 +402,43 @@ with (Lang){
                 return this.onHalt(frame, type, rv);
             },
 
-            onObjectCreation: function(eventRequest, object, frame, type, rv){
+            onObjectCreation: function(eventRequests, object, frame, type, rv){
                 QPFBUG.monitor.ds_objectCreation++;
+                var eventId = this.getNextEventId();
 
                 var objectId = this.getObjectId(object, false);
 
-                var propertyName = eventRequest.w_propertyName;
-                var watchRequests = this.addWatchRequest(object, propertyName, eventRequest);
+                for (var i=0 ; i<eventRequests.length ; i++){
+                    var eventRequest = eventRequests[i];
+                    var propertyName = eventRequest.w_propertyName;
 
-                var undefinedValue;
-                var hasOwnProperty = object.hasOwnProperty(propertyName);
-                if (hasOwnProperty){ //if propertyName is set consider it as a property change
-                    this.onModificationWatchpointEvent(watchRequests, object, propertyName, undefinedValue, object[propertyName], frame, type, rv, true); // the old value is undefined
+                    var undefinedValue;
+                    var hasOwnProperty = object.hasOwnProperty(propertyName);
+                    if (hasOwnProperty){ //if propertyName is set consider it as a property change
+                        this.onModificationWatchpointEvent(eventId, [eventRequest], object, propertyName, undefinedValue, object[propertyName], frame, type, rv, true); // the old value is undefined
+                    }
+
+                    var watchRequests;
+                    watchRequests = this.addWatchRequest(object, propertyName, eventRequests[i]);
+                    object.watch(propertyName, bindAtHead(this.onPropertyChanged, this, watchRequests, object)); //updates watch
+
+                    //watch adds a property with propertyName if it doesn't exist, so it should be removed
+                    if (!hasOwnProperty){
+                       delete object[propertyName];
+                    }
                 }
-
-                object.watch(propertyName, bindAtHead(this.onPropertyChanged, this, watchRequests, object));
-
-                //watch adds a property with propertyName if it doesn't exist, so it should be removed
-                if (!hasOwnProperty){
-                   delete object[propertyName];
-               }
-
+                
                 log("Object('"+ objectId + "') watch() was called.");
             },
 
             onPropertyChanged: function(eventRequests, object, propertyName, oldValue, newValue){
                 QPFBUG.monitor.ds_propertyChanged++;
-//                var onModificationWatchpointEvent = this.onModificationWatchpointEvent;
+                var eventId = this.getNextEventId();
 
                 //TODO: check later. it seems that "sometimes" oldValue is wrong!! we use this workaround
                 oldValue = object[propertyName];
-
                 this.halt(bindAtHead(this.onModificationWatchpointEvent, this,
-                          eventRequests, object, propertyName, oldValue, newValue));
+                          eventId, eventRequests, object, propertyName, oldValue, newValue));
 
                 return newValue;
             },

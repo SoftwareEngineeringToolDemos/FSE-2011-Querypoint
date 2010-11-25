@@ -56,6 +56,19 @@ Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
 
     },
 
+     //this operation has a conceptual problem. A breakpoint is different from a breakpointQuerypoint.
+     // The first one may happen many times but the second one happens only once.
+     // So it is necessary that developer adds breakpointQuerypoint at a specific hit of a breakpoint.
+//    onToggleBreakpoint: function(context, url, lineNo, isSet) //is called from debugger.js //todo currently it is not possible to add breakpoint directly in QP panel so we add breakpoints when they are added to Script panel
+//    {
+//         var debugSession = context.qpfbug.debugSession;
+//         var debugModel = debugSession.debugModel;
+//         if (isSet){
+//            debugModel.addQuerypoint_Breakpoint(url, lineNo, 0);
+//        }
+//    },
+
+
 
 });
 
@@ -332,8 +345,15 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
                             var row = sourceBox.getLineNode(lineNo);
                             if (FBTrace.DBG_QUERYPOINT)
                                 FBTrace.sysout("qp.decorator found line "+row);
-                            if (row) // we *should* only be called for lines in the viewport...
+                            if (row){ // we *should* only be called for lines in the viewport...
                                 row.setAttribute("tracepoint", "true");
+                                if (tp.querypoint.isPossibleToStop()){
+                                    row.setAttribute("possibleToStop", "true");
+                                }
+                                if (tp.querypoint.isStopEnabled()){
+                                    row.setAttribute("stopEnabled", "true");
+                                }
+                            }
                         }
                     }
                 });;
