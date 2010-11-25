@@ -26,3 +26,6 @@ http://mxr.mozilla.org/mozilla/source/js/jsd/jsd_xpc.h
 debugger service interface
 http://mxr.mozilla.org/mozilla/source/js/jsd/idl/jsdIDebuggerService.idl
 https://developer.mozilla.org/en/Code_snippets/JavaScript_Debugger_Service
+
+Different kinds of Firefox security wrappers
+https://developer.mozilla.org/en/XPConnect_wrappers

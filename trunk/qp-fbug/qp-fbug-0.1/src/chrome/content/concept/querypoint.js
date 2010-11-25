@@ -10,7 +10,7 @@ with (Lang){
     // trace point is kept in debug model.
     __owner.Querypoint =
         function(){
-            var constructor = function(id, queryType, refQuerypoint, refQueryExpr, url, lineNo, hitCount){
+            var constructor = function(id, queryType, refQuerypoint, refQueryExpr, url, lineNo, hitCount, possibleToStop, stopEnabled){
                 this.id = id;
                 this.queryType = queryType;
 
@@ -31,6 +31,11 @@ with (Lang){
                 //obj should be traced at this point
                 this.queryExprList = [];   // the list of query expressions (QueryExpr)
                 this.queryWatchList = [];  // the list of watch expressions
+
+                this.possibleToStop = possibleToStop;
+                this.stopEnabled = stopEnabled;
+                this.stopIndex = -1;
+                this.nonDeterminismInStopIndex = false;
             };
 
             constructor.prototype = {
@@ -65,6 +70,19 @@ with (Lang){
                         return this.refQueryExpr.expr;
                     }
                 },
+
+                isPossibleToStop: function(){
+                    return this.possibleToStop;
+                },
+
+                setStopEnabled: function(newValue){ 
+                    this.stopEnabled = newValue;
+                },
+
+                isStopEnabled: function(){
+                    return this.stopEnabled;
+                },
+
             };
             return constructor;
         }();

@@ -23,6 +23,14 @@
      background-image: url(chrome://qpfbug/content/ui/tracepoint.png);
 }
 
+.sourceRow[tracepoint="true"][possibleToStop="true"] > .sourceLine {
+     background-image: url(chrome://qpfbug/content/ui/tracepoint-possibleToStop.png);
+}
+
+.sourceRow[tracepoint="true"][possibleToStop="true"][stopEnabled="true"] > .sourceLine {
+     background-image: url(chrome://qpfbug/content/ui/tracepoint-stopEnabled.png);
+}
+
 .panelNode-tracestack .stackframeMarker {
     padding-left: 13px;
 }

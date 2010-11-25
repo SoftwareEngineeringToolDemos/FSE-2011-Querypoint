@@ -16,9 +16,11 @@
                 }
             }
 
+            local = 5;
+
             increaseMyProperty = function(){
                 myObject.myProperty++;
-
+                local ++;
                 myObject2.myProperty2 = {
                     myProperty4 : 1,
                 }
@@ -26,6 +28,7 @@
                 updatePage();
             }
             updatePage = function(){
+                local++;
                 var myParagraph = document.getElementById("myParagraph");
                 myParagraph.innerHTML = "myObject.myProperty = " + myObject.myProperty;
             }

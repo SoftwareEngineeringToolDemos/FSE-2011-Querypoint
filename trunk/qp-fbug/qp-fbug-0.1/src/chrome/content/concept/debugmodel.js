@@ -12,6 +12,7 @@ with (Lang){
             var constructor = function(){
                  this.querypoints = {};
                  this.querypointsSize = 0;
+                 this.breakpoint_querypointsSize = 0;
                  this.nextQuerypointId = 0;
             };
 
@@ -32,10 +33,12 @@ with (Lang){
                     var id = ++this.nextQuerypointId;
                     var querypoint = new Querypoint(id, DebugModel.QUERY_TYPES.BREAKPOINT,
                                                     null, null,
-                                                    url, lineNo, hitCount);
+                                                    url, lineNo, hitCount,
+                                                    true, false);
 
                     this.querypoints[id] = querypoint;
                     this.querypointsSize++;
+                    this.breakpoint_querypointsSize++;
                     return querypoint;
                 },
 
@@ -57,7 +60,8 @@ with (Lang){
                     var id = ++this.nextQuerypointId;
                     var querypoint = new Querypoint(id, DebugModel.QUERY_TYPES.LASTCHANGE,
                                                     refQuerypoint, refQueryExpr,
-                                                    null, null, null);
+                                                    null, null, null,
+                                                    false, false);
 
                     // updates querypoint queryExprList
                     var type = 0;
@@ -90,7 +94,8 @@ with (Lang){
                     var id = ++this.nextQuerypointId;
                     var querypoint = new Querypoint(id, DebugModel.QUERY_TYPES.LASTCONDITION,
                                                     refQuerypoint, null,
-                                                    null, null, null);
+                                                    null, null, null,
+                                                    false, false);
 
                     this.querypoints[id] = querypoint;
                     this.querypointsSize++;

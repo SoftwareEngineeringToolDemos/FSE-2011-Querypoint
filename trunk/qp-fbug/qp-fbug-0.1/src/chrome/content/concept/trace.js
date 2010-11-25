@@ -17,6 +17,7 @@ with (Lang){
                 this.tracepoints = {}; //<int querypointId, [] tracepoints>
                 this.assignedTracepoints = {};
                 this.assignedTracepointsSize = 0;
+                this.assignedBreakpointTracepointsSize = 0;
             };
 
             constructor.prototype = {
@@ -57,18 +58,23 @@ with (Lang){
 
                 addTracepoint: function(querypoint, context, eventId, frame, parent, oldValue, newValue)
                 {
-                    var dataCollectionDepth = QPFBUG.Conf.DATA_COLLECTION_DEPTH;
                     var querypointId = querypoint.id;
                     if (!this.tracepoints[querypointId]){
                         this.tracepoints[querypointId] = [];
                     }
+
+                    var index = this.tracepoints[querypointId].length;
+
+                    var dataCollectionDepth = QPFBUG.Conf.DATA_COLLECTION_DEPTH;
+                    if (querypoint.possibleToStop && querypoint.stopIndex != index)
+                        dataCollectionDepth = 0;
 
                     var stackTraceXB = QPFBUG.FBL.getCorrectedStackTrace(frame, context);
                     var traceThis = copyObject(unwrapIValue(frame.thisValue), dataCollectionDepth);
                     var traceFrame = new TraceFrame(stackTraceXB, this.getTraceScope(frame.scope, true, dataCollectionDepth), traceThis);
                     var traceOldValue = copyObject(oldValue, dataCollectionDepth);
                     var traceNewValue = copyObject(newValue, dataCollectionDepth);
-                    var tracepoint = new Tracepoint(++this.nextTracepointId, eventId, querypoint, traceFrame, traceOldValue, traceNewValue);
+                    var tracepoint = new Tracepoint(++this.nextTracepointId, eventId, index, querypoint, traceFrame, traceOldValue, traceNewValue);
 
 
                     for (var i=0 ; i<querypoint.queryExprList.length ; i++)
@@ -85,7 +91,6 @@ with (Lang){
                             }else if (querypoint.refQueryExpr.isVariable()){ //&& with
                                 var parentJSDIValue = QPFBUG.fbs.getJSD().wrapValue(parent);
                                 traceData.parentTrace = this.getTraceObject(parentJSDIValue);
-//                                traceData.parentTrace = this.getTraceScope(frame.scope,false,0);
                             }
                         }
                         if (queryExpr.isProperty()){
@@ -96,13 +101,15 @@ with (Lang){
                             var parentRef = queryExpr.parentRef;
 
                             var parent;
+                            var parentJSDIValue
+
                             parent = evalInFrame(frame, parentRef);
+                            //wrapValue returns the jsd wrapper
+                            parentJSDIValue = QPFBUG.fbs.getJSD().wrapValue(unwrapObject(parent));
 
                             if (!parent || typeof(parent)!="object") //todo how can it happen?
                                 continue;
 
-                            //wrapValue returns the jsd wrapper
-                            var parentJSDIValue = QPFBUG.fbs.getJSD().wrapValue(parent);
                             // This one for is a wrapper for security reasons
                             // specially when this object is going to be used
                             // by other modules/extenstions
@@ -116,6 +123,10 @@ with (Lang){
 
                         if (queryExpr.isVariable()){
                             var scope = this.findScopeForVariableName(frame.scope, queryExpr.variableName);
+//                            log("++++++++context" ,context);
+//                            normalizeURL(frame.script.fileName);
+//                            script.tag;
+
                             var traceScope = this.getTraceScope(scope, false, 0);
                             traceData = new TraceData(queryExpr, scope.getProperty(queryExpr.variableName));
                             traceData.parentTrace = traceScope;
@@ -129,7 +140,7 @@ with (Lang){
                     {
                         var queryWatch = querypoint.queryWatchList[i];
                         var evalValue = evalInFrame(frame, queryWatch);
-                        tracepoint.addTraceWatch(queryWatch, copyObject(evalValue, 2));
+                        tracepoint.addTraceWatch(queryWatch, copyObject(evalValue, dataCollectionDepth));
                     }
 
                     this.tracepoints[querypointId].push(tracepoint);
@@ -138,9 +149,22 @@ with (Lang){
 
                 assignTracepoint: function(querypoint, tracepoint)
                 {
-                    if (!this.assignedTracepoints[querypoint.id])//todo this line is unneccary
-                        this.assignedTracepointsSize++;          
+                    if (!this.assignedTracepoints[querypoint.id]){//todo this line is unneccary
+                        if (querypoint.queryType === 0)//breakpoint
+                            this.assignedBreakpointTracepointsSize++;
+                        this.assignedTracepointsSize++;
+                    }
                     this.assignedTracepoints[querypoint.id] = tracepoint;
+
+                    if (!tracepoint.querypoint.nonDeterminismInStopIndex)
+                        if (tracepoint.querypoint.stopIndex != -1)
+                            if (tracepoint.index == tracepoint.querypoint.stopIndex){
+                               tracepoint.querypoint.possibleToStop = true; 
+                            }else{
+                               tracepoint.querypoint.nonDeterminismInStopIndex = true;
+                               tracepoint.querypoint.possibleToStop = false; 
+                            }
+                    tracepoint.querypoint.stopIndex = tracepoint.index;
 
                     this.assignDependentQuerypoints(querypoint, tracepoint);
                 },
@@ -242,11 +266,10 @@ with (Lang){
 
                     var id;
 
-//                        log("::::::::::::::::::::::",scope);
-//                        log("----------------------",unwrapObject(unWrappedScope));
                     if (jsClassName == "Call"){
-//                        var id = DebugService.getInstance().getScopeId(scope);
-//                        traceScope.id = id;
+                        var id = DebugService.getInstance().getScopeId(scope);
+//                        log("::::::::::::::::::::::",scope);
+//                        log("----------------------",unWrappedScope);
                     }else if (jsClassName =="Window"){
                         var traceObject = this.getTraceObject(scope);
                         traceScope.id = traceObject.id;
@@ -280,6 +303,12 @@ with (Lang){
                 },
 
                 getTraceObject: function(jsdIValue){  //gets a JSDIValue
+
+                    //workaround for strange wrappers that unwrapObject() doesn't work
+                    // https://developer.mozilla.org/en/XPConnect_wrappers
+                    
+                    if (jsdIValue.jsClassName == "XPCCrossOriginWrapper")
+                        jsdIValue = jsdIValue.jsParent; //todo I'm not sure that it is the right way to unwrap
 
                     var traceObject = new TraceObject();
                     var object = unwrapIValueObject(jsdIValue);

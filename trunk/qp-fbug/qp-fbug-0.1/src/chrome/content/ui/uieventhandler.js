@@ -20,7 +20,15 @@ __owner.UIEventHandler = function(){
 
             init : function()
             {
+                this.updateScriptPanel();
                 this.addLastChangeMenuItem();
+            },
+
+            updateScriptPanel: function(){
+                with(this.win){
+                    Firebug.Debugger.localRerun = Firebug.Debugger.rerun;
+                    Firebug.Debugger.rerun = bind(Manager.getInstance().replay,Manager.getInstance());
+                }
             },
             //----------------------- Changes getContextMenuItems --------------
             // Adds "lastChange" menuItem to popup menu

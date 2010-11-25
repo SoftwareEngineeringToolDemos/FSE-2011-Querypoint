@@ -104,7 +104,11 @@ var __owner = QPFBUG.Classes;
             },
 
             moreQuerypointsToFind: function(){
-                return (this.getNumberOfQuerypoints() > this.reproduction.trace.assignedTracepointsSize);
+                return (this.debugModel.querypointsSize > this.reproduction.trace.assignedTracepointsSize);
+            },
+
+            moreReproductionPointsToFind: function(){
+                return (this.debugModel.breakpoint_querypointsSize > this.reproduction.trace.assignedBreakpointTracepointsSize);
             },
 
         }

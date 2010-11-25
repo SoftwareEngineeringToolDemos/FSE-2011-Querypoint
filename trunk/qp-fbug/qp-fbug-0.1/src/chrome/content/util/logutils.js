@@ -101,7 +101,7 @@ with (Lang){
         },
 
 
-        spaces: {},
+        spaces: {},  //spaces strings catch
         
         getPre: function(thread){
             var depth = thread.depth;
@@ -136,8 +136,6 @@ with (Lang){
 
             FBTrace.sysout(message, obj);
         },
-
-
 
 
     };

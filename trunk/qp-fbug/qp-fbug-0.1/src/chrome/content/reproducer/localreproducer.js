@@ -20,7 +20,8 @@ __owner.LocalReproducer = function(){
             reproduce: function (context, debugSessionId, reproductionId)
             {
                 var Firebug = context.Firebug; // we are in a module and don't have access to Firebug in this scope.
-                Firebug.Debugger.rerun(context);
+//                Firebug.Debugger.rerun(context);
+                Firebug.Debugger.localRerun(context);
             },
 
             toString: function()  // todo to base class

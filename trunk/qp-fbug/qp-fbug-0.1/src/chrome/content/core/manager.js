@@ -80,6 +80,7 @@ with (Lang){
                     newResults : false, //todo
                     reproducer: this.reproducer,
                     recorder: null,
+                    passBreakpointEventsToFirebug: false,
                 };
 //                if (debugSession.getNumberOfQuerypoints > 0){
                 reproduction.start(context);
@@ -180,9 +181,10 @@ with (Lang){
                 this.collectData(context, querypoint, eventId, frame);
                 if (context.qpfbug.debugSession.needsAnotherReproduction()){   //todo: && there is no more reproduction point to visit
                     this.replay(context);
-                }else{
+                }else if(!context.qpfbug.debugSession.moreReproductionPointsToFind()){
                     //show new found querypoints
                     context.qpfbug.newResults = true;
+                    context.qpfbug.passBreakpointEventsToFirebug = true;
                 }
             },
 
