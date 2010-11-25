@@ -62,6 +62,11 @@ with (Lang){
             return tracepoint.querypoint;
          },
 
+         getTracepointByQuerypoint: function(context, querypoint)
+         {
+            return context.qpfbug.debugSession.reproduction.trace.getAssignedTracepointByQuerypoint(querypoint);
+         },
+
          getTraceData: function(tracepoint)
          {
              // Salman, need help here.

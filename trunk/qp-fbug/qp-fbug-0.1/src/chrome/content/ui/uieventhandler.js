@@ -28,6 +28,15 @@ __owner.UIEventHandler = function(){
                 with(this.win){
                     Firebug.Debugger.localRerun = Firebug.Debugger.rerun;
                     Firebug.Debugger.rerun = bind(Manager.getInstance().replay,Manager.getInstance());
+
+                    var old_SyncCommands = Firebug.Debugger.syncCommands;
+                    Firebug.Debugger.syncCommands = function(context){
+                        old_SyncCommands.apply(Firebug.Debugger, arguments);
+                        var chrome = Firebug.chrome;
+                        if (!chrome)
+                            return;
+                        chrome.setGlobalAttribute("cmd_rerun", "disabled", "false"); //enable re_run again
+                    }
                 }
             },
             //----------------------- Changes getContextMenuItems --------------

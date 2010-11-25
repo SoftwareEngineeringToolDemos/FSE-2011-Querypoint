@@ -283,11 +283,21 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
     getDefaultLocation: function()
     {
-        var list = this.getLocationList()
         if (FBTrace.DBG_QUERYPOINT)
             FBTrace.sysout("getDefaultLocation "+list, list);
-        if (list)
+
+        var targetQuerypoint = UIUtils.getReproduction(this.context).targetQuerypoint;
+        var tp;
+        if (targetQuerypoint)
+             tp = UIUtils.getTracepointByQuerypoint(this.context, targetQuerypoint);
+        if (tp)
+             return tp;
+
+        var list = this.getLocationList()
+        if (list){
             return list.pop();
+        }
+
     },
 
     getLocationContent: function(objects, popup)
@@ -861,7 +871,7 @@ Firebug.Querypoint.TraceDataNotCollectedRep = domplate(Firebug.Rep,
         try
         {
             tracepoint.querypoint.addQueryWatch(path.join(''));
-            QPFBUG.Classes.Manager.getInstance().replay(panel.mainPanel.context);
+            QPFBUG.Classes.Manager.getInstance().replay(panel.mainPanel.context, tracepoint.querypoint);
             FBTrace.sysout("Rerun to collect data requested for "+row.textContent+" set depth "+QPFBUG.Conf.DATA_COLLECTION_DEPTH, event);
         }
         catch(exc)
