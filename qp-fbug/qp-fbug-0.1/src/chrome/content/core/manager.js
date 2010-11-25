@@ -80,9 +80,12 @@ with (Lang){
                     newResults : false, //todo
                     reproducer: this.reproducer,
                     recorder: null,
-                    passBreakpointEventsToFirebug: false,
+                    passBreakpointEventsToFirebug: true,
                 };
-//                if (debugSession.getNumberOfQuerypoints > 0){
+
+                if (reproduction.targetQuerypoint)
+                    context.qpfbug. passBreakpointEventsToFirebug = false;
+
                 reproduction.start(context);
                 this.enableQuerypoints(context);
 //                }
@@ -180,7 +183,7 @@ with (Lang){
 
                 this.collectData(context, querypoint, eventId, frame);
                 if (context.qpfbug.debugSession.needsAnotherReproduction()){   //todo: && there is no more reproduction point to visit
-                    this.replay(context);
+                    this.replay(context, reproduction.targetQuerypoint);
                 }else if(!context.qpfbug.debugSession.moreReproductionPointsToFind()){
                     //show new found querypoints
                     context.qpfbug.newResults = true;
@@ -202,7 +205,7 @@ with (Lang){
                     //todo move this tag to another place
                     context.qpfbug.newResults = true;
 
-                    this.replay(context);
+                    this.replay(context, querypointB);
                 }
             },
 
@@ -240,7 +243,7 @@ with (Lang){
                         context.qpfbug.newResults = true;
 
                         this.collectData(context, querypoint, -1, frame); //todo eventId == -1  ? centerlize eventid and give a coorect one here
-                        this.replay(context);
+                        this.replay(context, querypointB);
                     }
                 }
             },
@@ -267,11 +270,12 @@ with (Lang){
 
             },
 
-            replay: function(context){
+            replay: function(context, targetQuerypoint){
                 var debugSession = context.qpfbug.debugSession;
                 var reproduction = context.qpfbug.debugSession.reproduction;
 
                 var newReproduction = debugSession.nextReproduction();
+                newReproduction.targetQuerypoint = targetQuerypoint;
                 this.disableQuerypoints(context);
                 this.getReproducer().reproduce(context, debugSession.id, newReproduction.id);
             }
