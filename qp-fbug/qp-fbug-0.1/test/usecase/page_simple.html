@@ -16,11 +16,17 @@
                 }
             }
 
+            var Good = function(degree){
+                this.degree = degree;
+            }
+
             local = 5;
+            var goodObject;
 
             increaseMyProperty = function(){
                 myObject.myProperty++;
                 local ++;
+                goodObject = new Good(4);
                 myObject2.myProperty2 = {
                     myProperty4 : 1,
                 }

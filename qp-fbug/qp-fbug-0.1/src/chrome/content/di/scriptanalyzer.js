@@ -106,7 +106,9 @@ with (Lang){
                         if (node.type == jsParser.ASSIGN ||
                             node.type == jsParser.PROPERTY_INIT)
                         {
-                            if (node[1].type == jsParser.OBJECT_INIT)
+                            if (node[1].type == jsParser.OBJECT_INIT
+                             || node[0].type == jsParser.NEW
+                             || node[0].type == jsParser.NEW_WITH_ARGS)
                             {
                                 if (scriptScope.parentRef)
                                     ref = scriptScope.parentRef + "." + node[0].getSource();
@@ -122,7 +124,9 @@ with (Lang){
                         if (node.type == jsParser.VAR &&
                             node[0].initializer)
                         {
-                            if (node[0].initializer.type == jsParser.OBJECT_INIT)
+                            if (node[0].initializer.type == jsParser.OBJECT_INIT
+                             || node[0].initializer.type == jsParser.NEW
+                             || node[0].initializer.type == jsParser.NEW_WITH_ARGS)
                             {
                                 if (scriptScope.parentRef)
                                     ref = scriptScope.parentRef + "." + node[0].name;
