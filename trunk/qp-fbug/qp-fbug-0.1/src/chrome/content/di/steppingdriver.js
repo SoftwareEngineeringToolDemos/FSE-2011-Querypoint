@@ -23,6 +23,7 @@ with (Lang){
             this.registeredForInterrupts = false;
             this.registeredForFunctions = false;
             this.stepRecursion = 0;
+            this.stackDepthChange = 0;
             this.isStopped = true;
         };
 
@@ -38,6 +39,8 @@ with (Lang){
                 this.startScriptTag = null;
                 this.startLineNo = -1;
                 this.startPC = -1;
+                this.stepRecursion = 0;
+                this.stackDepthChange = 0;
             },
 
             step: function(stepHandler, steppingMode, startScriptTag, startLineNo, startPC){
@@ -47,6 +50,9 @@ with (Lang){
                 this.startScriptTag = startScriptTag;
                 this.startLineNo = startLineNo;
                 this.startPC = startPC;
+
+                this.stepRecursion = 0;
+                this.stackDepthChange = 0;
 
                 with(SteppingDriver.STEP_MODES){
                 switch (this.steppingMode){
@@ -105,12 +111,9 @@ with (Lang){
                 }
             },
             
-            onStep: function(context, frame, type, rv, stackDepthChange){
+            onStep: function(context, frame, type, rv){
                 this.stop();
-                if (!stackDepthChange)
-                    stackDepthChange = 0;
-
-                this.stepHandler.onStep(frame, type, rv, stackDepthChange);
+                this.stepHandler.onStep(frame, type, rv, this.stackDepthChange);
             },
 
             // ------------------------------ functions called by debug service -------------
@@ -151,7 +154,6 @@ with (Lang){
             onFunction: function(context, frame, type){
 //                log("steppingDriver : onFunction " + type + " " + frame.line);
                 var rv = null;
-                var stackDepthChange = 0;
 
                 if (context != this.context)
                     return;
@@ -161,30 +163,30 @@ with (Lang){
                     {
                         case TYPE_TOPLEVEL_START:
                         case TYPE_FUNCTION_CALL:{
-                            stackDepthChange = 1;
+                            this.stackDepthChange++;
                             break;
                         }
                         case TYPE_TOPLEVEL_END:
                         case TYPE_FUNCTION_RETURN:{
-                            stackDepthChange = -1;
+                            this.stackDepthChange--;
                             break;
                         }
                     }
 
                     switch (this.steppingMode){
                         case STEP_MIN: {
-                            this.onStep(context, frame, type, rv, stackDepthChange);
+                            this.onStep(context, frame, type, rv);
                             break;
                         }
                         //todo change it. It should check and if we are still in the same line just let the execution continue
                         case STEP_LINE: {
                             if (frame.line != this.startLineNo){ //only if it is a new line
-                                this.onStep(context, frame, type, rv, stackDepthChange);
+                                this.onStep(context, frame, type, rv);
                             }
                             break;
                         }
                         case STEP_INTO: {
-                            this.onStep(context, frame, type, rv, stackDepthChange);
+                            this.onStep(context, frame, type, rv);
                             break;
                         }
                         case STEP_OVER: {
@@ -194,10 +196,10 @@ with (Lang){
                                 case TYPE_FUNCTION_CALL:{
                                     if (frame.callingFrame && frame.callingFrame.script.tag === this.startScriptTag)
                                     {
-                                        if (!this.stepRecursion){
-                                            this.onStep(context, frame, type, rv, stackDepthChange);
-                                        }
                                         this.stepRecursion++;
+                                        if (!this.stepRecursion){
+                                            this.onStep(context, frame, type, rv);
+                                        }
                                     }
                                     this.unRegisterAsInterruptListener();
                                     break;
@@ -206,7 +208,7 @@ with (Lang){
                                 case TYPE_FUNCTION_RETURN:{
                                     if (!this.stepRecursion){ // then we never hit FUNCTION_CALL or we rolled back after we hit it
                                         if (frame.script.tag === this.startScriptTag){// We are in the stepping frame,
-                                            this.onStep(context, frame, type, rv, stackDepthChange);
+                                            this.onStep(context, frame, type, rv);
                                             this.registerAsInterruptListener();  // so halt on the next PC
                                         }
 
@@ -235,7 +237,7 @@ with (Lang){
                                 case TYPE_FUNCTION_RETURN:{
                                     if (!this.stepRecursion){ // then we never hit FUNCTION_CALL or we rolled back after we hit it
                                         if (frame.script.tag === this.startScriptTag){// We are in the stepping frame,
-                                            this.onStep(context, frame, type, rv, stackDepthChange);
+                                            this.onStep(context, frame, type, rv);
                                             this.registerAsInterruptListener();  // so halt on the next PC
                                         }
                                     }else if (frame.callingFrame && frame.callingFrame.script.tag === this.startScriptTag){ //then we could be in the step call
