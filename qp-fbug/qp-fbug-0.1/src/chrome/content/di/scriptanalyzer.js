@@ -81,9 +81,7 @@ with (Lang){
                                 scriptScope = scriptScopes.pop();
                             }
 
-                            if (node.type == jsParser.ASSIGN ||
-                                jsParser.PROPERTY_INIT ||
-                                jsParser.VAR)
+                            if (node.type == jsParser.PROPERTY_INIT)
                             {
                                 if (node === scriptScope.parentsPath[scriptScope.parentsPath.length-1])
                                 {
@@ -92,6 +90,15 @@ with (Lang){
                                         scriptScope.parentRef = scriptScope.parentRef.substring(0, scriptScope.parentRef.lastIndexOf("."));
                                     else
                                         scriptScope.parentRef = null;
+                                }
+                            }
+                            if (node.type == jsParser.ASSIGN ||
+                                node.type == jsParser.VAR)
+                            {
+                                if (node === scriptScope.parentsPath[scriptScope.parentsPath.length-1])
+                                {
+                                    scriptScope.parentsPath.pop();
+                                    scriptScope.parentRef = null;
                                 }
                             }
                             continue;
@@ -107,8 +114,8 @@ with (Lang){
                             node.type == jsParser.PROPERTY_INIT)
                         {
                             if (node[1].type == jsParser.OBJECT_INIT
-                             || node[0].type == jsParser.NEW
-                             || node[0].type == jsParser.NEW_WITH_ARGS)
+                             || node[1].type == jsParser.NEW
+                             || node[1].type == jsParser.NEW_WITH_ARGS)
                             {
                                 if (scriptScope.parentRef)
                                     ref = scriptScope.parentRef + "." + node[0].getSource();

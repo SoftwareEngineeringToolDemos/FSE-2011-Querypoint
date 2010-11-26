@@ -23,7 +23,7 @@ with (Lang){
                 log("ExecutionMonitor starts: " + frame.script.fileName + " " + frame.line);
                 this.steppingDriver = DebugService.getInstance().getSteppingDriver(this.context);
                 this.fileName = frame.script.fileName;
-                this.line = frame.line;
+                this.startLine = frame.line;
                 this.startScriptTag = frame.script.tag;
                 this.startPC = frame.pc;
                 this.startStackFrameDepth = callStackDepth(frame);
@@ -65,13 +65,16 @@ with (Lang){
                     var refValue = evalInFrame(frame, monitorRef);
                     this.monitorRefValues.push(refValue);
                 }
-                this.steppingDriver.step(this, 3, this.startScriptTag, this.line, this.startPC); //todo correct line number
+                this.steppingDriver.step(this, 3, this.startScriptTag, this.startLine, this.startPC); //todo correct line number
             },
 
-            stop: function(){
+            stop: function(frame){
                 this.isStopped = true;
                 DebugService.getInstance().releaseSteppingDriver(this.steppingDriver);
-                log("ExecutionMonitor ends: " + this.fileName + " " + this.line);
+                if (frame)
+                    log("ExecutionMonitor ends: " + this.fileName + " " + this.startLine + " " + frame.line);
+                else
+                    log("ExecutionMonitor ends: " + this.fileName + " " + this.startLine);
             },
 
             //todo
@@ -86,7 +89,7 @@ with (Lang){
             {
                 //trace(this.isStopped + " -+-+-+" + frame.script.fileName + " " +  frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT) + " " + frame.pc + "------- " + this.context.uid +"----" + "  "+ stackDepthChange + " "+ callStackDepth(frame));
                 if (stackDepthChange<0){
-                    this.stop();
+                    this.stop(frame);
                     return;
                 }
 
@@ -120,7 +123,7 @@ with (Lang){
 //                log("shouldContinue: " + shouldContinue + " " + frame.pc + " " + nextPCLine + " " +nextPCLine2+" "+nextPCLine10);
 
                 if (!shouldContinue){
-                    this.stop();
+                    this.stop(frame);
                     return;
                 }
 
