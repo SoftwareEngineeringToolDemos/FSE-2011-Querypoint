@@ -11,6 +11,6 @@ QPFBUG.Conf = {};
 
 QPFBUG.DBG = false;
 
-//do not include these classes: LogUtils, Lang, JSDEventHandler, HaltObject, DebugService, ExecutionMonitor;
+//do not include these classes: LogUtils, Lang, JSDEventHandler, HaltObject, DebugService, ObjectCreationTracker;
 QPFBUG.DBG_LIST = ["Manager", "ModuleEventHandler", "UIEventHandler",
                      "DebugModel", "Trace", "DebugSession", "Reproduction", "Reproducer", "UIUtils"];
