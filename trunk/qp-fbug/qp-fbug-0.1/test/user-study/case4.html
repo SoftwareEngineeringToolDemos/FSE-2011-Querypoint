@@ -35,10 +35,7 @@
                     graph.nodes = [];
                     var node;
                     for (var j=0 ; j<graph.numberOfNodes ; j++){
-                        node = {};
-                        node.edges = [];
-                        node.id = j;
-                        node.visited = false;
+                        node = new Node(j);
                         graph.nodes.push(node);
                     }
 
@@ -50,10 +47,7 @@
                         n0 = graph.nodes[connection[0]];
                         n1 = graph.nodes[connection[1]];
 
-                        edge = {};
-                        edge.traversed = false;
-                        edge.n0 = n0;
-                        edge.n1 = n1;
+                        edge = new Edge(n0, n1);
 
                         n0.edges.push(edge);
                         n1.edges.push(edge);
@@ -115,6 +109,18 @@
                 return graphs;
             };
 
+            var Node = function(id){
+                this.id = id;
+                this.edges = [];
+                this.visited = false;
+            };
+
+            var Edge = function(n0, n1){
+                this.traversed = false;
+                this.n0 = n0;
+                this.n1 = n1;
+            };
+
         -->
         </script>
 
@@ -133,10 +139,10 @@
            <li> Locate the defect causes the error.</li>
            </ol>
 
-     <b>Note:</b>  In this case, <i>lastChange</i> queries might take longer time, be patient.
+     <b>Note:</b>  In this case, <i>lastChange</i> queries may take longer time, be patient.
         </p>
 
-    <button id="myParagraph" onclick="compute()">
+    <button id="reproducer" onclick="compute()">
       Traverse Graphs!
     </button>
 

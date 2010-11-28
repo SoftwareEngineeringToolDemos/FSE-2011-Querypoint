@@ -35,8 +35,11 @@
             }
             updatePage = function(){
                 local++;
-                var myParagraph = document.getElementById("myParagraph");
-                myParagraph.innerHTML = "myObject.myProperty = " + myObject.myProperty;
+                var x =0;
+                x++;
+                x++;
+                var reproducer = document.getElementById("reproducer");
+                reproducer.innerHTML = "myObject.myProperty = " + myObject.myProperty;
             }
         -->
         </script>
@@ -48,7 +51,7 @@
       This page contains an object "myObject",
       whenever user clicks, "myObject.myProperty" value increases.
     </P>
-    <p id="myParagraph">
+    <p id="reproducer">
       myObject.myProperty = 0;
     </P>
     <p id>
