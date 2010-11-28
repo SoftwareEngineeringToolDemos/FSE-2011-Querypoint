@@ -18,8 +18,8 @@
                 updateButton();
             }
             updateButton = function(){
-                var myParagraph = document.getElementById("myParagraph");
-                myParagraph.innerHTML =  myObject.myProperty;
+                var reproducer = document.getElementById("reproducer");
+                reproducer.innerHTML =  myObject.myProperty;
             }
             function foo(){
                 myCondition.value = oldValue;
@@ -48,7 +48,7 @@
       This page contains an object "myObject",
       whenever user clicks, "myObject.myProperty" value increases.
     </P>
-    <button id="myParagraph" onclick="increaseMyProperty()">
+    <button id="reproducer" onclick="increaseMyProperty()">
       1
     </button>
     <p id>

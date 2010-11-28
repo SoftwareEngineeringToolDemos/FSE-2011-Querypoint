@@ -34,8 +34,8 @@
                             var inside3 = { value:0};
                             inside3.value++;
                         }
-                        var myParagraph = document.getElementById("myParagraph");
-                        myParagraph.innerHTML = "myObject.myProperty = " + myObject.myProperty;
+                        var reproducer = document.getElementById("reproducer");
+                        reproducer.innerHTML = "myObject.myProperty = " + myObject.myProperty;
                     }
                 }
             }();
@@ -49,7 +49,7 @@
       This page contains an object "myObject",
       whenever user clicks, "myObject.myProperty" value increases.
     </P>
-    <p id="myParagraph">
+    <p id="reproducer">
       myObject.myProperty = 0;
     </P>
     <p id>

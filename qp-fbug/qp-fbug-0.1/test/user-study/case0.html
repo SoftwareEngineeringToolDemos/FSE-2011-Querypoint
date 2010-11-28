@@ -18,8 +18,8 @@
                 updateButton();
             }
             updateButton = function(){
-                var myParagraph = document.getElementById("myParagraph");
-                myParagraph.innerHTML =  myObject.myProperty;
+                var reproducer = document.getElementById("reproducer");
+                reproducer.innerHTML =  myObject.myProperty;
             }
             function foo(){
                 myCondition.value = oldValue;
@@ -48,13 +48,13 @@
         Go through these steps:
        <ol>
        <li> Click on the button.</li>
-       <li> When you see the error in Firebug console, set a breakpoint on the error (red dot), then re-run to halt on the error message .</li>
+       <li> When you click on the button instead of two, zero appears.</li>
        <li> Locate the defect causes the error. (hint: the button text
-        is updated in line 22.)</li>
+        is updated in line 22. So, to start set a breakpoint on this line.)</li>
        </ol>
 
     </P>
-    <button id="myParagraph" onclick="increaseMyProperty()">
+    <button id="reproducer" onclick="increaseMyProperty()">
       1
     </button>
     <p id>

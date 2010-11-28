@@ -34,7 +34,7 @@ function runTest()
         FBTestFirebug.waitForBreakInDebugger(chrome, lineNo, true, breakpointHit);
 
         // click on the page
-        var node = testData.firstTabWin.document.getElementById("myParagraph");
+        var node = testData.firstTabWin.document.getElementById("reproducer");
         FBTest.click(node);
     };
 

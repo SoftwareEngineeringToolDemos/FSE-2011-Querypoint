@@ -13,8 +13,8 @@
                 myObject.myProperty++;
                 myObject.myProperty++;
                 myObject.myProperty++;
-                var myParagraph = document.getElementById("myParagraph");
-                myParagraph.innerHTML = "myObject.myProperty = " + myObject.myProperty;
+                var reproducer = document.getElementById("reproducer");
+                reproducer.innerHTML = "myObject.myProperty = " + myObject.myProperty;
             }
         -->
         </script>
@@ -50,7 +50,7 @@
         <b>Note:</b> The implementation of <i>lastChange</i> is not yet complete for variables. We handle properties of variables but not the variable itself. In
             such cases you don't get any result from <i>lastChange</i> query.
     </p>
-    <h2 id="myParagraph">
+    <h2 id="reproducer">
       myObject.myProperty = 0;
     </h2>
     <p id>
