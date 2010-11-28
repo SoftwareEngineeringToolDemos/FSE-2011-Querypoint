@@ -7,9 +7,9 @@ with (Lang){
 
     var __owner = QPFBUG.Classes;
 
-    //--------------------------- ExecutionMonitor ----------------------
+    //--------------------------- ObjectCreationTracker ----------------------
     // an object creation execution monitor
-    __owner.ExecutionMonitor = function(){
+    __owner.ObjectCreationTracker = function(){
 
         var constructor = function(context){
             this.context = context;
@@ -20,7 +20,7 @@ with (Lang){
         constructor.prototype = {
 
             start: function(callBack, eventRequests, frame, type, rv){
-                log("ExecutionMonitor starts: " + frame.script.fileName + " " + frame.line);
+                log("ObjectCreationTracker starts: " + frame.script.fileName + " " + frame.line);
                 this.steppingDriver = DebugService.getInstance().getSteppingDriver(this.context);
                 this.fileName = frame.script.fileName;
                 this.startLine = frame.line;
@@ -65,16 +65,16 @@ with (Lang){
                     var refValue = evalInFrame(frame, monitorRef);
                     this.monitorRefValues.push(refValue);
                 }
-                this.steppingDriver.step(this, 3, this.startScriptTag, this.startLine, this.startPC); //todo correct line number
+                this.steppingDriver.step(this, 3, this.startScriptTag, this.startLine, this.startPC);
             },
 
             stop: function(frame){
                 this.isStopped = true;
                 DebugService.getInstance().releaseSteppingDriver(this.steppingDriver);
                 if (frame)
-                    log("ExecutionMonitor ends: " + this.fileName + " " + this.startLine + " " + frame.line);
+                    log("ObjectCreationTracker ends: " + this.fileName + " " + this.startLine + " " + frame.line);
                 else
-                    log("ExecutionMonitor ends: " + this.fileName + " " + this.startLine);
+                    log("ObjectCreationTracker ends: " + this.fileName + " " + this.startLine);
             },
 
             //todo

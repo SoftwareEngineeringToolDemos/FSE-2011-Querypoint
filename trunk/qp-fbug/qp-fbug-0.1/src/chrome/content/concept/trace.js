@@ -66,8 +66,14 @@ with (Lang){
                     var index = this.tracepoints[querypointId].length;
 
                     var dataCollectionDepth = QPFBUG.Conf.DATA_COLLECTION_DEPTH;
-                    if (querypoint.possibleToStop && querypoint.stopIndex != index)
-                        dataCollectionDepth = 0;
+                    if (querypoint.possibleToStop){
+                        if (querypoint.stopIndex == index)
+                            dataCollectionDepth = QPFBUG.Conf.DATA_COLLECTION_DEPTH;
+                        else
+                            dataCollectionDepth = 0;
+                    } else {
+                        dataCollectionDepth = QPFBUG.Conf.DATA_COLLECTION_DEPTH;
+                    }
 
                     var stackTraceXB = QPFBUG.FBL.getCorrectedStackTrace(frame, context);
                     var traceThis = copyObject(unwrapIValue(frame.thisValue), dataCollectionDepth);
@@ -268,8 +274,8 @@ with (Lang){
 
                     if (jsClassName == "Call"){
                         var id = DebugService.getInstance().getScopeId(scope);
-//                        log("::::::::::::::::::::::",scope);
-//                        log("----------------------",unWrappedScope);
+                        log("::::::::::::::::::::::",scope);
+                        log("----------------------",unWrappedScope);
                     }else if (jsClassName =="Window"){
                         var traceObject = this.getTraceObject(scope);
                         traceScope.id = traceObject.id;

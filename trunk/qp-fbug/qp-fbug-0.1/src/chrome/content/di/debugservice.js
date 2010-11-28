@@ -389,7 +389,7 @@ with (Lang){
 
                 if (eventRequestsForObjectCreation.length>0){
                     //todo monitor should be saved in a list
-                    var executionMonitor = new ExecutionMonitor(context);
+                    var executionMonitor = new ObjectCreationTracker(context);
                     eventRequest.executionMonitors.push(executionMonitor);
                     executionMonitor.start(bind(this.onObjectCreation, this), eventRequestsForObjectCreation, frame, type, rv);
 //                  executionMonitor.start(bindAtHead(this.onPropertyChanged, this, eventRequest), eventRequest.w_propertyName, frame, type, rv);

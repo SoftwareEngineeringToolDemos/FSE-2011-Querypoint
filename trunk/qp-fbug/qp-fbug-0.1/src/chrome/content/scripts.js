@@ -77,7 +77,7 @@ loadScript("resource://qpfbug/di/jsdeventhandler.js");
 loadScript("resource://qpfbug/di/eventrequest.js");
 loadScript("resource://qpfbug/di/debugservice.js");
 loadScript("resource://qpfbug/di/haltobject.js");
-loadScript("resource://qpfbug/di/executionmonitor.js");
+loadScript("resource://qpfbug/di/objectcreationtracker.js");
 loadScript("resource://qpfbug/di/steppingdriver.js");
 loadScript("resource://qpfbug/di/scriptanalyzer.js");
 
