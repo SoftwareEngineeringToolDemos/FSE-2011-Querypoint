@@ -55,11 +55,8 @@ with (Lang){
 
             //private function
             createEventRequest: function(context, eventRequest){
-                if (!this.registeredContexts[context.uid]){
-                    this.registeredContexts[context.uid] = context;
-                    this.registeredContextsNo++;
-                    context.qpfbug.eventRequests = [];
-                }
+                this.registerContext(context);
+
                 eventRequest.id = this.nextEventRequestId++;
                 eventRequest.context = context;
                 context.qpfbug.eventRequests.push(eventRequest);
@@ -70,8 +67,7 @@ with (Lang){
             },
 
             removeEventRequestsForContext: function(context){
-                delete this.registeredContexts[context.uid];
-                this.registeredContextsNo--;
+                this.unRegisterContext(context);
 
                 var eventRequests = context.qpfbug.eventRequests;
                 if (!eventRequests)
@@ -88,6 +84,19 @@ with (Lang){
                 //todo remove jsd breakpoints
 
                 context.qpfbug.eventRequests = null;
+            },
+
+            registerContext: function(context){
+                if (!this.registeredContexts[context.uid]){
+                    this.registeredContexts[context.uid] = context;
+                    this.registeredContextsNo++;
+                    context.qpfbug.eventRequests = [];
+                }
+            },
+
+            unRegisterContext: function(context){
+                delete this.registeredContexts[context.uid];
+                this.registeredContextsNo--;
             },
 
             onModificationWatchpointEvent: function(eventId, eventRequests, object, propertyName, oldValue, newValue, frame, type, rv, isObjectCreation){
@@ -122,6 +131,7 @@ with (Lang){
 
             //--------------------------------- SteppingDriver ----------------------------
             getSteppingDriver: function(context){
+                this.registerContext(context);
                 return new SteppingDriver(this.nextListenerId++, context);
             },
 
