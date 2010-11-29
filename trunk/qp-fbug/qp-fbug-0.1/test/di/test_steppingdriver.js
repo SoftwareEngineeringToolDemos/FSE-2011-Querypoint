@@ -5,12 +5,15 @@ function runTest()
     var QPFBUG = win.QPFBUG;
     var Firebug = win.Firebug;
     var qpfbug = Firebug.qpfbug;
+    var tabWindow;
     var context;
     with (QPFBUG.Classes){
     with (Lang){
         var tabLoaded = function(window)
         {
+            tabWindow = window;
             FBTestFirebug.openFirebug();
+
             FBTestFirebug.selectPanel("script");
             FBTestFirebug.enableScriptPanel(startTest);
         };
@@ -23,18 +26,18 @@ function runTest()
 
         var startTest = function(window){
             if (DBG)
-                trace("Creates and Starts step handlers.")
+                log("Creates and Starts step handlers.")
+
             context = win.TabWatcher.getContextByWindow(window);
 
-            context.qpfbug.enabled = true;
-
-            stepHandler_Min = new StepHandler();
-            stepHandler_Line = new StepHandler();
-            stepHandler_In = new StepHandler();
-            stepHandler_Over = new StepHandler();
-            stepHandler_Out = new StepHandler();
+            stepHandler_Min = new StepHandler(context);
+            stepHandler_Line = new StepHandler(context);
+            stepHandler_In = new StepHandler(context);
+            stepHandler_Over = new StepHandler(context);
+            stepHandler_Out = new StepHandler(context);
 
             var startCountingLine = context.window.startCountingLine;
+
             var endCountingLine = context.window.endCountingLine;
             stepHandler_Min.start(0, startCountingLine, endCountingLine);
             stepHandler_Line.start(1, startCountingLine, endCountingLine);
@@ -48,10 +51,10 @@ function runTest()
             FBTest.compare(true, !!QPFBUG.fbs.getJSD().functionHook, "JSD function hook")
 
             if (DBG)
-                trace("Step handlers started.")
+                log("Step handlers started.")
 
             // click on the page
-            var node = context.window.document.getElementById("myBody");
+            var node = context.window.document.getElementById("reproducer");
             FBTest.click(node);
 
             setTimeout(endTest, 200);
@@ -81,7 +84,8 @@ function runTest()
 
         //step handler class
 
-        var StepHandler = function(){
+        var StepHandler = function(context){
+            this.context = context;
         };
 
         StepHandler.prototype = {
@@ -90,27 +94,27 @@ function runTest()
                 this.steppingMode = steppingMode;
                 this.startCountingLine = startCountingLine;
                 this.endCountingLine = endCountingLine;
-                this.steppingDriver = DebugService.getInstance().getSteppingDriver(this, context);
+                this.steppingDriver = DebugService.getInstance().getSteppingDriver(this.context);
                 this.countingStarted = false;
-                this.steppingDriver.start();
+                this.steppingDriver.stepSoon(this);
             },
 
             stop: function(){
                 if (DBG)
-                    trace("Step handler step count " + this.steppingMode + " : " + this.stepCount);
+                    log("Step handler step count " + this.steppingMode + " : " + this.stepCount);
                 DebugService.getInstance().releaseSteppingDriver(this.steppingDriver);
             },
 
             onStep: function(frame, type, rv, stackDepthChange){
                 if (DBG)
-                    trace("onStep : " + this.steppingMode + " : " + frame.script.fileName + ":  " +frame.line + " type: " + type + " stackDepthChange: " + stackDepthChange + " "+this.getFrameDepth(frame), frame);
+                    log("onStep : " + this.steppingMode + " : " + frame.script.fileName + ":  " +frame.line + " type: " + type + " stackDepthChange: " + stackDepthChange + " "+this.getFrameDepth(frame), frame);
                 if (!this.countingStarted){
                     if (frame.line == this.startCountingLine){
                         this.countingStarted = true;
                         this.stepCount++;
-                        this.steppingDriver.step(this.steppingMode, frame.script.tag, frame.line, frame.pc);
+                        this.steppingDriver.step(this, this.steppingMode, frame.script.tag, frame.line, frame.pc);
                     }else{
-                        this.steppingDriver.step(0, frame.script.tag, frame.line, frame.pc);
+                        this.steppingDriver.step(this, 0, frame.script.tag, frame.line, frame.pc);
                     }
                 }else{
                     if (frame.line == this.endCountingLine){
@@ -118,7 +122,7 @@ function runTest()
                         return;
                     }
                     this.stepCount++;
-                    this.steppingDriver.step(this.steppingMode, frame.script.tag, frame.line, frame.pc);
+                    this.steppingDriver.step(this, this.steppingMode, frame.script.tag, frame.line, frame.pc);
                 }
             },
 
@@ -133,7 +137,7 @@ function runTest()
         };
 
         if (DBG)
-            trace("Opens the page ...")
+            log("Opens the page ...")
         FBTestFirebug.openNewTab(basePath + "test/di/page_steppingdriver.html", tabLoaded);
     }}
 
