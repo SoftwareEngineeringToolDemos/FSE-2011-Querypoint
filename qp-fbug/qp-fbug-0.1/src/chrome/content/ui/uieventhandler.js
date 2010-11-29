@@ -76,21 +76,7 @@ __owner.UIEventHandler = function(){
 
                         if (domPanel && row){
 
-                            var propertyPath = domPanel.getPropertyPath(row).join("");
-                            if (propertyPath.match(/^scopeChain\[/) != null) //startsWith scopeChain[
-                            {
-                                propertyPath = propertyPath.substring(propertyPath.indexOf("].")+2, propertyPath.length);
-                            }
-
-                            if (propertyPath.match(/^\[/) != null) //startsWith ["[object Window]"] //todo
-                            {
-                                propertyPath = propertyPath.substring(propertyPath.indexOf("].")+2, propertyPath.length);
-                            }
-
-                            if (propertyPath.match(/^Window/) != null) //startsWith Window //todo it is only for datatrace
-                            {
-                                propertyPath = propertyPath.substring(propertyPath.indexOf(".")+1, propertyPath.length);
-                            }
+                            var propertyPath = UIUtils.getPropertyPath(domPanel,row).join("");
 
                             if (domPanel.selection instanceof JSDConstants.jsdIStackFrame) { //watches panel
                                 if (domPanel.context.stopped){

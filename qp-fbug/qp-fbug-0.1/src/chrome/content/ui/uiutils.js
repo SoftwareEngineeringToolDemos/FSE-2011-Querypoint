@@ -72,6 +72,33 @@ with (Lang){
              // Salman, need help here.
              return {expr: "traceDataExpr", traceData: {value: "traceDataValue", otherProps: "here"} };
          },
+
+
+         // Dom panels utility functions
+         getPropertyPath: function(panel, row)
+         {
+             var path = [];
+             for(var current = row; current ; current = UIUtils.getParentRow(current)){
+                 if (hasClass(current, "scopesRow")) //we don't want the root row which is a dummy node for scope
+                    break;
+                 path = panel.getRowPathName(current).concat(path);
+             }
+             path.splice(0,1); //don't want the first seperator
+             return path;
+         },
+
+         getParentRow: function(row)
+         {
+             var level = parseInt(row.getAttribute("level"))-1;
+             // If it's top level object the level is now set to -1, is that a problem?
+             for (row = row.previousSibling; row; row = row.previousSibling)
+             {
+                 if (parseInt(row.getAttribute("level")) == level)
+                     return row;
+             }
+         }
+         
+
      };
 }}
 
