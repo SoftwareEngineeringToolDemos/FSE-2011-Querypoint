@@ -240,7 +240,6 @@ __owner.JSDEventHandler = function(){
 
                 if (jsdEventHandler.ds_hooksState.interruptHook){
                     var context = jsdEventHandler.getContextFromFrame(frame);
-
                     Monitor.getInstance().test++;
                     if (context)
                         returnValue = ds.onInterrupt(context, frame, type, rv);
@@ -307,13 +306,17 @@ __owner.JSDEventHandler = function(){
                 var fbs = jsdEventHandler.fbs;
                 var jsd =  fbs.getJSD()
 
-                if (this == jsdEventHandler){
+                if (this === jsdEventHandler){
+                    if (jsdEventHandler.ds_hooksState.interruptHook === true)
+                        return; //it is already set
                     jsdEventHandler.ds_hooksState.interruptHook = true;
                 }else{
+                    if (jsdEventHandler.fbs_hooksState.interruptHook === true)
+                        return; //it is already set
                     jsdEventHandler.fbs_hooksState.interruptHook = true;
                 }
 
-                jsdEventHandler.fbs_hookInterrupts.apply(fbs, arguments);
+//                jsdEventHandler.fbs_hookInterrupts.apply(fbs, arguments);
 
                 //replace hooks
                 jsd.interruptHook = {onExecute: jsdEventHandler.onInterrupt};
@@ -323,6 +326,7 @@ __owner.JSDEventHandler = function(){
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
+                var jsd =  fbs.getJSD()
 
                 if (this == jsdEventHandler){
                     jsdEventHandler.ds_hooksState.interruptHook = false;
@@ -332,8 +336,8 @@ __owner.JSDEventHandler = function(){
                 if (jsdEventHandler.ds_hooksState.interruptHook || jsdEventHandler.fbs_hooksState.interruptHook)
                     return; // do not unhook
 
-                jsdEventHandler.fbs_unhookInterrupts.apply(fbs, arguments);
-
+//                jsdEventHandler.fbs_unhookInterrupts.apply(fbs, arguments);
+                jsd.interruptHook = null;
             },
             
             hookFunctions: function(){
@@ -343,11 +347,15 @@ __owner.JSDEventHandler = function(){
                 var jsd =  fbs.getJSD()
 
                 if (this == jsdEventHandler){
+                    if (jsdEventHandler.ds_hooksState.functionHook === true)
+                        return; //it is already set
                     jsdEventHandler.ds_hooksState.functionHook = true;
                 }else{
+                    if (jsdEventHandler.ds_hooksState.functionHook === true)
+                        return; //it is already set
                     jsdEventHandler.fbs_hooksState.functionHook = true;
                 }
-                jsdEventHandler.fbs_hookFunctions.apply(fbs, arguments);
+//                jsdEventHandler.fbs_hookFunctions.apply(fbs, arguments);
 
                 //replace hooks
                 jsd.functionHook = {onCall: jsdEventHandler.onFunction};
@@ -357,6 +365,7 @@ __owner.JSDEventHandler = function(){
                 var jsdEventHandler = QPFBUG.jsdEventHandler;
                 var ds = jsdEventHandler.ds;
                 var fbs = jsdEventHandler.fbs;
+                var jsd =  fbs.getJSD()
 
                 if (this == jsdEventHandler){
                     jsdEventHandler.ds_hooksState.functionHook = false;
@@ -366,7 +375,9 @@ __owner.JSDEventHandler = function(){
                 if (jsdEventHandler.ds_hooksState.functionHook || jsdEventHandler.fbs_hooksState.functionHook)
                     return; // do not unhook
 
-                jsdEventHandler.fbs_unhookFunctions.apply(fbs, arguments);
+//                jsdEventHandler.fbs_unhookFunctions.apply(fbs, arguments);
+                jsd.functionHook = null;
+
             },
             
             hookCalls: function(){
@@ -432,9 +443,6 @@ __owner.JSDEventHandler = function(){
                                 this.cachedContexts[frame.executionContext.tag] = {id:context.uid, counter:1};
                             return context;
                         }
-//                        else{
-//                            log(":::: " + frame.script.fileName + " " + frame.line);
-//                        }
                     }
                 }
                 return null;
