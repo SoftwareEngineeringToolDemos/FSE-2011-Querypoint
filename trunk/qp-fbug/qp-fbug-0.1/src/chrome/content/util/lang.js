@@ -217,6 +217,8 @@ with (QPFBUG.Classes){
 
         clearNode : QPFBUG.FBL.clearNode,
 
+        hasClass : QPFBUG.FBL.hasClass,
+
         createMenuItem : QPFBUG.FBL.createMenuItem,
 
         $ : QPFBUG.FBL.$,

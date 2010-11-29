@@ -864,7 +864,7 @@ Firebug.Querypoint.TraceDataNotCollectedRep = domplate(Firebug.Rep,
     {
         var row = getAncestorByClass(event.target, "memberRow");
         var panel = Firebug.getElementPanel(row);
-        var path = panel.getPropertyPath(row);
+        var path = UIUtils.getPropertyPath(panel, row);
         var tracepoint = panel.mainPanel.location;
         FBTrace.sysout("onCollectOnRerun "+path.join('')+" row "+row+" location: "+tracepoint, tracepoint);
 
