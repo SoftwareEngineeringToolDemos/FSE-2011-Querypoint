@@ -46,13 +46,11 @@ with (Lang){
                         }
                     }
 
-                    log("LastChange Tracepoint", tracepoint);
                     return tracepoint;
                 },
 
                 addBreakpointTracepoint: function(querypoint, context, eventId, frame){
                     var tracepoint = this.addTracepoint(querypoint, context, eventId, frame);
-                    log("Breakpoint Tracepoint", tracepoint);
                     return tracepoint;
                 },
 
@@ -66,7 +64,7 @@ with (Lang){
                     var index = this.tracepoints[querypointId].length;
 
                     var dataCollectionDepth = QPFBUG.Conf.DATA_COLLECTION_DEPTH;
-                    if (querypoint.possibleToStop){
+                    if (querypoint.breakable){
                         if (querypoint.stopIndex == index)
                             dataCollectionDepth = QPFBUG.Conf.DATA_COLLECTION_DEPTH;
                         else
@@ -77,7 +75,7 @@ with (Lang){
 
                     var stackTraceXB = QPFBUG.FBL.getCorrectedStackTrace(frame, context);
                     var traceThis = copyObject(unwrapIValue(frame.thisValue), dataCollectionDepth);
-                    var traceFrame = new TraceFrame(stackTraceXB, this.getTraceScope(frame.scope, true, dataCollectionDepth), traceThis);
+                    var traceFrame = new TraceFrame(stackTraceXB, this.getTraceScope(context, frame, frame.scope, true, dataCollectionDepth), traceThis);
                     var traceOldValue = copyObject(oldValue, dataCollectionDepth);
                     var traceNewValue = copyObject(newValue, dataCollectionDepth);
                     var tracepoint = new Tracepoint(++this.nextTracepointId, eventId, index, querypoint, traceFrame, traceOldValue, traceNewValue);
@@ -130,10 +128,13 @@ with (Lang){
                         if (queryExpr.isVariable()){
                             var scope = this.findScopeForVariableName(frame.scope, queryExpr.variableName);
 //                            log("++++++++context" ,context);
-//                            normalizeURL(frame.script.fileName);
+//                            log("++++++++fileName: " + frame.script.fileName);
+                            var fileName = normalizeURL(frame.script.fileName);
+                            var sourceFile = context.sourceFileMap[fileName];
+                            
 //                            script.tag;
 
-                            var traceScope = this.getTraceScope(scope, false, 0);
+                            var traceScope = this.getTraceScope(context, frame, scope, false, 0);
                             traceData = new TraceData(queryExpr, scope.getProperty(queryExpr.variableName));
                             traceData.parentTrace = traceScope;
                         }
@@ -165,10 +166,10 @@ with (Lang){
                     if (!tracepoint.querypoint.nonDeterminismInStopIndex)
                         if (tracepoint.querypoint.stopIndex != -1)
                             if (tracepoint.index == tracepoint.querypoint.stopIndex){
-                               tracepoint.querypoint.possibleToStop = true; 
+                               tracepoint.querypoint.breakable = true;
                             }else{
                                tracepoint.querypoint.nonDeterminismInStopIndex = true;
-                               tracepoint.querypoint.possibleToStop = false; 
+                               tracepoint.querypoint.breakable = false; 
                             }
                     tracepoint.querypoint.stopIndex = tracepoint.index;
 
@@ -235,10 +236,6 @@ with (Lang){
                 getAssignedTracepointByQuerypoint: function(querypoint)
                 {
                     return this.assignedTracepoints[querypoint.id];
-//                    var points = this.tracepoints[];
-//                    log("getLastTracepointByQuerypoint "+points, {querypoint: querypoint, tracepoints: this.tracepoints});
-//                    if (points && points.length)
-//                        return points[points.length - 1];
                 },
 
                 findScopeForVariableName: function(scope, variableName){
@@ -251,7 +248,7 @@ with (Lang){
                     return this.findScopeForVariableName(scope.jsParent, variableName);
                 },
 
-                getTraceScope: function (scope, linkParent, depth) //scope is a JSDIValue
+                getTraceScope: function (context, frame, scope, linkParent, depth) //scope is a JSDIValue
                 {
                     if (!scope)
                         return null;
@@ -262,7 +259,7 @@ with (Lang){
                         var parentDepth = 1;
                         if (depth <=0)
                             parentDepth = 0;
-                        parentTrace = this.getTraceScope(scope.jsParent, true, parentDepth);
+                        parentTrace = this.getTraceScope(context, frame, scope.jsParent, true, parentDepth);
                     }
                     
                     var jsClassName = scope.jsClassName;
@@ -274,8 +271,8 @@ with (Lang){
 
                     if (jsClassName == "Call"){
                         var id = DebugService.getInstance().getScopeId(scope);
-                        log("::::::::::::::::::::::",scope);
-                        log("----------------------",unWrappedScope);
+//                        log("::::::::::::::::::::::",scope);
+//                        log("----------------------",unWrappedScope);
                     }else if (jsClassName =="Window"){
                         var traceObject = this.getTraceObject(scope);
                         traceScope.id = traceObject.id;
@@ -284,7 +281,7 @@ with (Lang){
                         traceScope.constructorURL = traceObject.constructorURL;
                         traceScope.constructorLine = traceObject.constructorLine;
                     }else if (jsClassName == "With"){
-                        var traceObject = this.getTraceObject(scope.jsPrototype); //it seems that real with object is kept as a prototype
+                        var traceObject = this.getTraceObject(scope.jsPrototype); //it seems that the real "with" object is kept as a prototype
                         traceScope.id = traceObject.id;
                         traceScope.creatorURL = traceObject.creatorURL;
                         traceScope.creatorLine = traceObject.creatorLine;
@@ -312,7 +309,6 @@ with (Lang){
 
                     //workaround for strange wrappers that unwrapObject() doesn't work
                     // https://developer.mozilla.org/en/XPConnect_wrappers
-                    
                     if (jsdIValue.jsClassName == "XPCCrossOriginWrapper")
                         jsdIValue = jsdIValue.jsParent; //todo I'm not sure that it is the right way to unwrap
 

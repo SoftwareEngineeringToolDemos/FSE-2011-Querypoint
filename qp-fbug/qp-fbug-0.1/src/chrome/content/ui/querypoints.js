@@ -358,10 +358,10 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
                             if (row){ // we *should* only be called for lines in the viewport...
                                 row.setAttribute("tracepoint", "true");
                                 if (tp.querypoint.isPossibleToStop()){
-                                    row.setAttribute("possibleToStop", "true");
+                                    row.setAttribute("breakable", "true");
                                 }
-                                if (tp.querypoint.isStopEnabled()){
-                                    row.setAttribute("stopEnabled", "true");
+                                if (tp.querypoint.isBreakEnabled()){
+                                    row.setAttribute("breakEnabled", "true");
                                 }
                             }
                         }

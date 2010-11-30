@@ -181,7 +181,7 @@ __owner.JSDEventHandler = function(){
                     return returnValue;
 
                 //todo update according it john:frame.pc == 0 means breakpoint was set by Firebug unless sourceFile.breakOnZero == script.tag; in which case the user set the breakpoint.
-                if (context && !context.qpfbug.passBreakpointEventsToFirebug && frame.pc!=0){ //breakpoint which are set at pc==0 are set by firebug for recognizing the script load
+                if (context && !context.qpfbug.breakEnabled && frame.pc!=0){ //breakpoint which are set at pc==0 are set by firebug for recognizing the script load
                     return returnValue;
                 }
                 // fbs removes the breakpoint from the script if it doesn't have

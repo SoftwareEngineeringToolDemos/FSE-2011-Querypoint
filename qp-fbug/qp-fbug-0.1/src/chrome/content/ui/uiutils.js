@@ -96,8 +96,16 @@ with (Lang){
                  if (parseInt(row.getAttribute("level")) == level)
                      return row;
              }
-         }
+         },
          
+         isResultRow: function(row)
+         {
+             for(var current = row; current ; current = UIUtils.getParentRow(current)){
+                 if (hasClass(current, "resultRow")) //if the root parent has "resultRow" class
+                    return true;
+             }
+             return false
+         }
 
      };
 }}

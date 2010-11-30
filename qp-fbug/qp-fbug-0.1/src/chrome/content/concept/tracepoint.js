@@ -8,7 +8,7 @@ with (Lang){
     var __owner = QPFBUG.Classes;
 
     //------------------------------- Tracepoint ----------------------------------
-    // trace point is kept in debug model.
+
     __owner.Tracepoint =
         function(){
             var constructor = function(id, eventId, index, querypoint, traceFrame, oldValue, newValue){
