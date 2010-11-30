@@ -10,6 +10,24 @@ with (Lang){
 
     QPFBUG.Classes.LogUtils = {
 
+        log: function(caller, message, obj)
+        {
+            var thread = LogUtils.getThread(caller);
+            var pre = "";
+            if (thread){
+                thread.messageNo++;
+                pre = LogUtils.getPre(thread);
+            }
+
+            var message = pre + message;
+
+            FBTrace.sysout(message, obj);
+        },
+
+        isWrapped: function(className){
+            return arrayContainsObject(LogUtils.wrappedClasses, className);
+        },
+
         wrappedClasses : [],
 
         logClassesFunctionCalls: function(list){
@@ -24,7 +42,7 @@ with (Lang){
                 return;
             var class = QPFBUG.Classes[className];
             if (!class){
-                log("there is no class with this name : " + className);
+                FBTrace.sysout("Warning: There is no class with this name : " + className);
                 return;
             }
 
@@ -35,25 +53,25 @@ with (Lang){
             LogUtils.wrappedClasses.push(className);
         },
 
-        logDataFunctionCalls: function(objName, obj, functionName) //todo instead of getting one function name get a list
+        //feature parse f.toSource() and pass argument names
+        logDataFunctionCalls: function(objName, obj, functionName)
         {
             for (var p in obj)
             {
-                if (typeof(obj[p]) == "function" && obj[p] )
+                if (obj[p] && typeof(obj[p]) == "function")
                 {
-                    var obj_p = obj[p];           //p & obj_p changes in the loop
+                    var obj_p = obj[p];   //p & obj_p changes in the loop
                     if (!functionName || functionName == p)
-                        obj[p] = function(fName, f){ // so by calling another function we fix them for the internal function
-                                                     //todo parse f.toSource() and pass arguments names
+                        obj[p] = function ___QPFBUG_LOG(fName, f){ // so by calling another function we fix them for the internal function
                             return function(){
                                     var caller = arguments.callee.caller;
                                     var thread = LogUtils.enterThread(caller, f);
                                     var space = LogUtils.getPre(thread);
                                     var argumentsCopy = cloneArray(arguments); //because "arguments" is not longer available when function returns
-                                    QPFBUG.Classes.Lang.log(space + objName + " - " + fName , {object:this, arguments:argumentsCopy});
+                                    FBTrace.sysout(space + objName + " - " + fName , {object:this, arguments:argumentsCopy});
                                     var rv = f.apply(this, arguments);
                                     if (rv)
-                                        QPFBUG.Classes.Lang.log(space + objName + " - " + fName + " returns." , rv);
+                                        FBTrace.sysout(space + objName + " - " + fName + " returns." , rv);
                                     LogUtils.exitThread(thread, caller);
                                     return rv;
                             }
@@ -62,11 +80,13 @@ with (Lang){
             };
         },
 
+        //---------------------------------------- private properties ----------------------------------------------
         threads : [],
+        spaces: {},  //spaces strings catch
 
-        //todo there is one assumption which is not always true
-        // That is the currentObject is not the same in two threads
 
+        //Warning: There is one assumption which may not be always true.
+        // It is assumed that the currentObject is not the same in two different threads.
         getThread: function(callee){
             for (var i=0 ; i<LogUtils.threads.length ; i++){
                 var thread = LogUtils.threads[i];
@@ -101,8 +121,6 @@ with (Lang){
         },
 
 
-        spaces: {},  //spaces strings catch
-        
         getPre: function(thread){
             var depth = thread.depth;
             if (depth>100)  //larger spaces won't be useful
@@ -110,6 +128,7 @@ with (Lang){
 
             if (thread.messageNo == 1)
                 return "->[1]";
+
             if (!LogUtils.spaces[depth]){
                 var space = "";
                 for (var i=0 ; i<depth-1 ; i++){
@@ -121,22 +140,6 @@ with (Lang){
             var messageNo = thread.messageNo;
             return LogUtils.spaces[depth] + "[" + messageNo + "]";
         },
-
-        log: function(caller, message, obj)
-        {
-
-            var thread = LogUtils.getThread(caller);
-            var pre = "";
-            if (thread){
-                thread.messageNo++;
-                pre = LogUtils.getPre(thread);
-            }
-
-            var message = pre + message;
-
-            FBTrace.sysout(message, obj);
-        },
-
 
     };
 

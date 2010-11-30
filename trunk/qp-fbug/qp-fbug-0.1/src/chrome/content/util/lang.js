@@ -61,6 +61,12 @@ with (QPFBUG.Classes){
 
         arrayContainsObject: function(array, object)
         {
+            if ( array.indexOf ) {
+			    if (array.indexOf(object)>=0)
+			        return true;
+			    return false;
+            }
+
             for (var i=0 ; i<array.length ; i++){
                 if (array[i] == object){
                     return true;

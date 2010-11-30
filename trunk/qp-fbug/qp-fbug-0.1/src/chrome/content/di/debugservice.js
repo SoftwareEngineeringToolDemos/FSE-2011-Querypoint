@@ -73,12 +73,12 @@ with (Lang){
                 if (!eventRequests)
                     return;
                 var eventRequest;
-                var executionMonitor;
+                var objectCreationTracker;
                 for (var i=0 ; i<eventRequests.length ; i++){
                     eventRequest = eventRequests[i];
-                    for (var j=0 ; j<eventRequest.executionMonitors.length ; j++){
-                         executionMonitor = eventRequest.executionMonitors[j]; 
-                         executionMonitor.stop();
+                    for (var j=0 ; j<eventRequest.objectCreationTrackers.length ; j++){
+                         objectCreationTracker = eventRequest.objectCreationTrackers[j];
+                         objectCreationTracker.stop();
                     }
                 }
                 //todo remove jsd breakpoints
@@ -102,14 +102,18 @@ with (Lang){
             onModificationWatchpointEvent: function(eventId, eventRequests, object, propertyName, oldValue, newValue, frame, type, rv, isObjectCreation){
 
                 //Note this method might be called indirectly by watch, onPropertyChange->halt , onHalst -> onModificationWatchpoint
-                // or it might be called executionMonitor -> onObjectCreation -> onModification
+                // or it might be called objectCreationTracker -> onObjectCreation -> onModification
                 var targetFrame = frame;
 
                 if (!isObjectCreation){ //so it is from onPropertyChanged
-//                if (unwrapIValue(targetFrame.thisValue) === this){ //it is in debugServcie and is the call from onPropertyChanged.
-                //ignore frames onPropertyChanged()
+                    // remove onPropertyChanged (DebugService)
                     targetFrame = targetFrame.callingFrame;
-                    // remove bindAtHead    
+
+                    // remove log wrapper (LogUtils)
+                    if (LogUtils.isWrapped("DebugService")) // in cases where debugService is wrappped by log functions
+                        targetFrame = targetFrame.callingFrame;
+
+                    // remove bindAtHead (Lang)
                     targetFrame = targetFrame.callingFrame;
                 }
 
@@ -315,11 +319,17 @@ with (Lang){
 //                }
 //                stepHandler.start(haltObject.context, frame, type, rv);
 
-                //ignore 2 frames haltObject.halt and halt
                 var haltFrame = frame;
-                for (var i=0 ; i<2 ; i++){
+
+                //ignore haltObject.halt (HaltObject);
+                haltFrame = haltFrame.callingFrame;
+
+                //ignore halt (DebugService)
+                haltFrame = haltFrame.callingFrame;
+
+                // ignore log wrapper (LogUtils)
+                if (LogUtils.isWrapped("DebugService")) // in cases where debugService is wrappped by log functions
                     haltFrame = haltFrame.callingFrame;
-                }
 
                 haltObject.callBack(haltFrame, type, rv);
                 return Ci.jsdIExecutionHook.RETURN_CONTINUE;
@@ -399,10 +409,10 @@ with (Lang){
 
                 if (eventRequestsForObjectCreation.length>0){
                     //todo monitor should be saved in a list
-                    var executionMonitor = new ObjectCreationTracker(context);
-                    eventRequest.executionMonitors.push(executionMonitor);
-                    executionMonitor.start(bind(this.onObjectCreation, this), eventRequestsForObjectCreation, frame, type, rv);
-//                  executionMonitor.start(bindAtHead(this.onPropertyChanged, this, eventRequest), eventRequest.w_propertyName, frame, type, rv);
+                    var objectCreationTracker = new ObjectCreationTracker(context);
+                    eventRequest.objectCreationTrackers.push(objectCreationTracker);
+                    objectCreationTracker.start(bind(this.onObjectCreation, this), eventRequestsForObjectCreation, frame, type, rv);
+//                  objectCreationTracker.start(bindAtHead(this.onPropertyChanged, this, eventRequest), eventRequest.w_propertyName, frame, type, rv);
                 }
                 //find eventRequests related to this breakpoint
                 return Ci.jsdIExecutionHook.RETURN_CONTINUE;

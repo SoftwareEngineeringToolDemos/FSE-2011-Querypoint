@@ -11,7 +11,6 @@ var __owner = QPFBUG.Classes;
 __owner.HaltObject = function(){
 
         var constructor = function(callBack){
-//            this.context = context;
             this.callBack = callBack;
         };
 

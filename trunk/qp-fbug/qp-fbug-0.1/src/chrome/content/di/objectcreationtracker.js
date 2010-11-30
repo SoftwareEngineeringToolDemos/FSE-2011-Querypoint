@@ -20,7 +20,7 @@ with (Lang){
         constructor.prototype = {
 
             start: function(callBack, eventRequests, frame, type, rv){
-                log("ObjectCreationTracker starts: " + frame.script.fileName + " " + frame.line);
+                log("ObjectCreationTracker starts : " + frame.script.fileName + "@" + frame.line);
                 this.steppingDriver = DebugService.getInstance().getSteppingDriver(this.context);
                 this.fileName = frame.script.fileName;
                 this.startLine = frame.line;
@@ -32,28 +32,7 @@ with (Lang){
                 this.isStopped = false;
 
                 this.endPC = -1;
-//                if (frame.line === frame.script.baseLineNumber +frame.script.lineExtent -1) //it is the last line
-//                {
-//                    log("The end line : " + frame.line);
-//                }else{
-//                    log("---line--- " + frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT));
-//                    var pcToLine_pp = frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_PRETTYPRINT);
-//
-//                    //find next executable line in pp
-//                    var toAdd = 1;
-//                    while (!frame.script.isLineExecutable(pcToLine_pp+toAdd, Ci.jsdIScript.PCMAP_PRETTYPRINT)){
-//                        toAdd++;
-//                    }
-//
-//                    var nextLinePC_pp = frame.script.lineToPc(pcToLine_pp + toAdd , Ci.jsdIScript.PCMAP_PRETTYPRINT);
-//                    var nextLine = frame.script.pcToLine(nextLinePC_pp , Ci.jsdIScript.PCMAP_SOURCETEXT);
-//                    log("---line--- " + pcToLine_pp + " " + nextLinePC_pp + " " + nextLine);
-//
-//                    this.endPC = nextLinePC_pp;
-//                    this.endPC = 35;
-//                }
 
-                log("--------script ---- \n", frame.script.functionSource);
                 this.scriptAnalyzer = new ScriptAnalyzer(frame.script.functionSource);
                 this.monitorRefs = this.scriptAnalyzer.getRefsToCreatedObjects(true);
                 this.monitorRefValues = [];
@@ -72,9 +51,9 @@ with (Lang){
                 this.isStopped = true;
                 DebugService.getInstance().releaseSteppingDriver(this.steppingDriver);
                 if (frame)
-                    log("ObjectCreationTracker ends: " + this.fileName + " " + this.startLine + " " + frame.line);
+                    log("ObjectCreationTracker ends : " + this.fileName + "-" + this.startLine + "@" + frame.line);
                 else
-                    log("ObjectCreationTracker ends: " + this.fileName + " " + this.startLine);
+                    log("ObjectCreationTracker ends : " + this.fileName + "-" + this.startLine);
             },
 
             //todo
@@ -87,7 +66,6 @@ with (Lang){
             // in the creation line are not supported.
             onStep: function(frame, type, rv, stackDepthChange)
             {
-                //trace(this.isStopped + " -+-+-+" + frame.script.fileName + " " +  frame.script.pcToLine(frame.pc, Ci.jsdIScript.PCMAP_SOURCETEXT) + " " + frame.pc + "------- " + this.context.uid +"----" + "  "+ stackDepthChange + " "+ callStackDepth(frame));
                 if (stackDepthChange<0){
                     this.stop(frame);
                     return;
@@ -95,7 +73,6 @@ with (Lang){
 
                 for (var i=0 ; i<this.monitorRefs.length ; i++){
                     var monitorRef = this.monitorRefs[i];
-//                    log("assignee: " + monitorRef);
                     var refValue = evalInFrame(frame, monitorRef);
                     if (refValue != this.monitorRefValues[i]){
                         this.monitorRefValues[i] = refValue;
@@ -115,12 +92,9 @@ with (Lang){
                         shouldContinue = true;
                 }
 
-
-//                var nextPCLine = frame.script.pcToLine(frame.pc+1, Ci.jsdIScript.PCMAP_SOURCETEXT);
-                //TODO IT is not a complet solution , it should be the last pc//there is no next pc so the current one is the last one //TODO be care full about loops!!!
+                //TODO IT is not a complete solution , it should be the last pc//there is no next pc so the current one is the last one //TODO be care full about loops!!!
                 if ( frame.line === frame.script.baseLineNumber +frame.script.lineExtent -1 || frame.pc === this.endPC || frame.pc < this.startPC ) //the last line  or start of the loop
                     shouldContinue = false
-//                log("shouldContinue: " + shouldContinue + " " + frame.pc + " " + nextPCLine + " " +nextPCLine2+" "+nextPCLine10);
 
                 if (!shouldContinue){
                     this.stop(frame);
