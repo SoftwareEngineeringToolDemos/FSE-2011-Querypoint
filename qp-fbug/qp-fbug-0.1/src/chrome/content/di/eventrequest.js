@@ -24,7 +24,7 @@ __owner.EventRequest = function(){
             // These variables are used for the internal functionality of debugservice.
             // For both types, only one bp is kept in this variable.
             this.breakpoints = [];
-            this.executionMonitors = [];
+            this.objectCreationTrackers = [];
 
         };
 

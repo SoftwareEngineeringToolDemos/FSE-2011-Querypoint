@@ -182,7 +182,6 @@ __owner.JSDEventHandler = function(){
 
                 //todo update according it john:frame.pc == 0 means breakpoint was set by Firebug unless sourceFile.breakOnZero == script.tag; in which case the user set the breakpoint.
                 if (context && !context.qpfbug.passBreakpointEventsToFirebug && frame.pc!=0){ //breakpoint which are set at pc==0 are set by firebug for recognizing the script load
-//                    log(frame.script.fileName+":"+frame.line+":"+frame.pc);
                     return returnValue;
                 }
                 // fbs removes the breakpoint from the script if it doesn't have
@@ -399,7 +398,7 @@ __owner.JSDEventHandler = function(){
                 var context = null;
                 var contextUID = this.cachedContexts[frame.executionContext.tag];
                 if (contextUID){
-                    context = DebugService.getInstance().registeredContexts[contextUID];
+                    context = this.ds.registeredContexts[contextUID];
                     return context;
                 }
 
@@ -416,7 +415,7 @@ __owner.JSDEventHandler = function(){
                   //todo contextexecution tag is not a safe way to recognize context
                   // the outer scope should also considreed
 
-                if (DebugService.getInstance().registeredContextsNo == 0)//there is no context
+                if (this.ds.registeredContextsNo == 0)//there is no context
                     return null;
 
                 // this 'outerMostScope' is just the outermost scope (not necessarily
@@ -434,9 +433,9 @@ __owner.JSDEventHandler = function(){
 
                 if (rootWindow)
                 {
-                    for (var uid in DebugService.getInstance().registeredContexts)
+                    for (var uid in this.ds.registeredContexts)
                     {
-                        var context = DebugService.getInstance().registeredContexts[uid];
+                        var context = this.ds.registeredContexts[uid];
                         if (context.window == rootWindow)
                         {
                             if(!this.cachedContexts[frame.executionContext.tag])
