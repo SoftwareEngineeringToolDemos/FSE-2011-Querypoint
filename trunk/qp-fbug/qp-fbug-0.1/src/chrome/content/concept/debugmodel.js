@@ -19,7 +19,7 @@ with (Lang){
             constructor.prototype = {
                 addQuerypoint_Breakpoint : function(url, lineNo, hitCount){
 
-                    //if it is already added return that
+                    //if it is already added return it
                     for (var id in this.querypoints){
                          var qp = this.querypoints[id];
                          if (qp.queryType === DebugModel.QUERY_TYPES.BREAKPOINT){
@@ -118,10 +118,7 @@ with (Lang){
                     {
                         list.push(this.querypoints[p]);
                     }
-//                    var iDontUnderstandThisDataStructure = this.querypoints[this.nextQuerypointId - 1];  // I guess this one has to exist ?
-//                    if (iDontUnderstandThisDataStructure)
-//                    	list.push(iDontUnderstandThisDataStructure);
-//                    log("getQuerypoints "+list.length, {list: list, list0: list[0], list1: list[1]});
+
                     return list;
                 },
 

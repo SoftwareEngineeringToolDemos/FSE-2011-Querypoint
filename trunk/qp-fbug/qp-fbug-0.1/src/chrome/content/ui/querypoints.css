@@ -23,12 +23,12 @@
      background-image: url(chrome://qpfbug/content/ui/tracepoint.png);
 }
 
-.sourceRow[tracepoint="true"][possibleToStop="true"] > .sourceLine {
-     background-image: url(chrome://qpfbug/content/ui/tracepoint-possibleToStop.png);
+.sourceRow[tracepoint="true"][breakable="true"] > .sourceLine {
+     background-image: url(chrome://qpfbug/content/ui/tracepoint-breakable.png);
 }
 
-.sourceRow[tracepoint="true"][possibleToStop="true"][stopEnabled="true"] > .sourceLine {
-     background-image: url(chrome://qpfbug/content/ui/tracepoint-stopEnabled.png);
+.sourceRow[tracepoint="true"][breakable="true"][breakEnabled="true"] > .sourceLine {
+     background-image: url(chrome://qpfbug/content/ui/tracepoint-breakEnabled.png);
 }
 
 .panelNode-tracestack .stackframeMarker {

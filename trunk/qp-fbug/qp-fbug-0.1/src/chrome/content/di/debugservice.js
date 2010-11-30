@@ -81,6 +81,7 @@ with (Lang){
                          objectCreationTracker.stop();
                     }
                 }
+
                 //todo remove jsd breakpoints
 
                 context.qpfbug.eventRequests = null;
@@ -304,21 +305,6 @@ with (Lang){
 
                 haltObject = frame.thisValue.getWrappedValue() ;
 
-                // To remove halting functions from the stack five stepOut steps needed.
-                // Here, by restricting stepping driver to debugging context, only one stepMin
-                // is enough for removing halting function from the top of the stack.
-//                var stepHandler = {
-//                    start: function(context, frame, type, rv){
-//                        this.steppingDriver = DebugService.getInstance().getSteppingDriver(this, context);
-//                        this.steppingDriver.step(0, frame.script.tag, frame.line, frame.pc);
-//                    },
-//                    onStep: function(frame, type, rv, stackDepthChange){
-//                        DebugService.getInstance().releaseSteppingDriver(this.steppingDriver);
-//                        haltObject.callBack(frame, type, rv);
-//                    },
-//                }
-//                stepHandler.start(haltObject.context, frame, type, rv);
-
                 var haltFrame = frame;
 
                 //ignore haltObject.halt (HaltObject);
@@ -408,13 +394,12 @@ with (Lang){
                 }
 
                 if (eventRequestsForObjectCreation.length>0){
-                    //todo monitor should be saved in a list
+                    //todo objectCreationTracker should be saved in a list
                     var objectCreationTracker = new ObjectCreationTracker(context);
                     eventRequest.objectCreationTrackers.push(objectCreationTracker);
                     objectCreationTracker.start(bind(this.onObjectCreation, this), eventRequestsForObjectCreation, frame, type, rv);
-//                  objectCreationTracker.start(bindAtHead(this.onPropertyChanged, this, eventRequest), eventRequest.w_propertyName, frame, type, rv);
                 }
-                //find eventRequests related to this breakpoint
+
                 return Ci.jsdIExecutionHook.RETURN_CONTINUE;
             },
 
@@ -455,7 +440,7 @@ with (Lang){
                 QPFBUG.monitor.ds_propertyChanged++;
                 var eventId = this.getNextEventId();
 
-                //TODO: check later. it seems that "sometimes" oldValue is wrong!! we use this workaround
+                //It seems that "sometimes" oldValue is wrong! It is a workaround. Should be checked later.
                 oldValue = object[propertyName];
                 this.halt(bindAtHead(this.onModificationWatchpointEvent, this,
                           eventId, eventRequests, object, propertyName, oldValue, newValue));
@@ -466,7 +451,7 @@ with (Lang){
             //------------------------------ JSD functions ---------------------------
 
             //TODO improve it
-            // set breakpoint
+            // sets JSD breakpoint
             setJSDBreakpoint: function(sourceFile, bp)
             {
                 var scripts = sourceFile.getScriptsAtLineNumber(bp.lineNo);

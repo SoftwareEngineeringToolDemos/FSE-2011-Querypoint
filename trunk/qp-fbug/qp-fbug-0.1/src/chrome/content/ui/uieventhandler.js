@@ -45,7 +45,6 @@ __owner.UIEventHandler = function(){
             // to change "getContextMenuItems", However, due to a bug we change
             // panels.
             //
-            // paramters: window: the global object
             // 'this': is not specified
             addLastChangeMenuItem : function()
             {
@@ -72,11 +71,17 @@ __owner.UIEventHandler = function(){
 
 
                         //todo conditions should be based on panel
-                        // for example if a fram is shown in dom panel it accepts but it shouldn't
+                        // for example if a frame is shown in dom panel it accepts but it shouldn't
 
                         if (domPanel && row){
 
                             var propertyPath = UIUtils.getPropertyPath(domPanel,row).join("");
+
+                            if (UIUtils.isResultRow(row)) // no lastChange for the result rows
+                                return items;
+
+                            if (propertyPath == "this") // no lastChange for "this"
+                                return items;
 
                             if (domPanel.selection instanceof JSDConstants.jsdIStackFrame) { //watches panel
                                 if (domPanel.context.stopped){
@@ -104,9 +109,9 @@ __owner.UIEventHandler = function(){
                         return items;
                     };
 
-                      // change domPanels
-                    panelType_Dom.prototype.getContextMenuItems = new_GetContextMenuItems;
-                    panelType_DomSide.prototype.getContextMenuItems = new_GetContextMenuItems;
+                    // change domPanels
+                    //panelType_Dom.prototype.getContextMenuItems = new_GetContextMenuItems;
+                    //panelType_DomSide.prototype.getContextMenuItems = new_GetContextMenuItems;
                     panelType_Watches.prototype.getContextMenuItems = new_GetContextMenuItems;
                     panelType_TraceData.prototype.getContextMenuItems = new_GetContextMenuItems;
                 }};
@@ -118,60 +123,7 @@ __owner.UIEventHandler = function(){
             },
             //this : is a uiEventHandler object as expected.
             lastChangeOnBreakpointAction : function(context, propertyPath){
-                with(this.win){
-                with(FBL){
-//                    //--------------- local functions --------------------------------
-//                     // We have to define these functions because they are kind of private
-//                     // in dom.js .
-//
-//                    var getRowValue = function(row)
-//                    {
-//                        var valueNode = row.getElementsByClassName("memberValueCell").item(0);
-//                        return valueNode.firstChild.repObject;
-//                    };
-//
-//                    //It goes up until reaches the parent row
-//                    var getParentRow = function(row)
-//                    {
-//                        var level = parseInt(row.getAttribute("level"))-1;
-//                        // If it's top level object the level is now set to -1, is that a problem?
-//                        for (var row = row.previousSibling; row; row = row.previousSibling)
-//                        {
-//                            if (parseInt(row.getAttribute("level")) == level)
-//                                return row;
-//                        }
-//                    };
-//
-//                    var getRowOwnerObject = function (row)
-//                    {
-//                        var parentRow = getParentRow(row);
-//                        if (parentRow)
-//                            return getRowValue(parentRow);
-//                    };
-//
-//                    // the value of row, object or primitive
-//                    var rowValue = getRowValue(row);
-//
-//                    // getting the owner;
-//                    var rowOwnerObject;
-//
-//                    var rowOwnerObject = getRowOwnerObject(row);
-//
-//                    //domPanel.selection is the whole object which is shown in the dom panel
-//                    // so if row is at top level the rowOwnerObject will be the whole object of
-//                    // dom panel.
-//                    rowOwnerObject = rowOwnerObject ? rowOwnerObject : domPanel.selection;
-//
-//                    var propertyPath = domPanel.getPropertyPath(row).join("");
-//                    var propertyName = domPanel.getRowPathName(row);
-//
-//                    // value is something like  [., name] so we ignore the separator(dot).
-//                    propertyName = propertyName[1];
-
                     Manager.getInstance().findLastChangeFromBreakpoint(context, propertyPath);
-
-                }}
-
             }
 
         };
@@ -185,8 +137,8 @@ __owner.UIEventHandler = function(){
             }
             return win.Firebug.qpfbug.uiEventHandler;
         };
-         //"this" which is passed to this object is a dom panel
-         return constructor;
+
+        return constructor;
     }();
 }}
 

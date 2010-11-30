@@ -41,12 +41,14 @@ with (Lang){
 
             setReproducer: function(context, reproducer)
             {
-                context.qpfbug.reproducer = reproducer;
+                if (context && context.qpfbug)
+                    context.qpfbug.reproducer = reproducer;
             },
 
             getReproducer: function(context)
             {
-                return context.qpfbug.reproducer;
+                if (context && context.qpfbug)
+                    return context.qpfbug.reproducer;
             },
 
             //------------------------------- Context lifeCycle ---------------------------------------
@@ -86,7 +88,7 @@ with (Lang){
                 context.qpfbug.reproducer = Reproducer.getInstance().getReproducer(reproducerName);
 
                 if (reproduction.targetQuerypoint)
-                    context.qpfbug. passBreakpointEventsToFirebug = false;
+                    context.qpfbug.breakEnabled = false;
 
                 reproduction.start(context);
                 this.enableQuerypoints(context);
@@ -188,17 +190,43 @@ with (Lang){
                 }else if(!context.qpfbug.debugSession.moreReproductionPointsToFind()){
                     //show new found querypoints
                     context.qpfbug.newResults = true;
-                    context.qpfbug.passBreakpointEventsToFirebug = true;
+                    context.qpfbug.breakEnabled = true;
                 }
             },
 
             //------------------------------- actions ---------------------------------------
             findLastChangeFromQuerypoint: function(context, querypoint, propertyPath){
-//                var win = context.window;
-//                with(win){
-                    var debugSession = context.qpfbug.debugSession;
-                    var reproduction = context.qpfbug.debugSession.reproduction;
-                    var debugModel = debugSession.debugModel;
+                var debugSession = context.qpfbug.debugSession;
+                var reproduction = context.qpfbug.debugSession.reproduction;
+                var debugModel = debugSession.debugModel;
+
+                //todo set the correct frame number
+                var querypointB = debugModel.addQuerypoint_LastChange(querypoint, 0, propertyPath);
+
+                //todo move this tag to another place
+                context.qpfbug.newResults = true;
+
+                this.replay(context, querypointB);
+            },
+
+            findLastChangeFromBreakpoint: function(context, propertyPath){
+                var debugSession = context.qpfbug.debugSession;
+                var reproduction = context.qpfbug.debugSession.reproduction;
+                var debugModel = debugSession.debugModel;
+
+                if (!context.stopped)
+                    return;
+
+                var href = context.executingSourceFile.href;
+                var frame = context.stoppedFrame;
+                var line = frame.line;
+                var fileName = frame.script.fileName;
+                var bp = getFirebugService().findBreakpoint(href, line);  // todo get breakpoint from context. why?
+                var querypoint, querypointB;
+                if (bp)
+                {
+                    //todo set the correct hit count + steps (in, over, out)
+                    querypoint = debugModel.addQuerypoint_Breakpoint(href, line, 0);
 
                     //todo set the correct frame number
                     var querypointB = debugModel.addQuerypoint_LastChange(querypoint, 0, propertyPath);
@@ -206,47 +234,9 @@ with (Lang){
                     //todo move this tag to another place
                     context.qpfbug.newResults = true;
 
+                    this.collectData(context, querypoint, -1, frame); //todo eventId == -1  ? give a correct eventId?
                     this.replay(context, querypointB);
-//                }
-            },
-
-            findLastChangeFromBreakpoint: function(context, propertyPath){
-//                var win = context.window;
-//                with(win){
-                    var debugSession = context.qpfbug.debugSession;
-                    var reproduction = context.qpfbug.debugSession.reproduction;
-                    var debugModel = debugSession.debugModel;
-
-                    if (!context.stopped)
-                        return;
-
-                    //add current breakpoint as a point
-                    // todo breakpoint is not enough, we should get the hit count
-                    // we also need the all steps (step in, steps over, steps out)
-                    // taken before reaching this point
-                    // todo get breakpoint from context
-
-                    var href = context.executingSourceFile.href;
-                    var frame = context.stoppedFrame;
-                    var line = frame.line;
-                    var fileName = frame.script.fileName;
-                    var bp = getFirebugService().findBreakpoint(href, line);
-                    var querypoint, querypointB;
-                    if (bp)
-                    {
-                        //todo set the correct hit count
-                        querypoint = debugModel.addQuerypoint_Breakpoint(href, line, 0);
-
-                        //todo set the correct frame number
-                        var querypointB = debugModel.addQuerypoint_LastChange(querypoint, 0, propertyPath);
-
-                        //todo move this tag to another place
-                        context.qpfbug.newResults = true;
-
-                        this.collectData(context, querypoint, -1, frame); //todo eventId == -1  ? centerlize eventid and give a coorect one here
-                        this.replay(context, querypointB);
-                    }
-//                }
+                }
             },
 
             collectData: function(context, querypoint, eventId, frame, object, oldValue, newValue, isObjectCreation){
@@ -260,7 +250,6 @@ with (Lang){
                 if (querypoint.queryType == DebugModel.QUERY_TYPES.LASTCHANGE)
                 {
                     tracepoint = reproduction.trace.addLastChangeTracepoint(querypoint, context, eventId,  frame, object, oldValue, newValue, isObjectCreation);
-//                    reproduction.trace.assignTracepoint(querypoint, tracepoint); //todo it is not correct change it
                 }
                 if (querypoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT)
                 {

@@ -26,9 +26,7 @@ with (Lang){
                     return "[TraceData]";
                 }
 
-
             };
-
 
             return constructor;
         }();
