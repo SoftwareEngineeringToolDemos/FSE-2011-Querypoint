@@ -9,18 +9,14 @@ FBL.ns(function() { with (FBL)
             FBTrace.DBG_QUERYPOINT = true;
         }
 
-        //store firebug classes
-
         //initializes JSDEventHandler
         JSDEventHandler.getInstance();
 
         // it keeps qpfbug data for this window
         Firebug.qpfbug = {};
 
-        // A new Module event handler is created for every new firefox window
+        // A new Module event handler is created for every new Firefox window
         Firebug.registerModule(ModuleEventHandler.getInstance(window));
-
-        QPFBUG.Conf.DATA_COLLECTION_DEPTH = 2;
 
     }
 }});

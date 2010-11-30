@@ -14,8 +14,6 @@ with (Lang){
             this.fbs = fbs;
             this.debugSessions = [];
             this.nextDebugSessionId = 0;
-            var reproducerName = Firebug.getPref("extensions.firebug", "querypoints.reproducer");
-            this.reproducer = Reproducer.getInstance().getReproducer(reproducerName);
         };
 
         constructor.prototype =
@@ -41,14 +39,14 @@ with (Lang){
                 return null;
             },
 
-            setReproducer: function(reproducer)
+            setReproducer: function(context, reproducer)
             {
-                this.reproducer = reproducer;
+                context.qpfbug.reproducer = reproducer;
             },
 
-            getReproducer: function()
+            getReproducer: function(context)
             {
-                return this.reproducer;
+                return context.qpfbug.reproducer;
             },
 
             //------------------------------- Context lifeCycle ---------------------------------------
@@ -76,6 +74,7 @@ with (Lang){
 
                 //set qpfbug data holder for the context
                 context.qpfbug = {
+                    Firebug: win.Firebug,
                     debugSession : debugSession,
                     newResults : false, //todo
                     reproducer: this.reproducer,
@@ -83,12 +82,14 @@ with (Lang){
                     passBreakpointEventsToFirebug: true,
                 };
 
+                var reproducerName = win.Firebug.getPref("extensions.firebug", "querypoints.reproducer");
+                context.qpfbug.reproducer = Reproducer.getInstance().getReproducer(reproducerName);
+
                 if (reproduction.targetQuerypoint)
                     context.qpfbug. passBreakpointEventsToFirebug = false;
 
                 reproduction.start(context);
                 this.enableQuerypoints(context);
-//                }
 
             },
 
@@ -193,8 +194,8 @@ with (Lang){
 
             //------------------------------- actions ---------------------------------------
             findLastChangeFromQuerypoint: function(context, querypoint, propertyPath){
-                var win = context.window;
-                with(win){
+//                var win = context.window;
+//                with(win){
                     var debugSession = context.qpfbug.debugSession;
                     var reproduction = context.qpfbug.debugSession.reproduction;
                     var debugModel = debugSession.debugModel;
@@ -206,12 +207,12 @@ with (Lang){
                     context.qpfbug.newResults = true;
 
                     this.replay(context, querypointB);
-                }
+//                }
             },
 
             findLastChangeFromBreakpoint: function(context, propertyPath){
-                var win = context.window;
-                with(win){
+//                var win = context.window;
+//                with(win){
                     var debugSession = context.qpfbug.debugSession;
                     var reproduction = context.qpfbug.debugSession.reproduction;
                     var debugModel = debugSession.debugModel;
@@ -245,7 +246,7 @@ with (Lang){
                         this.collectData(context, querypoint, -1, frame); //todo eventId == -1  ? centerlize eventid and give a coorect one here
                         this.replay(context, querypointB);
                     }
-                }
+//                }
             },
 
             collectData: function(context, querypoint, eventId, frame, object, oldValue, newValue, isObjectCreation){
@@ -277,7 +278,7 @@ with (Lang){
                 var newReproduction = debugSession.nextReproduction();
                 newReproduction.targetQuerypoint = targetQuerypoint;
                 this.disableQuerypoints(context);
-                this.getReproducer().reproduce(context, debugSession.id, newReproduction.id);
+                this.getReproducer(context).reproduce(context, debugSession.id, newReproduction.id);
             }
 
         };

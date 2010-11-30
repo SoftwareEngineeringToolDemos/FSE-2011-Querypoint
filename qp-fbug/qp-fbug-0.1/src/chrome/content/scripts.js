@@ -29,7 +29,6 @@ loadScript("resource://firebug/firebug-trace-service.js", QPFBUG);
 
 // QPFBUG.Classes from basics.js meets traceConsoleService I hope
 QPFBUG.Classes.FBTrace = QPFBUG.traceConsoleService.getTracer("extensions.firebug");
-QPFBUG.Classes.Firebug = Firebug;
 
 //load lib.js
 
