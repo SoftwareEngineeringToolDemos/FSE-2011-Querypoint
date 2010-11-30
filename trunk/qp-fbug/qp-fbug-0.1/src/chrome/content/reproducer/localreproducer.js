@@ -19,7 +19,7 @@ __owner.LocalReproducer = function(){
 
             reproduce: function (context, debugSessionId, reproductionId)
             {
-                var Firebug = context.Firebug; // we are in a module and don't have access to Firebug in this scope.
+                var Firebug = context.qpfbug.Firebug; // we are in a module and don't have access to Firebug in this scope.
 //                Firebug.Debugger.rerun(context);
                 Firebug.Debugger.localRerun(context);
             },

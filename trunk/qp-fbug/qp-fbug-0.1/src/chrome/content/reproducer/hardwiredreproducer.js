@@ -25,6 +25,7 @@ __owner.HardWiredReproducer = function(){
 
                 reproduce: function (context, debugSessionId, reproductionId)
                 {
+                    var Firebug = context.qpfbug.Firebug;
                     var  win = context.window;
                     with(win){
                     with(QPFBUG.FBL){

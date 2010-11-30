@@ -8,14 +8,14 @@ with (Lang){
     var __owner = QPFBUG.Classes;
 
     //------------------------------- ModuleEventHandler ----------------------------------
-    // An instance of this class is built for every new Firforx window like Firebug
+    // An instance of this class is built for every new Firforx window (like Firebug)
     __owner.ModuleEventHandler = function(){
 
         var constructor = function(win){
             extendFromParent(this, win.Firebug.ActivableModule); 
             this.win = win;
-//            this.dispatchName = "qpfbugModule";
-//            win.Firebug.Debugger.addListener(this);
+            //this.dispatchName = "qpfbugModule";
+            //win.Firebug.Debugger.addListener(this);
         };
 
         constructor.prototype = {
@@ -24,7 +24,7 @@ with (Lang){
             },
 
             initializeUI: function(){
-                //initialize UIEventHandler for this firefox window
+                //initialize UIEventHandler for this Firefox window
                 UIEventHandler.getInstance(this.win).init();
             },
 
@@ -43,19 +43,6 @@ with (Lang){
             {
                 DebugService.getInstance().onSourceFileCreated(context, sourceFile);
             },
-
-//            //todo change it
-//            onStartDebugging: function(context)
-//            {
-//                log("onStartDebugging tracepoints.show "+context.qpfbug.inQuery);
-//                if (context.qpfbug.newResults)
-//                {
-//                    context.qpfbug.firefoxWindow.Firebug.chrome.selectSupportingPanel(UIUtils.getDebugModel(context), context, true);
-//                    delete context.qpfbug.newResults;
-//                }
-//
-//            },
-
 
             destroyContext: function(context, persistedState)
             {

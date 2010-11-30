@@ -432,7 +432,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
         var items = [];
 
         var reproducers = Reproducer.getInstance().getReproducers();
-        var current = Manager.getInstance().getReproducer();
+        var current = Manager.getInstance().getReproducer(this.context);
         for (var i = 0; i < reproducers.length; i++)
         {
             var reproducer = reproducers[i];
@@ -446,7 +446,7 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
     selectReproducer: function(reproducer)
     {
-        Manager.getInstance().setReproducer(reproducer); // should just be QPFBUG.manager.setReproducer()
+        Manager.getInstance().setReproducer(this.context, reproducer); // should just be QPFBUG.manager.setReproducer()
     },
 
 });
