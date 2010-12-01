@@ -83,6 +83,9 @@ __owner.UIEventHandler = function(){
                             if (propertyPath == "this") // no lastChange for "this"
                                 return items;
 
+                            if (propertyPath.indexOf(".") < 0) //a root variable
+                                return items;
+
                             if (domPanel.selection instanceof JSDConstants.jsdIStackFrame) { //watches panel
                                 if (domPanel.context.stopped){
                                     var isWatch = false;
@@ -110,6 +113,9 @@ __owner.UIEventHandler = function(){
                     };
 
                     // change domPanels
+                    //feature lastChange in these two panels can be enabled if context.stopped
+                    //        It needs more changes for passing right data to action.
+
                     //panelType_Dom.prototype.getContextMenuItems = new_GetContextMenuItems;
                     //panelType_DomSide.prototype.getContextMenuItems = new_GetContextMenuItems;
                     panelType_Watches.prototype.getContextMenuItems = new_GetContextMenuItems;
