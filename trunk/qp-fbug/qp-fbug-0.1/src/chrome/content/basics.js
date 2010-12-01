@@ -11,7 +11,7 @@ QPFBUG.Conf = {};
 QPFBUG.Conf.DATA_COLLECTION_DEPTH = 2;
 
 //Debugging
-QPFBUG.DBG = true;
+QPFBUG.DBG = false;
 
 //do not include these classes: LogUtils, Lang (might cause loops),
 //                              JSDEventHandler (too many calls),
