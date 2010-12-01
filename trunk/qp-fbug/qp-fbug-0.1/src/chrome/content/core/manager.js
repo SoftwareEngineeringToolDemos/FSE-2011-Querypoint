@@ -80,27 +80,14 @@ with (Lang){
                     reproduction = debugSession.reproduction;
                 }
 
+                var reproducerName = win.Firebug.getPref("extensions.firebug", "querypoints.reproducer");
+                context.qpfbug = {};
+                context.qpfbug.reproducer = Reproducer.getInstance().getReproducer(reproducerName);
+                context.qpfbug.Firebug = win.Firebug; //to keep a reference to Firebug
 
                 //todo if !debugSession || !reproduction then ?
 
-                //set qpfbug data holder for the context
-                context.qpfbug = {
-                    Firebug: win.Firebug,
-                    debugSession : debugSession,
-                    newResults : false, //todo
-                    reproducer: this.reproducer,
-                    recorder: null,
-                    passBreakpointEventsToFirebug: true,
-                };
-
-                var reproducerName = win.Firebug.getPref("extensions.firebug", "querypoints.reproducer");
-                context.qpfbug.reproducer = Reproducer.getInstance().getReproducer(reproducerName);
-
-                if (reproduction.targetQuerypoint)
-                    context.qpfbug.breakEnabled = false;
-
-                reproduction.start(context);
-                this.enableQuerypoints(context);
+                this.onReproductionStart(context, debugSessionId);
 
             },
 
@@ -126,6 +113,24 @@ with (Lang){
                     context.qpfbug.debugSession.record = context.qpfbug.recorder.record;
                 }
                 delete context.qpfbug;
+            },
+
+            onReproductionStart: function(context, debugSessionId){
+
+                var debugSession = this.getDebugSession(debugSessionId)
+                var reproduction = debugSession.reproduction;
+
+                //set qpfbug data holder for the context
+                context.qpfbug.debugSession = debugSession;
+                context.qpfbug.newResults = false; //todo
+                context.qpfbug.recorder= null;
+                context.qpfbug.breakEnabled= true;
+
+                if (reproduction.targetQuerypoint)
+                    context.qpfbug.breakEnabled = false;
+
+                reproduction.start(context);
+                this.enableQuerypoints(context);
             },
 
             enableQuerypoints: function(context){
