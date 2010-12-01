@@ -39,8 +39,8 @@
             };
 
             var getRandomVector = function(circle){
-                vector.x = Math.floor(Math.random()*300);
-                vector.y = Math.floor(Math.random()*300);
+                vector.x = Math.floor(Math.random()*800);
+                vector.y = Math.floor(Math.random()*200);
                 vector.r = Math.floor(Math.random()*5)*6;
                 if (vector.r !== 0 && vector.r < 30);
                     return vector;
@@ -74,7 +74,7 @@
     </button>
     </P>
 
-    <canvas id="canvas" width="300" height="300"></canvas>
+    <canvas id="canvas" width="800" height="200"></canvas>
     </body>
 
 </html>
