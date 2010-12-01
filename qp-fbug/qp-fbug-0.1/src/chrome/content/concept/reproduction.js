@@ -52,6 +52,10 @@ __owner.Reproduction =
                     this.stateMachine.transit("stop");
                 },
 
+                isAlreadyStarted : function(){
+                    return !this.stateMachine.isState("notstarted");
+                },
+
                 newBreakEvent : function(breakEvent){
 
                 }

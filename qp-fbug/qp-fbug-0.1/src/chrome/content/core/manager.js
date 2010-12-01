@@ -72,6 +72,15 @@ with (Lang){
 
                 reproduction = debugSession.reproduction;
 
+                //it means that no new reproduction is assigned
+                //for example, page is reloaded
+                //so a new debug session will be created.
+                if (reproduction.isAlreadyStarted()){
+                    debugSession = this.newDebugSession();
+                    reproduction = debugSession.reproduction;
+                }
+
+
                 //todo if !debugSession || !reproduction then ?
 
                 //set qpfbug data holder for the context
