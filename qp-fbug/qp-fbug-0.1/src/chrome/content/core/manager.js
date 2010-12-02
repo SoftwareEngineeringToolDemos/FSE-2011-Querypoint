@@ -138,6 +138,10 @@ with (Lang){
                 var querypoints = context.qpfbug.debugSession.debugModel.querypoints;
                 for (var i in querypoints){
                     var querypoint = querypoints[i];
+
+                    if (!querypoint.isEnabled())
+                        continue;
+
                     var eventRequest = null;
 
                     if (querypoint.queryType == DebugModel.QUERY_TYPES.BREAKPOINT){
@@ -199,13 +203,14 @@ with (Lang){
                 var querypoint = eventRequest.querypoint;
 
                 this.collectData(context, querypoint, eventId, frame);
-                if (context.qpfbug.debugSession.needsAnotherReproduction()){   //todo: && there is no more reproduction point to visit
-                    this.replay(context, reproduction.targetQuerypoint);
-                }else if(!context.qpfbug.debugSession.moreReproductionPointsToFind()){
-                    //show new found querypoints
-                    context.qpfbug.newResults = true;
-                    context.qpfbug.breakEnabled = true;
-                }
+                if (!context.qpfbug.debugSession.moreReproductionPointsToFind())
+                    if (context.qpfbug.debugSession.needsAnotherReproduction()){   
+                        this.replay(context, reproduction.targetQuerypoint);
+                    }else {
+                        //show new found querypoints
+                        context.qpfbug.newResults = true;
+                        context.qpfbug.breakEnabled = true;
+                    }
             },
 
             //------------------------------- actions ---------------------------------------
@@ -216,6 +221,7 @@ with (Lang){
 
                 //todo set the correct frame number
                 var querypointB = debugModel.addQuerypoint_LastChange(querypoint, 0, propertyPath);
+                debugModel.enableQuerypoint(querypointB);
 
                 //todo move this tag to another place
                 context.qpfbug.newResults = true;
@@ -241,9 +247,11 @@ with (Lang){
                 {
                     //todo set the correct hit count + steps (in, over, out)
                     querypoint = debugModel.addQuerypoint_Breakpoint(href, line, 0);
+                    debugModel.enableQuerypoint(querypoint);
 
                     //todo set the correct frame number
                     var querypointB = debugModel.addQuerypoint_LastChange(querypoint, 0, propertyPath);
+                    debugModel.enableQuerypoint(querypointB);
 
                     //todo move this tag to another place
                     context.qpfbug.newResults = true;

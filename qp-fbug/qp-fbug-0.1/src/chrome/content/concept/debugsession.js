@@ -84,10 +84,11 @@ var __owner = QPFBUG.Classes;
             },
 
             getNumberOfQuerypoints: function(){
-                return this.debugModel.querypointsSize;
+                return this.debugModel.enabledQuerypointsSize;
             },
 
-            needsAnotherReproduction: function(){ //todo it only works for one reproduction point
+            needsAnotherReproduction: function(){
+                //todo numberOfQuerypoints is the total number of querypoints. It is only used for recognizing a new querypoint. It should be changed.
                 if (this.reproduction.numberOfQuerypoints == this.reproduction.previousReproduction.numberOfQuerypoints) //if there is no new querypoint
                     return false;
                 if (this.getNumberOfQuerypoints() === this.reproduction.trace.assignedTracepointsSize)// todo
@@ -104,10 +105,11 @@ var __owner = QPFBUG.Classes;
             },
 
             moreQuerypointsToFind: function(){
-                return (this.debugModel.querypointsSize > this.reproduction.trace.assignedTracepointsSize);
+                return (this.debugModel.enabledQuerypointsSize > this.reproduction.trace.assignedTracepointsSize);
             },
 
             moreReproductionPointsToFind: function(){
+                //todo change it to enabled breeakpoint querypoints . Currently all breakpoint querypoints are enabled so it doesn't cause any problem.
                 return (this.debugModel.breakpoint_querypointsSize > this.reproduction.trace.assignedBreakpointTracepointsSize);
             },
 
