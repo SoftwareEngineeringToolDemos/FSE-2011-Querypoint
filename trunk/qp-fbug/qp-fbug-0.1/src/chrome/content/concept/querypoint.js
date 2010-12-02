@@ -13,7 +13,7 @@ with (Lang){
             var constructor = function(id, queryType, refQuerypoint, refQueryExpr, url, lineNo, hitCount, breakable, breakEnabled){
                 this.id = id;
                 this.queryType = queryType;
-
+                this.enabled = false;
                 //lastCondition && //lastChange
                 // ref point object
                 this.refQuerypoint = refQuerypoint;
@@ -39,6 +39,15 @@ with (Lang){
             };
 
             constructor.prototype = {
+
+                isEnabled: function(){
+                    return this.enabled;
+                },
+
+                setEnabled: function(enabled){
+                    this.enabled = enabled;
+                },
+
                 addQueryExpr : function(queryExpr){
                     this.queryExprList.push(queryExpr);
                     return queryExpr;

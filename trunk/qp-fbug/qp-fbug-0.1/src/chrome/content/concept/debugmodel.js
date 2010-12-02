@@ -12,6 +12,7 @@ with (Lang){
             var constructor = function(){
                  this.querypoints = {};
                  this.querypointsSize = 0;
+                 this.enabledQuerypointsSize = 0;
                  this.breakpoint_querypointsSize = 0;
                  this.nextQuerypointId = 0;
             };
@@ -104,6 +105,33 @@ with (Lang){
                     refQuerypoint.addDependentQuerypoint(querypoint);
 
                     return querypoint;
+                },
+
+                enableQuerypoint: function(querypoint){
+                    querypoint.setEnabled(true);
+                    this.enabledQuerypointsSize++;
+                    if (querypoint.queryType === DebugModel.QUERY_TYPES.LASTCHANGE ||
+                        querypoint.queryType === DebugModel.QUERY_TYPES.LASTCONDITION){
+                        var siblings = querypoint.refQuerypoint.dependentQuerypoints;
+                        for (var i=0 ; i<siblings.length; i++){
+                            if (siblings[i] !== querypoint){
+                                this.disableQuerypoint(siblings[i]);
+                            }
+                        }
+
+                    }
+
+                },
+
+                disableQuerypoint: function(querypoint){
+                    if (querypoint.isEnabled()){
+                        querypoint.setEnabled(false);
+                        this.enabledQuerypointsSize--;
+                        var dependentQuerypoints = querypoint.dependentQuerypoints;
+                        for (var i=0 ; i<dependentQuerypoints.length; i++){
+                            this.disableQuerypoint(dependentQuerypoints[i]);
+                        }
+                    }
                 },
 
                 getLastQuerypoint: function()
