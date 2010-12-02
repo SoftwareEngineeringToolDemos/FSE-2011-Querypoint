@@ -42,20 +42,41 @@ Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
 
     onStartDebugging: function(context)
     {
-        //if (FBTrace.DBG_QUERYPOINT)
+        // ** Timing for the user study **
         var now = new Date().getTime();
         var delta = now - Firebug.Querypoint.timestamp;
         Firebug.Querypoint.timestamp = now;
-            FBTrace.sysout("Querypoint user start debugging, new QP results: "+context.qpfbug.newResults+" time "+delta);
+        FBTrace.sysout("Querypoint user starts debugging, new QP results: "+context.qpfbug.newResults+" delta time "+delta+"ms");
+        // ********************************
+
         if (context.qpfbug.newResults)
         {
 //            context.qpfbug.inSession = true;  // I don't know how we will get out of this state
             Firebug.chrome.selectSupportingPanel(UIUtils.getDebugModel(context), context, true);
             delete context.qpfbug.newResults;
         }
-
     },
 
+    onResume: function(context)
+    {
+        // ** Timing for the user study **
+        var now = new Date().getTime();
+        var delta = now - Firebug.Querypoint.timestamp;
+        Firebug.Querypoint.timestamp = now;
+        FBTrace.sysout("Querypoint resume delta time "+delta+"ms");
+        // ********************************
+    },
+
+    onStop: function(context,frame, type,rv)
+    {
+        // ** Timing for the user study **
+        var sayType = type;
+        if (type === 1) sayType = "breakpoint";
+        if (type === 0) sayType = "interrupt";
+
+        FBTrace.sysout("Querypoint stop type: "+sayType);
+        // ********************************
+    },
      //this operation has a conceptual problem. A breakpoint is different from a breakpointQuerypoint.
      // The first one may happen many times but the second one happens only once.
      // So it is necessary that developer adds breakpointQuerypoint at a specific hit of a breakpoint.
