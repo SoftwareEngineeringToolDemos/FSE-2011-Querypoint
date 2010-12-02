@@ -24,14 +24,18 @@
     <body id="myBody" onclick="increaseMyProperty()">
     <h1>Introduction to Debugging by lastChange</h1>
     <p>
+    <i>lastChange</i> is a new debugging feature providing information about program state changes. From a breakpoint in a debugger
+    a developer can ask for the <i>lastChange</i> on an object property.
+    The <i>lastChange</i> feature provides information on the source line and data values at the point of change.</p>
 
-      This page contains an object <code>myObject</code>.
+    <p>This page provides a tutorial on <i>lastChange</i>. It contains an object <code>myObject</code>.
       Whenever the user clicks on the page, <code>myObject.myProperty</code> value increases by 3 and the displayed value changes.
     </p>
+
     <p>
        To see how <i>lastChange</i> works:
        <ol>
-       <li> Open Firebug (F12), then reload the page to update Firebug content</li>
+       <li> Open Firebug (F12 or Firebug Icon), then reload the page to update Firebug content</li>
        <li> Select Firebug Script panel </li>
        <li> set a breakpoint on line 17, where
         the value is written on the page.</li>
