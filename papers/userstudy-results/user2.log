@@ -1,0 +1,30 @@
+The log is attached. You can load it in to FBTrace window with Tools > Load from File. Then you can look for the time info we discussed.
+
+
+Notes:
+
+[+] on trace watch still confusing
+
+Panel name should be Querypoints not QP
+
+Basic (case0):
+
+Doing lastChange on oldValue does nothing. Need to indicate the case where there are no lastChanges, this is it.
+
+Hover over on the QP panel should offer 'lastChange" values. Or last 5 values.
+
+Moving Circle (with BP)
+ user hit reload first time rather than replay
+ searched by text search for "drawCircle" then "getRandomVector"
+    (unexpected so not timed).
+ "let me guess: the defaultValues are wrong?" Inspects code, decides that they are ok.
+   (At this point they are already at the bug area)
+ "somebody modified defaultValues?"
+ (Why not use bps? Sometimes they don't hit, don't give the right info).
+
+Shapes (with QP)
+ Wants to use lastChange on text in the QP panel area.
+ No way to confirm bug is found unless we change the JS code.
+
+
+jjb 
