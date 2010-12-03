@@ -53,6 +53,15 @@ Firebug.Querypoint.QPModule = extend(Firebug.ActivableModule,
         {
 //            context.qpfbug.inSession = true;  // I don't know how we will get out of this state
             Firebug.chrome.selectSupportingPanel(UIUtils.getDebugModel(context), context, true);
+
+            var targetQuerypoint = UIUtils.getReproduction(context).targetQuerypoint;
+            var tp;
+            if (targetQuerypoint){
+                tp = UIUtils.getTracepointByQuerypoint(context, targetQuerypoint);
+                if (!tp)
+                    alert("No result for the last change of '" + targetQuerypoint.refQueryExpr.expr + "' has been found!");
+            }
+
             delete context.qpfbug.newResults;
         }
     },
@@ -99,7 +108,7 @@ Firebug.Querypoint.QPSourceViewPanel = function QPSourceViewPanel() {};
 Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 {
     name: "tracepoints",
-    title: "QP",
+    title: "Querypoints",
     parentPanel: null,
     breakable: false,
     enableA11y: true,
@@ -309,10 +318,11 @@ Firebug.Querypoint.QPSourceViewPanel.prototype = extend(Firebug.SourceBoxPanel,
 
         var targetQuerypoint = UIUtils.getReproduction(this.context).targetQuerypoint;
         var tp;
-        if (targetQuerypoint)
-             tp = UIUtils.getTracepointByQuerypoint(this.context, targetQuerypoint);
-        if (tp)
-             return tp;
+        if (targetQuerypoint){
+            tp = UIUtils.getTracepointByQuerypoint(this.context, targetQuerypoint);
+            if (tp)
+                return tp;
+        }
 
         var list = this.getLocationList()
         if (list){
