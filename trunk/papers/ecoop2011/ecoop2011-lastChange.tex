@@ -40,7 +40,7 @@
 \title{Debugging by \textit{lastChange}}
 
 % a short form should be given in case it is too long for the running head
-\titlerunning{Lecture Notes in Computer Science: Authors' Instructions}
+\titlerunning{Debugging by \textit{lastChange}}
 
 % the name(s) of the author(s) follow(s) next
 %
@@ -49,20 +49,6 @@
 % the running heads and the author index.
 %
 
-
-%           {\{salman.mirghasemi,claude.petitpierre\}@epfl.ch}
-
-%\authorinfo{Salman Mirghasemi}
-%           {Ecole Polytechnique F\'ed\'erale de Lausanne}
-%           {salman.mirghasemi@epfl.ch}
-
-%\authorinfo{John J. Barton}
-%           {IBM Research - Almaden}
-%           {johnjbarton@johnjbarton.com}
-
-%\authorinfo{Claude Petitpierre}
-%           {Ecole Polytechnique F\'ed\'erale de Lausanne}
-%           {claude.petitpierre@epfl.ch}
 
 
 \author{Salman Mirghasemi\inst{1} \and John J. Barton\inst{2} \and Claude Petitpierre\inst{1}}
@@ -268,6 +254,7 @@ interesting, and what they do in practice may cause bugs.
 \label{fig:js-code}
 \end{figure}
 
+
 By browsing through the code, the developer can quickly determine that the value displayed on the 
 button is set at line 22. To start debugging, the developer sets a breakpoint
 on line 22. Once the button is clicked, execution is paused at line
@@ -321,6 +308,32 @@ place \texttt{oldValue} is assigned to
  is available. Now it is clear that the bug occurs because \texttt{oldValue} is
 \texttt{undefined} once execution reaches line 25 (Figure~\ref{fig:example4}).
 
+As demonstrated in Figure ~\ref{fig:example-points}, the developer has
+examined three points of execution. The first point, the reproduction point,  was the breakpoint set by the developer.
+The second and third points preceded the reproduction point in execution sequence.
+All three points-the history
+of the search for the defect-are available through the debugger's
+interface. On the top of the left panel in Figure~\ref{fig:example4}
+there is an opened list which shows all three examined points. The
+first one is the breakpoint on line 22, the second one is the point
+which is when \texttt{myObject.myProperty} changed before
+reaching the breakpoint and finally the last one is the point of
+execution in which \texttt{myCondition.value} gets the
+\texttt{undefined} value. Moreover, the source lines related to these
+points are marked with red-cycle icons.
+
+
+Notice that in our example, \textit{lastChange} combines some aspects
+of breakpoint and of log-based debugging. Like breakpoint debugging,
+the developer re-executes a live runtime without changing the source
+and without a special execution environment beyond the debugger. The
+state of the program memory and the call stack are available at each
+lastChange point. Like log-based debugging, the program state and the
+call stack are recorded during program execution. We can't halt the
+program at \textit{lastChange} because we don't know which point is the last
+one until we return to the original breakpoint. (In section 5 we
+discuss cases were it is possible to pause at lines of \textit{lastChange}).
+
 \begin{figure*}[htp]
 
 
@@ -357,40 +370,15 @@ place \texttt{oldValue} is assigned to
 \label{fig:lastChange}
 \end{figure*}
 
-
 \begin{figure}[htp]
+\centering 
+
 \includegraphics{5-example-points.jpg}
 \caption{The examined points before locating the defect. The arrow represents the logical forward progress of the program. Three actual executions are superimposed on this arrow. All three stop at the reproduction point indicated by the circle 1. After the first execution, the developer asks for lastChange as described in \ref{sec:introExample}, yielding information  indicated by circle 2. After the second execution, another lastChange query causes a third execution, yielding information indicated by circle 3.}
 \label{fig:example-points}
 \end{figure}
 
 
-
-As demonstrated in Figure ~\ref{fig:example-points}, the developer has
-examined three points of execution. The first point, the reproduction point,  was the breakpoint set by the developer.
-The second and third points preceded the reproduction point in execution sequence.
-All three points-the history
-of the search for the defect-are available through the debugger's
-interface. On the top of the left panel in Figure~\ref{fig:example4}
-there is an opened list which shows all three examined points. The
-first one is the breakpoint on line 22, the second one is the point
-which is when \texttt{myObject.myProperty} changed before
-reaching the breakpoint and finally the last one is the point of
-execution in which \texttt{myCondition.value} gets the
-\texttt{undefined} value. Moreover, the source lines related to these
-points are marked with red-cycle icons.
-
-
-Notice that in our example, \textit{lastChange} combines some aspects
-of breakpoint and of log-based debugging. Like breakpoint debugging,
-the developer re-executes a live runtime without changing the source
-and without a special execution environment beyond the debugger. The
-state of the program memory and the call stack are available at each
-lastChange point. Like log-based debugging, the program state and the
-call stack are recorded during program execution. We can't halt the
-program at \textit{lastChange} because we don't know which point is the last
-one until we return to the original breakpoint. (In section 5 we
-discuss cases were it is possible to pause at lines of \textit{lastChange}).
 
 \section{\textit{lastChange} Algorithm}
 
@@ -407,6 +395,7 @@ part of the program state values.  Once the execution reaches the
 reproduction point, it analyzes the collected data and shows the
 result.  The program state at the execution point of the last change
 event is the \textit{lastChange}.
+
 
 As \textit{lastChange} itself is not a different kind of \textit{breakpoint},
 all of the assumptions developers already have for breakpoints hold
@@ -468,7 +457,8 @@ execution. \texttt{bar} id at the reproduction point is 1010, so the
 last change of \texttt{bar.foo} is the fourth column. 
 
 \begin{figure}[htp]
-\includegraphics[width=.48\textwidth]{6-foo-changes1.jpg}
+\centering 
+\includegraphics{6-foo-changes1.jpg}
 \caption{The list of property \texttt{foo} change events and
   \texttt{bar} id at the reproduction point which identifies the last
   change of \texttt{bar.foo} in the list. Column 3 is also a change of
@@ -573,7 +563,8 @@ at the reproduction point (Figure ~\ref{fig:foo-changes2}).
 
 
 \begin{figure}[htp]
-\includegraphics[width=.48\textwidth]{7-foo-changes2.jpg}
+\centering 
+\includegraphics{7-foo-changes2.jpg}
 \caption{The list of variable \texttt{foo} change events and the
   \texttt{foo}'s scope id at the reproduction point which identifies
   the last change.}
@@ -635,7 +626,8 @@ owner id (Figure ~\ref{fig:lastchange-lastchange}).
 \end{algorithm}
 
 \begin{figure}[htp]
-\includegraphics[width=.48\textwidth]{8-lastchange-lastchange.jpg}
+\centering 
+\includegraphics{8-lastchange-lastchange.jpg}
 \caption{The list of change events stored for locating point B, the
   \textit{lastChange} of \texttt{bar.x} at the reproduction point, and
   point C, the \textit{lastChange} of \texttt{baz.y} at point B.}
