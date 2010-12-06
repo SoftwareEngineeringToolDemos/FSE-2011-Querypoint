@@ -677,11 +677,11 @@ property is deleted and defined again.
 
 For our purposes, the \texttt{watch()} function only covers the case
 of global object properties. At the beginning of execution, no object
-excepting the global object is available.  For 
-the our \textit{lastChange} prototype we created a version of
+excepting the global object and its predefined properties is available.  For 
+our \textit{lastChange} prototype we created a version of
 \texttt{setPropertyChangeHook()}.  The basic strategy is to get a reference to the object just
 after its creation, then use \texttt{watch()} function to monitor
-property changes in the object. Setting a flag\footnote[2]{DISABLE\_OBJECT\_TRACE defined in jsdIDebuggerService.idl} into the Firefox %\cite{JSD}
+property changes in the object. Setting off a flag\footnote[2]{DISABLE\_OBJECT\_TRACE defined in jsdIDebuggerService.idl} into the Firefox 
 JavaScript engine we can get file URL and line number for each object
 creation (e.g., myFile.js, line 24). We set a hook on this line
 and analyze the source code to determine which object was created.
@@ -712,7 +712,6 @@ value-if it is an object-as a new object. For example in Figure
 have only one statement which creates a new object and it is assigned
 to \texttt{x.y}.
 
-
 The new object can also be set as the property of a parent object by a
 colon (\texttt{:}). This case is also treated similar to previous case. The
 only difference is that the full path of property from the root parent
@@ -722,13 +721,13 @@ is 20, we keep \texttt{parentObject.newObject}. In this case stepping
 should be continued until the end of line 22 for getting a reference
 to the created new object.
 
-There is another case for new objects and when they are passed as
+There is another case for new objects where they are passed as
 arguments to other functions (Figure~\ref{fig:objectCreation}(c)). In these
 cases instead of step-over we use step-in and we get the corresponding
 argument as a new object.
 
 Although this approach is successful in many ordinary cases, there are some 
-cases where this approach doesn't work. For example in a case
+cases that a more comprehensive analysis needed for correct behaviour. For example in a case
 where the new object is assigned to \texttt{a[++i]} where i is a variable
 (Figure ~\ref{fig:objectCreation}(d)), \texttt{a[++i]} is kept in the list
 of assignee statements. Obviously, evaluating this statement doesn't return
@@ -760,7 +759,7 @@ object creation locations.
 20 a[++i] = new myConstructor();
  
 \end{verbatim}
-\caption{Examples of three types of JavaScript object creatin statements.}
+\caption{Examples of different cases for getting references to created JavaScript objects.}
 \label{fig:objectCreation}
 \end{figure}
 
@@ -769,7 +768,7 @@ The debugger sets a hook at the beginning of all code blocks needing
 a scope id. The scope id is kept as a variable with name 
 \texttt{\_scopeId} in the scope. Whenever the hook is hit,  meaning a new scope
 is created, \texttt{\_scopeId} is set by calling JavaScript's dynamic compilation 
-function \texttt{eval()}. For example, executing \texttt{eval( var \_scopeId = 10)} creates a
+function \texttt{eval()}. For example, executing \texttt{eval("var \_scopeId = 10")} creates a
 variable with name \texttt{\_scopeId} and value \texttt{10} in the
 scope of the \texttt{eval()} call, which is our interesting scope. \texttt{scopeId()}
 operation returns the value of \texttt{\_scopeId} in the scope.
@@ -826,7 +825,7 @@ To build a test case from one execution, two elements should be carefully
 considered. First, the initial state should be the same as the initial state
 of execution. Second, similar actions and events should be applied to
 the program during the execution. \textit{Querypoint} supports two mechanism
-for automatic re-execution: local-reproduction, record-replay. The first one,
+for automatic re-execution: local-reproduction and record-replay. The first one,
 recalls the function at the bottom of the call stack with the same parameters. The idea
 behind this mechanism is that many bugs in web pages can be reproduced by firing
 an event like clicking on a button. The second one, in the first execution, record phase, 
@@ -895,7 +894,7 @@ the execution is not deterministic.
 Consider the example in Figure~\ref{fig:nondeterministic-values}. 
 Assume that at the first exeuction, developers sees that \texttt{a} is \texttt{true} and asks
 for the \textit{lastChange} of \texttt{a} at breakpoint. In the re-exeuction, \texttt{a} is \texttt{false},
-and \texttt{b} is \texttt{b} is \texttt{true} at the reproduction point. It means that \texttt{lastChange}
+and \texttt{b} is \texttt{true} at the reproduction point. It means that \texttt{lastChange}
 result shows line 10, which is a correct answer for this execution but not for the previous one.
 When user asks for the \textit{lastChange} on variable \texttt{a}, debugger stores \texttt{a} value and compares
 it to the \texttt{a} value in the next executions. So if this value is different, debuggers inform the developer
@@ -919,7 +918,7 @@ the properties of the object examined by the developer are stored and compared.
 A \textit{lastChange} result can be recognized early when it occurs if it can
 be defined by a conditional breakpoint. A proposal for the condition is the event index
 in the history of change events. This condition obviously works for deterministic 
-executions. Therefore, if developer specifies an execution determinitic, every lastChange
+executions. Therefore, if developer specifies an execution deterministic, every lastChange
 will become pausable. Moroever, it works in a non-deterministic execution if non-determinism
 has no effect on the event index. If in several executions, the \textit{lastChange} result happens at
 the same index in the list of change events, it is very likely that in the next execution, the 
