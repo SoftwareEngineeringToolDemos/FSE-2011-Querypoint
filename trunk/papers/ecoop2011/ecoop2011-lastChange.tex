@@ -82,25 +82,25 @@ debugger. Their search must be backwards in time: the code causing the
 wrong value executed before the wrong value appeared. Searching with
 breakpoint- or log- based debuggers demands persistence and
 significant experience with the application being debugged. 
-
-We introduce a new practical functionality in debuggers called \textit{lastChange}, 
+We introduce a new, practical feature for debuggers called \textit{lastChange}, 
 which automatically locates the last point that a variable or an object property 
-has been changed and provides related information such as the call stack and program state. Starting from a 
+has been changed. Starting from a 
 program halted on a breakpoint, the \textit{lastChange} solution
-applies queries to the live program during re-execution. Thus
+applies queries to the live program during re-execution, recording the call stack 
+and limited program state each time the property value changes.
+When the program halts again on the breakpoint, the recorded information 
+can be shown to the developer.
+As a proof of this concept, we developed \textit{Querypoint}, a prototype
+which enhances the popular Firebug JavaScript debugger with
+ the \textit{lastChange} feature and studied users applying the prototype to 
+some simple test cases.
+ The approach used in implementing 
 \textit{lastChange} combines the flexibility of breakpoint debugging
 with the expressive power of log-based query debugging.  Contrary to
 other replay-based approaches which require exactly the same
-re-executions (deterministic executions), \textit{lastChange} only requires \textit{bug 
-reproducibility}, a test case is available which reproduces the bug.
+re-executions (deterministic executions), our new approach only requires \textit{bug 
+reproducibility}, that is a test case is available which reproduces the bug. 
   
-%TODO these paragraph should contain the summary of evaluation results.
-As a proof of concept, we developed \textit{Querypoint}, a prototype
-which enhances a popular JavaScript debugger, Firebug, with
-\textit{lastChange} feature. Moreover, \textit{Querypoint} provides
-mechanisms for automated bug reproduction, and a novel user interface
-to investigated execution points and results.
-
 \keywords{Debugging, Locating Defects, Querypoint, LastChange, Breakpoint,
  Watchpoint, Logging}
 \end{abstract}
@@ -459,9 +459,12 @@ last change of \texttt{bar.foo} is the fourth column.
 \begin{figure}[htp]
 \centering 
 \includegraphics[height=.2\textheight]{6-foo-changes1.jpg} 
-\caption{The list of property \texttt{foo} change events and
-  \texttt{bar} id at the reproduction point which identifies the last
-  change of \texttt{bar.foo} in the list. Column 3 is also a change of
+\caption{A hypothetical list of  change events for a property \texttt{foo}. 
+Each change event adds a column with the id of the object changed, the call stack,
+and some program state such as local variable values. 
+At the reproduction point  we determine which id  corresponds to 
+object \texttt{bar} and read out column 4,  the last
+  change of \texttt{bar.foo}. Column 3 is also a change of
   the object we want to study, id 1010, but it is not the last change;
   Column 5 is also a change of a property \texttt{foo} but its not for
   the object we are interested in.}
@@ -915,6 +918,7 @@ the properties of the object examined by the developer are stored and compared.
 \end{figure}
 
 \subsection{Pausing at \textit{lastChange} Result}
+\label{sec:pausing}
 A \textit{lastChange} result can be recognized early when it occurs if it can
 be defined by a conditional breakpoint. A proposal for the condition is the event index
 in the history of change events. This condition obviously works for deterministic 
@@ -955,19 +959,32 @@ the value of item.
 \end{figure}
 
 
+\section{User Study}
+We supplied four experienced Javascript developers with our prototype lastChange in an 
+extended Firebug debugger. Following a tutorial and a practice case, we observed as they 
+applied both conventional breakpoint and \textit{lastChange} on two small programs we 
+provided. (Our prototype did not have a user interface to support Sec.~\ref{sec:pausing}).
+All four developers successfully applied \textit{lastChange} to the test programs 
+and understood how it could help debugging. 
 
+We designed the example programs to require two steps of \textit{lastChange}; 
+all four users took more steps (5, 10, 10, and more than 25) to find the defect location with breakpoints.  
+To find locations for breakpoints two users scrolled through the source, 
+another searched the text, a third set a lot of breakpoints to get an understand of the control flow. 
+Based on our own experience we expect these strategies represent the kinds of approaches 
+developers have available. These operations are time consuming and tedious: all four users 
+found the defect location with just two \textit{lastChange} operations.
+Of course these programs were designed to highlight lastChange and many kinds of debugging 
+issues have been hidden by the design of our tests. Our results show that when a defect 
+relates to incorrect values and a developer recognizes that this, then the operational 
+mechanics of lastChange lead to the defect much more quickly than breakpoints.
 
-
-
-%\subsection{Reproduction point}
-
-\section{Evaluation}
-%To verify that lastChange can be effective we performed a small study of developers debugging with and without lastChange. Our goal is small, only to show that one aspect of debugging, the determination the causes of incorrect values, can be improved. The broader impact of lastChange on the total debugging process will have to wait for implementation of the functions described in section XX directly in a Web browser JavaScript engine.
-
-%Four experienced Javascript developers used the Firebug debugger on four small programs we provided. Each developer first used breakpoint debugging on two programs. Then we had them read sections YY - ZZ of this paper. Finally each developer applied the Querypoint prototype to two more programs. The programs were preselected so each developer saw them in a different order. Figure AA compares the human and computing times for these tests. [results]
-
-% Of course these programs were designed to highlight lastChange and all kinds of debugging issues have been hidden by the design of our tests. Our results show that when a defect relates to incorrect values and a developer recognizes that this, then the operational mechanics of lastChange lead to the defect much more quickly than breakpoints.
-
+Our observation and discussions with users also brought out several important issues and improvements
+for our user interface. Perhaps the most important and challenging improvement would be better integration 
+with breakpoint debugging. Our implementation put the results of \textit{lastChange} in a similar but different
+view from breakpoint debugging. This focuses attention on value changes, but it makes studying control 
+flow more difficult: we don't support single stepping from a \textit{lastChange} result. In our next iteration we 
+plan to merge the query and breakpoint results and support pausing as described in Sec.~\ref{sec:pausing}.
 
 \section{Discussion}
 
@@ -1012,23 +1029,24 @@ part of the debugging process.
 \subsection{Developers can learn to use \protect\texttt{lastChange}}
 
 If \texttt{lastChange} could be useful, can developers figure out how
-to use it? We hope that our prototype demonstrates that
+to use it? While our user study was small , our prototype demonstrates that
 \textit{lastChange} can be easily activated by operations on the
-graphical representation of erroneous data in a debugger. Interpreting
-the results should be only slightly more difficult. We designed the
+graphical representation of erroneous data in a debugger and the 
+results can be interpreted by users. We designed the
 user interface for the results from \textit{lastChange} to resemble
 the results from a breakpoint, with the source code of the change
 point highlighted and the state of the program presented the way state
 is presented from a breakpoint. Based on this user interface, we
 believe developers can start to use \textit{lastChange} with minimal
-training. Of course developers may initially confuse the result of
-\textit{lastChange} with being halted in a debugger at the point of
-last change. The value of the result will motivate them to clarify the
-issue.
+training. Of course our users may not be representative, but the key point here
+is that the learning curve small compared with the challenge of learning 
+breakpoint debugging in the first place.
 
 \subsection{Practical implementations are feasible}
 
-We have described our prototype implementation in Sec. 4. A fully usable
+We have described our prototype all-JavaScript implementation in Sec. 4. It is adequate for 
+exploring the ideas and may even be usable in production. However significant 
+improvments can be made. A fully usable
 implementation would require access to the object id at the point of
 object creation and \texttt{setPropertyChangeHook()}. Many
 object-oriented runtimes provide object identifiers[] and some
@@ -1041,27 +1059,45 @@ similar to \texttt{setPropertyChangeHook()} if JavaScript scopes-like regular
 JavaScript objects-support \texttt{watch()} function.
 
 \subsection{In most cases \protect\texttt{lastChange} will be much faster than current alternatives}
+
 When developers try \textit{lastChange}, will they get results fast
 enough to benefit? While we only used our prototype on toy programs,
-\textit{lastChange} seemed as fast as re-execution.  Recall that we
+\textit{lastChange} seemed as fast as breakpoint re-execution.
+But what can we say about realistic programs?
+
+Recall that we
 insert additional code through debugger callbacks, then re-execute the
 program. The additional code we insert is proportional (in our
 JavaScript algorithm) to 1) the number of places a property or
 variable with a given name is changed, 2) the number of places objects
-are created. (Something about the likely overhead in Firefox).
+are created. The overhead for each execution at a change event
+ depends upon the amount of data we store for each change event; 
+the overhead for object creation could be small since we only need to 
+determine if the object is one we need to watch.  
+
+We implemented a
+simple and effective mechanism allowing developers to control 
+overhead: we stored data to a depth of two property accesses 
+(e.g. foo.bar.x), then placed a 're-run' button 
+in the user interface at the third level. If developers reached the 
+third level they can see more data at the cost of one more replay.
 
 For comparison we should use the practical alternative: developers
 setting breakpoints. For the vast majority of programs, a developer
 will take much more time to set one breakpoint than
 \textit{lastChange} would add. But typically the developer may not
 guess the point of last change. They must then ponder another
-breakpoint, and re-execution. 
+breakpoint and re-execute. Unlike the re-execution we use to 
+optimize performance in \textit{lastChange}, 
+developers still will not know if the breakpoint they hit is the point of last change
+ or even if it is related to the change at all.
 
 We could also compare to solutions based on logging or tracing. Manual
 logging has very high overhead: the developer must add code, debug
 that added code, then analyze the log. (To be fair, the log can become
 a permanent debugging aid.) Automatic logging as we discussion in
-\ref{sec:relatedWork} causes about one or two orders of magnitude slow down. 
+\ref{sec:relatedWork} causes about one or two orders of magnitude slow down as well
+as requiring a completely different set of development tools. 
 
 \subsection{The worst cases are not more common or more painful than alternatives}
 
@@ -1081,9 +1117,10 @@ overhead loop is simply a matter of checking our internal counter. In
 such unusual cases we may simply offer the developer the option of
 studying the loop code then omitting it from \textit{lastChange}
 operations. Developers face this issue with any debugger today: occasionally a
-debugger causes too much overhead to be useful for debugging. On
-balance we think \textit{lastChange} will rarely encounter these kinds
-of issues.
+debugger causes too much overhead to be useful for debugging. 
+Users \textit{lastChange} may encounter these kinds of cases, but 
+that is the nature of debugging: you need different tools for 
+different kinds of problems.
 
 
 %\section{Evaluation}
