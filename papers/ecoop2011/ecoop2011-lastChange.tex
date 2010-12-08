@@ -24,6 +24,7 @@
 \usepackage{subfigure} %[tight,normalsize]
 \usepackage{algorithmic}
 \usepackage{algorithm}
+\usepackage{textcomp}
 
 \usepackage{url}
 \urldef{\mailsa}\path|{alfred.hofmann, ursula.barth, ingrid.haas, frank.holzwarth,|
@@ -228,7 +229,7 @@ between what we expect these functions to do, e.g. nothing
 interesting, and what they do in practice may cause bugs.
 
 
-By browsing through the code or other means\cite{Barton2010},
+By browsing through the code or other means\cite{Barton},
  the developer determines that the value displayed on the 
 button is set at line 22. Since the displayed value is incorrect we know 
 the bug occured before we hit this line.
@@ -459,7 +460,7 @@ last change of \texttt{bar.foo} is the fourth column.
 
 \begin{figure}[htp]
 \centering 
-\includegraphics[height=.2\textheight]{6-foo-changes1.jpg} 
+\includegraphics[height=.23\textheight]{6-foo-changes1.jpg} 
 \caption{A hypothetical list of  change events for a property \texttt{foo}. 
 Each change event adds a column with the id of the object changed, the call stack,
 and some program state such as local variable values. 
@@ -564,7 +565,7 @@ at the reproduction point (Figure ~\ref{fig:foo-changes2}).
 
 \begin{figure}[htp]
 \centering 
-\includegraphics[height=.12\textheight]{7-foo-changes2.jpg}
+\includegraphics[height=.14\textheight]{7-foo-changes2.jpg}
 \caption{A hypothetical list of variable \texttt{foo} change events. Each column of the list indicates a change event; for each
 change event the scope id returns by \texttt{ScopeId()} is recorded along with call stack and program state information. 
    The last column having the scope id \texttt{foo} at the reproduction point indicates 
@@ -605,7 +606,7 @@ event. The process can be repeated to cascade \textit{lastChange} arbitrarily de
 %\begin{algorithm}
 \begin{algorithmic}
 
-\FOR{$q$ in $lastChange queries$} 
+\FOR{$q$ in $lastChange$ queries} 
  \FOR {$p$ is defined at the $q$ result}
    \IF {$p$ is a lastChange on object property} 
      \STATE the property owner id should be stored at $q$ change events. 
@@ -635,9 +636,9 @@ event. The process can be repeated to cascade \textit{lastChange} arbitrarily de
 %---------------------------------------------------------------------------------------------------
 \section{JavaScript implementation}
 To verify the \textit{lastChange} algorithm we
-implemented it in an extension to the Firebug
-JavaScript debugger\cite{Firebug}. %\cite{firebug-version-1.6}. 
-Firebug itself is an extension of the Firefox browser\cite{Firefox}. %\cite{firefox-version-3.6}
+implemented\footnote[1]{http://code.google.com/p/querypoint-debugging} it in an extension to the Firebug
+JavaScript debugger\footnote[2]{http://getfirebug.com}. %\cite{Firebug}. %\cite{firebug-version-1.6}. 
+Firebug itself is an extension of the Firefox browser.%\cite{Firefox}. %\cite{firefox-version-3.6}
 The Firefox JavaScript engine provides a JavaScript debugging interface \cite{JSD} and 
 \textit{Querypoint} is developed over this interface. Our prototype implementation defines our four primitive operations in JavaScript code and using techniques which are cumbersome and comparatively slow to execute. However the JavaScript prototype is
 easy to explore, change, and share with others for feedback.
@@ -650,7 +651,7 @@ otherwise it generates a new id and sets this property. The value of the id is s
 for each new \texttt{\_objectId} needed. This use of a regular object property  might change
 the program behaviour. For example it will apear as an extra property in 
 \texttt{for(property in object)} loops. 
-The next version of Firefox\footnote[1]{https://developer.mozilla.org/en/JavaScript/Reference/Global\_Objects\\/Object/defineProperty}.
+The next version of Firefox\footnote[3]{https://developer.mozilla.org/en/JavaScript/Reference/Global\_Objects\\/Object/defineProperty}.
 provides an alternative via \texttt{defineProperty} a standard JavaScript
 function which receives 
 an argument specifying whether the property is enumerable or not. By setting the enumerable
@@ -673,7 +674,7 @@ excepting the global object and its predefined properties is available.  For
 our \textit{lastChange} prototype we created a version of
 \texttt{setPropertyChangeHook()}.  The basic strategy is to get a reference to the object just
 after its creation, then use \texttt{watch()} function to monitor
-property changes in the object. Setting a flag\footnote[2]{DISABLE\_OBJECT\_TRACE defined in jsdIDebuggerService.idl} into the Firefox 
+property changes in the object. Setting a flag\footnote[4]{DISABLE\_OBJECT\_TRACE defined in jsdIDebuggerService.idl} into the Firefox 
 JavaScript engine, we can get file URL and line number for each object
 creation (e.g., myFile.js, line 24). We set a hook on this line
 and parse the source code to determine which object was created.
@@ -964,14 +965,14 @@ the value of the item would succeed and the developer can reason from the
 
 \section{User Study}
 We supplied four experienced Javascript developers with our prototype lastChange in an 
-extended Firebug debugger. Following a tutorial and a practice case, we observed as they 
+extended Firebug debugger\footnote[5]{http://ltiwww.epfl.ch/\texttildelow mirghase/lastchange-userstudy}. Following a tutorial and a practice case, we observed as they 
 applied both conventional breakpoint and \textit{lastChange} on two small programs we 
 provided. (Our prototype did not have a user interface to support Sec.~\ref{sec:pausing}).
 All four developers successfully applied \textit{lastChange} to the test programs 
 and understood how it could help debugging. 
 
 We designed the example programs to require two steps of \textit{lastChange}; 
-all four users took more steps (5, 10, 10, and more than 25) to find the defect location with breakpoints.  
+all four users took more steps (9, 13, 12, and more than 30) to find the defect location with breakpoints.  
 To find locations for breakpoints two users scrolled through the source, 
 another searched the text, a third set a lot of breakpoints to get an understand of the control flow. 
 Based on our own experience we expect these strategies represent the kinds of approaches 
@@ -1017,7 +1018,7 @@ We have shown how \textit{lastChange} identifies the prior point in
 program execution where a program state value changes. Is it something
 the developer needs to do?  Since ultimately programs are just
 transformation of state values, debugging is ultimately backtracking
-to find defects in program state change.  When a developer halts a
+to find defects in program state change[].  When a developer halts a
 program on a breakpoint they have three kinds of information: a model
 of the program in their mind, a call stack showing what part of the
 program is halted, and the state at that point (a combination of the
@@ -1066,10 +1067,10 @@ We have described our prototype all-JavaScript implementation in Sec. 4. It is a
 exploring the ideas and may even be usable in production. However significant 
 improvments can be made. A fully usable
 implementation would require access to the object id at the point of
-object creation and \texttt{setPropertyChangeHook()}. Many
-object-oriented runtimes provide object identifiers[] and some
-provide access to object creation[]. In the particular case of
-the Firefox Web browser we used for our prototype, the primary barrier
+object creation and \texttt{setPropertyChan geHook()}. Many
+object-oriented runtimes provide object identifiers and 
+provide access to object creation directly or by bytecode instrumentation\cite{JPDA}. 
+In the particular case of the Firefox Web browser we used for our prototype, the primary barrier
 to practical implementation would likely be integration with the
 increasingly sophisticated just in time compilers []. In the case of
 tracking variable changes, \texttt{setVariableChangeHook()} can be implemented
@@ -1270,6 +1271,12 @@ subsubsection heading and should not be assigned a number.
 
 
 \begin{thebibliography}{16}
+
+\bibitem{Barton}%[Bond(2010)]
+J.J. Barton, and J. Odvarko. \newblock Dynamic and graphical web page breakpoints.
+\newblock In \emph{Conference on World Wide Web(WWW)},
+April, 2010.
+
 \bibitem{Bond}%[Bond(2007)]
 M.D. Bond, N. Nethercote, S.W. Kent, S.Z. Guyer, and K.S. McKinley. \newblock Tracking bad apples: reporting the origin of null and undefined value errors.
 \newblock In \emph{22nd annual ACM SIGPLAN conference on Object-oriented programming, systems, languages, and applications(OOPSLA)},
@@ -1290,16 +1297,19 @@ J.K. Czyz, and B. Jayaraman. \newblock Declarative and visual debugging in Eclip
 \newblock In \emph{OOPSLA workshop on eclipse technology eXchange},
 October, 2007.
 
-\bibitem{Firebug}%[Firebug(2010)]
-Firebug. \newblock http://getfirebug.com.
+%\bibitem{Firebug}%[Firebug(2010)]
+%Firebug. \newblock http://getfirebug.com.
 
-\bibitem{Firefox}%[Firefox(2010)]
-Firefox. \newblock http://www.mozilla.com.
+%\bibitem{Firefox}%[Firefox(2010)]
+%Firefox. \newblock http://www.mozilla.com.
 
 \bibitem{Hofer}%[Hofer(2006)]
 C. Hofer, M. Denker, and S. Ducasse. \newblock Implementing a backward-in-time debugger.
 \newblock In Proceedings of\emph{NODe'06},
 volume P-88, pages 17-32. Lecture Notes in Informatics, 2006.
+
+\bibitem{JPDA}%[JSD(2010)]
+Java Platform Debugger Architecture. \newblock http://java.sun.com/javase/technologies/ core/toolsapis/jpda.
 
 \bibitem{Ko}%[Ko(2008)]
 A.J. Ko, and B.A. Myers. \newblock Debugging reinvented: asking and answering why and why not questions about program behavior.
