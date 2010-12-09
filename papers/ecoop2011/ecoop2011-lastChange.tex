@@ -94,13 +94,14 @@ can be shown to the developer.
 As a proof of this concept, we developed \textit{Querypoint}, a prototype
 which enhances the popular Firebug JavaScript debugger with
  the \textit{lastChange} feature and studied users applying the prototype to 
-some simple test cases.
+some test cases.
  The approach used in implementing 
 \textit{lastChange} combines the flexibility of breakpoint debugging
 with the expressive power of log-based query debugging.  Contrary to
-other replay-based approaches which require exactly the same
+other replay-based approaches, which require exactly the same
 re-executions (deterministic executions), our new approach only requires \textit{bug 
-reproducibility}, that means a test case is available which reproduces the bug. 
+reproducibility}, meaning a test case is available which reproduces the bug and a 
+way to halt execution reablity after the reproduction.
   
 \keywords{Debugging, Locating Defects, Querypoint, LastChange, Breakpoint,
  Watchpoint, Logging}
@@ -116,8 +117,8 @@ their time debugging. To fix a bug, developers typically reproduce
 and monitor the buggy execution several times to understand the 
 program's unexpected behavior. Trial-and-error, guess-work, and 
 analyzing complicated data make debugging difficult and time-consuming. 
-Therefore, enhancements to debugging techniques and tools which automate 
-debugging operations can save developer 
+Enhancements to debugging to automate 
+debugging operations save developer 
 time, reducing development costs  and impoving software quality.
 
 A common strategy for locating defects starts from bug symptoms and
@@ -871,7 +872,7 @@ the value is related to the defect. Since the defect does not depend on
  exeuction order, the reproducibility of
 the bug makes it very unlikely that the \textit{lastChange} will
 depend upon order of events during execution.
-Of course there can be rare cases where the bug is reproducible but the
+There can be rare cases where the bug is reproducible but the
 value from \textit{lastChange} is not. As in conventional breakpoint
 debugging, we can only determine this empirically, by observing
 multiple executions with different values. Unlike conventional
@@ -979,8 +980,8 @@ developers have available. These operations are time consuming and tedious: all 
 found the defect location with just two \textit{lastChange} operations. Based on our measurements,
 this makes \textit{lastChange} about three times faster than breakpoints for the navigation from 
 the reproduction point to the defect.
-Of course these programs were designed to highlight lastChange and many kinds of debugging 
-issues have been hidden by the design of our tests. Our results show that, when a defect 
+(We recognize that these programs were designed to highlight lastChange and many kinds of debugging 
+issues have been hidden by the design of our tests). Our results show that, when a defect 
 relates to incorrect values and a developer recognizes this, then the operational 
 mechanics of lastChange lead to the defect much more quickly than breakpoints.
 
@@ -1044,7 +1045,7 @@ the results from a breakpoint, with the source code of the change
 point highlighted and the state of the program presented the way state
 is presented from a breakpoint. Based on this user interface, we
 believe developers can start to use \textit{lastChange} with minimal
-training. Of course our users may not be representative, but the key point here
+training. Our users may not be representative, but the key point here
 is that the learning curve is small compared with the challenge of learning 
 breakpoint debugging in the first place.
 
@@ -1127,7 +1128,7 @@ the overhead could be very large; if the loop computation is a
 significant fraction of the full program, the slowdown would be
 enormous. 
 
-Of course breakpoints are not feasible in these cases and logging
+These are difficult issues for other techniques as well:  breakpoints are not feasible in these cases and logging
 becomes unwieldy. Since automatic logging solutions are highly tuned,
 their overhead in this case will likely be much less than
 \textit{lastChange}. On the other hand, \textit{lastChange} integrates
