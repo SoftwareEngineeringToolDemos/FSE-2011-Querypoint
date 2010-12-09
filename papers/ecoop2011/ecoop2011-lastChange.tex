@@ -60,9 +60,9 @@
 
 % the affiliations are given next; don't give your e-mail address
 % unless you accept that it will be published
-\institute{Ecole Polytechnique F\'ed\'erale de Lausanne\\
+\institute{Ecole Polytechnique F\'ed\'erale de Lausanne \\
 \path|{salman.mirghasemi,claude.petitpierre}@epfl.ch| \\
-IBM Research - Almaden \\
+\and IBM Research - Almaden \\
 \path|johnjbarton@johnjbarton.com|}
 
 %
@@ -100,7 +100,7 @@ some simple test cases.
 with the expressive power of log-based query debugging.  Contrary to
 other replay-based approaches which require exactly the same
 re-executions (deterministic executions), our new approach only requires \textit{bug 
-reproducibility}, that is a test case is available which reproduces the bug. 
+reproducibility}, that means a test case is available which reproduces the bug. 
   
 \keywords{Debugging, Locating Defects, Querypoint, LastChange, Breakpoint,
  Watchpoint, Logging}
@@ -202,7 +202,8 @@ the \textit{lastChange} usage on a simple example with the comparison
 to breakpoint debugging. Section 3 presents \textit{lastChange}
 algorithm. In section 4, we explain the details of the JavaScript
 prototype implementation. We discuss the effect of non-determinism on
-the \textit{lastChange} results in section 5.  %TODO update it according to new Section 6 contains an evaluation of\text{lastChange} functionality.
+the \textit{lastChange} results in section 5. The user study results 
+are presented in section 6. %TODO update it according to new Section 6 contains an evaluation of\text{lastChange} functionality.
 
 \section{Introductory example}
 \label{sec:introExample}
@@ -220,6 +221,7 @@ button shows \texttt{1} as the initial value of
 \texttt{myObject.myProperty}.  In practice when the user clicks on the
 button, \texttt{0} appears instead of \texttt{2}: there is a bug.
 
+
 Two other functions are called in \texttt{onClick()}, \texttt{foo()}
 and \texttt{bar()}. As developers we often encounter function calls
 which seem peripheral to our current concern; they may have been added
@@ -227,6 +229,7 @@ by another developer, or we may have forgotten their exact properties
 or those properties may have changed, and so on. The difference
 between what we expect these functions to do, e.g. nothing
 interesting, and what they do in practice may cause bugs.
+
 
 
 By browsing through the code or other means\cite{Barton},
@@ -243,20 +246,6 @@ files and regular debugging facilities such as setting breakpoints and
 stepping. To the right of the script panel, the Watch panel shows the program state
 where the developer can examine object and variable values. In our case, the
 \texttt{myObject.myProperty} value at the paused point is zero. We expected this value to be \texttt{2}.
-
-To apply backward search strategy for locating defects, the developer
-first needs to know the origin of the wrong value. To achieve this
-goal using breakpoints, the developer should search code to find all possible places that
-\texttt{myObject. myProperty} might get a new value and set breakpoint at these locations. However, an
-object and property can be accessed and changed through different
-names and methods. There is no simple way to identify these alias or
-even their total number.  The developer can make a good guess and set
-breakpoints on lines where the property seems to be changed. Then they
-re-execute the program and examine the state looking for values that
-may lead to the incorrect value observed at line 22. All this work
-must be repeated if a new alias is discovered or if some
-information related to the buggy result was missed while stopped on
-one of the breakpoints.
 
 
 \begin{figure}[htp]
@@ -297,6 +286,19 @@ one of the breakpoints.
 \label{fig:js-code}
 \end{figure}
 
+To apply backward search strategy for locating defects, the developer
+first needs to know the origin of the wrong value. To achieve this
+goal using breakpoints, the developer should search code to find all possible places that
+\texttt{myObject. myProperty} might get a new value and set breakpoint at these locations. However, an
+object and property can be accessed and changed through different
+names and methods. There is no simple way to identify these aliases or
+even their total number.  The developer can make a good guess and set
+breakpoints on lines where the property seems to be changed. Then they
+re-execute the program and examine the state looking for values that
+may lead to the incorrect value observed at line 22. All this work
+must be repeated if a new alias is discovered or if some
+information related to the buggy result was missed while stopped on
+one of the breakpoints.
 
 In contrast, we have added a high-level function in debugger,
 \textit{lastChange}, which provides the answer without tedious manual
@@ -310,7 +312,7 @@ the right, the TraceData panel shows values of properties of the
 program state when it passed through line 29.  These two panels
 resemble the Script and Watch panels, but they show data collected by
 the debugger at one execution point which is now past: these are
-'traces' or 'logs' of information collected during the re-execution.
+\textit{traces} or \textit{logs} of information collected during the re-execution.
 
 Looking at line 29, it seems that something is wrong with
 \texttt{myCondition.value} which causes line 29 execution. The
@@ -337,19 +339,7 @@ which is when \texttt{myObject.myProperty} changed before
 reaching the breakpoint and finally the last one is the point of
 execution in which \texttt{myCondition.value} gets the
 \texttt{undefined} value. Moreover, the source lines related to these
-points are marked with red "Q" icons.
-
-
-Notice that in our example, \textit{lastChange} combines some aspects
-of breakpoint and of log-based debugging. Like breakpoint debugging,
-the developer re-executes a live runtime without changing the source
-and without a special execution environment beyond the debugger. The
-state of the program memory and the call stack are available at each
-lastChange point. Like log-based debugging, the program state and the
-call stack are recorded during program execution. We can't halt the
-program at \textit{lastChange} because we don't know which point is the last
-one until we return to the original breakpoint. (In section 5 we
-discuss cases were it is possible to pause at lines of \textit{lastChange}).
+points are marked with red \textbf{Q} icons.
 
 \begin{figure*}[htp]
 
@@ -387,10 +377,20 @@ discuss cases were it is possible to pause at lines of \textit{lastChange}).
 \centering 
 
 \includegraphics{5-example-points.jpg}
-\caption{The examined points before locating the defect. The arrow represents the logical forward progress of the program. Three actual executions are superimposed on this arrow. All three stop at the reproduction point indicated by the circle 1. After the first execution, the developer asks for lastChange as described in \ref{sec:introExample}, yielding information  indicated by circle 2. After the second execution, another lastChange query causes a third execution, yielding information indicated by circle 3.}
+\caption{The examined points before locating the defect. The arrow represents the logical forward progress of the program. Three actual executions are superimposed on this arrow. All three stop at the reproduction point indicated by circle 1. After the first execution, the developer asks for lastChange as described in \ref{sec:introExample}, yielding information  indicated by circle 2. After the second execution, another lastChange query causes a third execution, yielding information indicated by circle 3.}
 \label{fig:example-points}
 \end{figure}
 
+Notice that in our example, \textit{lastChange} combines some aspects
+of breakpoint and of log-based debugging. Like breakpoint debugging,
+the developer re-executes a live runtime without changing the source
+and without a special execution environment beyond the debugger. The
+state of the program memory and the call stack are available at each
+lastChange point. Like log-based debugging, the program state and the
+call stack are recorded during program execution. We can't halt the
+program at \textit{lastChange} because we don't know which point is the last
+one until we return to the original breakpoint. (In section 5 we
+discuss cases were it is possible to pause at lines of \textit{lastChange}).
 
 
 \section{\textit{lastChange} Algorithm}
@@ -468,7 +468,7 @@ At the reproduction point  we determine which id  corresponds to
 object \texttt{bar} and read out column 4,  the last
   change of \texttt{bar.foo}. Column 3 is also a change of
   the object we want to study, id 1010, but it is not the last change;
-  Column 5 is also a change of a property \texttt{foo} but its not for
+  Column 5 is also a change of a property \texttt{foo} but it is not for
   the object we are interested in.}
 \label{fig:foo-changes1}
 \end{figure}
@@ -651,8 +651,7 @@ otherwise it generates a new id and sets this property. The value of the id is s
 for each new \texttt{\_objectId} needed. This use of a regular object property  might change
 the program behaviour. For example it will apear as an extra property in 
 \texttt{for(property in object)} loops. 
-The next version of Firefox\footnote[3]{https://developer.mozilla.org/en/JavaScript/Reference/Global\_Objects\\/Object/defineProperty}.
-provides an alternative via \texttt{defineProperty} a standard JavaScript
+The next version of Firefox\footnote[3]{https://developer.mozilla.org/en/JavaScript/Reference/Global\_Objects\\/Object/defineProperty} provides an alternative via \texttt{defineProperty} a standard JavaScript
 function which receives 
 an argument specifying whether the property is enumerable or not. By setting the enumerable
 field \texttt{false} for \texttt{\_objectId}, this property will not
@@ -683,7 +682,7 @@ The only data we have is the object creation location including the
 file url and the line number and the goal is to get a reference to
 this object. Although in the most regular cases we have only one
 statement and one object creation in a line, there are cases that more
-than one object might be created in a line. There is no way to
+than one object might be created in a line. There is no simple way to
 recognize the interesting object among these new objects. So instead
 of one object, we monitor all new objects created in the line.
 
@@ -752,7 +751,7 @@ object creation locations.
 20 a[++i] = new myConstructor();
  
 \end{verbatim}
-\caption{Examples of different cases for getting references to created JavaScript objects.}
+\caption{Examples of different cases in getting references to created JavaScript objects.}
 \label{fig:objectCreation}
 \end{figure}
 
@@ -769,7 +768,7 @@ operation returns the value of \texttt{\_scopeId} in the scope.
 \subsection{\texttt{setVariableChangeHook()} operation}
 Variables defined in local, closure, and catch scopes are only changed in
 their scope; that includes the defining scope and scopes nested whithin them.
-For example in Figure ~\ref{fig:js-closure}, variable \texttt{var1} in line 11 can only be
+For example in Figure ~\ref{fig:js-closure}, variable \texttt{myVar} in line 11 can only be
 changed in lines 10 to 23. Therefore, after locating the function in
 which the variable is defined, it is enough to parse the code inside
 the function block and set a hook on all lines where the variable is
@@ -777,25 +776,25 @@ assigned a new value.
 We also set a hook at the first line of the function which is
 corresponding to the line where the variable is defined. In Figure
 ~\ref{fig:js-closure}, if the execution is paused at line 17 and the
-last change of \texttt{var1} is queried, two hooks on lines 16 and 17
+last change of \texttt{myVar} is queried, two hooks on lines 16 and 17
 will be set, but if the execution is paused at line 20 , four hooks on
 lines 11, 12, 14, 20 will be set. These two cases are different due
-the fact that \texttt{var1} in \texttt{firstChild} is a local variable
+the fact that \texttt{myVar} in \texttt{firstChild} is a local variable
 but in \texttt{secondChild} is a closure variable.
 
 \begin{figure}[htp]
 \begin{verbatim}
 10  function parent(){
-11    var var1;
-12    var1 = ...;
+11    var myVar;
+12    myVar = ...;
 13    function myfun(){
-14      var1 = ...;
+14      myVar = ...;
 15      function firstChild(){
-16       	var var1;
-17        var1 = ...;
+16       	var myVar;
+17        myVar = ...;
 18      }  
 19      function secondChild(){
-20        var1 = ...;			      
+20        myVar = ...;			      
 21      }
 22    }  
 23  }    
@@ -819,7 +818,7 @@ considered. First, the initial state should be the same as the initial state
 of execution. Second, similar actions and events should be applied to
 the program during the execution. \textit{Querypoint} supports two mechanism
 for automatic re-execution: callstack-reproduction and record-replay. In callstack reproduction the function from
-the earliest frame of the call stack with the same parameters. The idea
+the earliest frame of the call stack is called with the same parameters. The idea
 behind this mechanism is that many bugs in web pages can be reproduced by re-firing
 an event like clicking on a button. The record-replay execution uses two phases. In the record phase, it 
 stores the initial page url and the events and parameters corresponding to user actions. In the replay phase, it opens
@@ -850,7 +849,7 @@ to emphasize that when developers have to think about non-determistic execution
 it usually means that bugs are not reproducible. 
 The reproducibility of the bug
 means that the defect is very unlikely to depend on the order of
-events during the execution. Conversely, if the defect depends on order of execution, 
+events during the execution. Conversely, if the defect depends on the order of execution, 
 it will likely fail to reproduce on every execution. By relying on reproducibility but 
 not requiring deterministic execution, \textit{lastChange} covers the common case 
 developers focus on while not adding addition complexity to the implementation.
@@ -884,13 +883,13 @@ the execution is not deterministic.
 
 Consider the example in Figure~\ref{fig:nondeterministic-values}. 
 Assume that at the first exeuction, developers sees that \texttt{a} is \texttt{true} and asks
-for the \textit{lastChange} of \texttt{a} at breakpoint. In the re-exeuction, \texttt{a} is \texttt{false},
+for the \textit{lastChange} of \texttt{a} at the breakpoint. In the re-exeuction, \texttt{a} is \texttt{false},
 and \texttt{b} is \texttt{true} at the reproduction point. It means that \texttt{lastChange}
 result shows line 10, which is a correct answer for this execution but not for the previous one.
 When user asks for the \textit{lastChange} on variable \texttt{a}, debugger stores \texttt{a} value and compares
 it to the \texttt{a} value in the next executions. So if this value is different, debuggers inform the developer
 that the \textit{lastChange} query is made on a different value. In cases that the value is not a primitive but an object,
-the properties of the object examined by the developer are stored and compared.
+the primitive properties of the object examined by the developer are stored and compared.
 
 \begin{figure}[htp]
 \begin{verbatim}
@@ -1009,6 +1008,7 @@ invested development time,
    \item in most cases \textit{lastChange} will be much faster than current alternatives,
    \item the worst cases are not more common or more painful than
 alternatives.
+	 \item the \textit{lastChange} approach can be generalized to other queries.
 \end{enumerate}
 
 %TODOWe have also developed a prototype implementation of the debugger control part of lastChange for Java. The main differences (one or two sentences). We will report on this implementation in a later publication
@@ -1018,7 +1018,7 @@ We have shown how \textit{lastChange} identifies the prior point in
 program execution where a program state value changes. Is it something
 the developer needs to do?  Since ultimately programs are just
 transformation of state values, debugging is ultimately backtracking
-to find defects in program state change[].  When a developer halts a
+to find defects in program state change\cite{Zeller}.  When a developer halts a
 program on a breakpoint they have three kinds of information: a model
 of the program in their mind, a call stack showing what part of the
 program is halted, and the state at that point (a combination of the
@@ -1045,7 +1045,7 @@ point highlighted and the state of the program presented the way state
 is presented from a breakpoint. Based on this user interface, we
 believe developers can start to use \textit{lastChange} with minimal
 training. Of course our users may not be representative, but the key point here
-is that the learning curve small compared with the challenge of learning 
+is that the learning curve is small compared with the challenge of learning 
 breakpoint debugging in the first place.
 
 While \textit{lastChange} is not a breakpoint, 
@@ -1072,7 +1072,7 @@ object-oriented runtimes provide object identifiers and
 provide access to object creation directly or by bytecode instrumentation\cite{JPDA}. 
 In the particular case of the Firefox Web browser we used for our prototype, the primary barrier
 to practical implementation would likely be integration with the
-increasingly sophisticated just in time compilers []. In the case of
+increasingly sophisticated just in time compilers. In the case of
 tracking variable changes, \texttt{setVariableChangeHook()} can be implemented
 similar to \texttt{setPropertyChangeHook()} if JavaScript scopes-like regular 
 JavaScript objects-support \texttt{watch()} function.
@@ -1114,8 +1114,8 @@ developers still will not know if the breakpoint they hit is the point of last c
 We could also compare to solutions based on logging or tracing. Manual
 logging has very high overhead: the developer must add code, debug
 that added code, then analyze the log. (To be fair, the log can become
-a permanent debugging aid.) Automatic logging as we discussion in
-\ref{sec:relatedWork} causes about one or two orders of magnitude slow down as well
+a permanent debugging aid.) Automatic logging as we discuss in 
+section \ref{sec:relatedWork} causes about one or two orders of magnitude slow down as well
 as requiring a completely different set of development tools. 
 
 \subsection{The worst cases are not more common or more painful than alternatives}
@@ -1137,7 +1137,7 @@ such unusual cases we may simply offer the developer the option of
 studying the loop code then omitting it from \textit{lastChange}
 operations. Developers face this issue with any debugger today: occasionally a
 debugger causes too much overhead to be useful for debugging. 
-Users \textit{lastChange} may encounter these kinds of cases, but 
+The users of \textit{lastChange} may encounter these kinds of cases, but 
 that is the nature of debugging: you need different tools for 
 different kinds of problems.
 
@@ -1226,14 +1226,14 @@ object reference with an alias object which keeps the history of
 changes to the object reference. In this way, when an object is
 collected by garbage collector, its track of changes (if it is not
 referenced by other aliases) will be also collected. Though this
-approach incurs less runtime overhead (7 times to 115 times) in
-comparison to omniscient debuggers, it adds memory
+approach incurs less runtime overhead in
+comparison to omniscient debuggers (7 times to 115 times), it adds memory
 overhead. 
 
-Origin tracking of undefined and null values employing \textit{value piggybacking} technique proposed by
+Origin tracking of \texttt{undefined} and \texttt{null} values employing \textit{value piggybacking} technique proposed by
 Bond et al. \cite{Bond}. This approach has two main limitations comparing to \textit{lastChange}.
-First, it is limited to undefined and null values. Second, this approach dose not return the last change
-of a null variable but the first place that the null value is originated.
+First, it is limited to \texttt{undefined} and \texttt{null} values. Second, this approach dose not return the last change
+of a \texttt{null} variable but the first place that the \texttt{null} value is originated.
 
 Two new directions in logging debuggers explore more detailed use of
 the log and more effective logging approaches. WhyLine\cite{Ko}
@@ -1265,9 +1265,8 @@ We imagine that the runtime queries we use in \textit{lastChange}  may be used t
 
 
 
-
-\subsubsection*{Acknowledgments.} The heading should be treated as a
-subsubsection heading and should not be assigned a number.
+%Leo (the non-det values case), other readers
+\subsubsection*{Acknowledgments.} TODO
 
 
 \begin{thebibliography}{16}
@@ -1344,6 +1343,9 @@ G. Pothier, \'{E}. Tanter, and J. Piquer. \newblock Scalable omniscient debuggin
 \newblock In \emph{22nd annual ACM SIGPLAN conference on Object-oriented programming, systems, languages, and applications(OOPSLA)},
 October, 2007.
 
+\bibitem{Zeller}%[Pothier(2007)]
+A. Zeller. \newblock Why programs fail: A gauide to systematic debugging.
+Morgan Kaufmann (2005)
 
 \end{thebibliography}
 
