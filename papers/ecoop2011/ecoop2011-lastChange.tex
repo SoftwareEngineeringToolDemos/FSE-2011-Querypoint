@@ -60,7 +60,7 @@
 
 % the affiliations are given next; don't give your e-mail address
 % unless you accept that it will be published
-\institute{Ecole Polytechnique F\'ed\'erale de Lausanne \\
+\institute{\'Ecole Polytechnique F\'ed\'erale de Lausanne \\
 \path|{salman.mirghasemi,claude.petitpierre}@epfl.ch| \\
 \and IBM Research - Almaden \\
 \path|johnjbarton@johnjbarton.com|}
@@ -232,7 +232,6 @@ between what we expect these functions to do, e.g. nothing
 interesting, and what they do in practice may cause bugs.
 
 
-
 By browsing through the code or other means\cite{Barton},
  the developer determines that the value displayed on the 
 button is set at line 22. Since the displayed value is incorrect we know 
@@ -248,6 +247,19 @@ stepping. To the right of the script panel, the Watch panel shows the program st
 where the developer can examine object and variable values. In our case, the
 \texttt{myObject.myProperty} value at the paused point is zero. We expected this value to be \texttt{2}.
 
+To apply backward search strategy for locating defects, the developer
+first needs to know the origin of the wrong value. To achieve this
+goal using breakpoints, the developer should search code to find all possible places that
+\texttt{myObject. myProperty} might get a new value and set breakpoint at these locations. However, an
+object and property can be accessed and changed through different
+names and methods. There is no simple way to identify these aliases or
+even their total number.  The developer can make a good guess and set
+breakpoints on lines where the property seems to be changed. Then they
+re-execute the program and examine the state looking for values that
+may lead to the incorrect value observed at line 22. All this work
+must be repeated if a new alias is discovered or if some
+information related to the buggy result was missed while stopped on
+one of the breakpoints.
 
 \begin{figure}[htp]
 \begin{verbatim}
@@ -287,19 +299,6 @@ where the developer can examine object and variable values. In our case, the
 \label{fig:js-code}
 \end{figure}
 
-To apply backward search strategy for locating defects, the developer
-first needs to know the origin of the wrong value. To achieve this
-goal using breakpoints, the developer should search code to find all possible places that
-\texttt{myObject. myProperty} might get a new value and set breakpoint at these locations. However, an
-object and property can be accessed and changed through different
-names and methods. There is no simple way to identify these aliases or
-even their total number.  The developer can make a good guess and set
-breakpoints on lines where the property seems to be changed. Then they
-re-execute the program and examine the state looking for values that
-may lead to the incorrect value observed at line 22. All this work
-must be repeated if a new alias is discovered or if some
-information related to the buggy result was missed while stopped on
-one of the breakpoints.
 
 In contrast, we have added a high-level function in debugger,
 \textit{lastChange}, which provides the answer without tedious manual
@@ -1267,7 +1266,7 @@ We imagine that the runtime queries we use in \textit{lastChange}  may be used t
 
 
 %Leo (the non-det values case), other readers
-\subsubsection*{Acknowledgments.} TODO
+%\subsubsection*{Acknowledgments.} TODO
 
 
 \begin{thebibliography}{16}
