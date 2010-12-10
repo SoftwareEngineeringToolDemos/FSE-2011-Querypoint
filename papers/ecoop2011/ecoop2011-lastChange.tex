@@ -1220,6 +1220,13 @@ after reproducing bug without a capturing step.  Changing inputs or
 environment settings and re-executing to investigate the bug works as
 in conventional breakpoint debuggers.
 
+Bhansali et al. \cite{Bhansali} attempted to attack performance overhead 
+and large trace size in their time-travelling debugger, Nirvana. Nirvana 
+first collects a full compressed trace of program execution and then 
+re-simulate the execution. Their results are quite similar to omniscient 
+debuggers. Nirvana incurs about 15 to 68 times runtime overhead in 
+re-simulation.
+
 A recent work by Lienhard et al.\cite{Lienhard} suggests virtual
 machine level support for keeping the object flow. It replaces every
 object reference with an alias object which keeps the history of
@@ -1271,20 +1278,25 @@ We imagine that the runtime queries we use in \textit{lastChange}  may be used t
 
 \begin{thebibliography}{16}
 
-\bibitem{Barton}%[Bond(2010)]
+\bibitem{Barton}
 J.J. Barton, and J. Odvarko. \newblock Dynamic and graphical web page breakpoints.
 \newblock In \emph{Conference on World Wide Web(WWW)},
 April, 2010.
+
+\bibitem{Bhansali}
+S. Bhansali, W. Chen, S. de Jong, A. Edwards, R. Murray, M. Drini\'{c}, D. Miho\v{c}ka, J. Chau. \newblock Framework for instruction-level tracing and analysis of program executions.
+\newblock In \emph{International Conference on Virtual Execution Environments(VEE)},
+June, 2006.
 
 \bibitem{Bond}%[Bond(2007)]
 M.D. Bond, N. Nethercote, S.W. Kent, S.Z. Guyer, and K.S. McKinley. \newblock Tracking bad apples: reporting the origin of null and undefined value errors.
 \newblock In \emph{22nd annual ACM SIGPLAN conference on Object-oriented programming, systems, languages, and applications(OOPSLA)},
 October, 2007.
 
-\bibitem{Bond2}%[Bond(2010)]
-M.D. Bond, G.Z. Baker, S.Z. Guyer, and Z. Samuel. \newblock Breadcrumbs: efficient context sensitivity for dynamic bug detection analyses.
-\newblock In \emph{Conference on Programming Language Design and Implementation(PLDI)},
-June, 2010.
+%\bibitem{Bond2}%[Bond(2010)]
+%M.D. Bond, G.Z. Baker, S.Z. Guyer, and Z. Samuel. \newblock Breadcrumbs: efficient context sensitivity for dynamic bug detection analyses.
+%\newblock In \emph{Conference on Programming Language Design and Implementation(PLDI)},
+%June, 2010.
 
 \bibitem{Boothe}%[Boothe(2000)]
 B. Boothe. \newblock Efficient algorithms for bidirectional debugging.
