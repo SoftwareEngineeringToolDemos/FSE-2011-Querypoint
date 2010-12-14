@@ -854,7 +854,10 @@ it will likely fail to reproduce on every execution. By relying on reproducibili
 not requiring deterministic execution, \textit{lastChange} covers the common case 
 developers focus on while not adding addition complexity to the implementation.
 
+
 \subsection{\textit{lastChange} Result Consistency}
+\label{sec:resultConsistency}
+
 Each time we re-execute a non-deterministic program, 
 the details of execution instruction order may change. 
 For example, if we record the source code lines every time
@@ -909,9 +912,9 @@ the primitive properties of the object examined by the developer are stored and 
 Using \textit{lastChange} a developer can work backwards on the flow of data, but sometimes bugs are more obvious when
 we watch control flow forwards. Consider for example, 
 \begin{verbatim}
-44              vector.r = Math.floor(Math.random()*5)*6;
-45              if (vector.r !== 0 && vector.r < 30);
-46                   return vector;
+44 vector.r = Math.floor(Math.random()*5)*6;
+45 if (vector.r !== 0 && vector.r < 30);
+46   return vector;
 \end{verbatim}
 where \textit{lastChange} shows us that \texttt{vector.r} is zero at line 44. In our user studies, developers
 wanted to single step forward from line 44. If they could do this, they may be surprised to see line 46 execute 
@@ -978,7 +981,7 @@ Based on our own experience we expect these strategies represent the kinds of ap
 developers have available. These operations are time consuming and tedious: all four users 
 found the defect location with just two \textit{lastChange} operations. Based on our measurements,
 this makes \textit{lastChange} about three times faster than breakpoints for the navigation from 
-the reproduction point to the defect.
+the reproduction point to the defect
 (We recognize that these programs were designed to highlight lastChange and many kinds of debugging 
 issues have been hidden by the design of our tests). Our results show that, when a defect 
 relates to incorrect values and a developer recognizes this, then the operational 
@@ -1018,7 +1021,7 @@ We have shown how \textit{lastChange} identifies the prior point in
 program execution where a program state value changes. Is it something
 the developer needs to do?  Since ultimately programs are just
 transformation of state values, debugging is ultimately backtracking
-to find defects in program state change\cite{Zeller}.  When a developer halts a
+to find defects in program state change\cite{Weiser,Zeller}.  When a developer halts a
 program on a breakpoint they have three kinds of information: a model
 of the program in their mind, a call stack showing what part of the
 program is halted, and the state at that point (a combination of the
@@ -1032,7 +1035,7 @@ and know the defect. Otherwise they need to figure out what operation
 causes the incorrect value. Here \textit{lastChange} takes over and addresses a key
 part of the debugging process.
 
-\subsection{Developers can learn to use \protect\texttt{lastChange}}
+\subsection{Developers can learn to use \protect\textit{lastChange}}
 
 If \texttt{lastChange} could be useful, can developers figure out how
 to use it? While our user study was small , our prototype demonstrates that
@@ -1077,7 +1080,7 @@ tracking variable changes, \texttt{setVariableChangeHook()} can be implemented
 similar to \texttt{setPropertyChangeHook()} if JavaScript scopes-like regular 
 JavaScript objects-support \texttt{watch()} function.
 
-\subsection{In most cases \protect\texttt{lastChange} will be much faster than current alternatives}
+\subsection{In most cases \protect\textit{lastChange} will be much faster than current alternatives}
 
 When developers try \textit{lastChange}, will they get results fast
 enough to benefit? While we only used our prototype on toy programs,
@@ -1097,7 +1100,7 @@ determine if the object is one we need to watch.
 We implemented a
 simple and effective mechanism allowing developers to control 
 overhead: we stored data to a depth of two property accesses 
-(e.g. foo.bar.x), then placed a 're-run' button 
+(e.g. foo.bar.x), then placed a \textit{re-run} button 
 in the user interface at the third level. If developers reached the 
 third level they can see more data at the cost of one more replay.
 
@@ -1273,7 +1276,8 @@ We imagine that the runtime queries we use in \textit{lastChange}  may be used t
 
 
 %Leo (the non-det values case), other readers
-%\subsubsection*{Acknowledgments.} TODO
+\subsubsection*{Acknowledgments.} The authors thank Leo Meyerovich for reading a draft of this paper and suggesting the example in section \ref{sec:resultConsistency} and
+Jan Odvarko and Mike Collins for testing the prototype before our user study and providing helpful suggestions.
 
 
 \begin{thebibliography}{16}
@@ -1355,7 +1359,13 @@ G. Pothier, \'{E}. Tanter, and J. Piquer. \newblock Scalable omniscient debuggin
 \newblock In \emph{22nd annual ACM SIGPLAN conference on Object-oriented programming, systems, languages, and applications(OOPSLA)},
 October, 2007.
 
-\bibitem{Zeller}%[Pothier(2007)]
+\bibitem{Weiser}
+M. Weiser. \newblock Program slicing.
+\newblock \emph{IEEE Transactions on
+Software Engineering}, vol. SE-10, no. 4, pp. 352–357,
+July 1984.
+
+\bibitem{Zeller}
 A. Zeller. \newblock Why programs fail: A gauide to systematic debugging.
 Morgan Kaufmann (2005)
 
