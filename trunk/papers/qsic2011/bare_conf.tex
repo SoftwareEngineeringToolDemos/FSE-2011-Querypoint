@@ -64,11 +64,13 @@ This dynamic languages feature makes their understanding hard.
 %understanding JavaScript code and its runtime is much harder for developers.
 
 
-\section{Motivation}
+\section{The Function Naming Problem}
+Figure~\ref{debuggers} shows the call stack view of two famous JavaScript debuggers, Firebug and Google Chrome , paused at the same breakpoint. The differences between two call stack, particularly in the first two frames, are due to different implementations of event handling in the underlying platforms. Google chrome shows \texttt{anonymouse} for three functions which doesn't give any useful information to the developer. The developer has to look at the specified source file and line number to recall the function. Although Firebug shows more function names, it is also unsuccessful about one function. 
+ 
 
-
+%___ why it is hard
+%-- Check here: http://kangax.github.com/nfe/
 %___ The importance of having function names
-%___ The problem in Firebug and V8 webkit
 %___ related work for type system
 
 \begin{figure*}[htp]
@@ -81,18 +83,62 @@ The Google Chrome debugger is unable to find three function names and The Firebu
 \label{debuggers}
 \end{figure*}
 
+The importance of function names is not limited only to call stack view. A function can be used as a constructor for creating new objects. The constructor name like class name in traditional languages such as Java, can be used in object representation. It can help developer in understanding the structure and role of object without looking into its properties.
 
-
-
-\section{The Function Naming Problem}
-%___ why it is hard
-%-- Check here: http://kangax.github.com/nfe/
 
 
 \section{Automatic Funcation Naming}
 
-\subsubsection{Subsubsection Heading Here}
-%Subsubsection text here.
+%explain function expression and function declerations
+%moreover explain creation of the list of outer scopes.
+
+\subsection{A Global Name for a Function Object}
+
+\begin{figure}[htp]
+\begin{verbatim}
+(a) Case 1:
+ function foo(){ ... }
+
+(b) Case 2:
+ var foo = function { ... } 
+ 
+(c) Case 3:
+ var foo = {
+     bar : function { ...}
+ }
+
+(d) Case 4:
+
+ var foo = function(){
+           ....
+           return function(){ ... }
+ }()
+ 
+(e) Case 5:
+ var foo = function(){ 
+ 					 return ...;
+ }()					
+ 
+(f) Case 6:
+ var foo = function(){
+ 
+ }()();
+ 
+(g)
+ foo(function(){ ... });
+ 
+(h)
+ array = [...., function(){},...]
+ 
+(i)
+ array[i] = function(){};   
+
+\end{verbatim}
+\caption{Different cases of function object creation.}
+\label{fig:functionCreation}
+\end{figure}
+
+\subsection{Naming Functions in Call Stack}
 
 
 \section{Related Work}
