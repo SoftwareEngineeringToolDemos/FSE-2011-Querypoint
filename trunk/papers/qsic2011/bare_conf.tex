@@ -36,61 +36,71 @@ claude.petitpierre@epfl.ch}}
 
 \begin{abstract}
 %\boldmath
-%Understanding runtime elments play a key role in program comprehension. In dynamic weak-typed languages like JavaScript, runtime elements are mainly concrete values that tell a little about their meta data and structure. This dynamic languages feature makes their understanding hard.
+Understanding JavaScript code due to its dynamic, weakly-typed nature is complicated. Developers usually understand JavaScript programs by running them and examining their elements at runtime. However, understanding the concrete value of an element is not always straightforward. Among all runtime elments in JavaScript functions are more important: they are used as object constructors and apear in call stack. We discuss the function names usage in improving concrete values presentation. Morover, we propose an approach for automatic function naming in JavaScript.
 \end{abstract}
 
-
-
 \section{Introduction}
-Today JavaScript has a unique role in web programming, considered as the web assembly language. This language is used by 97 out of the web's 100 most popular sites\footnote[1]{http://www.alexa.com}.It is very likely that JavaScript keeps this critical role at least for the next few years. Along with the growth of demands for more comprehensive user interfaces, the size and the complexity of web applications is increasing. Morover, JavaScript is also becoming a general purpose computing platform with office applications[], browsers[], server-side applications[] and development environments \cite{Ingalls} being developed in JavaScript.
+The unique and important role of JavaScript in web programming is undeniable. This language is used by 97 out of the web's 100 most popular sites\footnote[1]{http://www.alexa.com}. It is very likely that JavaScript keeps this crucial role at least for the next few years. Along with the growth of demands for more comprehensive user interfaces, the size and the complexity of web applications is increasing. Morover, JavaScript is also becoming a general purpose computing platform with office applications \cite{JSOffice, JSOffice2}, browsers \cite{FAO, GCE} and development environments \cite{Ingalls} being developed in JavaScript \cite{Richards}. There are also proposals for employing JavaScript in server-side applications \cite{SSJSR, CJS}.
 
-JavaScript developers have to improve their develoment processes and practices to cope with these fast changes. They need modern editors for writing and editing larger programs and effective tools for understanding complicated JavaScript runtime. However, there has been severe inherent barriers for improving JavaScript tool support. 
-Unlike many traditional object oriented languages such as Java and C\#, it does not have classes, and does not encourage encapsulation or even structured programming JavaScript is a weakly typed language with no type declarations and only run-time checking of calls and field accesses \cite{Richards}. It means that the code contains less data about JavaScript elements and how they are related. For example, a variable value can be primitive values, objects with any structure or even a function. Therefore, lack of describing data in JavaScript code is a fundamental issue in enhancing tools.
+To cope with the pace of changes, JavaScript developers need to improve their develoment processes and practices. They need modern editors for writing and editing larger programs and effective tools for understanding complicated JavaScript runtime. However, there has been severe inherent barriers for improving JavaScript tool support. 
+Unlike many traditional object oriented languages such as Java and C\#, it does not have classes, and does not encourage encapsulation or even structured programming JavaScript is a weakly typed language with no type declarations and only run-time checking of calls and field accesses \cite{Richards}. As a direct consequence, the JavaScript code contains less explanatory data about the program elements and their relations. A variable value can be a primitive value, an object with any structure or even a function. One callsite may invoke different function bodies with different number of arities that none of them can be understood from the code. Therefore, the lack of descriptive data in JavaScript code is the most fundumental issue in enhancing JavaScript tool support.
 
-Catching errors early (i.e., before or at the time of compilation) is an important feature for editors. It can saves developers' time, prevents bugs and improves the program reliability. However, many errors can not be recognized without a strong typing stystem. To attack this issue a few static typing systems have been proposed for JavaScript \cite{Anderson, Anderson2, Heidegger, Thiemann}. These approaches analyze source codes and deduce possible values and object structures based on possible program control flows lead to assignment to a variable. The discovered facts about variables are not only useful for catching errors but to provide modern editors' features such as auto-complete and refactoring. 
+Catching errors early (i.e., before or at the compilation time) is an important feature for development environments. It can save developers' time, prevent bugs and improve the program reliability. However, many errors can not be recognized without a strong typing stystem. To attack this issue a few static typing systems have been proposed for JavaScript \cite{Anderson, Anderson2, Heidegger, Thiemann}. These approaches discover the type of values and object structures for a variable by statically analyzing the source code and possible program control flows lead to the variable assignment. These discovered facts about variable types are not only useful for catching errors but to provide modern editing features such as auto-complete and refactoring in development environments. Moreover, these infered data can help in code coprehension if they are properly presented. However, none of the mentioned approaches provided effective means for sharing this information with the developer. 
 
-Although the mentioned approaches are able to recognize errors or provide modern editing features by the the discovered facts about JavaScript elements, they do not have means to transform this information to the developer. For example, objects are not associated to classes in JavaScript, and no structure can be assumed by the developer.
-If it is discovered that a variable value is only constructed by a specific function, this information can also be shared with the developer. The function can work like a class and gives some cue to the developer about the object structure. However, due to dynamic nature of JavaScript many elements have no identifier. Therefore, even in the cases that the constructor of an object is known, it can not be presented because the constructor has no identifier or the identifier is not recognizable for the developer.
+%talk about runtime tools
+Developers usually understand JavaScript code by examining the running program in debuggers. At runtime, concrete values are available and developer can directly check and understand object structures and control flows. However, understanding a concrete value is not always straightforward, particulary for non-primitive values such as objects and functions. To facilitate understanding these complex values, debuggers show a summary of these objects. For example, the name of object constructor must appear in its summary.
 
-% about JavaScript elements less explicit meta data for the code exist is available to editors and tools for program verifiction, 
+Functions are central to program comprehension in JavaScript. They are first-class objects that can be used for object construction and be passed as function call arguments. However, there is a serious issue with JavaScript functions that makes understanding them very difficult. Functions can be defined and created with no identifier or name. A function name is important for referring and recalling the function's functionality. Morover, the name of an object's constructor can work like a class name and summarizes the object structure. 
 
-As a consequence, the information provided in editors and tools for JavaScript elements is usually limited and doesn't give enough hint for rapid recall to developers. 
-Understanding runtime elments play a key role in program comprehension.
-In dynamic weak-typed languages like JavaScript, runtime elements are
-only concrete values that tell a little about their meta data and structure.
-This dynamic languages feature makes their understanding hard.
+In this paper, we propose an approach for automatic naming of functions in JavaScript. The function names can be used in debuggers for more descriptive object summaries or callstack view. Moreover, these function names can be used in integration with proposed JavaScript typing systems for providing modern editing features.
+
+%Many developers develop JavaScript in object-oriented way.
+%
 
 %For example to know an object, developer has to examine the object properties and from the property names and values, some connections
 %understanding JavaScript code and its runtime is much harder for developers.
-
-
-\section{The Function Naming Problem}
-Figure~\ref{debuggers} shows the call stack view of two famous JavaScript debuggers, Firebug and Google Chrome , paused at the same breakpoint. The differences between two call stack, particularly in the first two frames, are due to different implementations of event handling in the underlying platforms. Google chrome shows \texttt{anonymouse} for three functions which doesn't give any useful information to the developer. The developer has to look at the specified source file and line number to recall the function. Although Firebug shows more function names, it is also unsuccessful about one function. 
- 
-
-%___ why it is hard
-%-- Check here: http://kangax.github.com/nfe/
-%___ The importance of having function names
-%___ related work for type system
+% we propose automatic function naming with these features
+% 1) expected by user 2) different situations
 
 \begin{figure*}[htp]
 \centerline{
 \subfigure[Firefox Firebug Debugger]{\label{fig_first_case}\includegraphics[width=.47\textwidth]{fbug-callstack.jpg}}
 \hfil
 \subfigure[Google Chrome Debugger]{\label{fig_second_case}\includegraphics[width=0.47\textwidth]{chrome-callstack.jpg}}}
-\caption{These two figures show the call stack view of Firebug and Google Chrome JavaScript debuggers paused at the same point. 
+\caption{These two pictures show the call stack view of Firebug and Google Chrome JavaScript debuggers paused at the same point. 
 The Google Chrome debugger is unable to find three function names and The Firebug debugger fails at one case.}
 \label{debuggers}
 \end{figure*}
 
-The importance of function names is not limited only to call stack view. A function can be used as a constructor for creating new objects. The constructor name like class name in traditional languages such as Java, can be used in object representation. It can help developer in understanding the structure and role of object without looking into its properties.
+\section{The Function Naming Problem}
+Figure~\ref{debuggers} shows the call stack view of Firefox Firebug and Google Chrome JavaScript debuggers, paused at the same breakpoint. The differences between two call stack, particularly in the first two frames, are due to different implementations of event handling in the underlying platforms. Google chrome shows \texttt{anonymouse} for three functions which doesn't give any useful information to the developer. The developer has to look at the specified source file and line number to recall the function. Although Firebug shows more function names, it is also unsuccessful about one function.
+ 	
+%___ The importance of having function names
+The importance of function names is not only limited to call stack view. A function can be used as a constructor for constructing new objects. The constructor name like class name in traditional languages such as Java, can be used in object representation. It can assist developers in understanding the structure and role of the object without looking into its properties. 
+
+In JavaScript, defining \textit{identifier} for functions is optional. A function can be assigned to a variable or an object property with any name. Therefore a function object can be called by different names during in life time. 
+%___ why it is hard
+
+%Many developers develop JavaScript in object-oriented way.
+%
 
 
+%___ related work for type system
 
-\section{Automatic Funcation Naming}
+%-- Check here: http://kangax.github.com/nfe/
+%function body(source), function object
 
 %explain function expression and function declerations
 %moreover explain creation of the list of outer scopes.
+In JavaScrip a function can be defined by a function expression or a function decleration \cite{ECMA}. From the same function expression or decleration, function objects are created. In addition to function source code, the clousure scopes are also important for understanding the function operation. The clousure scopes include all available variables to the function at the time of creation. The location of function definition in the source code is enough for knowing the clousure scopes. Therefore, a function body with its location in a source code defines a category of function objects with the similar behaviour.
+Is it possible to assing a name to every function object in JavaScript in a way that:
+1) Function objects with the same code has the same name.
+2) The proposed name recalls the function for the developer.
+
+
+\section{Automatic Funcation Naming}
+To choose the most appropriate name for a function which has the characteristics defined in the previous section, we consider two cases. First, assigning a global name to the function which identifies the function in the whole program. Second, naming a function in a call stack.
+
 
 \subsection{A Global Name for a Function Object}
 
@@ -141,6 +151,21 @@ The importance of function names is not limited only to call stack view. A funct
 \subsection{Naming Functions in Call Stack}
 
 
+
+\begin{figure}[htp]
+\begin{verbatim}
+(a)
+ foo();
+(b)
+ foo.bar();
+(c)
+ foo.apply(bar, args);
+
+\end{verbatim}
+\caption{Different cases of function object creation.}
+\label{fig:functionCall}
+\end{figure}
+
 \section{Related Work}
 %Another strand of research has tried to investigate how to provide better tools for developers for catching errors early. Being a weakly typed language with no type declarations and only run-time checking of calls and field accesses, it is natural to try to provide a static type system for JavaScript [2, 1, 3, 24, 13]. Finally, after many years of neglect, modern implementations of JavaScript have started to appear which use state of the art just-in-time compilation techniques [10].
 
@@ -153,10 +178,6 @@ as individual objects and in call stack.
 
 \begin{thebibliography}{10}
 
-\bibitem{IEEEhowto:kopka}
-H.~Kopka and P.~W. Daly, \emph{A Guide to \LaTeX}, 3rd~ed.\hskip 1em plus
-  0.5em minus 0.4em\relax Harlow, England: Addison-Wesley, 1999.
-
 \bibitem{Anderson}
 C. Anderson, P. Giannini, and S. Drossopoulou. \newblock Towards Type Inference for JavaScript.
 \newblock In \emph{Proceedings of the 19th European conference on Object-Oriented Programming(ECOOP)},
@@ -166,12 +187,24 @@ July, 2005.
 C. Anderson and P. Giannini. \newblock Type checking for javascript.
 \newblock \emph{Electr. Notes Theor. Comput. Sci.}, 138(2), 2005. 
 
+\bibitem{CJS}
+Common JS.
+\newblock http://www.commonjs.org/
+
 \bibitem{ECMA}
 ECMA International.
 \newblock \emph{ECMA-262: ECMAScript Language Specification},
 ECMA (European Association for Standardizing Information
 and Communication Systems), Geneva, Switzerland, third edition,
 December 1999. 
+
+\bibitem{FAO}
+Firefox Add-ons.
+\newblock https://addons.mozilla.org/en-US/developers/docs/gett ing-started.
+
+\bibitem{GCE}
+Google Chrome Extensions.
+\newblock http://code.google.com/chrome/extensions.
 
 \bibitem{Heidegger}
 P. Heidegger and P. Thiemann.\newblock Recency types for dynamically-typed, object-based languages.
@@ -184,17 +217,29 @@ a web page.
 \newblock In \emph{Self-Sustaining Systems},
 2008.
 
+\bibitem{JSOffice}
+JScript development in Microsoft Office 11.
+\newblock http://msdn.microsoft.com/ en-us/library/aa202668(office.11).aspx
+
+\bibitem{JSOffice2}
+JavaScript development in OpenOffice.
+\newblock http://framework.openoffice.org/ scripting/release-0.2/javascript-devguide.html
+
 \bibitem{Richards}
 G. Richards, S. Lebresne, B. Burg and J. Vitek.\newblock An analysis of the dynamic behavior of JavaScript programs.
 \newblock In \emph{Proceedings of the 2010 ACM SIGPLAN conference on Programming language design and implementation(PLDI)},
 June, 2010.
+
+\bibitem{SSJSR}
+Server-Side JavaScript Reference v1.2.
+\newblock http://research.nihonsoft.org/ javascript/ServerReferenceJS12.
 
 \bibitem{Thiemann}
 P. Thiemann.\newblock Towards a type system for analyzing JavaScript programs.
 \newblock In \emph{Proceedings of European Symposium on Programming (ESOP)},
 2005.
 
-
+ 
 \end{thebibliography}
 
 
