@@ -35,7 +35,7 @@ claude.petitpierre@epfl.ch}}
 
 
 \begin{abstract}
-Understanding JavaScript code due to its dynamic, weakly-typed nature is complicated. Developers usually understand JavaScript programs by running them and examining their elements at runtime. However, understanding concrete values, particularly user-defined and function objects, is not always straightforward. Function names can aid in this regard; they can apear as the constructor name in object representation or as the functions identifier in callstack. Unfortunately, a very low proportion (less than 15\%) of JavaScript functions are named. We propose an approach for automated function naming based on source code analysis. We applied our approach over two relatively large JavaScript programs.
+Understanding JavaScript code due to its dynamic, weakly-typed nature is complicated. Developers usually understand JavaScript programs by running them and examining their elements at runtime. However, understanding concrete values, particularly user-defined and function objects, is not always straightforward. Function names can aid in this regard; they can appear as the constructor name in object representation or as the functions identifier in callstack. Unfortunately, a very low proportion (less than 15\%) of JavaScript functions are named in the first place. We propose an approach for automated JavaScript function naming based on source code analysis. We applied our approach over two relatively large JavaScript programs.
 \end{abstract}
 
 \section{Introduction}
@@ -49,7 +49,7 @@ Catching errors early (i.e., before or at the compilation time) is an important 
 Developers usually understand JavaScript code by examining the running program in debuggers. At runtime, concrete values are available and developer can directly check and understand object structures and control flows. Understanding a concrete value, particulary for non-primitive values such as objects and functions, is not always straightforward. To facilitate understanding these complex values at the first place, debuggers show a summary of these objects. For example, in case of user-defined objects, the name of object's constructor can be very helpful in the object summary. It can work like a class name and summarizes the object structure.
 
 Functions are central to program comprehension in JavaScript. They are first-class objects that are used for different purposes by developers; 
-they may be used as an object  constructor, a clousure scope(module) or even  passed as an argument in a function call. However, there is a subtle issue with JavaScript functions that makes working with them in debuggers quite impossible: functions can be defined and created with no name or identifier. The function name is necessary for referring and recalling the function's functionality, but only a small proportion(less than 15\%) of JavaScript functions are named.
+they may be used as an object  constructor, a clousure scope(module) or even  passed as an argument in a function call. However, there is a subtle issue with JavaScript functions that makes working with them in debuggers quite impossible: functions can be defined and created with no name or identifier. This problem particularly shows up in debuggers \cite{Zaytsev}. The function name is necessary for referring and recalling the function's functionality, but only a small proportion (less than 15\%) of JavaScript functions are named.
 
 \begin{figure*}[htp]
 \centerline{
@@ -60,49 +60,35 @@ they may be used as an object  constructor, a clousure scope(module) or even  pa
 \label{debuggers-objects}
 \end{figure*}
 
-In this paper, we propose automated JavaScript function naming based on extracted data by anaylizing the source code. The candidate function names can be used in debuggers for more descriptive object summaries and callstack view. Moreover, these function names can be used in integration with proposed JavaScript typing systems for providing modern editing features in development environments.
+In this paper, we propose automated JavaScript function naming based on extracted data from source code analysis. The candidate function names can be used in debuggers for more descriptive object summaries and callstack view. Moreover, these function names can be used in integration with proposed JavaScript typing systems for providing modern editing features in development environments.
 
 
 \section{The Function Naming Problem}
 
-The importance of function names is not only limited to call stack view. A function can be used as a constructor for constructing new objects. The constructor name like class name in traditional languages such as Java, can be used in object representation. It can assist developers in understanding the structure and role of the object without looking into its properties. 
-%function body(source), function object
+A JavaScript function can be defined in different ways: by the {\small\texttt{function}} operator (i.e., function decleration or expression) or the {\small\texttt{Function}} constructor (i.e., {\small\texttt{new Function(args, source)}}) \cite{ECMA}. Once a statement which defines a function is evaluated, a {\small\texttt{Function}} object is created. Notice that, depending on the times a function definition is evaluated, zero to many {\small\texttt{Function}} objects may be created. To classify {\small\texttt{Function}} objects created by the same code, we call every script defines a function as a \textit{function body}. 
 
-In JavaScript, defining \textit{identifier} for functions is optional. A function can be assigned to a variable or an object property with any name. Therefore a function object can be called by different names during in life time. 
+{\small\texttt{Function}} objects have no name by default; as the {\small\texttt{Function}} constructor doesn't receive any name. According to ECMA specification, a function name (identifier) can be specified after the {\small\texttt{function}} operator (It is mandatory for function declerations but optional for function expressions) \cite{ECMA}. However, the usage of function identifiers is limited. The reason is that, function names, in addition to naming the function, has an effect on available variables in the scopes. In the case of function declearations, the function object is assigned to a variable in the function scope, but in the case of function expressions, the function object is available only inside the function. The confusing behavior of function identifiers get worse by function statements introduced by some browser such as Firfox. Function statements are like function expressions, but the function object is available in the entire function scope like function declarations \cite{Zaytsev}. Therefore, developers often prefer to omit the function identifier in function statement to avoid their confusing impacts.
+
+%In JavaScript, defining \textit{identifier} for functions is optional. 
+A function object can be assigned to a variable or an object property with any name. Therefore a function object can be called by different names during in life time. 
 %___ why it is hard
 
-
-
+%The importance of function names is not only limited to call stack view. A function can be used as a constructor for constructing new objects. The constructor name like class name in traditional languages such as Java, can be used in object representation. It can assist developers in understanding the structure and role of the object without looking into its properties. 
 
 \subsection{Constructor Name}
+In Java, an object is a set of properties, a mutable map from strings to values. The JavaScript object system is extremely flexible. As a
+result, it is difficult to constrain the behavior of any given object.In JavaScript,
+any function can be a constructor for a “class” of objects, and
+contains a prototype field, initially referencing an empty object.
+The new keyword creates an object based on the prototype field and
+using the function as a constructor.
+
 Figure~\ref{debuggers-objects} shows the variables view of Firefox and Google Chrome debuggers, paused at the same breakpoint. To know a variable value developer first check the summary value presented besides the variable name. If the summary value is not enough, then developer can expand the variable node to examin variable properties. In this case, the values of all variables are created using a constructor and the constructor name can be included in the summary. However, instead of the name of constructor which can hint the developer about the object structure, only \texttt{Object} is shown. 
 
 %Many developers develop JavaScript in object-oriented way.
 %
 
-JavaScript is an imperative, objectoriented
-language with Java-like syntax, but unlike Java it employs
-a prototype-based object system. An object is a set of properties,
-a mutable map from strings to values. A property that evaluates
-to a closure and is called using the context of its parent object
-plays the role of a method in Java. Each object has prototype field
-which refers to another object. Property lookup involves searching
-the current object, then its parent, and its parent until the property
-is found. The JavaScript object system is extremely flexible. As a
-result, it is difficult to constrain the behavior of any given object.
-For example, it is possible to modify the contents of any prototype
-at any time or to replace a prototype field altogether. In JavaScript,
-any function can be a constructor for a “class” of objects, and
-contains a prototype field, initially referencing an empty object.
-The new keyword creates an object based on the prototype field and
-using the function as a constructor. The semantics of new is simple,
-but unusual: first, an empty object is created, with its parent set
-to the object referenced by the prototype field of the constructor
-function; second, the constructor is called, with this bound to
-the new object. The object referenced by the keyword this is not
-determined by lexical scoping, but instead by the caller; finally the
-return value from the constructor (if any) is discarded, and the new
-expression evaluates to this.%richards
+%JavaScript is an imperative, objectoriented language with Java-like syntax, but unlike Java it employs a prototype-based object system. An object is a set of properties, a mutable map from strings to values. A property that evaluates to a closure and is called using the context of its parent object plays the role of a method in Java. Each object has prototype field which refers to another object. Property lookup involves searching the current object, then its parent, and its parent until the property is found. The JavaScript object system is extremely flexible. As a result, it is difficult to constrain the behavior of any given object. For example, it is possible to modify the contents of any prototype at any time or to replace a prototype field altogether. In JavaScript, any function can be a constructor for a “class” of objects, and contains a prototype field, initially referencing an empty object. The new keyword creates an object based on the prototype field and using the function as a constructor. The semantics of new is simple, but unusual: first, an empty object is created, with its parent set to the object referenced by the prototype field of the constructor function; second, the constructor is called, with this bound to the new object. The object referenced by the keyword this is not determined by lexical scoping, but instead by the caller; finally the return value from the constructor (if any) is discarded, and the new expression evaluates to this.%richards
 
 \subsection{Callstack View}
 Figure~\ref{debuggers-callstack} shows the call stack view of Firefox Firebug and Google Chrome JavaScript debuggers, paused at the same breakpoint. The differences between two call stacks, particularly in the first two frames, are due to different implementations of event handling in the underlying platforms. Google chrome shows \texttt{anonymouse} as the identifier for three functions which doesn't give any useful information to the developer. The developer has to locate the function by its source file and line number to recall the function functionality. Although Firebug shows more function names, it is also speechless about one function.
@@ -120,15 +106,19 @@ The Google Chrome debugger is unable to find three function names and The Firebu
 \end{figure*}
 
 
-%explain function expression and function declerations
 %moreover explain creation of the list of outer scopes.
-%Functions can be defined and created with no name or identifier.
-In JavaScrip a function can be defined by a function expression or a function decleration \cite{ECMA}. From the same function expression or decleration, function objects are created. In addition to function source code, the clousure scopes are also important for understanding the function operation. The clousure scopes include all available variables to the function at the time of creation. The location of function definition in the source code is enough for knowing the clousure scopes. Therefore, a function body with its location in a source code defines a category of function objects with the similar behaviour.
+In addition to function source code, the clousure scopes are also important for understanding the function operation. The clousure scopes include all available variables to the function at the time of creation. The location of function definition in the source code is enough for knowing the clousure scopes. Therefore, a function body with its location in a source code defines a category of function objects with the similar behaviour.
+
 Is it possible to assing a name to every function object in JavaScript in a way that:
-1) Function objects with the same code has the same name.
-2) The proposed name recalls the function for the developer.
-3) Describes the function behaviour.
+
+\begin{enumerate}
+   \item Function objects with the same code has the same name.
+   \item The proposed name recalls the function for the developer.
+   \item Describes the function behaviour.
+\end{enumerate}
 %uinque?!
+%not very long like google chrome  xxxx.yyy.zzz
+
 %For example to know an object, developer has to examine the object properties and from the property names and values, some connections
 %understanding JavaScript code and its runtime is much harder for developers.
 % we propose automatic function naming with these features
@@ -214,7 +204,8 @@ A function object in JavaScript can be defined by \texttt{function \textit{ident
  foo.bar();
 (c)
  foo.apply(bar, args);
-
+(d)
+ foo.call();
 \end{verbatim}
 \caption{Different cases of function object creation.}
 \label{fig:functionCall}
@@ -300,9 +291,13 @@ P. Thiemann.\newblock Towards a type system for analyzing JavaScript programs.
 \newblock In \emph{Proceedings of European Symposium on Programming (ESOP)},
 2005.
 
- 
-\end{thebibliography}
+\bibitem{Zaytsev}
+J. Zaytsev.\newblock Named function expressions demystified.
+\newblock http://kangax.github.com/nfe,
+June, 2010.
 
+
+\end{thebibliography}
 
 
 % that's all folks
