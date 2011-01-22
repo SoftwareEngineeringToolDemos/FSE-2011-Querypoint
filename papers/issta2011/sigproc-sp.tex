@@ -166,7 +166,7 @@ A JavaScript function can be defined in different ways: by the {\small\texttt{fu
 
 {\small\texttt{Function}} objects have no name by default; as the {\small\texttt{Function}} constructor doesn't receive any name. According to ECMA specification, a function name (identifier) can be specified after the {\small\texttt{function}} operator (It is mandatory for function declerations but optional for function expressions) \cite{ECMA}. However, the usage of function identifiers is limited. The reason is that, function names, in addition to naming the function, has an effect on available variables in the scopes. In the case of function declearations, the function object is assigned to a variable in the function scope, but in the case of function expressions, the function object is available only inside the function. The confusing behavior of function identifiers get worse by function statements introduced by some browsers such as Firfox. Function statements are like function expressions, but the function object is available in the entire function scope like function declarations \cite{Zaytsev}. Therefore, developers often prefer to omit the function identifier in the function statement to avoid its confusing impact.
 
-To support the above argument, we analyzed the source code of five famous JavaScript projects. For every project, the total number of functions and the number of functions with name are collected (Table~\ref{functions}). The ratio of the number of functions with names to the total number of functions is less than 13 percent in all projects excepting Prototype and the average ratio is less than 5 percent. Our analysis does not include the functions defined by dynamically created scripts evaluated by {\small\texttt{eval}} function. 
+To support the above argument, we analyzed the source code of five famous JavaScript projects. For every project, the total number of functions and the number of functions with name are collected (Table~\ref{functions}). The ratio of the number of functions with names to the total number of functions is less than 13 percent in all projects excepting Prototype and the average ratio is less than 5 percent. Our analysis does not include the functions defined by dynamically created scripts evaluated by {\small\texttt{eval}} function. Among all functions defined in these five projects, only 8 functions (less than 0.02 percent) are defined by the {\small\texttt{Function}} constructor. 
 
 Functions in JavaScript are first-class objects. They can be assigned to any variable or object proeprty, or passed as an argument to a function. It is common that the same function is called by various names in different contexts. Therefore, it is usually very difficult to recall the function operation from its local name. Developers have usually the option to look at the function code, but it is tedious and time-consuming. Two main issues apears in debuggers due to the lack of function name. First, object constructor name which can faciliate understanding the object value, is not available in the object summary. Second, the callstack view is usually full of \textit{anonymous} functions and therefore less informative. We disscuss these issues in the next two subsections.
  
@@ -214,6 +214,8 @@ To illustrate the second issue, we pause the program (Figure~\ref{js-code}) at l
 
 The other pieces of information which are important at function calls are {\small\texttt{this}} and argument values. In JavaScript, {\small\texttt{this}} like arguments is not defined by lexical scopes but it is bound once the function is called. The {\small\texttt{this}} value is missed in both views. The arguments values is shown in Firebug, but it still sufferes from similar issues explained for displaying object summaries.
 
+JavaScript does not support a packageing mechanism to be used for modular programming. Scripts are loaded from different files and executed within the same or different global objects. Developers usually use objectts at the top level to encapsulate properties, objects and functions from a framework or library. The same mechanism can be used to define nested subpackages. As the project size and the number of functions increases, the function name may not be enough to recognize the function. The developer also wants to know the function's library or package name. 
+
 \begin{figure*}[htp]
 \centerline{
 \subfigure[Google Chrome Debugger]{\label{fig_second_case}\includegraphics[width=0.47\textwidth,height=.13\textheight]{pic/chrome-callstack.jpg}}
@@ -227,8 +229,6 @@ The other pieces of information which are important at function calls are {\smal
     To tackle the aforementioned function naming issues, we propose automated function naming by anlysing the source code. A function name must help the developer to
 distinguish the function from other functions with different behaviours. The behaviour of a function is dependent to its source code, enclosing scopes (e.g., global and closure variables), the object bound to {\small\texttt{this}}-depending on the way the function is called-and passed arguments. The first two parameters can be almost known from the source code, while the two last parameters are usually not known until the function call at runtime. Therefore, to name a function object, it is enough to name its \textit{function body}. 
     A function body can be uniquly identified by its location in the source file. A naive proposal for the function name for a function body is a combination of the function file name and line number. Although it may work as an identifier, but it does not assist the develper to recall or understand the function behaviour. Morover, A proposed function name should be close to the name a developer would choose for the function. 
-
-
 
     
 Once a function object is created, one of these cases would happen: the function object is
@@ -267,7 +267,7 @@ Once a function object is created, one of these cases would happen: the function
 	 & \multirow{8}{*}{\hspace{.2cm}\begin{rotate}{90}assigned to a(n)\end{rotate}}
 	 & \multicolumn{2}{|m{2.8cm}|}{
 	   new array index in an array literal.} 
-   & foo = [..., function()\{...\}, ...] \\ 
+   & [..., function()\{...\}, ...] \\ 
    \cline{0-0}\cline{4-6} 
 
    3 &
@@ -330,27 +330,19 @@ Once a function object is created, one of these cases would happen: the function
    & foo(..., function()\{\}, ...) \\
    \hline 
 
-
   \end{tabular}
   }
+ \label{function-types} 
 \end{table}
 
-%to remove
-To illustrate the second issue, we pause the program (Figure~\ref{js-code}) at line 15 by a breakpoint. Figure~\ref{debuggers-callstack} shows how the program callstack is displayed in Google Chrome debuggers and Firebug. The differences in the number of frames and line numbers between two callstacks are due to dissimilar event handling implementations in the underlying platforms. Google chrome shows {\small\texttt{anonymouse}} as the name of all functions excepting the first one. Firebug performs better by guessing three function names but it still fails in one case. In these cases, the information provided by debugger is useless and the developer has to locate the function source to understand or recall the function behaviour. 
+Table~\ref{function-types} shows JavaScript code corresponding to each case. The first one usually apears when developers try to group a set of functions in a new object. A common case is the {\small\texttt{prototype}} property of a constructor. It resembles the class structure in traditional object-oriented languages. When a new object is created by the constructor, the new object also inherits all functions defined in the constructor's prototype. Another case is when the owner object is a shared object which contains a set of utility functions. We assign the property name which the function body is assigned to as the function name.
 
-The other pieces of information which are important at function calls are {\small\texttt{this}} and argument values. In JavaScript, {\small\texttt{this}} like arguments is not defined by lexical scopes but it is bound once the function is called. The {\small\texttt{this}} value is missed in both views. The arguments values is shown in Firebug, but it still sufferes from similar issues explained for displaying object summaries.
+In the second case, we first need to name the array literal contains the function body. If the name is {\small\texttt{foo}}, knowing the index of function body ({\small\texttt{i}}, {{\small\texttt{foo[i]}} is assigned as the function body name. The array literal can be consumed in a similar way as a function object (excepting the ninth case, as it can not be called), so the naming of array literal can be recursively done similar to a function object.
 
-To illustrate the second issue, we pause the program (Figure~\ref{js-code}) at line 15 by a breakpoint. Figure~\ref{debuggers-callstack} shows how the program callstack is displayed in Google Chrome debuggers and Firebug. The differences in the number of frames and line numbers between two callstacks are due to dissimilar event handling implementations in the underlying platforms. Google chrome shows {\small\texttt{anonymouse}} as the name of all functions excepting the first one. Firebug performs better by guessing three function names but it still fails in one case. In these cases, the information provided by debugger is useless and the developer has to locate the function source to understand or recall the function behaviour. 
+For the third and fourth cases where the function object is assigned to an object property we use the object property as the function name. In the fifth and sixth cases, {\small\texttt{bar}} can be an object or an array. For these two cases we use the expression inside {\small\texttt{[]}} as the function name. For the cases seven and eight, we use the left side of the assignment as the name candidate.
 
-The other pieces of information which are important at function calls are {\small\texttt{this}} and argument values. In JavaScript, {\small\texttt{this}} like arguments is not defined by lexical scopes but it is bound once the function is called. The {\small\texttt{this}} value is missed in both views. The arguments values is shown in Firebug, but it still sufferes from similar issues explained for displaying object summaries.
-
-To illustrate the second issue, we pause the program (Figure~\ref{js-code}) at line 15 by a breakpoint. Figure~\ref{debuggers-callstack} shows how the program callstack is displayed in Google Chrome debuggers and Firebug. The differences in the number of frames and line numbers between two callstacks are due to dissimilar event handling implementations in the underlying platforms. Google chrome shows {\small\texttt{anonymouse}} as the name of all functions excepting the first one. Firebug performs better by guessing three function names but it still fails in one case. In these cases, the information provided by debugger is useless and the developer has to locate the function source to understand or recall the function behaviour. 
-
-The other pieces of information which are important at function calls are {\small\texttt{this}} and argument values. In JavaScript, {\small\texttt{this}} like arguments is not defined by lexical scopes but it is bound once the function is called. The {\small\texttt{this}} value is missed in both views. The arguments values is shown in Firebug, but it still sufferes from similar issues explained for displaying object summaries.
-
-
-
-
+Calling functions objects just after their creations is a common pattern in JavaScript. This pattern is usually used for building modules employing the clousure feature in JavaScript. Although the function object usage is only limited to this call, functions inside the closure function(The function is being called) has access to the properties in the closure scope in the future calls. 
+ 
 
 \subsection{Naming Functions in Call Stack}
 
