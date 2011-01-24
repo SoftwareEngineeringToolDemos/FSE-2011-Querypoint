@@ -141,7 +141,7 @@ In this paper, we propose automated JavaScript function naming based on extracte
   \hline 
    Closure & Google Web Library & 9195 & 208 \\ 
   \hline 
-   YUI &  Yahoo UI Library & 22346 & 922 \\ 
+   YUI &  Yahoo UI Library & 21080 & 901 \\ 
   \hline 
    Firebug & Web Development Tool & 3424 & 406 \\ 
   \hline 
@@ -344,6 +344,31 @@ For the third and fourth cases where the function object is assigned to an objec
 Calling functions objects just after their creations is a common pattern in JavaScript. This pattern is usually used for building modules employing the clousure feature in JavaScript. Although the function object usage is only limited to this call, functions inside the closure function(The function is being called) has access to the properties in the closure scope in the future calls. 
  
 
+\begin{table*}
+\centering
+\caption{The number nameless functions in each category defined in table~\ref{function-types}.}
+  \begin{tabular}{ | l | c | c | c | c | c | c | c | c | c | c | c |}
+  \hline
+     & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 \\ 
+  \hline 
+   jQuery & 223(58\%) & 0  & 34(8\%) & 0 & 10(2\%) & 2 & 0 & 24(6\%) & 9(2\%) & 0 & 86(21\%)  \\ 
+  \hline 
+   Prototype & 265(60\%) & 0 & 28(6\%)& 0 & 0 & 1& 0 & 25(5\%)& 44(10\%)& 8(1\%) & 71(16\%) \\ 
+  \hline 
+   Closure & 23 (0.2\%)& 0 & 8465(94\%)& 3 & 4 & 0 & 0 & 67(0.7\%)& 16(0.2\%)& 43(0.5\%)& 365(4\%)\\ 
+  \hline 
+   YUI & 13278(66\%)& 6 & 1705(8\%)& 0 & 90(0.5\%)& 0 & 0 & 1121(6\%)& 171(1\%)& 93(0.5\%)& 3715(18\%)\\ 
+  \hline 
+   Firebug & 2296(76\%)& 0 & 539(18\%)& 1 & 0 & 0 & 0 & 14(0.5\%)& 7(0.2\%)& 6(0.2\%)& 149(5\%) \\ 
+  \hline 
+   Total & 49\%& 0\% & 33\% & 0\% & 0.3\% & 0\% & 0\% & 4\%& 0.7\%& 0.5\%& 13\% \\ 
+  \hline 
+  \end{tabular}
+ \label{functions-types-count} 
+\end{table*}    
+
+
+
 \subsection{Naming Functions in Call Stack}
 
 
@@ -373,6 +398,8 @@ Calling functions objects just after their creations is a common pattern in Java
 \caption{Different cases of function object creation.}
 \label{fig:functionCall}
 \end{figure}
+
+
 
 \section{evaluation}
 %Firebug, JQuery,
