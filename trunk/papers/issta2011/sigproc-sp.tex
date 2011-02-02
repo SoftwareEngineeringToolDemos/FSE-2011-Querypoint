@@ -180,7 +180,7 @@ A JavaScript function can be defined in different ways: by the {\small\texttt{fu
 
 {\small\texttt{Function}} objects have no name by default; as the {\small\texttt{Function}} constructor doesn't receive any name. According to ECMA specification, a function name (identifier) can be specified after the {\small\texttt{function}} operator (It is mandatory for function declerations but optional for function expressions) \cite{ECMA}. However, the usage of function identifiers is limited. The reason is that, function names, in addition to naming the function, has an effect on available variables in the scopes. In the case of function declearations, the function object is assigned to a variable in the function scope, but in the case of function expressions, the function object is available only inside the function. The confusing behavior of function identifiers get worse by function statements introduced by some browsers such as Firfox. Function statements are like function expressions, but the function object is available in the entire function scope like function declarations \cite{Zaytsev}. Therefore, developers often prefer to omit the function identifier in the function statement to avoid its confusing impact.
 
-To support the above argument, we analyzed the source code of ten famous JavaScript projects. For every project, the total number of functions and the number of functions with name are collected (Table~\ref{functions}). The ratio of the number of functions with names to the total number of functions is less than 13 percent in all projects excepting Prototype and the average ratio is less than 7 percent. Our analysis does not include the functions defined by dynamically created scripts evaluated by {\small\texttt{eval}} function. Among all functions defined in these ten projects, only 8 functions (less than 0.02 percent) are defined by the {\small\texttt{Function}} constructor. 
+To support the above argument, we analyzed the source code of ten famous JavaScript projects. For every project, the total number of functions and the number of functions with name are collected (Table~\ref{functions}). The ratio of the number of functions with names to the total number of functions is less than 13 percent in all projects excepting Prototype and the average ratio is less than 7 percent. Our analysis does not include the functions defined by dynamically created scripts evaluated by {\small\texttt{eval}} function. Among all functions defined in these ten projects, only 116 functions (less than 0.12 percent) are defined by the {\small\texttt{Function}} constructor. 
 
 Functions in JavaScript are first-class objects. They can be assigned to any variable or object proeprty, or passed as an argument to a function. It is common that the same function is called by various names in different contexts. Therefore, it is usually very difficult to recall the function operation from its local name. Developers have usually the option to look at the function code, but it is tedious and time-consuming. Two main issues apears in debuggers due to the lack of function name. First, object constructor name which can faciliate understanding the object value, is not available in the object summary. Second, the callstack view is usually full of \textit{anonymous} functions and therefore less informative. We disscuss these issues in the next two subsections.
  
@@ -248,8 +248,10 @@ JavaScript does not support a packageing mechanism to be used for modular progra
     
     To tackle the aforementioned issues caused due to the lack of function names, we propose automated function naming by anlyzing the source code and extracting the initial name used for the function object after its creation. To illustrate the basic idea, we use the JavaScript code presented in Figure~\ref{js-code}. 
     
-    We can recognize seven function bodies, none of them has a name. The first function defined in line 9 is called just after its creation and returns another function defined in line 10. The result is to variable {\small\texttt{main}}. Therefore the internal function body is named {\small\texttt{main}} as its result is assinged to a variable with this name. What about the outer function itself? We name that
- {\small\texttt{mainClosure}}, as it is used as a closure for the returned function. The third function (defined in line 14), is passed as an argument to another function with name {\small\texttt{op}}. 
+    We can recognize seven function bodies in the code, none of them has a name. The first function defined in line 9 is called just after its creation and returns another function defined in line 10. The result is assigned to variable {\small\texttt{main}}. Therefore the internal function body is named {\small\texttt{main}} as its corresponding function object is assinged to a variable with this name. What about the outer function itself? We name that
+ {\small\texttt{mainClosure}}, as it is used as a closure for the returned function. 
+ 
+ 
  
     
 
@@ -275,7 +277,7 @@ JavaScript does not support a packageing mechanism to be used for modular progra
 	 & \multirow{8}{*}{\hspace{.2cm}\begin{rotate}{90}assigned to a(n)\end{rotate}}
 	 & \multicolumn{2}{|m{2.8cm}|}{
 	   new array index in an array literal.} 
-   & foo\textsuperscript{*} = [..., function()\{...\}, ...] \\ 
+   & [..., function()\{...\}, ...] \\ 
    \cline{0-0}\cline{4-6} 
 
    3 &
@@ -303,7 +305,7 @@ JavaScript does not support a packageing mechanism to be used for modular progra
    & 
    & 
    & \raggedright hashmap access by a JavaScript expression.
-   & bar\textsuperscript{*}["f"+"oo"] = function()\{...\} \\
+   & bar\textsuperscript{*}[foo\textsuperscript{*}] = function()\{...\} \\
    \cline{0-0}\cline{4-6} 
 
    7 &
@@ -323,7 +325,7 @@ JavaScript does not support a packageing mechanism to be used for modular progra
    9 &
    & \multicolumn{3}{|m{3.8cm}|}{
      \raggedright directly called.}
-   & foo\textsuperscript{*} = function()\{...\}() \\
+   & function()\{...\}() \\
    \cline{0-0}\cline{3-6} 
 
    10 &
@@ -343,9 +345,9 @@ JavaScript does not support a packageing mechanism to be used for modular progra
  \label{function-types} 
 \end{table}
 
- We may name the function {\small\texttt{op(1)}}, as it is passed as the first argument to {\small\texttt{op}}). A better name would be the the argument name in the called function (here {\small\texttt{callback}}). However the latter requires knowning the function body of the called function which is not always possible.
+ The third function (defined in line 14), is passed as an argument to another function with name {\small\texttt{op}}. We may name the function {\small\texttt{op(1)}}, as it is passed as the first argument to {\small\texttt{op}}). A better name would be the the argument name in the called function (here {\small\texttt{callback}}). However the latter requires knowning the function body of the called function which is not always possible.
     
-    As we explained in the previous section, {\small\texttt{FOO}} and {\small\texttt{BAR}} are good name candidates for functions defined in lines 19 and 22, as these functions are assigned to variable with the same names. Similar to the first two functions which are named as {\small\texttt{mainClosure}} and {\small\texttt{main}}, the functions in lines 25 and 27 can be name {\small\texttt{opClosure}} and {\small\texttt{op}} respectively.
+    As we explained in the previous section, {\small\texttt{FOO}} and {\small\texttt{BAR}} are good name candidates for functions defined in lines 19 and 22, as these functions are assigned to variable with the same names. Similar to the first two functions which are named {\small\texttt{mainClosure}} and {\small\texttt{main}}, the functions in lines 25 and 27 can be named {\small\texttt{opClosure}} and {\small\texttt{op}} respectively.
  
 \begin{table*}
 \centering
@@ -381,7 +383,10 @@ JavaScript does not support a packageing mechanism to be used for modular progra
 \end{table*}    
 
 \subsection{Naming Scheme}
-We can generalize the approach used for naming functions in the example. Once a function object is created, one of the cases presented in Table~\ref{function-types} can happen. For every case, we will explain how a name can be assinged to the function. Names which are specified with a star can be more comprehensive elements which reduced to a name. We discuss this reduction in ~\ref{sec:general-element-naming}. Table~\ref{function-types-count} shows the number of nameless functions in each category in the studied projects. These numbers shows how frequent and important a category of functions is in these projects. 
+We can generalize the approach used for naming functions in the example by studying differnt cases that a function object can be created and used. Once a function object is created, one of the cases presented in Table~\ref{function-types} can happen. One common case of function object creation is by top script named function bodies. We did not considered this case as a separate case as it can be transformed to case 8 where a function body is assigned to a variable. Moreover, Note that functions are created by {\small\texttt{Function}} constructor can be replace by a function body and named in the same way. For every case, we will explain how a name can be assinged to the function.
+
+
+Names which are specified with a star are reduced from a JavaScript expression. We discuss this reduction in ~\ref{sec:general-element-naming}. Table~\ref{function-types-count} shows the number of nameless functions in each category in the studied projects. These numbers shows how frequent and important a category of functions is in these projects. 
 %they have similar pattern
   
 \subsubsection{Case 1: in Object Literal}
@@ -390,7 +395,8 @@ We can generalize the approach used for naming functions in the example. Once a 
  The majority of nameless functions (more than 65\%) in almost all studied projects (except Closure), are defined in object literals. For this group of functions we assign the property name used to keep a reference to the function object as the function name.     
  
 \subsubsection{Case 2: in Array Literal}
-Contrary to the previous case the appearance of this case is limited. It usually appears in initializations or when an array of functions are passed as an argument. Among all projects only two projects have instances of nameless functions defined in this way. If we assume that the array literal has a name like {\small\texttt{foo}}, and the function is defined at index ({\small\texttt{i}}), {{\small\texttt{foo[i]}} is assigned as the function body name.
+Contrary to the previous case the appearance of this case is very limited. It usually appears in initializations or when an array of functions are passed as an argument. Among all projects only two projects have instances of nameless functions defined in this way. To name the function body defined in an array literal, first we must name the array literal. To name the array literal, we consider it as a function body and we employ the same algorithm we use for naming a function body. If the array literal receives a name like {\small\texttt{foo}}, and the function is defined at index ({\small\texttt{i}}), {{\small\texttt{foo[i]}} is assigned as the function body name. 
+
 
 \subsubsection{Case3: setProperty by Direct Access }
 This case is the second most common case in the studied projects. Here, we can see why the Closure project is different from other projects in the first case. About 94\% of nameless functions in this project are defined in this way. It seems that the Closure developers follow an internal standard for function objects creation and usage. Although most functions are assigned to objects in the initialization phase, there are still cases where functions assigned through direct access. 
@@ -421,12 +427,12 @@ and its internal scopes. Although, there are cases that the variable name is tem
 \subsubsection{Case 9: Called}
 Calling functions objects just after their creations is a common pattern in JavaScript. This pattern is usually used for building modules employing the clousure feature in JavaScript. Although the function object usage is only limited to this call, functions inside the closure function(The function is being called) has access to the properties in the closure scope in the future calls. 
 
-If the function call has no result, it means that the function initializes and set some values for later use. Therefore we name the function {\small\texttt{init}}. If the function returns a value and it is assinged to {\small\texttt{foo}}, we name the function {\small\texttt{fooClosure}}.
+If the function call has no result, it means that the function performs one task (e.g., initialization of some values in the outer scope for later use). In this case, we name the function {\small\texttt{Closure}}. If the function returns a value and it is assinged to {\small\texttt{foo}}, we name the function {\small\texttt{fooClosure}}.
 
 \subsubsection{Case 10: Returned}
 Although this category only includes 2\% of nameless function, proper naming of functions in this class is important. Many constructors are build by this form and therfore the name of thes functions appear in object summaries.
 
-If the function is returned from a function which is just called after its creation(case 9), and the result is assigned to {\small\texttt{foo}}, we name the function {\small\texttt{fooClosure}}. Otherwise, if the name of outer function is {\small\texttt{foo}}, we name the function {\small\texttt{fooResult}}.
+If the function is returned from a function which is just called after its creation(case 9), and the result is assigned to {\small\texttt{foo}}, we name the function {\small\texttt{foo}}. Otherwise, if the name of outer function is {\small\texttt{foo}}, we name the function {\small\texttt{fooResult}}.
 
 % this is also important as many constructor/classes are made in this way 
 
@@ -439,8 +445,35 @@ functions as arguments is to register function in a global shared object. The fu
 % to wrap the function
 % as a callback
 
-\subsection{Recursive Naming of Elements}
+\subsection{Reducing a JavaScript Expression to a Name}
 \label{sec:general-element-naming}
+
+
+
+\begin{table}
+\centering
+\caption{JavaScript Expression Reduction to Name.}
+\scalebox{0.9}{
+  \begin{tabular}{ | l | l | l |}
+  \hline
+   Description & Total & Named \\ 
+  \hline 
+   Primitive Value & value & value.toString() \\ 
+  \hline 
+   Variable & foo & foo \\ 
+  \hline 
+   GetProp & bar.foo & Name(bar).foo \\ 
+  \hline 
+   GetElem & bar[foo] & Name(bar)+[Name(foo)] \\ 
+  \hline 
+   Add & bar op foo & Name(bar)+op+Name(foo) \\ 
+  \hline 
+   Condition & cond?bar:foo & Name(bar)+":"+Name(foo) \\ 
+  \hline 
+  \end{tabular}
+  }
+ \label{expression-reduction} 
+\end{table}    
 
 \subsection{Similar Function Names in a File}
 It is conceivable, that function bodies are named with the same names in a file. It can happen in different situations. One of the common cases is the two different function bodies may assing to a property based on a condition (e.g., the browser). For these cases we add a dollar sign and an index to the similar function names. For example, if there are two function bodies with names {\small\texttt{myFunction}}, the functions are named as {\small\texttt{myFunction\$0}} and {\small\texttt{myFunction\$1}}. 
@@ -450,7 +483,7 @@ It is conceivable, that function bodies are named with the same names in a file.
 
 \subsection{Package Name}
 
-\subsection{Functions created by \texttt{eval()}}
+\subsection{Functions created by {\large \texttt{eval()}}}}
 The function bodies in {\small\texttt{eval}} statements can be named similar to other objects as the source code is avaialble. However, eval scripts have no file name and therefore, it causes issues for assigning appropriate packages name to these functions. 
 
 \section{Improved by Runtime Data}
@@ -482,7 +515,51 @@ The function bodies in {\small\texttt{eval}} statements can be named similar to 
 \section{evaluation}
 
 \subsection{Developers' vs. Automated Names}
-\subsection{Compared to Firebug \texttt{guessFunctionName()}}
+
+\subsection{Compared to Firebug {\large \texttt{guessFunctionName()}}}
+Firebug uses a utility function called {\small \texttt{guessFunctionName()}} to name nameless functions.
+This algorithm used in the function searches lines around the line the function definition line for specific patterns by regular expressions. The
+  first string matches one of the patterns becomes the name of the function. We compared the results of our algorithm to Firebug's in table~\ref{firebug}.
+  
+The first column shows, how many functions get similar names by both algorithm. In average, for 60\% of functions both algorithms produce the same names.
+Firebug is not able to name about 15\% of functions. In 35\% of functions the results are different. In most cases, the proposed name by Firebug is the name of another function and is wrong.
+  
+\begin{table}
+\centering
+\caption{Number of similar, and different function names in comparison to Firebug {\small \texttt{guessFunctionName()}}.}
+\scalebox{0.9}{
+  \begin{tabular}{ | l | l | l | l | l |}
+  \hline
+   Project & Similar & Different & UnNamed \\ 
+  \hline 
+   Closure & 8524(1\%) & 9195 & 516(2\%) \\ 
+  \hline 
+   DoJo & 12180(1\%) & 9195 & 5780(2\%) \\ 
+  \hline 
+   ExtJS & 100(1\%) & 9195 & 208(2\%) \\ 
+  \hline 
+   Firebug & 2901(1\%) & 9195 & 494(0\%) \\ 
+  \hline 
+   jQuery & 283(1\%) & 9195 & 117(0\%) \\ 
+  \hline 
+   MochiKit &  1568(1\%) & 9195 & 234(2\%) \\ 
+  \hline 
+   MooTools & 440(1\%) & 9195 & 128(2\%) \\ 
+  \hline 
+   Prototype & 292(1\%) & 9195 & 326(0\%) \\ 
+  \hline 
+   Scriptaculous &  100(1\%) & 9195 & 397(2\%) \\ 
+  \hline 
+   YUI &  11248(1\%) & 9195 & 3702(2\%) \\ 
+  \hline 
+   All & 100(1\%) & 9195 & 208(2\%) \\ 
+  \hline 
+  \end{tabular}
+  }
+ \label{firebug} 
+\end{table}    
+
+
 \subsection{Manual Check}
 %Firebug, JQuery,
 
