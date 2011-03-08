@@ -1379,7 +1379,9 @@ execution by a sequence diagram and lets user to query on events
 database. Both tools suffer from the requirement of gathering tracing information before their unique capabilities can be used.
 We imagine that the runtime queries we use in \textit{lastChange}  may be used to gather data incrementally for these kinds of debugging approaches.
 
+Program slicing\cite{Weiser} approaches debugging from a completely different perspective. Given a point of interest {\bf S} in a program, a \textit{slice} is an executable subset of the program affecting {\bf S}.  Many studies have shown ways to compute the slice more quickly or to constrain the slice to a smaller subset of the program \cite{Horwitz, Sridharan}.  Dynamic slicing \cite{Korel} applies slicing analysis at run time and thus most closely resembles lastChange from among the slicing approaches.  Our lastChange approach can be related this way: first, allow the developer to select from {\bf S} a key critical value {\bf V}. Then compute a slice affecting {\bf V}. Show the developer only the most relevant part of that slice (the lastChange). Finally iterate towards the fault by chaining new slice-selection criteria.
 
+Both approaches rely on selecting {\bf S}. Both approaches differ from breakpoint debugging in analyzing a program from a known good point (e.g. start of the program) to {\bf S}.  Slicing reduces the space the developer needs to search, but provides no guidance within the slice; lastChange explores the slice using developer-selected search criteria, but does not help the developer recognize code that cannot impact {\bf S}. Slicing requires a sophisticated compiler-like technology while lastChange builds on familiar run-time debugger technology. 
 
 %Querypoint debugging uses re-executions to gather infor-mation requested by the developer: the memory overhead depends on the query not the entire program. Moreover, the Lienhard et al. debugger significantly changes the virtual machine, while our approach is a generalization to conditional breakpoints and available debugger infrastructure can be adapted to support it.
  
@@ -1446,6 +1448,11 @@ C. Hofer, M. Denker, and S. Ducasse. \newblock Implementing a backward-in-time d
 \newblock In Proceedings of\emph{NODe'06},
 volume P-88, pages 17-32. Lecture Notes in Informatics, 2006.
 
+\bibitem{Horwitz}%[Hofer(2006)]
+S. Horwitz, B. Liblit, and M. Polishchuk. \newblock Better Debugging via Output Tracing and Callstack-Sensitive Slicing.
+\emph{IEEE Transactions on
+Software Engineering}, 36(1):7-19, 2010.
+
 \bibitem{JPDA}%[JSD(2010)]
 Java Platform Debugger Architecture. \newblock http://java.sun.com/javase/technologies/ core/toolsapis/jpda.
 
@@ -1453,6 +1460,11 @@ Java Platform Debugger Architecture. \newblock http://java.sun.com/javase/techno
 A.J. Ko, and B.A. Myers. \newblock Debugging reinvented: asking and answering why and why not questions about program behavior.
 \newblock In \emph{30th international conference on Software engineering(ICSE)},
 May, 2008.
+
+\bibitem{Korel}%[Ko(2008)]
+B. Korel and J. Laski. \newblock Dynamic Program Slicing.
+\newblock \emph{Information Processing Letters},
+ 29(3):155-163, 1988.
 
 \bibitem{LaToza}%[LaToza(2006)]
 T.D. LaToza, G. Venolia, and R. DeLine. \newblock Maintaining mental models: a study of developer work habits
@@ -1481,6 +1493,11 @@ Mozila JavaScript Debugging Interface. \newblock http://www.mozilla.org/js/jsd.
 G. Pothier, \'{E}. Tanter, and J. Piquer. \newblock Scalable omniscient debugging.
 \newblock In \emph{22nd annual ACM SIGPLAN conference on Object-oriented programming, systems, languages, and applications(OOPSLA)},
 October, 2007.
+
+\bibitem{Sridharan}%[Boothe(2000)]
+M. Sridharan, S.J. Fink , and R. Bodik. \newblock Thin slicing.
+\newblock In \emph{Conference on Programming Language Design and Implementation(PLDI)},
+June, 2007.
 
 \bibitem{Weiser}
 M. Weiser. \newblock Program slicing.
