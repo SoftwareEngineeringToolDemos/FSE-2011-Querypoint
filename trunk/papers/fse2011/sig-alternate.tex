@@ -54,6 +54,8 @@
 \usepackage{algorithmic}
 \usepackage{algorithm}
 \usepackage{textcomp}
+\usepackage{listings}
+\usepackage[T1]{fontenc}
 
 %\usepackage{url}
 %\urldef{\mailsa}\path|{alfred.hofmann, ursula.barth, ingrid.haas, frank.holzwarth,|
@@ -332,7 +334,16 @@ where the developer can examine object and variable values. In our case, the
 
 
 \begin{figure}[htp]
-\begin{verbatim}
+
+%\includegraphics[width=.5\textwidth]{
+%\begin{verbatim}
+\lstset{basicstyle=\scriptsize}
+\lstset{emph={myProperty},emphstyle=\textit}
+%\lstset{backgroundcolor=\color{yellow}}
+\lstdefinelanguage{myLang}
+{morekeywords={html, script, button, if, function, var}}
+
+\begin{lstlisting}[language=myLang, framerule=0pt]
 1 <html>
 ...
 5   <script type="text/javascript">
@@ -364,7 +375,8 @@ where the developer can examine object and variable values. In our case, the
 41  	1 
 42  </button>
 43 </html>
-\end{verbatim}
+\end{lstlisting}
+%\end{verbatim}
 \caption{A Web page containing JavaScript code. Some lines not related to our paper have been elided.}
 \label{fig:js-code}
 \end{figure}
@@ -603,8 +615,9 @@ given a callback function, a code block and a variable name-which is defined ins
 whenever the variable is changed. 
 
 \begin{figure}[htp]
-\begin{verbatim}
-
+%\begin{verbatim}
+\lstset{basicstyle=\scriptsize}
+\begin{lstlisting}[language=myLang, framerule=0pt]
   function f(){
     var x = 0;
     x++;
@@ -620,8 +633,8 @@ A  |  x changes, scope 1
    |  |  f()
 B  |  |  |  x changes, scope 3 
 C  |  ... , scope 1
-
-\end{verbatim}
+\end{lstlisting}
+%\end{verbatim}
 \caption{A recursive call trace illustrating the scope
   id. The lines in the bottom half of the diagram simulate a trace of the change events for the variable \texttt{x} as the function \texttt{f()} calls itself. Each call creates a scope; eventually when the variable \texttt{stop} is changed by an external process we return from the recursion. The lines marked A, B, and C are discussed in the text.}
 \label{fig:recursive}
@@ -663,13 +676,22 @@ The \textit{lastChange} algorithm records changes by id (either object or scope 
 arrive at the reproduction point and discover the id of the requested value.
 When we perform \textit{lastChange} based on a previous \textit{lastChange} the query algorithm 
 must retain additional information. Consider the following example:
-\begin{center}
-\textit{
- point A : the reproduction point \\
- point B : lastChange(A, bar.x) \\
+
+\lstdefinelanguage{myLang2}
+{morekeywords={point, lastChange}}
+
+\lstset{basicstyle=\small}
+\begin{lstlisting}[language=myLang2, framerule=0pt]
+ point A : the reproduction point 
+ point B : lastChange(A, bar.x) 
  point C : lastChange(B, baz.y) 
- }
- \end{center}
+\end{lstlisting}
+
+%\begin{center}
+%\textit{
+% }
+% \end{center}
+
 where point A is a breakpoint, point B is the last change of the object property \texttt{bar.x} at point A, and
 point C is the last change of the object property \texttt{baz.y} at point B. 
 The object referenced by \texttt{baz} changes upon re-execution. Therefore when the developer
@@ -820,23 +842,25 @@ object creation locations.
 
 
 \begin{figure}[htp]
-\begin{verbatim}
+%\begin{verbatim}
+\lstset{basicstyle=\scriptsize}
+\begin{lstlisting}[language=myLang, framerule=0pt]
 (a) Case 1:
-20 x.y = new myConstructor();
+ 20 x.y = new myConstructor();
 
 (b) Case 2:
-19  parentObject = {
-20   	  newObject : {
-21  			x : 5
-22  }}
+ 19  parentObject = {
+ 20   newObject : {
+ 21    x : 5
+ 22  }}
 
 (c) Case 3:
-20 myFunction({myProperty:5});
+ 20 myFunction({myProperty:5});
 
 (d) Case 4:
-20 a[++i] = new myConstructor();
- 
-\end{verbatim}
+ 20 a[++i] = new myConstructor();
+\end{lstlisting} 
+%\end{verbatim}
 \caption{Examples of different cases in getting references to created JavaScript objects.}
 \label{fig:objectCreation}
 \end{figure}
@@ -869,14 +893,16 @@ the fact that \texttt{myVar} in \texttt{firstChild} is a local variable
 but in \texttt{secondChild} is a closure variable.
 
 \begin{figure}[htp]
-\begin{verbatim}
+%\begin{verbatim}
+\lstset{basicstyle=\scriptsize}
+\begin{lstlisting}[language=myLang, framerule=0pt]
 10  function parent(){
 11    var myVar;
 12    myVar = ...;
 13    function myfun(){
 14      myVar = ...;
 15      function firstChild(){
-16       	var myVar;
+16        var myVar;
 17        myVar = ...;
 18      }  
 19      function secondChild(){
@@ -884,7 +910,8 @@ but in \texttt{secondChild} is a closure variable.
 21      }
 22    }  
 23  }    
-\end{verbatim}
+\end{lstlisting}
+%\end{verbatim}
 \caption{Sample JavaScript code demonstrating local and clousure variables.}
 \label{fig:js-closure}
 \end{figure}
@@ -981,14 +1008,17 @@ that the \textit{lastChange} query is made on a different value. In cases that t
 the primitive properties of the object examined by the developer are stored and compared.
 
 \begin{figure}[htp]
-\begin{verbatim}
+%\begin{verbatim}
+\lstset{basicstyle=\scriptsize}
+\begin{lstlisting}[language=myLang, framerule=0pt]
 10 a = false;
 11 b = false;
 ...
 20 if ( random() ) { a = true; } else { b = true; }
 ...
 30 if (a || b) { bug();  /* breakpoint */ }
-\end{verbatim}
+\end{lstlisting}
+%\end{verbatim}
 \caption{\textit{lastChange} on non-deterministic values.}
 \label{fig:nondeterministic-values}
 \end{figure}
@@ -997,11 +1027,15 @@ the primitive properties of the object examined by the developer are stored and 
 \label{sec:pausing}
 Using \textit{lastChange} a developer can work backwards on the flow of data, but sometimes bugs are more obvious when
 we watch control flow forwards. Consider for example, 
-\begin{verbatim}
+
+%\begin{verbatim}
+\lstset{basicstyle=\scriptsize}
+\begin{lstlisting}[language=myLang, framerule=0pt]
 44 vector.r = Math.floor(Math.random()*5)*6;
 45 if (vector.r !== 0 && vector.r < 30);
 46   return vector;
-\end{verbatim}
+\end{lstlisting}
+%\end{verbatim}
 where \textit{lastChange} shows us that \texttt{vector.r} is zero at line 44. In our user studies, developers
 wanted to single step forward from line 44. If they could do this, they may be surprised to see line 46 execute 
 even if \texttt{vector.r} is zero, directing their attention to line 45 where they can discover the errant semicolon.
@@ -1035,7 +1069,9 @@ the value of the item would succeed and the developer can reason from the
 \textit{lastChange} results to create the condition. 
 
 \begin{figure}[htp]
-\begin{verbatim}
+%\begin{verbatim}
+\lstset{basicstyle=\scriptsize}
+\begin{lstlisting}[language=myLang, framerule=0pt]
 10 function randomProcess(array){
 11   randomPermutation(array);
 12   var x, y;
@@ -1045,7 +1081,8 @@ the value of the item would succeed and the developer can reason from the
 30      y = x+1;
 31   }
 32 }
-\end{verbatim}
+\end{lstlisting}
+%\end{verbatim}
 \caption{A counter-example for transforming \textit{lastChange} to a conditional breakpoint.}
 \label{fig:counter-example}
 \end{figure}
