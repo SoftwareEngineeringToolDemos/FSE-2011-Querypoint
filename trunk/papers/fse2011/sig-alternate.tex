@@ -359,7 +359,7 @@ By browsing through the code or other means\cite{Barton},
 button is set at line 22. Since the displayed value is incorrect we know 
 the bug occured before we hit this line.
 To start debugging, the developer sets a breakpoint
-on line 22. Once the button is clicked, execution is paused at line
+on line 22. Once the button is clicked, the execution is paused at line
 22. Figure~\ref{fig:example1} shows the Firebug debugger while the
 execution is paused. Firebug has several panels (e.g., HTML, CSS,
 Script, DOM, etc.) that each demonstrate one aspect of the Web page.
@@ -419,7 +419,7 @@ place \texttt{oldValue} is assigned to
 \texttt{myCondition.value}. (If the developer asks for \textit{lastChange} on \texttt{oldValue}, 
 the debugger can notify the developer that this variable is never assigned a value).
  Now it is clear that the bug occurs because \texttt{oldValue} is
-\texttt{undefined} once execution reaches line 25 (Figure~\ref{fig:example4}).
+\texttt{undefined} once the execution reaches line 25 (Figure~\ref{fig:example4}).
 
 
 As demonstrated in Figure~\ref{fig:example-points}, the developer has
@@ -536,7 +536,7 @@ program. Whenever \texttt{foo} changes and the callback function is to
 be called, debugger first calls \texttt{objectId()} on the
 \texttt{foo} owner object. Then it stores this owner id, the stack
 frame locations, and other state values in scope at the call point. 
-Then the callback returns to continue execution. Thus the query is not 
+Then the callback returns to continue the execution. Thus the query is not 
 a breakpoint in the sense of pausing for user interaction, but breakpoint 
 technology can be used to implement the query.
 Whenever the execution reaches the reproduction point the debugger
@@ -752,7 +752,7 @@ otherwise it generates a new id and sets this property. The value of the id is s
 for each new \texttt{\_objectId} needed. This use of a regular object property  might change
 the program behaviour. For example it will apear as an extra property in 
 \texttt{for(property in object)} loops. 
-The next version of Firefox\footnote[3]{https://developer.mozilla.org/en/JavaScript/Reference/Global\_Objects\\/Object/defineProperty} provides an alternative via \texttt{defineProperty} a standard JavaScript
+The next version of Firefox\footnote[3]{https://developer.mozilla.org/en/JavaScript/Reference\\/Global\_Objects/Object/defineProperty} provides an alternative via \texttt{defineProperty} a standard JavaScript
 function which receives 
 an argument specifying whether the property is enumerable or not. By setting the enumerable
 field \texttt{false} for \texttt{\_objectId}, this property will not
