@@ -127,7 +127,7 @@
 % 1st. author
 \alignauthor
 Salman Mirghasemi\\
-       \affaddr{\'Ecole Polytechnique F\'ed\'erale de Lausanne, Switzerland}\\
+       \affaddr{\'Ecole Polytechnique F\'ed\'erale de Lausanne (EPFL), Switzerland}\\
        \email{salman.mirghasemi@epfl.ch}
 % 2nd. author
 \alignauthor
@@ -137,7 +137,7 @@ John J. Barton\\
 % 3rd. author
 \alignauthor 
 Claude Petitpierre\\
-       \affaddr{\'Ecole Polytechnique F\'ed\'erale de Lausanne, Switzerland}\\
+       \affaddr{\'Ecole Polytechnique F\'ed\'erale de Lausanne (EPFL), Switzerland}\\
        \email{claude.petitpierre@epfl.ch}
 }       
 
@@ -524,7 +524,7 @@ absence of the debugger. The second
 operation is \texttt{setPropertyChangeHook()}: given a function and a
 string, the function is called whenever a property changes and its
 name matches the string. For example, if the string is 
-\texttt{foo} changes to \texttt{bar.foo} or \texttt{baz.foo} would
+\texttt{foo}, changes to \texttt{bar.foo} or \texttt{baz.foo} would
 call the function.  The callback function receives a reference to the
 owner of \texttt{foo}. 
 
@@ -596,16 +596,6 @@ objects. Scope object is usually a transient copy of a native object.
 Therefore, to track changes to a variable in these scopes we
 employ a different approach.
 
-Having the scope chain and the source code, we can map every scope to % perhaps needs more explanation, how?
-a code block, enclosed the executing code. In
-JavaScript, a code block can be identified by the file url and  
-the block's first instruction program counter. Given this information, the debugger is
-able to recognize the code block in loaded scripts or once it is loaded.
-Similar to \textit{lastChange} on object property, we define two basic operations: 
-\texttt{scopeId()} and \texttt{setVariableChangeHook()}. The first one, 
-given a scope returns an integer as the scope's identifier. The second one, 
-given a callback function, a code block and a variable name-which is defined inside the block, the function is called
-whenever the variable is changed. 
 
 \begin{figure}[htp]
 %\begin{verbatim}
@@ -633,8 +623,18 @@ C  |  ... , scope 1
 \label{fig:recursive}
 \end{figure}
 
+Having the scope chain and the source code, we can map every scope to % perhaps needs more explanation, how?
+a code block, enclosed the executing code. In
+JavaScript, a code block can be identified by the file url and  
+the block's first instruction program counter. Given this information, the debugger is
+able to recognize the code block in loaded scripts or once it is loaded.
+Similar to \textit{lastChange} on object property, we define two basic operations: 
+\texttt{scopeId()} and \texttt{setVariableChangeHook()}. The first one, 
+given a scope returns an integer as the scope's identifier. The second one, 
+given a callback function, a code block and a variable name-which is defined inside the block, the function is called
+whenever the variable is changed. 
 
-Figure~\ref{fig:recursive} illustrates how the \texttt{ScopeId()} operation separates instances 
+Figure~\ref{fig:recursive} illustrates how the \texttt{scopeId()} operation separates instances 
 of a variable in different scopes having the same name.
 If we ask for the last change on \texttt{x} at point labeled \texttt{C} in scope with id 1, we want the change at line \texttt{A} in scope 1, not 
 the change at the line marked \texttt{B}, where a variable named \texttt{x} in scope 3 is changed.  
@@ -657,7 +657,7 @@ at the reproduction point (Figure~\ref{fig:foo-changes2}).
 \centering 
 \includegraphics[width=.40\textwidth]{7-foo-changes2.png}
 \caption{A hypothetical list of variable \texttt{foo} change events. Each column of the list indicates a change event; for each
-change event the scope id returns by \texttt{ScopeId()} is recorded along with call stack and program state information. 
+change event the scope id returns by \texttt{scopeId()} is recorded along with call stack and program state information. 
    The last column having the scope id \texttt{foo} at the reproduction point indicates 
   the last change.}
 \label{fig:foo-changes2}
