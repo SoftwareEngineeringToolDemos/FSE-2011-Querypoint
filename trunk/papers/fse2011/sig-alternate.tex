@@ -56,6 +56,8 @@
 \usepackage{textcomp}
 \usepackage{listings}
 \usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{cite} %after hyperref
 
 %\usepackage{url}
 %\urldef{\mailsa}\path|{alfred.hofmann, ursula.barth, ingrid.haas, frank.holzwarth,|
@@ -69,7 +71,7 @@
 
 %
 % --- Author Metadata here ---
-\conferenceinfo{WOODSTOCK}{'97 El Paso, Texas USA}
+\conferenceinfo{ESEC/FSE}{'11 SZEGED, HUNGARY}
 %\CopyrightYear{2007} % Allows default copyright year (20XX) to be over-ridden - IF NEED BE.
 %\crdata{0-12345-67-8/90/01}  % Allows default copyright data (0-89791-88-6/97/05) to be over-ridden - IF NEED BE.
 % --- End of Author Metadata ---
@@ -195,13 +197,13 @@ way to halt execution reliably after the reproduction.
 
 \section{Introduction}
 
-According to \cite{LaToza}, developers spend about fifty percent of
+According to  \cite{LaToza}, developers spend about fifty percent of
 their time debugging. To fix a bug, developers typically reproduce 
 and monitor the buggy execution several times to understand the 
 program's unexpected behavior. Trial-and-error, guess-work, and 
 analyzing complicated data make debugging difficult and time-consuming. 
 Enhanced debugging operations save  
-time, reducing development costs  and improve software quality.
+time, reduce development costs and improve software quality.
 
 A common strategy for locating defects starts from bug symptoms and
 works backwards, moving from a point in the program execution where a
@@ -232,7 +234,7 @@ insufficient collected data, or to wait a long time because too much
 data is recorded. Once adequate data is collected, it still
 requires analyzing and understanding. Developers usually end up in
 dealing with long log files and analyzing huge amounts of collected data. 
-Niether approach assists the developer in finding origins to a wrong
+Neither approach efficiently assists the developer in finding origins to a wrong
 value.
 
 Our new functionality in
@@ -285,7 +287,7 @@ showing the value of \texttt{myObject.myProperty}.  When the user
 clicks on the button, the \texttt{onClick} function (line 13) is
 called. This function increases the value of
 \texttt{myObject.myProperty} by one (line 15) and calls
-\texttt{updateButton} function which updates button's text to the new
+\texttt{updateButton} function which updates the button's text to the new
 value (line 22).  Once the page is loaded for the first time the
 button shows \texttt{1} as the initial value of
 \texttt{myObject.myProperty}.  In practice when the user clicks on the
@@ -301,20 +303,6 @@ between what we expect these functions to do, e.g. nothing
 interesting, and what they do in practice may cause bugs.
 
 
-By browsing through the code or other means\cite{Barton},
- the developer determines that the value displayed on the 
-button is set at line 22. Since the displayed value is incorrect we know 
-the bug occured before we hit this line.
-To start debugging, the developer sets a breakpoint
-on line 22. Once the button is clicked, execution is paused at line
-22. Figure~\ref{fig:example1} shows the Firebug debugger while the
-execution is paused. Firebug has several panels (e.g., HTML, CSS,
-Script, DOM, etc.) that each demonstrate one aspect of the Web page.
-The Script panel contains the list of all loaded source
-files and regular debugging facilities such as setting breakpoints and
-stepping. To the right of the script panel, the Watch panel shows the program state
-where the developer can examine object and variable values. In our case, the
-\texttt{myObject.myProperty} value at the paused point is zero. We expected this value to be \texttt{2}.
 
 
 
@@ -366,6 +354,22 @@ where the developer can examine object and variable values. In our case, the
 \label{fig:js-code}
 \end{figure}
 
+By browsing through the code or other means\cite{Barton},
+ the developer determines that the value displayed on the 
+button is set at line 22. Since the displayed value is incorrect we know 
+the bug occured before we hit this line.
+To start debugging, the developer sets a breakpoint
+on line 22. Once the button is clicked, execution is paused at line
+22. Figure~\ref{fig:example1} shows the Firebug debugger while the
+execution is paused. Firebug has several panels (e.g., HTML, CSS,
+Script, DOM, etc.) that each demonstrate one aspect of the Web page.
+The Script panel contains the list of all loaded source
+files and regular debugging facilities such as setting breakpoints and
+stepping. To the right of the script panel, the Watch panel shows the program state
+where the developer can examine object and variable values. In our case, the
+\texttt{myObject.myProperty} value at the paused point is zero. We expected this value to be \texttt{2}.
+
+
 To apply backward search strategy for locating defects, the developer
 first needs to know the origin of the wrong value. To achieve this
 goal using breakpoints, the developer should search code to find all possible places that
@@ -394,13 +398,23 @@ resemble the Script and Watch panels, but they show data collected by
 the debugger at one execution point which is now past: these are
 \textit{traces} or \textit{logs} of information collected during the re-execution.
 
+
+\begin{figure}[htp]
+\centering 
+
+\includegraphics[width=.48\textwidth]{5-example-points.png}
+\caption{The examined points before locating the defect. The arrow represents the logical forward progress of the program. Three actual executions are superimposed on this arrow. All three stop at the reproduction point indicated by circle 1. After the first execution, the developer asks for lastChange as described in section \ref{sec:introExample}, yielding information  indicated by circle 2. After the second execution, another lastChange query causes a third execution, yielding information indicated by circle 3.}
+\label{fig:example-points}
+\end{figure}
+
+
 Looking at line 29, it seems that something is wrong with
 \texttt{myCondition.value} which causes line 29 execution. The
 developer examines \texttt{myCondition.value} and it is
 \texttt{undefined}. The next step is to know when this property got
 this value. To do so, the developer runs the \textit{lastChange} command
 on \texttt{myCondition.value} at this point. The debugger re-executes the
-program and break again on line 22, analyzes it queries and shows the developer line 25-the
+program and breaks again on line 22, analyzes its queries and shows the developer line 25-the
 place \texttt{oldValue} is assigned to
 \texttt{myCondition.value}. (If the developer asks for \textit{lastChange} on \texttt{oldValue}, 
 the debugger can notify the developer that this variable is never assigned a value).
@@ -455,13 +469,6 @@ points are marked with red \textbf{Q} icons.
 \label{fig:lastChange}
 \end{figure*}
 
-\begin{figure}[htp]
-\centering 
-
-\includegraphics{5-example-points.jpg}
-\caption{The examined points before locating the defect. The arrow represents the logical forward progress of the program. Three actual executions are superimposed on this arrow. All three stop at the reproduction point indicated by circle 1. After the first execution, the developer asks for lastChange as described in \ref{sec:introExample}, yielding information  indicated by circle 2. After the second execution, another lastChange query causes a third execution, yielding information indicated by circle 3.}
-\label{fig:example-points}
-\end{figure}
 
 Notice that in our example, \textit{lastChange} combines some aspects
 of breakpoint and of log-based debugging. Like breakpoint debugging,
@@ -471,11 +478,11 @@ state of the program memory and the call stack are available at each
 lastChange point. Like log-based debugging, the program state and the
 call stack are recorded during program execution. We can't halt the
 program at \textit{lastChange} because we don't know which point is the last
-one until we return to the original breakpoint. (In section 5 we
-discuss cases were it is possible to pause at lines of \textit{lastChange}).
+one until we return to the original breakpoint. In section 5 we
+discuss cases were it is possible to pause at lines of \textit{lastChange}.
 
 
-\section{{\large\bf\textit{lastChange}} Algorithm}
+\section{lastChange Algorithm}
 
 The \textit{lastChange} algorithm is based on program re-execution of
 a program halted on a breakpoint. The algorithm starts when developer
@@ -542,7 +549,7 @@ last change of \texttt{bar.foo} is the fourth column.
 
 \begin{figure}[htp]
 \centering 
-\includegraphics [width=.48\textwidth]{6-foo-changes1.jpg} 
+\includegraphics [width=.48\textwidth] {6-foo-changes1.png} %[width=.48\textwidth][scale=0.75]
 \caption{A hypothetical list of  change events for a property \texttt{foo}. 
 Each change event adds a column with the id of the object changed, the call stack,
 and some program state such as local variable values. 
@@ -648,7 +655,7 @@ at the reproduction point (Figure~\ref{fig:foo-changes2}).
 
 \begin{figure}[htp]
 \centering 
-\includegraphics[width=.48\textwidth]{7-foo-changes2.jpg}
+\includegraphics[width=.40\textwidth]{7-foo-changes2.png}
 \caption{A hypothetical list of variable \texttt{foo} change events. Each column of the list indicates a change event; for each
 change event the scope id returns by \texttt{ScopeId()} is recorded along with call stack and program state information. 
    The last column having the scope id \texttt{foo} at the reproduction point indicates 
@@ -730,7 +737,7 @@ easy to explore, change, and share with others for feedback.
 
 \begin{figure}[htp]
 \centering 
-\includegraphics[width=.48\textwidth]{8-lastchange-lastchange.jpg}
+\includegraphics[width=.48\textwidth]{8-lastchange-lastchange.png}
 \caption{The list of change events stored for locating point B, the
   \textit{lastChange} of \texttt{bar.x} at the reproduction point, and
   point C, the \textit{lastChange} of \texttt{baz.y} at point B.}
@@ -738,7 +745,7 @@ easy to explore, change, and share with others for feedback.
 \end{figure}
 
 
-\subsection{{\large\bf\texttt{objectId()}} operation}
+\subsection{{\normalsize\bf\texttt{objectId()}} operation}
 \texttt{objectId(obj)} first checks the argument \texttt{obj} for a property \texttt{\_objectId}.
 It returns the value if this property is already defined,
 otherwise it generates a new id and sets this property. The value of the id is simply an integer incremented 
@@ -753,7 +760,7 @@ apear in \texttt{for(property in object)} loops and therefore has no
 effect on the program execution. Note that \texttt{\_objectId} is
 not set for all objects but only those objects that need an id.
 
-\subsection{{\large\bf\texttt{setPropertyChangeHook()}} operation}
+\subsection{{\normalsize\bf\texttt{setPropertyChangeHook()}} operation}
 The Firefox JavaScript engine supports watching property changes in an
 object. Every object has a function \texttt{watch(propName, callback)}
 which receives two parameters, a property name and function.  Whenever
@@ -851,7 +858,7 @@ object creation locations.
 \label{fig:objectCreation}
 \end{figure}
 
-\subsection{{\large\bf\texttt{scopeId()}} operation}
+\subsection{{\normalsize\bf\texttt{scopeId()}} operation}
 The prototype sets a hook at the beginning of all code blocks needing
 a scope id. The scope id is kept as a variable with name 
 \texttt{\_scopeId} in the scope. Whenever the hook is hit,  meaning a new scope
@@ -861,7 +868,7 @@ variable with name \texttt{\_scopeId} and value \texttt{10} in the
 scope of the \texttt{eval()} call, which is our interesting scope. \texttt{scopeId()}
 operation returns the value of \texttt{\_scopeId} in the scope.
 
-\subsection{{\large\bf\texttt{setVariableChangeHook()}} operation}
+\subsection{{\normalsize\bf\texttt{setVariableChangeHook()}} operation}
 Variables defined in local, closure, and catch scopes are only changed in
 their scope; that includes the defining scope and scopes nested whithin them.
 For example in Figure~\ref{fig:js-closure}, variable \texttt{myVar} in line 11 can only be
