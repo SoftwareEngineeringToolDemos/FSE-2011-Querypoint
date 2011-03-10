@@ -566,8 +566,8 @@ scope chain. Once the developer asks for the last change of a variable with name
 \texttt{foo} at the reproduction point, the debugger first determines the
 variable's scope as follows: it iterates over the scopes in the scope
 chain and the first scope which has a variable with the same name is
-the variable's scope. There are five different scope types: local,
-global, \texttt{with}, closure and \texttt{catch}. We explain these
+the variable's scope. There are five different scope types: global, local,
+closure, \texttt{with} and \texttt{catch}. We explain these
 cases in two groups.
 
 \subsubsection{global and \texttt{with} scopes}
@@ -596,24 +596,28 @@ employ a different approach.
 
 \begin{figure}[htp]
 %\begin{verbatim}
-\lstset{basicstyle=\scriptsize}
-\begin{lstlisting}[language=myLang, framerule=0pt]
-  function f(){
-    var x = 0;
-    x++;
-    if (!stop) f();
-  }
+\includegraphics [width=.48\textwidth] {9-scopes.pdf} %[width=.48\textwidth][scale=0.75]
 
-Sample Trace:
 
-   f()
-A  |  x changes, scope 1 
-   |  f()
-   |  |  x changes, scope 2
-   |  |  f()
-B  |  |  |  x changes, scope 3 
-C  |  ... , scope 1
-\end{lstlisting}
+%\lstset{basicstyle=\scriptsize}
+%\begin{lstlisting}[language=myLang, framerule=0pt]
+%  function f(){
+%    var x = 0;	
+%    x++;
+%    ...
+%    if (!stop) f();
+%  }
+
+%Sample Trace:
+
+%   f()
+%A  |  x changes, scope 1 
+%   |  f()
+%   |  |  x changes, scope 2
+%   |  |  f()
+%B  |  |  |  x changes, scope 3 
+%C  |  ... , scope 1
+%\end{lstlisting}
 %\end{verbatim}
 \caption{A recursive call trace illustrating the scope
   id. The lines in the bottom half of the diagram simulate a trace of the change events for the variable \texttt{x} as the function \texttt{f()} calls itself. Each call creates a scope; eventually when the variable \texttt{stop} is changed by an external process we return from the recursion. The lines marked A, B, and C are discussed in the text.}
@@ -627,7 +631,7 @@ the block's first instruction program counter. Given this information, the debug
 able to recognize the code block in loaded scripts or once it is loaded.
 Similar to \textit{lastChange} on object property, we define two basic operations: 
 \texttt{scopeId()} -- which returns an integer given a scope -- and \texttt{setVariableChangeHook()} -- which calls its first parameter, a callback function, when a 
-variable in its second parameter, a code block, mathes the name given in the third parameter.
+variable in its second parameter, a code block, matches the name given in the third parameter.
 
 Figure~\ref{fig:recursive} illustrates how the \texttt{scopeId()} operation separates instances 
 of a variable in different scopes having the same name.
