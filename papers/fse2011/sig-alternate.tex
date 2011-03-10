@@ -507,7 +507,9 @@ is defined at \textit{R}. If we name the result of this query
 \textit{lastChange} queries with any length can be defined. 
 
 \textit{lastChange} can be called on object property, on a variable value, 
-or on the results of a \textit{lastChange}. We explain each case in the following subsections.
+or on the results of a \textit{lastChange}. Moroever, common data structures such as
+arrays and hashmaps are also supported as special cases of \textit{lastChange} on object property.
+We explain each case in the following subsections.
 
 \subsection{{\large\bf\textit{lastChange}} on object property}
 To simplify the algorithm explanation and defer technical details, we
@@ -694,7 +696,7 @@ Figure~\ref{fig:lastchange-lastchange} illustrates the extra row of data (tracki
 at \texttt{x} change events) 
 and how the id values allow the last change of \texttt{baz.y} to be worked out. 
  
-In the general case we perform dependency analysis  as outlined in 
+In the general case we perform dependency analysis as outlined in 
 Figure~\ref{fig:dependency-analysis} to
 create the list of additional data (object id or scope id) to be collected at a change
 event. The process can be repeated to cascade \textit{lastChange} arbitrarily deep.
@@ -706,10 +708,10 @@ event. The process can be repeated to cascade \textit{lastChange} arbitrarily de
 
 \FOR{$q$ in $lastChange$ queries} 
  \FOR {$p$ is defined at the $q$ result}
-   \IF {$p$ is a lastChange on object property} 
-     \STATE the property owner id should be stored at $q$ change events. 
-   \ELSIF {$p$ is a lastChange on variable} 
-     \STATE the variable scope id should be stored at $q$ change events.
+   \IF {$p$ is a $lastChange$ on object property} 
+     \STATE the property {\bf owner id} must be stored at $q$ change events. 
+   \ELSIF {$p$ is a $lastChange$ on variable} 
+     \STATE the variable {\bf scope id} must be stored at $q$ change events.
 	 \ENDIF 
  \ENDFOR 
 \ENDFOR
@@ -1030,7 +1032,7 @@ However, a \textit{lastChange} is just a query result, not a breakpoint. Under w
 cause the debugger to stop at the \textit{lastChange} point?
 
 In the case that the execution is deterministic, the \textit{lastChange}
-event index can be used as an index for a conditional breakpoint. 
+event index can be used as an index for a conditional breakpoint \cite{Boothe, Maruyama}. 
 Moreover, this works in a non-deterministic execution if non-determinism
 has no effect on the event index.  The debugger can easily set this conditional breakpoint
 and reexecute the program. If the stream of change events differs in this re-execution the
