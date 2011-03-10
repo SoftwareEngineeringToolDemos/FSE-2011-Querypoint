@@ -314,7 +314,8 @@ interesting, and what they do in practice may cause bugs.
 \lstdefinelanguage{myLang}
 {morekeywords={html, script, button, if, function, var}}
 
-\begin{lstlisting}[language=myLang, framerule=0pt]
+\begin{lstlisting}[frame=single, language=myLang] %, framerule=0pt]
+
 1 <html>
 ...
 5   <script type="text/javascript">
@@ -675,7 +676,8 @@ must retain additional information. Consider the following example:
 {morekeywords={point, lastChange}}
 
 \lstset{basicstyle=\small}
-\begin{lstlisting}[language=myLang2, framerule=0pt]
+\begin{lstlisting}[frame=single, language=myLang2] %, framerule=0pt]
+
  point A : the reproduction point 
  point B : lastChange(A, bar.x) 
  point C : lastChange(B, baz.y) 
@@ -701,9 +703,22 @@ Figure~\ref{fig:dependency-analysis} to
 create the list of additional data (object id or scope id) to be collected at a change
 event. The process can be repeated to cascade \textit{lastChange} arbitrarily deep.
 
+
+\begin{figure}[htp]
+\centering 
+\includegraphics[width=.48\textwidth]{8-lastchange-lastchange.pdf}
+\caption{The list of change events stored for locating point B, the
+  \textit{lastChange} of \texttt{bar.x} at the reproduction point, and
+  point C, the \textit{lastChange} of \texttt{baz.y} at point B.}
+\label{fig:lastchange-lastchange}
+\end{figure}
+
+
+
 \begin{figure}[htp]
 \centering 
 %\begin{algorithm}
+\begin{frame}
 \begin{algorithmic}
 
 \FOR{$q$ in $lastChange$ queries} 
@@ -717,14 +732,11 @@ event. The process can be repeated to cascade \textit{lastChange} arbitrarily de
 \ENDFOR
 
 \end{algorithmic}
+\end{frame}
 %\end{algorithm}
 \caption{\textit{lastChange} queries dependency analysis.}
 \label{fig:dependency-analysis}
 \end{figure}
-
-
-
-
 %---------------------------------------------------------------------------------------------------
 \section{JavaScript implementation}
 To verify the \textit{lastChange} algorithm we
@@ -737,14 +749,7 @@ using techniques which are cumbersome and comparatively slow to execute. However
 easy to explore, change, and share with others for feedback.
   A professionally useful debugger would implement these primitive operations within the JavaScript engine.
 
-\begin{figure}[htp]
-\centering 
-\includegraphics[width=.48\textwidth]{8-lastchange-lastchange.pdf}
-\caption{The list of change events stored for locating point B, the
-  \textit{lastChange} of \texttt{bar.x} at the reproduction point, and
-  point C, the \textit{lastChange} of \texttt{baz.y} at point B.}
-\label{fig:lastchange-lastchange}
-\end{figure}
+
 
 
 \subsection{{\normalsize\bf\texttt{objectId()}} operation}
@@ -758,6 +763,8 @@ for each new \texttt{\_objectId} needed.
 %The next version of Firefox (https://developer.mozilla.org/en/JavaScript/Reference\\/Global\_Objects/Object/defineProperty) provides \texttt{defineProperty}, 
 %allowing a property to be added which is invisible to enumeration.} Note that \texttt{\_objectId} is
 %not set for all objects but only those objects that need an id.
+
+
 
 \subsection{{\normalsize\bf\texttt{setPropertyChangeHook()}} operation}
 The Firefox JavaScript engine supports watching property changes in an
@@ -836,7 +843,8 @@ object creation locations.
 \begin{figure}[htp]
 %\begin{verbatim}
 \lstset{basicstyle=\scriptsize}
-\begin{lstlisting}[language=myLang, framerule=0pt]
+\begin{lstlisting}[frame=single, language=myLang]% framerule=0pt]
+
 (a) Case 1:
  20 x.y = new myConstructor();
 
@@ -887,7 +895,8 @@ but in \texttt{secondChild} it is a closure variable.
 \begin{figure}[htp]
 %\begin{verbatim}
 \lstset{basicstyle=\scriptsize}
-\begin{lstlisting}[language=myLang, framerule=0pt]
+\begin{lstlisting}[frame=single, language=myLang]%, framerule=0pt]
+
 10  function parent(){
 11    var myVar;
 12    myVar = ...;
@@ -999,7 +1008,8 @@ the primitive properties of the object examined by the developer are stored and 
 \begin{figure}[htp]
 %\begin{verbatim}
 \lstset{basicstyle=\scriptsize}
-\begin{lstlisting}[language=myLang, framerule=0pt]
+\begin{lstlisting}[frame=single, language=myLang]%, framerule=0pt]
+
 10 a = false;
 11 b = false;
 ...
@@ -1019,7 +1029,8 @@ we watch control flow forwards. Consider for example,
 
 %\begin{verbatim}
 \lstset{basicstyle=\scriptsize}
-\begin{lstlisting}[language=myLang, framerule=0pt]
+\begin{lstlisting}[frame=single, language=myLang] % framerule=0pt]
+
 44 vector.r = Math.floor(Math.random()*5)*6;
 45 if (vector.r !== 0 && vector.r < 30);
 46   return vector;
