@@ -50,6 +50,7 @@
 \usepackage{amssymb}
 \setcounter{tocdepth}{3}
 \usepackage{graphicx}
+\usepackage{xcolor}
 \usepackage{subfigure} %[tight,normalsize]
 \usepackage{algorithmic}
 \usepackage{algorithm}
@@ -207,7 +208,7 @@ time, reduce development costs and improve software quality.
 
 A common strategy for locating defects starts from bug symptoms and
 works backwards, moving from a point in the program execution where a
-value appears to be incorrect back to the point were that value was
+value appears to be incorrect back to the point where that value was
 set.  Two conventional approaches, breakpoint-based and
 log-based debugging, require tedious steps of
 selecting data to be collected, collecting the data, then analyzing
@@ -263,7 +264,7 @@ create identical, instruction by instruction, re-executions. We demonstrate the 
 JavaScript debugger. \textit{Querypoint} also provides mechanism for
 automated bug reproduction, and a novel user interface which
 summarizes investigated execution points and collected results.
-The \textit{lastChange} algorigthm provides information on important program
+The \textit{lastChange} algorithm provides information on important program
 values during the program execution without voluminous logs and without tedious
  insertion and removal of breakpoints. We believe other queries over the
  running program can be formulated to generalize this technique.
@@ -301,9 +302,6 @@ by another developer, or we may have forgotten their exact properties
 or those properties may have changed, and so on. The difference
 between what we expect these functions to do, e.g. nothing
 interesting, and what they do in practice may cause bugs.
-
-
-
 
 
 \begin{figure}[htp]
@@ -357,7 +355,7 @@ interesting, and what they do in practice may cause bugs.
 By browsing through the code or other means\cite{Barton},
  the developer determines that the value displayed on the 
 button is set at line 22. Since the displayed value is incorrect we know 
-the bug occured before we hit this line.
+the bug occurred before we hit this line.
 To start debugging, the developer sets a breakpoint
 on line 22. Once the button is clicked, the execution is paused at line
 22. Figure~\ref{fig:example1} shows the Firebug debugger while the
@@ -367,7 +365,7 @@ The Script panel contains the list of all loaded source
 files and regular debugging facilities such as setting breakpoints and
 stepping. To the right of the script panel, the Watch panel shows the program state
 where the developer can examine object and variable values. In our case, the
-\texttt{myObject.myProperty} value at the paused point is zero. We expected this value to be \texttt{2}.
+\texttt{myObject.myProperty} value at the paused point is \texttt{0}. We expected this value to be \texttt{2}.
 
 
 To apply backward search strategy for locating defects, the developer
@@ -402,7 +400,7 @@ the debugger at one execution point which is now past: these are
 \begin{figure}[htp]
 \centering 
 
-\includegraphics[width=.48\textwidth]{5-example-points.png}
+\includegraphics [width=.48\textwidth]{5-example-points.pdf} 
 \caption{The examined points before locating the defect. The arrow represents the logical forward progress of the program. Three actual executions are superimposed on this arrow. All three stop at the reproduction point indicated by circle 1. After the first execution, the developer asks for lastChange as described in section \ref{sec:introExample}, yielding information  indicated by circle 2. After the second execution, another lastChange query causes a third execution, yielding information indicated by circle 3.}
 \label{fig:example-points}
 \end{figure}
@@ -416,8 +414,8 @@ this value. To do so, the developer runs the \textit{lastChange} command
 on \texttt{myCondition.value} at this point. The debugger re-executes the
 program and breaks again on line 22, analyzes its queries and shows the developer line 25-the
 place \texttt{oldValue} is assigned to
-\texttt{myCondition.value}. (If the developer asks for \textit{lastChange} on \texttt{oldValue}, 
-the debugger can notify the developer that this variable is never assigned a value).
+\texttt{myCondition.value}. If the developer asks for \textit{lastChange} on \texttt{oldValue}, 
+the debugger can notify the developer that this variable is never assigned a value.
  Now it is clear that the bug occurs because \texttt{oldValue} is
 \texttt{undefined} once the execution reaches line 25 (Figure~\ref{fig:example4}).
 
@@ -439,14 +437,13 @@ points are marked with red \textbf{Q} icons.
 
 \begin{figure*}[htp]
 
-
 \subfigure[A screen shot of the Firebug debugger while running the example code from Fig.~\ref{fig:js-code}. The Script
   panel is selected; it gives access to
   all loaded source files and allows breakpoints to be set on lines. In this
   figure, the execution is paused at line 22 by a regular
   breakpoint. The Watch panel on the right shows the program state at
   the paused
-  point. Developer can query \textit{lastChange} on \texttt{myObject.myProperty} by right-clicking on the value of \texttt{myProperty}. ]{\label{fig:example1}\includegraphics[width=1.0\textwidth, height=.17\textheight
+  point. Developer can query \textit{lastChange} on \texttt{myObject.myProperty} by right-clicking on the value of \texttt{myProperty}. ]{\label{fig:example1}\includegraphics[width=1.0\textwidth, %height=.17\textheight
   ]{1-bp22.jpg}}
 
 
@@ -479,7 +476,7 @@ lastChange point. Like log-based debugging, the program state and the
 call stack are recorded during program execution. We can't halt the
 program at \textit{lastChange} because we don't know which point is the last
 one until we return to the original breakpoint. In section 5 we
-discuss cases were it is possible to pause at lines of \textit{lastChange}.
+discuss cases where it is possible to pause at lines of \textit{lastChange}.
 
 
 \section{lastChange Algorithm}
@@ -549,7 +546,7 @@ last change of \texttt{bar.foo} is the fourth column.
 
 \begin{figure}[htp]
 \centering 
-\includegraphics [width=.48\textwidth] {6-foo-changes1.png} %[width=.48\textwidth][scale=0.75]
+\includegraphics [width=.48\textwidth] {6-foo-changes1.pdf} %[width=.48\textwidth][scale=0.75]
 \caption{A hypothetical list of  change events for a property \texttt{foo}. 
 Each change event adds a column with the id of the object changed, the call stack,
 and some program state such as local variable values. 
@@ -653,7 +650,7 @@ at the reproduction point (Figure~\ref{fig:foo-changes2}).
 
 \begin{figure}[htp]
 \centering 
-\includegraphics[width=.40\textwidth]{7-foo-changes2.png}
+\includegraphics[width=.40\textwidth]{7-foo-changes2.pdf}
 \caption{A hypothetical list of variable \texttt{foo} change events. Each column of the list indicates a change event; for each
 change event the scope id returns by \texttt{scopeId()} is recorded along with call stack and program state information. 
    The last column having the scope id \texttt{foo} at the reproduction point indicates 
@@ -736,7 +733,7 @@ easy to explore, change, and share with others for feedback.
 
 \begin{figure}[htp]
 \centering 
-\includegraphics[width=.48\textwidth]{8-lastchange-lastchange.png}
+\includegraphics[width=.48\textwidth]{8-lastchange-lastchange.pdf}
 \caption{The list of change events stored for locating point B, the
   \textit{lastChange} of \texttt{bar.x} at the reproduction point, and
   point C, the \textit{lastChange} of \texttt{baz.y} at point B.}
@@ -1053,7 +1050,7 @@ then the developer will know to simply return to \textit{lastChange} or move on 
 %point which shows line 14. Although this point exists at every
 %re-execution but it can not be identified by an event index. A conditional breakpoint on 
 %the value of the item would succeed and the developer can reason from the 
-\%textit{lastChange} results to create the condition. 
+%textit{lastChange} results to create the condition. 
 
 %\begin{figure}[htp]
 %\lstset{basicstyle=\scriptsize}
