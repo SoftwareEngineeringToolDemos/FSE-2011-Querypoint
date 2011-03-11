@@ -512,7 +512,7 @@ or on the results of a \textit{lastChange}. Moroever, common data structures suc
 arrays and hashmaps are also supported as special cases of \textit{lastChange} on object property.
 We explain each case in the following subsections.
 
-\subsection{{\large\bf\textit{lastChange}} on object property}
+\subsection{{\large\bf\textit{lastChange}} on Object Property}
 To simplify the algorithm explanation and defer technical details, we
 define two basic operations and later we explain the details of these
 two operations. The first operation is \texttt{objectId()}: given a
@@ -562,7 +562,7 @@ object \texttt{bar} and read out column 4,  the last
 \label{fig:foo-changes1}
 \end{figure}
 
-\subsection{{\large\bf\textit{lastChange}} on variable} 
+\subsection{{\large\bf\textit{lastChange}} on Variable} 
 In JavaScript, every frame has a scope chain and every available
 variable in the frame comes from one of the scopes in the frame's
 scope chain. Once the developer asks for the last change of a variable with name 
@@ -716,11 +716,10 @@ event. The process can be repeated to cascade \textit{lastChange} arbitrarily de
 
 
 \begin{figure}[htp]
-\centering 
+%\centering 
 %\begin{algorithm}
-\begin{frame}
-\begin{algorithmic}
-
+\line(1,0){240}
+\begin{algorithmic}%[frame=single]
 \FOR{$q$ in $lastChange$ queries} 
  \FOR {$p$ is defined at the $q$ result}
    \IF {$p$ is a $lastChange$ on object property} 
@@ -732,7 +731,7 @@ event. The process can be repeated to cascade \textit{lastChange} arbitrarily de
 \ENDFOR
 
 \end{algorithmic}
-\end{frame}
+\line(1,0){240}
 %\end{algorithm}
 \caption{\textit{lastChange} queries dependency analysis.}
 \label{fig:dependency-analysis}
@@ -746,14 +745,15 @@ Firebug itself is an extension of the Firefox browser. %\cite{Firefox}. %\cite{f
 The Firefox JavaScript engine provides a JavaScript debugging interface \cite{JSD} and 
 \textit{Querypoint} is developed over this interface. Our prototype implements the four primitive operations in JavaScript 
 using techniques which are cumbersome and comparatively slow to execute. However the JavaScript prototype is
-easy to explore, change, and share with others for feedback.
-  A professionally useful debugger would implement these primitive operations within the JavaScript engine.
+easy to explore, change, and share with others for feedback. A professionally useful debugger 
+would implement these primitive operations within the JavaScript engine.
 
 
 
 
-\subsection{{\normalsize\bf\texttt{objectId()}} operation}
-\texttt{objectId(obj)} first checks the argument \texttt{obj} for a property \texttt{\_objectId}.
+\subsection{{\normalsize\bf\texttt{objectId()}} Operation}
+\texttt{objectId(obj)} first checks the argument \texttt{obj} for a property \texttt{\_objectId}
+\footnote[1]{The property name we used in the prototype is longer and more specific to reduce the chance of name conflicts.} .
 It returns the value if this property is already defined,
 otherwise it generates a new id and sets this property. The value of the id is simply an integer incremented 
 for each new \texttt{\_objectId} needed. 
@@ -766,10 +766,10 @@ for each new \texttt{\_objectId} needed.
 
 
 
-\subsection{{\normalsize\bf\texttt{setPropertyChangeHook()}} operation}
+\subsection{{\normalsize\bf\texttt{setPropertyChangeHook()}} Operation}
 The Firefox JavaScript engine supports watching property changes in an
 object. Every object has a function \texttt{watch(propName, callback)}
-which receives two parameters, a property name and function.  Whenever
+which receives two parameters, a property name and a function.  Whenever
 the property with the given name changes, the \texttt{callback} function is
 called. The hook set by this function remains enabled even if the
 property is deleted and defined again. 
@@ -788,14 +788,14 @@ and parse the source code to determine which object was created.
 The only data we have is the object creation location including the
 file url and the line number and the goal is to get a reference to
 this object. Although in most regular cases we have only one
-statement and one object creation in a line, there are cases that more
-than one object might be created in a line. There is no simple way to
+statement and one object creation, there are cases where more
+objects are created in the line. There is no simple way to
 recognize the interesting object among these new objects. So instead
 of one object, we monitor all new objects created in the line.
 
 An object might be created by one of these statements: object
-initializer (\texttt{\{...\}}), \textit{new} operator (\texttt{new 
-constructor()}) or function definition statment (\texttt{function()}). 
+literal(\texttt{\{...\}}), \textit{new} operator (\texttt{new 
+constructor()}) or function definition statement (\texttt{function()}). 
 By parsing the source code we can recognize the statements that
 create an object. The next step is getting a reference to the new object.
 
@@ -811,34 +811,39 @@ value (if it is an object) as a new object. For example in Figure
 have only one statement which creates a new object and it is assigned
 to \texttt{x.y}.
 
-The new object can also be set as the property of a parent object by a
-colon (\texttt{:}). This case is also treated similar to previous case. The
-only difference is that the full path of property from the root parent
-in the local scope should be considered as the assignee statement. For
+The new object can also be set as the property of a parent object 
+(or array) inside an object (or array) literal. This case is also treated 
+similar to previous case. The only difference is that the full path of property 
+from the root parent in the local scope must be considered as the assignee statement. For
 example in Figure~\ref{fig:objectCreation}(b), if the creation line
-is 20, we keep \texttt{parentObject.newObject}. In this case stepping
-should be continued until the end of line 22 for getting a reference
+is 20, we keep \texttt{parent.child}. In this case stepping
+must be continued until the end of the object literal (line 22) for getting a reference
 to the created new object.
 
-There is another case for new objects where they are passed as
-arguments to other functions (Figure~\ref{fig:objectCreation}(c)). In these
-cases instead of step-over we use step-in and we get the corresponding
-argument as a new object.
+In cases where the new object is passed as an 
+argument to a function (Figure~\ref{fig:objectCreation}(c)), we use step-in instead of step-over. 
+To get a reference to the new object
+it is enough to evaluate the corresponding argument inside the function. The other cases
+where the program does not keep a reference to the created object (e.g., when a function object is
+just called after its creation), are not in our interest. 
 
-Although this approach is successful in many ordinary cases, there are some 
-cases that a more comprehensive analysis needed for correct behaviour. For example in a case
-where the new object is assigned to \texttt{a[++i]} where i is a variable
-(Figure~\ref{fig:objectCreation}(d)), \texttt{a[++i]} is kept in the list
-of assignee statements. Obviously, evaluating this statement doesn't return
+%(or \texttt{this} if the object is being constructed by \texttt{new} statement)
+
+Although this approach is successful in many ordinary cases, we can imagine 
+cases where a more comprehensive analysis needed for the correct behaviour.
+Consider the case where the new object is assigned to an expression like \texttt{a[++i]}. 
+% (where i is a variable). 
+%This expression is kept in the list                      %(Figure~\ref{fig:objectCreation}(d))
+%of assignee statements to be evaluated later for getting a reference to the new object. 
+Obviously, evaluating this statement doesn't return
 a reference to the new object. Our prototype implementation does not handle these kinds of unusual cases yet.
 
 Throughout this section we implicitly assumed that the object will be created at 
-the same location in the next execution. So, what happens if it
-is not true? Once the execution reaches the reproduction point, it
-reveals that the object has been created in different location. This time,
+the same location in the next execution. If the assumption is
+not true, once the execution reaches the reproduction point, it
+reveals that the object has been created in a different location. This time,
 prototype re-executes the program considering both locations as possible 
 object creation locations.
-
 
 \begin{figure}[htp]
 %\begin{verbatim}
@@ -846,26 +851,28 @@ object creation locations.
 \begin{lstlisting}[frame=single, language=myLang]% framerule=0pt]
 
 (a) Case 1:
- 20 x.y = new myConstructor();
+ 20  x.y = new MyClass();
 
 (b) Case 2:
- 19  parentObject = {
- 20   newObject : {
- 21    x : 5
+ 19  parent = {
+ 20    child : {
+ 21      x : 5
  22  }}
 
 (c) Case 3:
- 20 myFunction({myProperty:5});
+ 20  myFunction({myProperty:5});
 
-(d) Case 4:
- 20 a[++i] = new myConstructor();
 \end{lstlisting} 
+
+%(d) Case 4:
+% 20 a[++i] = new myConstructor();
+
 %\end{verbatim}
 \caption{Examples of different cases in getting references to created JavaScript objects.}
 \label{fig:objectCreation}
 \end{figure}
 
-\subsection{{\normalsize\bf\texttt{scopeId()}} operation}
+\subsection{{\normalsize\bf\texttt{scopeId()}} Operation}
 The prototype sets a breakpoint at the beginning of all code blocks needing
 a scope id. The scope id is kept as a variable with name 
 \texttt{\_scopeId} in the scope. Whenever the hook is hit,  meaning a new scope
@@ -875,49 +882,49 @@ variable with name \texttt{\_scopeId} and value \texttt{10} in the
 scope of the \texttt{eval()} call, which is our interesting scope. \texttt{scopeId()}
 operation returns the value of \texttt{\_scopeId} in the scope.
 
-\subsection{{\normalsize\bf\texttt{setVariableChangeHook()}} operation}
+\subsection{{\normalsize\bf\texttt{setVariableChangeHook()}} Operation}
 Variables defined in local, closure, and catch scopes are only changed in
 their scope; that includes the defining scope and scopes nested whithin them.
-For example in Figure~\ref{fig:js-closure}, variable \texttt{myVar} in line 11 can only be
+For example in Figure~\ref{fig:js-closure}, variable \texttt{foo} in line 11 can only be
 changed in lines 10 to 23. Therefore, after locating the function in
 which the variable is defined, it is enough to parse the code inside
 the function block and set a hook on all lines where the variable is
 assigned a new value. 
 We also set a hook at the first line of the function which is
-corresponding to the line where the variable is defined. In Figure
-~\ref{fig:js-closure}, if the execution is paused at line 17 and the
-last change of \texttt{myVar} is queried, two hooks on lines 16 and 17
+corresponding to the line where the variable is defined. In Figure~\ref{fig:js-closure}, 
+if the execution is paused at line 17 and the
+last change of \texttt{foo} is queried, two hooks on lines 16 and 17
 will be set, but if the execution is paused at line 20 , four hooks on
-lines 11, 12, 14, 20 will be set. These two cases are different: \texttt{myVar} in 
-\texttt{firstChild} is a local variable
-but in \texttt{secondChild} it is a closure variable.
+lines 11, 12, 14, 20 will be set. These two cases are different: \texttt{foo} in 
+\texttt{childOne} is a local variable
+but in \texttt{childTwo} it is a closure variable.
 
 \begin{figure}[htp]
 %\begin{verbatim}
 \lstset{basicstyle=\scriptsize}
 \begin{lstlisting}[frame=single, language=myLang]%, framerule=0pt]
 
-10  function parent(){
-11    var myVar;
-12    myVar = ...;
-13    function myfun(){
-14      myVar = ...;
-15      function firstChild(){
-16        var myVar;
-17        myVar = ...;
+10  function main(){
+11    var foo;
+12    foo = ...;
+13    function parent(){
+14      foo = ...;
+15      function childOne(){
+16        var foo;
+17        foo = ...;
 18      }  
-19      function secondChild(){
-20        myVar = ...;			      
+19      function childTwo(){
+20        foo = ...;			      
 21      }
 22    }  
 23  }    
 \end{lstlisting}
 %\end{verbatim}
-\caption{Sample JavaScript code demonstrating local and clousure variables.}
+\caption{Sample JavaScript code demonstrating local and closure variables.}
 \label{fig:js-closure}
 \end{figure}
 
-\subsection{Re-Execution, reproduction point and data collection}
+\subsection{Re-Execution, Reproduction Point and Data Collection}
 \textit{Querypoint} needs a test case to reproduce the
 execution and conditions to correctly recognize the reproduction point. 
 Although both elements can be directly provided by developer, \textit{Querypoint}
@@ -977,11 +984,11 @@ change events in a single execution.
 Neither the data gathering nor the analysis require deterministic execution.
 
 Since we don't need to compare values across executions to implement \textit{lastChange}, we can get more information if we do compare:
- different points of last change on different executions will signal that the execution is not deterministic. (Note the converse is not true, many non-deterministic 
-programs will give identical results for \textit{lastChange}.)
+ different points of last change on different executions will signal that the execution is not deterministic. Note the converse is not true, many non-deterministic 
+programs will give identical results for \textit{lastChange}.
 Consider the example in Figure~\ref{fig:nondeterministic-values}. 
-Assume that at the first execution, developers sees that \texttt{a} is \texttt{true} and asks
-for the \textit{lastChange} of \texttt{a} at the breakpoint. In the re-exeuction, \texttt{a} is \texttt{false},
+Assume that at the first execution, the developer sees that the \texttt{a} value is \texttt{true} and asks
+for the \textit{lastChange} of \texttt{a} at the breakpoint. In the re-execution, \texttt{a} is \texttt{false},
 and \texttt{b} is \texttt{true} at the reproduction point. It means that \texttt{lastChange}
 result shows line 10, which is a correct answer for this execution but not for the previous one.
 When user asks for the \textit{lastChange} on variable \texttt{a}, debugger stores \texttt{a} value and compares
@@ -995,19 +1002,16 @@ that the \textit{lastChange} query is made on a different value.
 \lstset{basicstyle=\scriptsize}
 \begin{lstlisting}[frame=single, language=myLang]%, framerule=0pt]
 
-10 a = false;
-11 b = false;
-...
-20 if ( random() ) { a = true; } else { b = true; }
-...
-30 if (a || b) { bug();  /* breakpoint */ }
+10 a = b = false;
+20 if (random()) {a = true;} else {b = true;}
+30 if (a || b) {bug(); /* breakpoint */}
 \end{lstlisting}
 %\end{verbatim}
 \caption{\textit{lastChange} on non-deterministic values.}
 \label{fig:nondeterministic-values}
 \end{figure}
 
-\subsection{Combination of {\large\bf\textit{lastChange}} and breakpoint debugging}
+\subsection{Combination of {\large\bf\textit{lastChange}} and Breakpoint Debugging}
 \label{sec:pausing}
 Using \textit{lastChange} a developer can work backwards on the flow of data, but sometimes bugs are more obvious when
 we watch control flow forwards. Consider for example, 
@@ -1027,7 +1031,7 @@ even if \texttt{vector.r} is zero, directing their attention to line 45 where th
 However, a \textit{lastChange} is just a query result, not a breakpoint. Under what conditions can we 
 cause the debugger to stop at the \textit{lastChange} point?
 
-In the case that the execution is deterministic, the \textit{lastChange}
+In the case that the execution is deterministic, the \textit{last-\ Change}
 event index can be used as an index for a conditional breakpoint \cite{Boothe, Maruyama}. 
 Moreover, this works in a non-deterministic execution if non-determinism
 has no effect on the event index.  The debugger can easily set this conditional breakpoint
@@ -1035,8 +1039,8 @@ and reexecute the program. If the stream of change events differs in this re-exe
 developer can be warned that the conditional breakpoint may not be the \textit{lastChange} point.
 However, if the stream of events is the same, we do not know that the 
 conditional breakpoint matches the last 
-change, this fact  can only verify  at the reproduction point. These theoretical concerns are not
-likely to cause significant practical problems: if the value at the conditional breakpoint is not suspcious, 
+change, this fact can only be verified at the reproduction point. These theoretical concerns are not
+likely to cause significant practical problems: if the value at the conditional breakpoint is not suspicious, 
 then the developer will know to simply return to \textit{lastChange} or move on to another tactic to find the bug.
 
 % Cut to reduce size
@@ -1081,7 +1085,7 @@ All four developers successfully applied \textit{lastChange} to the test program
 and understood how it could help debugging. 
 
 We designed the example programs to require two steps of \textit{lastChange}; 
-all four users took more steps (9, 13, 12, and more than 30) to find the defect location with breakpoints.  
+all four users took more steps (9, 13, 12, and more than 30) to find the defect location with breakpoints (Figure~\ref{fig:userstudy}).  
 To find locations for breakpoints two users scrolled through the source, 
 another searched the text, a third set a lot of breakpoints to get an understand of the control flow. 
 Based on our own experience we expect these strategies represent the kinds of approaches 
@@ -1101,6 +1105,16 @@ with breakpoint debugging. Our implementation put the results of \textit{lastCha
 view from breakpoint debugging. This focuses attention on value changes, but it makes studying control 
 flow more difficult: we don't support single stepping from a \textit{lastChange} result in our user interface. In our next iteration we 
 plan to merge the query and breakpoint results and support pausing as described in Sec.~\ref{sec:pausing}.
+
+
+\begin{figure}[htp]
+\centering 
+\includegraphics[width=.48\textwidth]{10-userstudy.pdf}
+\caption{The number of steps and time (in seconds) every developer spent on each program
+before locating the defect. The highlighted numbers show cases where the developer was
+permitted to use \textit{lastChange}.}
+\label{fig:userstudy}
+\end{figure}
 
 \section{Discussion}
 
@@ -1173,7 +1187,7 @@ same operation developers use to debug with breakpoints.
 %breakpoint debugging in the first place.
 
 %In our own experience, \textit{lastChange} dramatically reduces the work in
-%setting and removing breakpoints, so work to cause re-execution  become noticable.
+%setting and removing breakpoints, so work to cause re-execution  become noticeable.
 %Therefore automatic mechanisms
 %for re-execution will be corresponding more valuable for debugging
 %with \textit{lastChange} (Our \textit{Querypoint} prototype  
