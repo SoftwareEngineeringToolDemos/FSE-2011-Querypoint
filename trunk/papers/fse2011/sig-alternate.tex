@@ -752,8 +752,8 @@ would implement these primitive operations within the JavaScript engine.
 
 
 \subsection{{\normalsize\bf\texttt{objectId()}} Operation}
-\texttt{objectId(obj)} first checks the argument \texttt{obj} for a property \texttt{\_objectId}
-\footnote[1]{The property name we used in the prototype is longer and more specific to reduce the chance of name conflicts.} .
+\texttt{objectId(obj)} first checks the argument \texttt{obj} for a property \texttt{\_objectId}.
+%\footnote[3]{The property name we used in the prototype is longer and more specific to reduce the chance of name conflicts.} .
 It returns the value if this property is already defined,
 otherwise it generates a new id and sets this property. The value of the id is simply an integer incremented 
 for each new \texttt{\_objectId} needed. 
@@ -780,8 +780,8 @@ excepting the global object and its predefined properties is available.  For
 our \textit{lastChange} prototype, we created a version of
 \texttt{setPropertyChangeHook()}.  The basic strategy is to get a reference to the object just
 after its creation, then use \texttt{watch()} function to monitor
-property changes in the object. Setting a flag\footnote[4]{DISABLE\_OBJECT\_TRACE defined in jsdIDebuggerService.idl} into the Firefox 
-JavaScript engine, we can get file URL and line number for each object
+property changes in the object. Setting a flag\footnote[3]{DISABLE\_OBJECT\_TRACE defined in jsdIDebuggerService.idl} into the Firefox 
+JavaScript engine, we can get the file URL and the line number for each object
 creation (e.g., myFile.js, line 24). We set a breakpoint on this line
 and parse the source code to determine which object was created.
 
@@ -803,7 +803,7 @@ The new object can be assigned to an object property or a variable by
 an assignment (\texttt{=}). In these cases we keep the assignee statement 
 at the left side. The idea is that we create a list of assignee statements 
 that the new objects are assigned to. We set a hook on the creation
-line. Once the hook hits, we evaluate all assignee statements. Then 
+line. Once the hook hits, we evaluate the assignee statements. Then 
 we do stepping(step-over) and after each step we evaluate the
 statements. Every statement which has a new value, we consider the new
 value (if it is an object) as a new object. For example in Figure
@@ -830,7 +830,7 @@ just called after its creation), are not in our interest.
 %(or \texttt{this} if the object is being constructed by \texttt{new} statement)
 
 Although this approach is successful in many ordinary cases, we can imagine 
-cases where a more comprehensive analysis needed for the correct behaviour.
+cases where a more comprehensive analysis needed for the correct behaviour. 
 Consider the case where the new object is assigned to an expression like \texttt{a[++i]}. 
 % (where i is a variable). 
 %This expression is kept in the list                      %(Figure~\ref{fig:objectCreation}(d))
@@ -951,7 +951,7 @@ some values which have not been stored, \textit{Querypoint} re-executes and coll
 
 % Discuss what happens when assumptions changes, like object creation location.
 
-\section{Reproducible Non-deterministic Execution}
+\section{Reproducible Non-Deterministic Execution}
 We claim that the only prerequisite for \textit{lastChange}  is bug-reproducibility. 
 A bug is \textit{reproducible} for a developer when the developer can
 start from a given initial state, operate on the program with a
@@ -1081,7 +1081,8 @@ We supplied four experienced Javascript developers with our prototype in an
 extended Firebug debugger\footnote[5]{http://ltiwww.epfl.ch/\texttildelow mirghase/lastchange-userstudy}. Following a tutorial and a practice case, we observed as they 
 applied both conventional breakpoint and \textit{lastChange} on two small programs we 
 provided (Our prototype did not have a user interface to support Sec.~\ref{sec:pausing}).
-All four developers successfully applied \textit{lastChange} to the test programs 
+The first program, Shapes, calculates the area and perimeter values for a list of shapes. The bug happens when one of the calculated numbers is zero. The second program, Moving Circle, randomely scales and moves a circle in the page. The bug happens once the circle becomes invisible after an exception
+occurs. This case represent a reproducible non-deterministic execution. The developers are asked to located the defects cause these bugs. All four developers successfully applied \textit{lastChange} to the test programs 
 and understood how it could help debugging. 
 
 We designed the example programs to require two steps of \textit{lastChange}; 
@@ -1111,8 +1112,8 @@ plan to merge the query and breakpoint results and support pausing as described 
 \centering 
 \includegraphics[width=.48\textwidth]{10-userstudy.pdf}
 \caption{The number of steps and time (in seconds) every developer spent on each program
-before locating the defect. The highlighted numbers show cases where the developer was
-permitted to use \textit{lastChange}.}
+before locating the defect. Cells with a white background report values with conventional debugging; Cells with a colored background use \textit{lastChange}.}
+
 \label{fig:userstudy}
 \end{figure}
 
