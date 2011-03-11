@@ -1081,14 +1081,13 @@ We supplied four experienced Javascript developers with our prototype in an
 extended Firebug debugger\footnote[5]{http://ltiwww.epfl.ch/\texttildelow mirghase/lastchange-userstudy}. Following a tutorial and a practice case, we observed as they 
 applied both conventional breakpoint and \textit{lastChange} on two small programs we 
 provided (Our prototype did not have a user interface to support Sec.~\ref{sec:pausing}).
-The first program, Shapes, calculates the area and perimeter values for a list of shapes. The bug happens when one of the calculated numbers is zero. The second program, Moving Circle, randomely scales and moves a circle in the page. The bug happens once the circle becomes invisible after an exception
-occurs. This case represent a reproducible non-deterministic execution. The developers are asked to located the defects cause these bugs. All four developers successfully applied \textit{lastChange} to the test programs 
+The first program, Shapes, calculates the area and perimeter values for a list of shapes. The bug happens when one of the calculated numbers is zero. The second program, Moving Circle, randomly scales and moves a circle in the page. The bug happens once the circle becomes invisible after an exception
+occurs. This case represent a reproducible non-deterministic execution. The developers were asked to locate the defects that caused these bugs. All four developers successfully applied \textit{lastChange} to the test programs 
 and understood how it could help debugging. 
 
-We designed the example programs to require two steps of \textit{lastChange}; 
-all four users took more steps (9, 13, 12, and more than 30) to find the defect location with breakpoints (Figure~\ref{fig:userstudy}).  
-To find locations for breakpoints two users scrolled through the source, 
-another searched the text, a third set a lot of breakpoints to get an understand of the control flow. 
+To find the defect location with breakpoints, all four users took more steps and more time (Figure~\ref{fig:userstudy}).  
+Two users scrolled through the source, 
+another searched the text, a third set a lot of breakpoints to understand the control flow. 
 Based on our own experience we expect these strategies represent the kinds of approaches 
 developers have available. These operations are time consuming and tedious. In contrast, all four users 
 found the defect location with just two \textit{lastChange} operations.
@@ -1111,8 +1110,8 @@ plan to merge the query and breakpoint results and support pausing as described 
 \begin{figure}[htp]
 \centering 
 \includegraphics[width=.48\textwidth]{10-userstudy.pdf}
-\caption{The number of steps and time (in seconds) every developer spent on each program
-before locating the defect. Cells with a white background report values with conventional debugging; Cells with a colored background use \textit{lastChange}.}
+\caption{The number of steps (and time in seconds) required before locating a defect, for each test subject and test program. 
+Cells with a white background report values with conventional debugging; Cells with a colored background use \textit{lastChange}.}
 
 \label{fig:userstudy}
 \end{figure}
