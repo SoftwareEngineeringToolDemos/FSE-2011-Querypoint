@@ -749,8 +749,6 @@ easy to explore, change, and share with others for feedback. A professionally us
 would implement these primitive operations within the JavaScript engine.
 
 
-
-
 \subsection{{\normalsize\bf\texttt{objectId()}} Operation}
 \texttt{objectId(obj)} first checks the argument \texttt{obj} for a property \texttt{\_objectId}.
 %\footnote[3]{The property name we used in the prototype is longer and more specific to reduce the chance of name conflicts.} .
@@ -1078,7 +1076,7 @@ then the developer will know to simply return to \textit{lastChange} or move on 
 
 \section{User Study}
 We supplied four experienced Javascript developers with our prototype in an 
-extended Firebug debugger\footnote[5]{http://ltiwww.epfl.ch/\texttildelow mirghase/lastchange-userstudy}. Following a tutorial and a practice case, we observed as they 
+extended Firebug debugger\footnote[4]{http://ltiwww.epfl.ch/\texttildelow mirghase/lastchange-userstudy}. Following a tutorial and a practice case, we observed as they 
 applied both conventional breakpoint and \textit{lastChange} on two small programs we 
 provided (Our prototype did not have a user interface to support Sec.~\ref{sec:pausing}).
 The first program, Shapes, calculates the area and perimeter values for a list of shapes. The bug happens when one of the calculated numbers is zero. The second program, Moving Circle, randomly scales and moves a circle in the page. The bug happens once the circle becomes invisible after an exception
@@ -1294,12 +1292,11 @@ kinds of queries and analysis can be invented and integrated to automate other a
 
 \section{Related Work}
 \label{sec:relatedWork}
-
-The algorithm we presented in this paper obtain information about
-the execution state logically earlier in the control flow by querying 
-the executioin state during replay using the technology of 
-conventional breakpoint debuggers.  This
-approach resembles the operational model of replay-based debugging 
+%The algorithm we presented in this paper obtain information about
+%the execution state logically earlier in the control flow by querying 
+%the executioin state during replay using the technology of 
+%conventional breakpoint debuggers.  
+The \textit{lastChange} approach resembles the operational model of replay-based debugging 
 and the query approach of logging-based
 debugging.  Replay-based approaches capture limited data during
 execution and replay the buggy execution to reach past points. In
@@ -1310,27 +1307,32 @@ approaches impose much less runtime overhead (about two orders of
 magnitudes) comparing to logging-based approaches. However, developer
 has to re-execute the buggy execution several
 times. \textit{lastChange} collects data on re-execution by queries
-selected by developer interaction with the debugger. Therefore we have 
+selected by developer interaction with the debugger. Therefore it has 
 the selectivity of the replay-based approaches that improves performance, 
-but we have the flexibilty of the queries so we do not require deterministic replay.
+% but we have 
+and the flexibilty of the queries so it does not require deterministic replay.
 
 Among replay-based debuggers we compare to bdb \cite{Boothe} and
 reverse watchpoint \cite{Maruyama}.  A bidirectional C debugger, bdb
 employs a step counter to locate the requested point from the
 beginning of execution. It relies on deterministic execution replay
-(i.e., the same sequence of instructions in re-execution) and records
-the results of non-deterministic system calls and re-injects them into
+%(i.e., the same sequence of instructions in re-execution) 
+and records the results of non-deterministic system calls and re-injects them into
 the program when it is replayed. It makes use of checkpoints to reduce
-the time needed for re-execution.  Reverse watchpoint, is proposed by
-Maruyama et al., analyses the execution and moves the debugger to the
-last write access of a selected variable by re-executing the program
-from the beginning\cite{Maruyama}.  Similar to bdb it relies on deterministic
-replay and uses a counter to correctly locate a point in the next
-execution. The main disadvantage of these approaches is that they require 
-exactly the same executions. Even one instruction difference between
+the time needed for re-execution. Reverse watchpoint, similar to bdb, uses
+a counter to correctly locate the last write access of a selected variable in the
+next execution \cite{Maruyama}.
+% Reverse watchpoint is proposed by Maruyama et al., analyses the execution and moves the debugger to the
+% last write access of a selected variable by re-executing the program
+%from the beginning\cite{Maruyama}.  Similar to bdb it relies on deterministic
+%replay and uses a counter to correctly locate a point in the next
+%execution. 
+The main disadvantage of these approaches is that they require 
+identical, instruction by instruction, re-executions. % exactly the same executions. 
+Even one instruction difference between
 two executions leads to wrong results. On the other hand,
 \textit{lastChange} doesn't require any special feature in the
-re-execution and it is fit to  developers' everyday debugging
+re-execution and it is fit to developers' everyday debugging
 practice.
 
 Among logging-based approaches are \textit{omniscient} debuggers
@@ -1339,9 +1341,19 @@ approaches keep the log history in memory and hence can only record
 and store the complete history for a short period of time. These
 debuggers record all the events that occur during the buggy execution
 and later let the developer to navigate through the obtained execution
-log. In this approach there is no execution to resume: moving
-backwards in the log can be similar to moving forwards. Omniscient
-debuggers suffer from a different set of issues. First, the recording
+log. In these approaches there is no execution to resume: moving
+backwards in the log can be similar to moving forwards. A more scalable 
+approach to omniscient debugging has been proposed by Pothier et al. \cite{Pothier}. 
+Their back-in-time debugger, TOD, addresses the space problem by storing 
+execution events in a distributed database. Bhansali et al. \cite{Bhansali} attempted to address the performance overhead 
+and large trace size of logging-based debugging in their time-travelling debugger, Nirvana. 
+Nirvana first collects a full compressed trace of program execution and then 
+re-simulate the execution. Their results are quite similar to omniscient 
+debuggers. Nirvana incurs about 15 to 68 times runtime overhead in 
+re-simulation.
+
+
+Logging-based debuggers suffer from a different set of issues. First, the recording
 step is time expensive and it should be repeated in case of changes in
 program. Second, the execution log cannot fully replace the live
 execution. There are other aspects of execution (e.g., program user
@@ -1349,32 +1361,26 @@ interface, file system, database tables, etc.) which are also
 important in debugging and are not available to the developer in
 omniscient debuggers. Third, querying collected data (e.g., to restore
 the program state at a certain point) may not be efficient enough for
-debugging of realistic programs.
-
-A more scalable approach has been proposed by Pothier et
-al. \cite{Pothier}. Their back-in-time debugger, TOD, addresses the
-space problem by storing execution events in a distributed
-database. Comparing to Omniscient debuggers our approach is
+debugging of realistic programs. Comparing to logging-based debuggers our approach is
 lightweight and more flexible. Developer can start debugging just
 after reproducing bug without a capturing step.  Changing inputs or
 environment settings and re-executing to investigate the bug works as
 in conventional breakpoint debuggers.
 
-Bhansali et al. \cite{Bhansali} attempted to attack performance overhead 
-and large trace size in their time-travelling debugger, Nirvana. Nirvana 
-first collects a full compressed trace of program execution and then 
-re-simulate the execution. Their results are quite similar to omniscient 
-debuggers. Nirvana incurs about 15 to 68 times runtime overhead in 
-re-simulation.
+
+Program slicing\cite{Weiser} approaches debugging from a completely different perspective. Given a point of interest {\bf S} in a program, a \textit{slice} is an executable subset of the program affecting {\bf S}.  Many studies have shown ways to compute the slice more quickly or to constrain the slice to a smaller subset of the program \cite{Horwitz, Sridharan}.  Dynamic slicing \cite{Korel} applies slicing analysis at run time and thus most closely resembles lastChange from among the slicing approaches.  Our lastChange approach can be related this way: first, allow the developer to select from {\bf S} a key critical value {\bf V}. Then compute a slice affecting {\bf V}. Show the developer only the most relevant part of that slice (the lastChange). Finally iterate towards the fault by chaining new slice-selection criteria.
+
+Both approaches rely on selecting {\bf S}. Both approaches differ from breakpoint debugging in analyzing a program from a known good point (e.g. start of the program) to {\bf S}.  Slicing reduces the space the developer needs to search, but provides no guidance within the slice; lastChange explores the slice using developer-selected search criteria, but does not help the developer recognize code that cannot impact {\bf S}. Slicing requires a sophisticated compiler-like technology while lastChange builds on familiar run-time debugger technology. 
 
 A recent work by Lienhard et al.\cite{Lienhard} suggests virtual
 machine level support for keeping the object flow. It replaces every
 object reference with an alias object which keeps the history of
-changes to the object reference. In this way, when an object is
-collected by garbage collector, its track of changes (if it is not
-referenced by other aliases) will be also collected. Though this
-approach incurs less runtime overhead in
-comparison to omniscient debuggers (7 times to 115 times), it adds memory
+changes to the object reference. 
+%In this way, when an object is
+%collected by garbage collector, its track of changes (if it is not
+%referenced by other aliases) will be also collected. 
+Although this approach incurs less runtime overhead (7 times) in
+comparison to omniscient debuggers, it adds memory
 overhead. 
 
 Origin tracking of \texttt{undefined} and \texttt{null} values employing \textit{value piggybacking} technique proposed by
@@ -1382,20 +1388,21 @@ Bond et al. \cite{Bond}. This approach has two main limitations comparing to \te
 First, it is limited to \texttt{undefined} and \texttt{null} values. Second, this approach dose not return the last change
 of a \texttt{null} variable but the first place that the \texttt{null} value is originated.
 
-Two new directions in logging debuggers explore more detailed use of
-the log and more effective logging approaches. WhyLine\cite{Ko}
-provides visual interface to collected runtime information and lets
-developer moves on execution log using queries expressed in terms of
-the programming objects. WhyLine stores the program user interface in
-addition to program trace and provides answers to why and why not
-questions to the user. Jive\cite{Czyz} depicts the history of
-execution by a sequence diagram and lets user to query on events
-database. Both tools suffer from the requirement of gathering tracing information before their unique capabilities can be used.
-We imagine that the runtime queries we use in \textit{lastChange}  may be used to gather data incrementally for these kinds of debugging approaches.
 
-Program slicing\cite{Weiser} approaches debugging from a completely different perspective. Given a point of interest {\bf S} in a program, a \textit{slice} is an executable subset of the program affecting {\bf S}.  Many studies have shown ways to compute the slice more quickly or to constrain the slice to a smaller subset of the program \cite{Horwitz, Sridharan}.  Dynamic slicing \cite{Korel} applies slicing analysis at run time and thus most closely resembles lastChange from among the slicing approaches.  Our lastChange approach can be related this way: first, allow the developer to select from {\bf S} a key critical value {\bf V}. Then compute a slice affecting {\bf V}. Show the developer only the most relevant part of that slice (the lastChange). Finally iterate towards the fault by chaining new slice-selection criteria.
+%Two new directions in logging debuggers explore more detailed use of
+%the log and more effective user interface to the collected data. %logging approaches. 
+%WhyLine\cite{Ko} provides visual interface to collected runtime information and lets
+%developer moves on execution log using queries expressed in terms of
+%the programming objects. 
 
-Both approaches rely on selecting {\bf S}. Both approaches differ from breakpoint debugging in analyzing a program from a known good point (e.g. start of the program) to {\bf S}.  Slicing reduces the space the developer needs to search, but provides no guidance within the slice; lastChange explores the slice using developer-selected search criteria, but does not help the developer recognize code that cannot impact {\bf S}. Slicing requires a sophisticated compiler-like technology while lastChange builds on familiar run-time debugger technology. 
+WhyLine\cite{Ko} stores the program user interface in
+addition to the program trace and provides answers to why and why not
+questions to the user. 
+%Jive\cite{Czyz} depicts the history of
+%execution by a sequence diagram and lets the user to query on the events
+%database. 
+WhyLine suffers from the requirement of gathering tracing information before its unique capabilities can be used.
+We imagine that the runtime queries we use in \textit{lastChange} may be used to gather data incrementally for this kind of debugging approaches.
 
 %Querypoint debugging uses re-executions to gather infor-mation requested by the developer: the memory overhead depends on the query not the entire program. Moreover, the Lienhard et al. debugger significantly changes the virtual machine, while our approach is a generalization to conditional breakpoints and available debugger infrastructure can be adapted to support it.
  
@@ -1446,10 +1453,10 @@ B. Boothe. \newblock Efficient algorithms for bidirectional debugging.
 \newblock In \emph{Conference on Programming Language Design and Implementation(PLDI)},
 June, 2000.
 
-\bibitem{Czyz}%[Czyz(2007)]
-J.K. Czyz, and B. Jayaraman. \newblock Declarative and visual debugging in Eclipse.
-\newblock In \emph{OOPSLA workshop on eclipse technology eXchange},
-October, 2007.
+%\bibitem{Czyz}%[Czyz(2007)]
+%J.K. Czyz, and B. Jayaraman. \newblock Declarative and visual debugging in Eclipse.
+%\newblock In \emph{OOPSLA workshop on eclipse technology eXchange},
+%October, 2007.
 
 %\bibitem{Firebug}%[Firebug(2010)]
 %Firebug. \newblock http://getfirebug.com.
