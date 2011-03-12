@@ -1369,10 +1369,10 @@ in conventional breakpoint debuggers.
 
 Program slicing\cite{Weiser} approaches debugging from a completely different perspective. Given a point of interest {\bf S} in a program, a \textit{slice} is an executable subset of the program affecting {\bf S}.  Many studies have shown ways to compute the slice more quickly or to constrain the slice to a smaller subset of the program \cite{Horwitz, Sridharan}.  Dynamic slicing \cite{Korel} applies slicing analysis at run time and thus most closely resembles \textit{lastChange} from among the slicing approaches.  Our \textit{lastChange} approach can be related this way: first, allow the developer to select from {\bf S} a key critical value {\bf V}. Then compute a slice affecting {\bf V}. Show the developer only the most relevant part of that slice (the \textit{lastChange}). Finally iterate towards the fault by chaining new slice-selection criteria.
 
-Both approaches rely on selecting {\bf S}. Both approaches differ from breakpoint debugging in analyzing a program from a known good point (e.g. start of the program) to {\bf S}.  Slicing reduces the space the developer needs to search, but provides no guidance within the slice; \textit{lastChange} explores the slice using developer-selected search criteria, but does not help the developer recognize code that cannot impact {\bf S}. Slicing requires a sophisticated compiler-like technology while \textit{lastChange} builds on familiar run-time debugger technology. 
+Both approaches rely on selecting {\bf S}. Both approaches differ from breakpoint debugging in analyzing a program from a known good point (e.g. start of the program) to {\bf S}. Slicing reduces the space the developer needs to search, but provides no guidance within the slice; \textit{lastChange} explores the slice using developer-selected search criteria, but does not help the developer recognize code that cannot impact {\bf S}. Slicing requires a sophisticated compiler-like technology while \textit{lastChange} builds on familiar run-time debugger technology. 
 
 A recent work by Lienhard et al.\cite{Lienhard} suggests virtual
-machine level support for keeping the object flow. It replaces every
+machine level support for keeping the history of events. It replaces every
 object reference with an alias object which keeps the history of
 changes to the object reference. 
 %In this way, when an object is
@@ -1384,7 +1384,7 @@ overhead.
 
 Origin tracking of \texttt{undefined} and \texttt{null} values employing \textit{value piggybacking} technique proposed by
 Bond et al. \cite{Bond}. This approach has two main limitations comparing to \textit{lastChange}.
-First, it is limited to \texttt{undefined} and \texttt{null} values. Second, this approach dose not return the last change
+First, it is limited to \texttt{undefined} and \texttt{null} values. Second, it does not return the last change
 of a \texttt{null} variable but the first place that the \texttt{null} value is originated.
 
 
@@ -1526,7 +1526,7 @@ Software Engineering}, vol. SE-10, no. 4, pp. 352-357,
 July 1984.
 
 \bibitem{Zeller}
-A. Zeller. \newblock Why programs fail: A gauide to systematic debugging.
+A. Zeller. \newblock Why programs fail: A guide to systematic debugging.
 Morgan Kaufmann (2005)
 
 \end{thebibliography}
