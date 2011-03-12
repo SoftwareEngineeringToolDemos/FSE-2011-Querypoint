@@ -1332,8 +1332,7 @@ identical, instruction by instruction, re-executions. % exactly the same executi
 Even one instruction difference between
 two executions leads to wrong results. On the other hand,
 \textit{lastChange} doesn't require any special feature in the
-re-execution and it is fit to developers' everyday debugging
-practice.
+re-execution and fits into existing debugging practice
 
 Among logging-based approaches are \textit{omniscient} debuggers
 ODB\cite{Lewis} and Unstuck\cite{Hofer}. Both
@@ -1348,12 +1347,12 @@ Their back-in-time debugger, TOD, addresses the space problem by storing
 execution events in a distributed database. Bhansali et al. \cite{Bhansali} attempted to address the performance overhead 
 and large trace size of logging-based debugging in their time-travelling debugger, Nirvana. 
 Nirvana first collects a full compressed trace of program execution and then 
-re-simulate the execution. Their results are quite similar to omniscient 
+simulates re-execution. Their results are quite similar to omniscient 
 debuggers. Nirvana incurs about 15 to 68 times runtime overhead in 
 re-simulation.
 
 
-Logging-based debuggers suffer from a different set of issues. First, the recording
+Logging-based debuggers suffer from different issues. First, the recording
 step is time expensive and it should be repeated in case of changes in
 program. Second, the execution log cannot fully replace the live
 execution. There are other aspects of execution (e.g., program user
@@ -1361,16 +1360,16 @@ interface, file system, database tables, etc.) which are also
 important in debugging and are not available to the developer in
 omniscient debuggers. Third, querying collected data (e.g., to restore
 the program state at a certain point) may not be efficient enough for
-debugging of realistic programs. Comparing to logging-based debuggers our approach is
-lightweight and more flexible. Developer can start debugging just
+debugging realistic programs. Comparing to logging-based debuggers our approach is 
+has little upfront cost and more flexibility. The developer can start debugging just 
 after reproducing bug without a capturing step.  Changing inputs or
 environment settings and re-executing to investigate the bug works as
 in conventional breakpoint debuggers.
 
 
-Program slicing\cite{Weiser} approaches debugging from a completely different perspective. Given a point of interest {\bf S} in a program, a \textit{slice} is an executable subset of the program affecting {\bf S}.  Many studies have shown ways to compute the slice more quickly or to constrain the slice to a smaller subset of the program \cite{Horwitz, Sridharan}.  Dynamic slicing \cite{Korel} applies slicing analysis at run time and thus most closely resembles lastChange from among the slicing approaches.  Our lastChange approach can be related this way: first, allow the developer to select from {\bf S} a key critical value {\bf V}. Then compute a slice affecting {\bf V}. Show the developer only the most relevant part of that slice (the lastChange). Finally iterate towards the fault by chaining new slice-selection criteria.
+Program slicing\cite{Weiser} approaches debugging from a completely different perspective. Given a point of interest {\bf S} in a program, a \textit{slice} is an executable subset of the program affecting {\bf S}.  Many studies have shown ways to compute the slice more quickly or to constrain the slice to a smaller subset of the program \cite{Horwitz, Sridharan}.  Dynamic slicing \cite{Korel} applies slicing analysis at run time and thus most closely resembles \textit{lastChange} from among the slicing approaches.  Our \textit{lastChange} approach can be related this way: first, allow the developer to select from {\bf S} a key critical value {\bf V}. Then compute a slice affecting {\bf V}. Show the developer only the most relevant part of that slice (the \textit{lastChange}). Finally iterate towards the fault by chaining new slice-selection criteria.
 
-Both approaches rely on selecting {\bf S}. Both approaches differ from breakpoint debugging in analyzing a program from a known good point (e.g. start of the program) to {\bf S}.  Slicing reduces the space the developer needs to search, but provides no guidance within the slice; lastChange explores the slice using developer-selected search criteria, but does not help the developer recognize code that cannot impact {\bf S}. Slicing requires a sophisticated compiler-like technology while lastChange builds on familiar run-time debugger technology. 
+Both approaches rely on selecting {\bf S}. Both approaches differ from breakpoint debugging in analyzing a program from a known good point (e.g. start of the program) to {\bf S}.  Slicing reduces the space the developer needs to search, but provides no guidance within the slice; \textit{lastChange} explores the slice using developer-selected search criteria, but does not help the developer recognize code that cannot impact {\bf S}. Slicing requires a sophisticated compiler-like technology while \textit{lastChange} builds on familiar run-time debugger technology. 
 
 A recent work by Lienhard et al.\cite{Lienhard} suggests virtual
 machine level support for keeping the object flow. It replaces every
@@ -1402,7 +1401,7 @@ questions to the user.
 %execution by a sequence diagram and lets the user to query on the events
 %database. 
 WhyLine suffers from the requirement of gathering tracing information before its unique capabilities can be used.
-We imagine that the runtime queries we use in \textit{lastChange} may be used to gather data incrementally for this kind of debugging approaches.
+We imagine that the runtime queries we use in \textit{lastChange} may be used to gather data incrementally for this kind of debugging approach.
 
 %Querypoint debugging uses re-executions to gather infor-mation requested by the developer: the memory overhead depends on the query not the entire program. Moreover, the Lienhard et al. debugger significantly changes the virtual machine, while our approach is a generalization to conditional breakpoints and available debugger infrastructure can be adapted to support it.
  
