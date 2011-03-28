@@ -98,7 +98,7 @@ In this paper, we analyze function creation and consumption in ten famous projec
 
 
 %\section{The Nameless Function Problem}
-\section{The Anonymous Functions Problem}
+\section{Anonymous Functions Problem}
 
 A JavaScript function can be defined in different ways: by the {\small\texttt{function}} operator (i.e., function decleration or expression) or the {\small\texttt{Function}} constructor (i.e., {\small\texttt{new Function(args, source)}}) \cite{ECMA}. Once a statement which defines a function is evaluated, a new {\small\texttt{Function}} object is created. Notice that, depending on the times a function definition is evaluated, zero to many {\small\texttt{Function}} objects can be created from the same definition. To classify {\small\texttt{Function}} objects created by the same code, we call every script defines a function as a \textit{function body}. 
 
@@ -218,13 +218,14 @@ To illustrate the second issue, we pause the program (Figure~\ref{js-code}) at l
  
 The other pieces of information which are important at function calls are {\small\texttt{this}} and argument values. In JavaScript, {\small\texttt{this}} like arguments is not defined by lexical scopes but it is bound once the function is called. The {\small\texttt{this}} value is missed in both views. The arguments values is shown in Firebug, but it still sufferes from similar issues explained for displaying object summaries.
 
+\section{Discussion}
+The anonymous functions problem is discussed in several articles and forums on the web \cite{DisplayName, Zaytsev}. Different solutions have been proposed and discussed by practitioners. A basic solution is a mechanism for naming functions by developers without affecting the variables in scopes. For example, a new property (e.g., \textit{displayName}) in function object can be used for storing the function name, or the function name can be defined by annotation. Although these solutions may help, they cause developers extra work. 
 
-\section{Automated Funcation Naming}
-  The problem is discussed in several locations on the web \cite{DisplayName, Zaytsev} and various solutions have been proposed by developers. A simple solution would be annotating the function by its name or adding a property (e.g., \textit{displayName}) with the function name as its value. Although these solutions may help, they cause developers extra work.
-	We instead, to tackle the aforementioned issues caused due to the lack of function names, propose automated function naming by anlyzing the source code. Before getting into details of how the function name is constructed, we discuss the rationale behind some of decisions we made in this approach.
+%Morover, these solutions do not work for lagacy code.
+We instead propose an automated approach for naming all functions by anlyzing the source code. Before getting into explaining the algorithm details we discuss the rationale behind some of decisions we made in this approach.
     
-\subsection{The Rationale}
-\subsubsection{Function Object vs. Function Body}%What Should be Named?}
+%\subsection{Rationale}
+\subsection{Function Object vs. Function Body}%What Should be Named?}
 The first question arises is that which one should be named? the function body or the function object. A function name must help the developer to distinguish the function from other functions with different behaviours. The behaviour of a function object, in addition to its body (the source code), is dependent to the enclosing scopes (e.g., global and closure variables). Although the actual enclosing scopes are not known until the function object creation, their structure can be almost known from the enclosing source code. Therefore, to name a function object, it is fair enough to name its \textit{function body}. 
 
 %\subsubsection{Static vs. Dynamic}
@@ -240,7 +241,7 @@ The first question arises is that which one should be named? the function body o
 
 
 %\subsubsection{Is it possible to automatically name all functions?}
-\subsubsection{What Makes a Good Function Name?}
+\subsection{What Makes a Good Function Name?}
 A function name should be useful for both the developer who are familar with the code and the developer who is not. It should explains the function behaviour, or an abstraction of the function behaviour, or why/where the function is used (e.g., to create object \textit{foo}), or at least works as an identifier.
 
 A function body can be uniquely identified by its location in the source file. A naive proposal for the function name for a function body is a combination of the function file name and line number. Although it may work as an identifier, but it does not assist the develper to recall or understand the function behaviour. On the other extreme extend, the function body itself can be used as the function identifier. This identifier it too long to be displayed and read by the developer. 
@@ -251,6 +252,12 @@ JavaScript does not support a packageing mechanism to be used for modular progra
 %\subsubsection{Other Challenges}%
 % functions pass the name as string, different types of class definitions
 
+\section{Automated Funcation Naming}
+%	We instead, to tackle the aforementioned issues caused due to the lack of function names, propose automated function naming by anlyzing the source code. Before getting into details of how the function name is constructed, we discuss the rationale behind some of decisions we made in this approach.
+
+
+   
+      
 \begin{table}
 \centering
 \scalebox{0.8}{
@@ -375,10 +382,11 @@ JavaScript does not support a packageing mechanism to be used for modular progra
 \end{table*}    
 
 
-\subsection{The basic idea}
-   We employ the fact that developers know many function objects (particularly those which are reused) by the names they can access and call them. 
-   On the other hand, it is very likely that the function object is assigned to this name in a place very close to the place the function object is created. Therefore, we analyze the code to find all names that the function object is assigned to them. For cases where the function object is not assigned to a variable or object property but is used to produce other values we keep trakc of the function effect on other identifiers.
-    
+\subsection{basic idea}
+   Developers refer to function objects in JavaScript in different ways. For permanet global functions (e.g., classes, utility functions) the alias used to access the function object is the natural way of refereing. Other function objects which have shorter life time and are not assigned to an alias, are usually refered by their role or the way they affect other objects. We employ this fact and name function objects using their aliases or the aliases of objects they affect.
+   
+      On the other hand, it is very likely that the function object is assigned to this name in a place very close to the place the function object is created. Therefore, we analyze the code to find all names that the function object is assigned to them. For cases where the function object is not assigned to a variable or object property but is used to produce other values we keep track of the function effect on other identifiers.
+   
    To illustrate the basic idea, we use the JavaScript code presented in Figure~\ref{js-code}. We can recognize seven function bodies in the code, none of them has a name. For every function we first build a summary. The summary explains how the function object is used in relation to other identifiers. The first function defined in line 9 is called just after its creation and returns another function defined in line 10. The result is assigned to variable {\small\texttt{main}}. In this case the summary for the first function is {\small\texttt{main<}} as it produces the {\small\texttt{main}} object. The second function is directly assigned to {\small\texttt{main}} and thus its name will be {\small\texttt{main}}.
    
 %    Therefore the internal function body is named {\small\texttt{main<}} as its corresponding function object is assinged to a variable with this name. What about the outer function itself? We name that {\small\texttt{mainClosure}}, as it is used as a closure for the returned function. 
