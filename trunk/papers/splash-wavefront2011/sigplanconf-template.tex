@@ -228,12 +228,13 @@ A function name is basicly used to assist the developer to recall or understand 
 
  On the other hand, for a devloper who does not know the function, a function name should explains the function behaviour, or an abstraction of the function behaviour, or why/where the function is used/defined (e.g., to create the object \textit{foo}). A function name must not be too long that can not be displayed or read by the developer. For example, the function body explains the function behaviour well however it is not an appropriate function name.
     
-\subsection{What should be named?} %// Function Object or Function Body}%What Should be Named?}
+\subsection{What Should be Named?} %// Function Object or Function Body}%What Should be Named?}
 In JavaScript, functions can be accessed and changed like a regular object. Two function objects which are created from the same function body may have different properties. They also may have different enclosing scopes and therefore different behaviours. The question arises here is which one should be named, the function body or the function object? Although the actual enclosing scopes are not known until the function object creation, their structure can be almost known from the enclosing source code. Therfore the general function behaviour is mainly dependent to its function body and the enclosed function bodies. 
 
 \subsection{Context, Package and Function Names}
 JavaScript does not support a standard packageing mechanism to be used for modular programming. Scripts are loaded from different files and executed within the same or different global objects. Developers usually use objects at the top level to encapsulate properties, objects and functions from a framework or library. The same mechanism is reused for defining subpackages. As the project size and the number of functions increases, the short function name will not be enough for recognizing the function. The developer also wants the class or the module contains the function. In addition to the package name, knowning the context (the enclosing function body) that contains the function can help in better understanding the function behaviour.
 
+%\subsection{Is it possible to automatically name functions?}
 %\subsubsection{Static vs. Dynamic}
 % Can we improve the names at runtime?
 % function object path in dom model is good candidate for the name but only for persistent objects ?
@@ -248,12 +249,13 @@ JavaScript does not support a standard packageing mechanism to be used for modul
 
 \section{Automated Funcation Naming}
 %	We instead, to tackle the aforementioned issues caused due to the lack of function names, propose automated function naming by anlyzing the source code. Before getting into details of how the function name is constructed, we discuss the rationale behind some of decisions we made in this approach.
-
-\subsection{basic idea}
+ 
    Developers refer to function objects in JavaScript in different ways. For permanet global functions (e.g., classes, utility functions) the alias used to access the function object is the natural way of refereing. Other function objects which have shorter life time and are not assigned to an alias, are usually refered by their role or the way they affect other objects. We employ this fact and name function objects using their aliases or the aliases of objects they affect.
    
       On the other hand, it is very likely that the function object is assigned to this name in a place very close to the place the function object is created. Therefore, we analyze the code to find all names that the function object is assigned to them. For cases where the function object is not assigned to a variable or object property but is used to produce other values we keep track of the function effect on other identifiers.
-   
+      
+\subsection{basic idea}
+  
    To illustrate the basic idea, we use the JavaScript code presented in Figure~\ref{js-code}. We can recognize seven function bodies in the code, none of them has a name. For every function we first build a summary. The summary explains how the function object is used in relation to other identifiers. The first function defined in line 9 is called just after its creation and returns another function defined in line 10. The result is assigned to variable {\small\texttt{main}}. In this case the summary for the first function is {\small\texttt{main<}} as it produces the {\small\texttt{main}} object. The second function is directly assigned to {\small\texttt{main}} and thus its name will be {\small\texttt{main}}.
    
 %    Therefore the internal function body is named {\small\texttt{main<}} as its corresponding function object is assinged to a variable with this name. What about the outer function itself? We name that {\small\texttt{mainClosure}}, as it is used as a closure for the returned function. 
@@ -264,7 +266,6 @@ The third function (defined in line 14), is passed as an argument to another fun
 As we explained in the previous section, {\small\texttt{FOO}} and {\small\texttt{BAR}} are good name candidates for functions defined in lines 19 and 22, as these functions are directly assigned to variable with the same names. The functions in lines 25 and 27 are named {\small\texttt{op<}} and {\small\texttt{op}} respectively.
    
 %Similar to the first two functions which are named {\small\texttt{mainClosure}} and {\small\texttt{main}}, 
-   
       
 \begin{table}
 \centering
@@ -274,63 +275,62 @@ As we explained in the previous section, {\small\texttt{FOO}} and {\small\texttt
   \hline
    & \multicolumn{4} {| c |}{Description} & \multicolumn{1} {| c |}{Code} \\ 
   \hline 
-   
    1 &
-   &  
-   & \multicolumn{2}{|m{2.8cm}|}{
-     \raggedright property of a new object in an object literal.}
-   & \{ ..., foo: function()\{...\}, ...\}\\ %{\small\begin{verbatim}{ ..., foo: function(){...}, ...}\end{verbatim}} \\ %
-   \cline{0-0}\cline{4-6}
-	 
-	 2 &
-	 & \multirow{8}{*}{\hspace{.2cm}\begin{rotate}{90}assigned to a(n)\end{rotate}}
-	 & \multicolumn{2}{|m{2.8cm}|}{
-	   new array index in an array literal.} 
-   & [..., function()\{...\}, ...] \\ 
-   \cline{0-0}\cline{4-6} 
-
-   3 &
    & 
    &  
    & direct access.
    & bar\textsuperscript{*}.foo = function()\{...\}\\
    \cline{0-0}\cline{5-6} 
 
-   4 & \multirow{11}{*}{\hspace{.2cm}\begin{rotate}{90}The function object is\end{rotate}} 
+   2 & \multirow{11}{*}{\hspace{.2cm}\begin{rotate}{90}The function object is\end{rotate}} 
    & 
    & 
    & \raggedright hashmap access by a string. 
    & bar\textsuperscript{*}["foo"] = function()\{...\} \\
    \cline{0-0}\cline{5-6} 
 
-   5 &
-   & 
-   & \multirow{4}{*}{\hspace{.2cm}\begin{rotate}{90}object property through\end{rotate}}
+   3 &
+   & \multirow{8}{*}{\hspace{.2cm}\begin{rotate}{90}assigned to a(n)\end{rotate}}
+   & \multirow{5}{*}{\hspace{.2cm}\begin{rotate}{90}object property through\end{rotate}}
    & \raggedright hashmap access by a variable name.
    & bar\textsuperscript{*}[foo] = function()\{...\} \\
    \cline{0-0}\cline{5-6} 
 
-   6 &
+   4 &
    & 
    & 
    & \raggedright hashmap access by a JavaScript expression.
    & bar\textsuperscript{*}[foo\textsuperscript{*}] = function()\{...\} \\
-   \cline{0-0}\cline{4-6} 
-
-   7 &
+   \cline{0-0}\cline{5-6} 
+      
+   5 &
    &
-   & \multicolumn{2}{|l|}{
-      array index.}
+   &
+   & \raggedright  array index.
    & foo\textsuperscript{*}[0] = function()\{...\} \\
    \cline{0-0}\cline{4-6} 
 
-   8 &
+   6 &
    & 
    & \multicolumn{2}{|l|}{
       variable.}
    & foo = function()\{...\} \\
+   \cline{0-0}\cline{4-6} 
+
+   7 &
+   &  
+   & \multicolumn{2}{|m{2.8cm}|}{
+     \raggedright property of a new object in an object literal.}
+   & \{ ..., foo: function()\{...\}, ...\}\\ %{\small\begin{verbatim}{ ..., foo: function(){...}, ...}\end{verbatim}} \\ %
+   \cline{0-0}\cline{4-6}
+	 
+	 8 &
+	 & 
+	 & \multicolumn{2}{|m{2.8cm}|}{
+	   new array index in an array literal.} 
+   & [..., function()\{...\}, ...] \\ 
    \cline{0-0}\cline{3-6} 
-   
+
    9 &
    & \multicolumn{3}{|m{3.8cm}|}{
      \raggedright directly called.}
