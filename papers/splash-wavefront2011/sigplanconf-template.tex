@@ -50,9 +50,9 @@
 %\title{Better JavaScript Runtime Understanding by Automated Function Name Extraction}
 %\title{JavaScript Lost Names, Is There Any Solution?}
 %\title{JavaScript Lost Names, Any Amendment?}
-\title{Fixing Lost JavaScript Function Names in Debuggers}
+%\title{Fixing Lost JavaScript Function Names in Debuggers}
+\title{Naming Anonymous JavaScript Functions}
 %\subtitle{Subtitle Text, if any}
-
 
 \authorinfo{Salman Mirghasemi}
            {\'Ecole Polytechnique F\'ed\'erale de Lausanne(EPFL)}
@@ -173,25 +173,25 @@ Figure~\ref{js-code} demonstrates an excerpt of a JavaScript code. We set a brea
 {morekeywords={if, function, var, return, new}}
 
 \begin{lstlisting}[frame=single, language=myLang]
-9  var main = function() {
-10   return function() {
+9  var main = function() {         // main<
+10   return function() {           // main
 11     var foo = new FOO("a");
 12     var bar = new BAR("b");
 13     var result = op(
-14       function(value){
+14       function(value){          // main</result<
 15         return value;
 16        });
 17   }
 18 }();
-19 var FOO = function(a) {
+19 var FOO = function(a) {         // FOO
 20   this.a = a;
 21 }
-22 var BAR = function(b) {
+22 var BAR = function(b) {         // BAR
 23   this.b = b;
 24 }
-25 var op = function() {
+25 var op = function() {           // op<
 26   var local;
-27   return function(callBack) {
+27   return function(callBack) {   // op
 28     local++;
 29     return callBack(local);
 30   }
@@ -249,7 +249,8 @@ JavaScript does not support a standard packageing mechanism to be used for modul
 
 \section{Automated Funcation Naming}
 %	We instead, to tackle the aforementioned issues caused due to the lack of function names, propose automated function naming by anlyzing the source code. Before getting into details of how the function name is constructed, we discuss the rationale behind some of decisions we made in this approach.
-  Developers usually understand and refer to function objects by aliases they use to access them. This fact particularly holds for permanent function objects such as classes and utility functions. However, functions with shorter lifetimes such as closures and callbacks are referred by their roles or purposes in the program. We employ these facts to construct an identifier for a function. We analyse the source code to locate alias(es) which the function object is assigned to. If the list of aliases is not empty we select the most appropriate one based on some ranking rules as the function name. Otherwise, we try to build a name based on the aliases that the function object somehow affect on their values. If there is no such alias then the function object is consumed as an argument in a chain of function calls that does not return any value or as a simple closure. In the case of function calls chain we use the most nested called function name for constructing the identifier. In the case of simple closure, we employ the function(s) identifier inside the closure to construct the identifier.
+  Developers usually understand and refer to function objects by aliases they use to access them. This fact particularly holds for permanent function objects such as classes and utility functions. However, functions with shorter lifetimes such as closures and callbacks are referred by their roles or purposes in the program. We employ these facts to construct an identifier for a function. We analyse the source code to locate alias(es) which the function object is assigned to. If the list of aliases is not empty we select the most appropriate one based on some ranking rules as the function name. Otherwise, we try to build a name based on the aliases that the function object somehow affect on their values. If there is no such alias then the function object is consumed as an argument in a chain of function calls that does not return any value or as a simple closure. In the case of function calls chain we use the most nested called function name for constructing the identifier. In the case of simple closure, we employ the function(s) identifier inside the closure to construct the identifier. 
+  Many JavaScript projects have one or a few functions which are used for defining classes or registering function objects. These functions usually receive a string as the class name or function name. In our approach we need to get hint about these functions declarations. These hints can be usually described in simple regular expressions.
   
     %  On the other hand, it is very likely that the function object is assigned to this name in a place very close to the place the function object is created. Therefore, we analyze the code to find all names that the function object is assigned to them. For cases where the function object is not assigned to a variable or object property but is used to produce other values we keep track of the function effect on other identifiers.
       
@@ -260,13 +261,10 @@ JavaScript does not support a standard packageing mechanism to be used for modul
    %For every function we first build a summary. The summary explains how the function object is used in relation to other identifiers. The first function defined in line 9 is called just after its creation and returns another function defined in line 10. The result is assigned to variable {\small\texttt{main}}. In this case the summary for the first function is {\small\texttt{main<}} as it produces the {\small\texttt{main}} object. The second function is directly assigned to {\small\texttt{main}} and thus its name will be {\small\texttt{main}}.
 %    Therefore the internal function body is named {\small\texttt{main<}} as its corresponding function object is assinged to a variable with this name. What about the outer function itself? We name that {\small\texttt{mainClosure}}, as it is used as a closure for the returned function. 
 
-The third function (defined in line 14), is passed as an argument to another function with name {\small\texttt{op}}. This function contributes in producing the {\small\texttt{result}} value. Moreover, it is located inside another function which is named {\small\texttt{main<}}. Therefore, its full name will be {\small\texttt{main</result<}}. The symbol {\small\texttt{/}} is used to separate the context name from the function name.
+The third function (defined in line 14), is passed as an argument to another function with name {\small\texttt{op}}. This function contributes in producing the {\small\texttt{result}} value. Moreover, it is located inside another function which is named {\small\texttt{main<}}. Therefore, its full name will be {\small\texttt{main</result<}}. The symbol {\small\texttt{/}} is used to separate the context name from the function name. The functions defined in lines 19 and 22, are directly assigned to {\small\texttt{FOO}} and {\small\texttt{BAR}}. Therefore, the same names will be used for the functions. The last two functions defined in lines 25 and 27, similar to functions in lines 9 and 10, are named {\small\texttt{op<}} and {\small\texttt{op}} respectively. 
 
 %Therefore, the summary will be {\small\texttt{main</return/result<}} and the function is named as {\small\texttt{main</result<}}.
 %We may name the function {\small\texttt{op(1)}}, as it is passed as the first argument to {\small\texttt{op}}). A better choice instead of the argument index would be the the argument name in the called function (here {\small\texttt{op(callback)}}). However the latter requires knowning the function body of the called function which is not always possible.
-
-The functions defined in lines 19 and 22, are directly assigned to {\small\texttt{FOO}} and {\small\texttt{BAR}}. Therefore, the same names will be used for the functions. The last two functions defined in lines 25 and 27, similar to functions in lines 9 and 10, are named {\small\texttt{op<}} and {\small\texttt{op}} respectively.
-
 %As we explained in the previous section, {\small\texttt{FOO}} and {\small\texttt{BAR}} are good name candidates for functions defined in lines 19 and 22, as these functions are directly assigned to variable with the same names. The functions in lines 25 and 27 are named {\small\texttt{op<}} and {\small\texttt{op}} respectively.
    
 %Similar to the first two functions which are named {\small\texttt{mainClosure}} and {\small\texttt{main}}, 
