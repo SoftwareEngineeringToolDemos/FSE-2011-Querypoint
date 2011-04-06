@@ -374,20 +374,30 @@ The next two functions, {\small\texttt{FOO}} on line 19 and {\small\texttt{BAR}}
 
   \end{tabular}
   }
-\caption{Different cases of function object creation and usage in JavaScript.}
+\caption{Different cases of function object creation and usage in JavaScript.  Identifiers with a star in the table can be expressions as well as simple identifiers; we explain how we reduce expressions to pseudo-identifier in ~\ref{sec:general-element-naming}.}
 \label{table:function-types} 
 \end{table}
 
  
 \subsection{Overview of the Function Object Consumption Algorithm}
-The algorithm starts by parsing the JavaScript code in to a syntax tree\cite{XX}, then iterating over each function body in the tree. For each function body look for the path of the function object from creation to consumption. We process the abstract syntax tree from the function definition node recursively back to the root node in the enclosed function. On each step we determine if the next node represents one of the cases presented in Table~\ref{table:function-types}. As we go upward in the tree, we keep identifiers and whether the object consumed is the same, part of, or contributed to the result object. Once the summary is ready we construct the identifier. The identifiers come from function calls (case 11) are ignored if there is any other type of identifier. Otherwise, only the closest function call identifier will be used. Nodes which are not one of the type specified in Table~\ref{table:function-types} are ignored.
+Our function naming algorithm parses the JavaScript and builds a name based on the parse tree.  Each function body results in a list of identifers and expressions marked with the kind of parse node that contributed them (\ref{sec:nodewalk}).  Some of the items on the list are dropped if their neighboring items already give better information for the name.  Then the expressions are converted to pseudo-identifiers (\ref{sec:general-element-naming}). Finally the attributes are converted to augmenting symbols on the identifiers while  the list is collapsed to a name\ref{sec:concatenate}.
 
-Note that two cases, one where the function is a top script element and the second where function is created by {\small\texttt{Function}} constructor do not appear in the table. The top script functions can not be anonymous and the functions defined by the constructor can be considered as a regular function body. Names which are specified with a star in the table can be expressions as well as simple identifiers; we explain how we reduce expressions to pseudo-identifier in ~\ref{sec:general-element-naming}.
 
+\subsection{Full Function Object Consumption Name}
+\label{sec:nodewalk}
+The first stage of the algorithm builds a list of identifiers we call the \textit{full-name}, short for \textit{Full Function Object Consumption Name}.
+The algorithm starts by parsing the JavaScript code in to a syntax tree\cite{XX}, then iterating over each function body in the tree. For each function body we look for the path of the function object from creation to consumption. We process the abstract syntax tree from the function body node back to the root node in the enclosed function. On each step we determine if the next node represents one of the cases presented in Table~\ref{table:function-types}. As we go upward in the tree, we keep identifiers and whether the object consumed is the result object (rows 1-6), part of the result object (rows 7-8), or contribute to the result object (rows 9-11). Once the summary is ready we construct the identifier. The identifiers come from function calls (case 11) are ignored if there is any other type of identifier. Otherwise, only the closest function call identifier will be used. Nodes which are not one of the type specified in Table~\ref{table:function-types} are ignored.
+
+Note that two cases, one where the function is a top script element and the second where function is created by {\small\texttt{Function}} constructor do not appear in the table. The top script functions can not be anonymous and the functions defined by the constructor can be considered as a regular function body. 
+
+\subsection{Culling Less Informative Items}
+Since ultimately our aim is an understandable name, we next process our list of identifiers to remove items likely to be uninformative. Of course this is a heuristic process and ultimately we expect it to be tuned with user testing or future insights. For now we remove XXX from our list because YYY.
 
 \subsection{Reducing a JavaScript Expression to a Name}
 \label{sec:general-element-naming}
-
+In simple cases the syntax tree node will have an identifier we can use as part of our name. In more complex cases an expression will written in place of an identifier. 
+The expression can be long and complex. Again, to make our names more compact and readable we convert expression into a pseudo-identifier (i.e. not neccessarily
+ a valid JavaScript identifier) that resembles the expression. We do this by retaining any simple identifiers -- the developer will recognize these -- but we drop WHAT. 
 
 
 \begin{table}
@@ -416,19 +426,29 @@ Note that two cases, one where the function is a top script element and the seco
 \end{table}    
 
 \subsection{Building a String from Arguments}
+WHAT?
 
-\subsection{Building a String from An Expression}
+\subsection{Conversion to an Name}
+At this stage of the algorithm we have a list of identifiers with attributes (which row contributed the identifier). Next we join the list items using special characters to signal the attributes. For identifers from rows 1-6 of Table~\ref{table:function-types} we put out the identifier followed by a WHAT. For rows 7 and 8 we put out the identifier followed by a slash (/), the traditional separator in a containment heirarchy. For rows 9-11 the identifier is followed by a left angle bracket (<) indicating 'contributes to'. 
+
+The particular symbols we use may be refined with more experience in how developers respond to them. Our intution is that these extra symbols need to be visually compact because their purpose is to adjust the developers expectation for the identifier. For example, the function on line 9 of Fig.~\ref{fig:js-code} is named \texttt{main<} but the developer may only key on the word \texttt{main} to recall the function body. 
+
+\section{Special Cases}
+Given that our goals trade precision for rapid recogition, our names are not unique or perfectly tuned to every developer's need. We also leave some cases anonymous. We add  few special cases to our algorithm to patch over these issues.
+
+\subsection{Similar Function Names in a File}
+It is conceivable, that function bodies are named with the same names in a file. It can happen in different situations. One of the common cases is the two different function bodies may assign to a property based on a condition (e.g., the browser). For these cases we add a dollar sign and an index to the similar function names. For example, if there are two function bodies with names {\small\texttt{myFunction}}, the functions are named as {\small\texttt{myFunction\$0}} and {\small\texttt{myFunction\$1}}. 
 
 \subsection{Namer Functions}
-Many JavaScript projects have one or a few functions which are used for defining classes or registering function objects. These functions usually receive a string as the class name or function name. The number of namer functions is usually very limited for a specific project and can be provided to debugger by the developer. A namer function works like an assignment in the summary.
+Many JavaScript projects have one or a few functions which are used for defining classes or registering function objects. These functions usually receive a string as the class name or function name. The number of namer functions is usually very limited for a specific project and can be provided to debugger by the developer. A namer function works like an assignment in the summary.  MORE
 
 % to register a function with a name
 % to wrap the function
 % as a callback
 
+\subsection{ {\texttt .displayName} }
+The ultimate fallback for function names is to allow the developer to specify them manually. For applicaiton developers this is tedious path, but for library developers the cost may be justified by the many potential developers who will see the custom name.
 
-\subsection{Similar Function Names in a File}
-It is conceivable, that function bodies are named with the same names in a file. It can happen in different situations. One of the common cases is the two different function bodies may assign to a property based on a condition (e.g., the browser). For these cases we add a dollar sign and an index to the similar function names. For example, if there are two function bodies with names {\small\texttt{myFunction}}, the functions are named as {\small\texttt{myFunction\$0}} and {\small\texttt{myFunction\$1}}. 
 
 %examples: toString functions in different classes, myFunction = cond? function(){..} : function(){..} 
 % more than one return
