@@ -282,54 +282,15 @@ The third function, line 14, is passed to a function {\small\texttt{op}} on line
 The next two functions, {\small\texttt{FOO}} on line 19 and {\small\texttt{BAR}} on line 22 are simple examples of case 6.  The last two functions defined in lines 25 and 27, similar to functions in lines 9 and 10, are named {\small\texttt{op<}} and {\small\texttt{op}} respectively. 
 
 
-\begin{table}
-\centering
-%\scalebox{0.8}{
-\renewcommand\arraystretch{2.0}
-\begin{tabular}{ | c | l | m{2.5cm} | l|}
-  \hline
-   & \multicolumn{2} {| c |}{Description} & \multicolumn{1} {| c |}{Code} \\ 
-  \hline 
-
-   1 & 
-   & \raggedright property of a new object in an object literal.
-   & \{ ..., foo: function()\{...\}, ...\}\\ %{\small\begin{verbatim}{ ..., foo: function(){...}, ...}\end{verbatim}} \\ %
-   \cline{0-0}\cline{3-4}
-	 
-	 2 & \multirow{4}{*}{\hspace{.2cm}\begin{rotate}{90}The function object is\end{rotate}} 
-	 & \raggedright 
-	   new array index in an array literal.
-   & [..., function()\{...\}, ...] \\ 
-   \cline{0-0}\cline{3-4} 
-
-   3 &
-   & 
-     \raggedright passed as an argument to a function.
-   & foo\textsuperscript{*}(..., function()\{\}, ...) \\
-   \cline{0-0}\cline{3-4} 
-
-
-   4 &
-   & \raggedright assigned to a variable or write pointer.
-   & foo\textsuperscript{*} = function()\{...\} \\
-   \cline{0-0}\cline{2-4} 
-
-  \end{tabular}
-%  }
-\caption{Different cases of function object creation and usage in JavaScript.  Identifiers with a star in the table can be expressions as well as simple identifiers; we explain how we reduce expressions to pseudo-identifier in ~\ref{sec:general-element-naming}.}
-\label{table:function-types} 
-\end{table}
-
-
 
 
 
 %\subsection{Full Function Object Consumption Name}
-\subsection{Expression Value Consumption Summary}
+\subsection{Consumption Summary Algorithm}
 \label{sec:nodewalk}
 The algorithm builds a consumption summary for an expression, starting from the expression node walking up in the absstract syntax tree. In the particular case when we start from an expression wich defines a function ( a function body or {\small\texttt{new Function()}}), it calculates the consumption summary for the function. The first node is an expression and returns a value. The algorithm ends when we reach a node which is an assignment or a statmement which does not return any value. When we move from a node to its parent, the value of the node expression can be the same, part of or different from its parent expression value. For every visited node we keep this information. 
 
-\floatname{algorithm}{Procedure}
+%\floatname{algorithm}{Procedure}
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
 
