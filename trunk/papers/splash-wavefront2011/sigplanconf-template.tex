@@ -308,8 +308,6 @@ The algorithm builds a consumption summary for an expression which returns a val
 \REQUIRE Function Body Node $n$ in Abstract Syntax Tree
 \ENSURE Object Consumption Summary 
 \STATE $List$ $summary$ = $new$ $List$()
-
-
 \WHILE {$n.parent$ is an expression}  
 	\STATE $dataItem$ = $new$ $DataItem$()
     \IF {$n$ value is the same as $n.parent$ value}
@@ -682,6 +680,7 @@ June, 2010.
 
 
 
+
 \begin{table}
 \centering
 \scalebox{0.8}{
@@ -690,62 +689,63 @@ June, 2010.
   \hline
    & \multicolumn{4} {| c |}{Description} & \multicolumn{1} {| c |}{Code} \\ 
   \hline 
+   
    1 &
-   & 
-   &  
-   & direct access.
-   & bar\textsuperscript{*}.foo = function()\{...\}\\
-   \cline{0-0}\cline{5-6} 
-
-   2 & \multirow{11}{*}{\hspace{.2cm}\begin{rotate}{90}The function object is\end{rotate}} 
-   & 
-   & 
-   & \raggedright hashmap access by a string. 
-   & bar\textsuperscript{*}["foo"] = function()\{...\} \\
-   \cline{0-0}\cline{5-6} 
-
-   3 &
-   & \multirow{8}{*}{\hspace{.2cm}\begin{rotate}{90}assigned to a(n)\end{rotate}}
-   & \multirow{5}{*}{\hspace{.2cm}\begin{rotate}{90}object property through\end{rotate}}
-   & \raggedright hashmap access by a variable name.
-   & bar\textsuperscript{*}[foo] = function()\{...\} \\
-   \cline{0-0}\cline{5-6} 
-
-   4 &
-   & 
-   & 
-   & \raggedright hashmap access by a JavaScript expression.
-   & bar\textsuperscript{*}[foo\textsuperscript{*}] = function()\{...\} \\
-   \cline{0-0}\cline{5-6} 
-      
-   5 &
-   &
-   &
-   & \raggedright  array index.
-   & foo\textsuperscript{*}[0] = function()\{...\} \\
-   \cline{0-0}\cline{4-6} 
-
-   6 &
-   & 
-   & \multicolumn{2}{|l|}{
-      variable.}
-   & foo = function()\{...\} \\
-   \cline{0-0}\cline{4-6} 
-
-   7 &
    &  
    & \multicolumn{2}{|m{2.8cm}|}{
      \raggedright property of a new object in an object literal.}
    & \{ ..., foo: function()\{...\}, ...\}\\ %{\small\begin{verbatim}{ ..., foo: function(){...}, ...}\end{verbatim}} \\ %
    \cline{0-0}\cline{4-6}
 	 
-	 8 &
-	 & 
+	 2 &
+	 & \multirow{8}{*}{\hspace{.2cm}\begin{rotate}{90}assigned to a(n)\end{rotate}}
 	 & \multicolumn{2}{|m{2.8cm}|}{
 	   new array index in an array literal.} 
    & [..., function()\{...\}, ...] \\ 
-   \cline{0-0}\cline{3-6} 
+   \cline{0-0}\cline{4-6} 
 
+   3 &
+   & 
+   &  
+   & direct access.
+   & bar\textsuperscript{*}.foo = function()\{...\}\\
+   \cline{0-0}\cline{5-6} 
+
+   4 & \multirow{11}{*}{\hspace{.2cm}\begin{rotate}{90}The function object is\end{rotate}} 
+   & 
+   & 
+   & \raggedright hashmap access by a string. 
+   & bar\textsuperscript{*}["foo"] = function()\{...\} \\
+   \cline{0-0}\cline{5-6} 
+
+   5 &
+   & 
+   & \multirow{4}{*}{\hspace{.2cm}\begin{rotate}{90}object property through\end{rotate}}
+   & \raggedright hashmap access by a variable name.
+   & bar\textsuperscript{*}[foo] = function()\{...\} \\
+   \cline{0-0}\cline{5-6} 
+
+   6 &
+   & 
+   & 
+   & \raggedright hashmap access by a JavaScript expression.
+   & bar\textsuperscript{*}[foo\textsuperscript{*}] = function()\{...\} \\
+   \cline{0-0}\cline{4-6} 
+
+   7 &
+   &
+   & \multicolumn{2}{|l|}{
+      array index.}
+   & foo\textsuperscript{*}[0] = function()\{...\} \\
+   \cline{0-0}\cline{4-6} 
+
+   8 &
+   & 
+   & \multicolumn{2}{|l|}{
+      variable.}
+   & foo = function()\{...\} \\
+   \cline{0-0}\cline{3-6} 
+   
    9 &
    & \multicolumn{3}{|m{3.8cm}|}{
      \raggedright directly called.}
@@ -765,10 +765,12 @@ June, 2010.
    \hline 
 
   \end{tabular}
-  }
+ }
 \caption{Different cases of function object creation and usage in JavaScript.  Identifiers with a star in the table can be expressions as well as simple identifiers; we explain how we reduce expressions to pseudo-identifier in ~\ref{sec:general-element-naming}.}
 \label{table:function-types} 
 \end{table}
+
+
 
 
 \begin{table*}
@@ -799,11 +801,10 @@ June, 2010.
   \hline 
    All           & 58774(65\%)& 23 & 14562(16\%)& 28 & 150& 19 & 1 & 3460(4\%)& 1591(2\%)& 894(1\%) & 10382(12\%) \\ 
   \hline 
-  \end{tabular}
+\end{tabular}
 \caption{The number of nameless functions in each category defined in table~\ref{table:function-types}.}
 \label{function-type-count} 
 \end{table*} 
-
 
 %     and extracting the initial name used for the function object after its creation. 
 %In the third subsection we discuss qualities we expect from an automatically created function name.
