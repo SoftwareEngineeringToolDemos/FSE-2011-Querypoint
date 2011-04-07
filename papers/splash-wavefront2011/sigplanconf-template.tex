@@ -105,7 +105,7 @@ A JavaScript function can be defined with the {\small\texttt{function}} operator
 
 If you are unfamiliar with JavaScript or other functional programming languages, you might imagine that developers would naturally select the form with names, simply as an organizational tool. However this is not the case. Functions in JavaScript are first-class objects. They can be assigned to any variable or object property, or passed as an argument to a function. Consequently JavaScript programmers can use these other constructs to organize their thinking about the program, without the use of function names.
 
-So what do JavaScript developers do in practice?  To get empirical evidence we analyzed the source code of ten well-known JavaScript projects. For every project, the total number of functions and the number of functions with an identifier shown in Table~\ref{js-functions}. The average ratio of named functions to all functions is less then 7 percent and, excepting one project {\textit Prototype}, the ratio does not exceed 13 percent. Among all functions only a very limited number of them (116 functions) are defined by the {\small\texttt{Function}} constructor. Our analysis does not include the functions defined dynamically by {\small\texttt{eval}} function or {\small\texttt{new Function()}; these cases would only make the ratio even smaller.  Therefore, we conclude that a large proportion of JavaScript functions are anonymous.
+So what do JavaScript developers do in practice?  To get empirical evidence we analyzed the source code of ten well-known JavaScript projects. For every project, the total number of functions and the number of functions with an identifier shown in Table~\ref{js-functions}. The average ratio of named functions to all functions is less then 7 percent and, excepting one project {\textit Prototype}, the ratio does not exceed 13 percent. Among all functions only a very limited number of them (116 functions) are defined by the {\small\texttt{Function}} constructor. Our analysis does not include the functions defined dynamically by {\small\texttt{eval}} function or {\small\texttt{new Function()}}; these cases would only make the ratio even smaller.  Therefore, we conclude that a large proportion of JavaScript functions are anonymous.
 
 
 
@@ -256,13 +256,14 @@ JavaScript does not support a standard packaging mechanism to be used for modula
 
 We call our automated naming solution "Static Function Object Consumption", since it relies only on a parser (static) and it attempts to name function bodies by tracking the function object created from the body to where the object is 'consumed', for example by binding to an object property, variable reference, or function argument.
 Static Function Object Consumption generalizes the built-in JavaScript naming and common, simple coding patterns like object property initializers and variable assignments typically recognized by developers as naming functions.
+
 The built-in naming, a function declaration, binds a name in a scope to a function object created from the adjacent function body. For example, in  {\small\texttt{function foo() \{return 1;\}}}, the name  {\small\texttt{foo}} is bound the the function body in curly braces.
 Object property initializers bind a object property name to a function created from an adjacent function body. For example,  {\small\texttt{var bar = \{foo: function()\{return 2; \}\}}}, sets {\small\texttt{bar.foo}} to a function object created from the body {\small\texttt{\{return 2;\}}}. While the language does not associate the function body with the property  {\small\texttt{bar.foo}}, a JavaScript developer would because the created function body initializes the property. Similarly, a varible name bound to a function object, such as {\small\texttt{var baz = function()\{return 3; \}}}, is naturally associated with the function body. All three of these simple cases share the character that a function body creates a function object which is then bound to an identifier. 
 
-Our algorithm applies the same logic: we follow the function object backwards through the code to create a name in cases where an identifier is not directly given in the code. By 'backwards through the code' we mean that we parse the JavaScript and analyze the resulting syntax tree. For each function body, we walk up the tree recording identifiers or expressions explains the function object consumption. The result is, \textit{object consumption summary}, a list of collected data at every visited node in the tree. %Then, to refine the summary from temporary variable, we look for assignments from and to the variables appear in the summary. Then we replace the temporary variables more expressive identifiers (e.g., property names) or strings. After the refinement step, 
-Then, we rank collected identifiers and strings and elide less relevant data from the summary. At the end we construct a string from the consumption summary. The result contains identifiers (i.e., variable and property names) and strings available in the source code plus some explanatory tokens. It compactly explains the function object creation, consumption and assignment. For the simple cases of function declaration, object property initialization, and variable initialization the algorithm gives the same results we described above. 
+Our algorithm applies the same logic: we look at the code preceding the function body to see where the resulting function object will end up, or
+where the object will be \textit{consumed}. Along that path we collect or construct identifiers from the developers source code. We add some symbols to guide the developer to the function body in complex cases, and we prefix deeply nested function bodies with context names to disambiguate the result.
+For the simple cases of function declaration, object property initialization, and variable initialization the algorithm gives the same results we described above. 
 
-The name is built by the above process does not contain any information about enclosing scopes. We call it \textit{local name}. We get the function \textit{full name} by adding the enclosing function full name with a slash before the local name.
 
 %To name a expression, we walk up the tree looking for the constructs in table 2. As we describe in section XX, for every matching construct we record identifiers or expressions to use in constructing a name. Then we assemble a name using the expression-reduction rules outlined in section YY and the context naming rules in section ZZ. The result is a summary that contains identifiers (i.e., variable and property names) and strings available in the source code plus some explanatory tokens. It compactly explains the function object creation, consumption and assignment. For the simple cases of function declaration, object property initialization, and variable initialization the algorithm gives the same results we described above.
 
@@ -272,17 +273,6 @@ The name is built by the above process does not contain any information about en
  %We analyze the source code to obtain the alias(es) that used for the function object or  is assigned to. If the list of aliases is not empty we select the most appropriate one based on some ranking rules as the function name. Otherwise, we try to build a name based on the aliases that the function object somehow affect on their values. If there is no such alias then the function object is consumed as an argument in a chain of function calls that does not return any value or as a simple closure. In the case of function calls chain we use the most nested called function name for constructing the identifier. In the case of simple closure, we employ the function(s) identifier inside the closure to construct the identifier. 
  %  On the other hand, it is very likely that the function object is assigned to this name in a place very close to the place the function object is created. Therefore, we analyze the code to find all names that the function object is assigned to them. For cases where the function object is not assigned to a variable or object property but is used to produce other values we keep track of the function effect on other identifiers.
       
-\subsection{Example}
-  
-To illustrate the basic idea, we use the JavaScript code presented in Figure~\ref{js-code}. We can recognize seven function bodies in the code, none of them has a name. 
-
-The first function on line 9 is called just after its creation (see line 18) and the return sets the {\small\texttt{main}} value. We can explain the function object consumption after its creation in two steps: 1) the function object is called. 2) the result is assigned to {\small\texttt{main}}. This differs from the simple variable assignment case: the value of {\small\texttt{main}} is not a function object but rather the return value of a function object.   We summarize this by saying that the result object is produced by the function object or the function object contributed to the {\small\texttt{main}} value and we write it {\small\texttt{main<}}, where the symbol {\small\texttt{<}} indicates "contributes to".
-
-The function in line 10 is returned just after its creation. This function is located inside a closure function (i.e., a function which is called directly after its creation). This structure lets us to continue the static function object consumption analysis by assigning the return expression (the function body in line 10) to the alias set by the closure call result ({\small\texttt{main}}). The summary of the function object consumption will be: 1) the function object is returned , 2) the function object is assigned to {\small\texttt{main}}. As the function object is directly assigned to this variable we name the function {\small\texttt{main}}.
-
-The third function, line 14, is passed to a function {\small\texttt{op}} on line 13, within the body of the function we named {\small\texttt{main}} . Here 1) the function object is passed as an argument to function {\small\texttt{op}}, 2) The call result is assigned to {\small\texttt{result}}. If we simply put the identifiers in the summary together we get {\small\texttt{main/result<op()}}. The first part before slash  shows the context name (the enclosing function name) for this function.  However, the function names (here {\small\texttt{op()}}) usually give an indirect information (e.g., role) about the function object. Therefore, as we explain in 4.5, we ignore them if other kind of identifiers (e.g., variable and property name) are available in the summary. After dropping {\small\texttt{op}}, we will have {\small\texttt{main/result<}}. Eliding identifiers is important to avoid creating long, unwieldy names.
-
-The next two functions, {\small\texttt{FOO}} on line 19 and {\small\texttt{BAR}} on line 22 are simple examples of case 6.  The last two functions defined in lines 25 and 27, similar to functions in lines 9 and 10, are named {\small\texttt{op<}} and {\small\texttt{op}} respectively. 
 
 
 
@@ -292,40 +282,19 @@ The next two functions, {\small\texttt{FOO}} on line 19 and {\small\texttt{BAR}}
 \subsection{Consumption Summary Algorithm}
 \label{sec:nodewalk}
 
+
+We parse the JavaScript and search the resulting syntax tree for function body nodes. For each function body, we apply the algorithm outlined in Algorithm~\ref{alg1}). The basic idea is to look for parent nodes with helpful identifiers and to keep track of how the parent and child are related. 
+to determine they match one of the rows in Table~\ref{table:node-types}. Any matching no
+
+walk up the tree recording identifiers or expressions explains the function object consumption. The result is, \textit{object consumption summary}, a list of collected data at every visited node in the tree. %Then, to refine the summary from temporary variable, we look for assignments from and to the variables appear in the summary. Then we replace the temporary variables more expressive identifiers (e.g., property names) or strings. After the refinement step, 
+Then, we rank collected identifiers and strings and elide less relevant data from the summary. At the end we construct a string from the consumption summary. The result contains identifiers (i.e., variable and property names) and strings available in the source code plus some explanatory tokens. It compactly explains the function object creation, consumption and assignment. 
+The name is built by the above process does not contain any information about enclosing scopes. We call it \textit{local name}. We get the function \textit{full name} by adding the enclosing function full name with a slash before the local name.
+
 The algorithm builds a consumption summary for an expression which returns a value. It starts from the the expression node in the abstract syntax tree produced from parsing the source code and walks up  collecting data. In the particular case when we start from an expression which defines a function ( a function body or {\small\texttt{new Function()}} ), it computes the consumption summary for the function. The first node is an expression and returns a value. At every step, it stores how the value of the current node is related to the value of the parent node. If the parent expression is an array or object literal then the current node value is \textit{partOf} the parent node value. Otherwise the node expression value is \textit{theSame} as or different \textit{contributesTo} parent value. 
 
 %~\ref{alg1})
 
-\begin{table}
-\centering
-%\scalebox{0.8}{
-\renewcommand\arraystretch{2.0}
-\begin{tabular}{ | c | l | m{2.5cm} | l|}
-  \hline
-   & \multicolumn{2} {| c |}{Description} & \multicolumn{1} {| c |}{Code} \\ 
-  \hline 
 
-   1 & 
-   & \raggedright an object literal.
-   & \{ ..., foo: expr \}\\ 
-   \cline{0-0}\cline{3-4}
-	 
-   2 & \multirow{4}{*}{\hspace{.2cm}\begin{rotate}{90}The parent node is\end{rotate}} 
-   & 
-     \raggedright a function call.
-   & foo\textsuperscript{*}(..., expr, ...) \\
-   \cline{0-0}\cline{3-4} 
-
-   3 &
-   & \raggedright an assignment.
-   & foo\textsuperscript{*} = expr\\
-   \cline{0-0}\cline{2-4} 
-
-  \end{tabular}
-%  }
-\caption{Nodes produce identifiers in the function object consumption summary. Identifiers with a star in the table can be expressions as well as simple identifiers; we explain how we reduce expressions to pseudo-identifier in ~\ref{sec:general-element-naming}.}
-\label{table:node-types} 
-\end{table}
 
 
 %\floatname{algorithm}{Procedure}
@@ -333,10 +302,10 @@ The algorithm builds a consumption summary for an expression which returns a val
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
 
 \begin{algorithm}                      % enter the algorithm environment
-\caption{Compute Object Consumption Summary for Node $n$}          % give the algorithm a caption
+\caption{Compute Object Consumption Summary for Function Body Nodes}          % give the algorithm a caption
 \label{alg1}                           % and a label for \ref{} commands later in the document
 \begin{algorithmic}                    % enter the algorithmic environment
-\REQUIRE Node $n$ in Abstract Syntax Tree
+\REQUIRE Function Body Node $n$ in Abstract Syntax Tree
 \ENSURE Object Consumption Summary 
 \STATE $List$ $summary$ = $new$ $List$()
 
@@ -372,6 +341,36 @@ The algorithm builds a consumption summary for an expression which returns a val
 \end{algorithmic}
 \end{algorithm}
 
+\begin{table}
+\centering
+%\scalebox{0.8}{
+\renewcommand\arraystretch{2.0}
+\begin{tabular}{ | c | l | m{2.5cm} | l|}
+  \hline
+   & \multicolumn{2} {| c |}{Description} & \multicolumn{1} {| c |}{Code} \\ 
+  \hline 
+
+   1 & 
+   & \raggedright an object literal.
+   & \{ ..., foo: expr \}\\ 
+   \cline{0-0}\cline{3-4}
+	 
+   2 & \multirow{4}{*}{\hspace{.2cm}\begin{rotate}{90}The parent node is\end{rotate}} 
+   & 
+     \raggedright a function call.
+   & foo\textsuperscript{*}(..., expr, ...) \\
+   \cline{0-0}\cline{3-4} 
+
+   3 &
+   & \raggedright an assignment.
+   & foo\textsuperscript{*} = expr\\
+   \cline{0-0}\cline{2-4} 
+
+  \end{tabular}
+%  }
+\caption{Nodes produce identifiers in the function object consumption summary. Identifiers with a star in the table can be expressions as well as simple identifiers; we explain how we reduce expressions to pseudo-identifier in ~\ref{sec:general-element-naming}.}
+\label{table:node-types} 
+\end{table}
 
 Moreover, we compute an \textit{id} value for node types appear in table~\ref{table:node-types}. If the parent node is an object literal, then the node value is assigned to a named property like {\small\texttt{foo}}. In this case we keep {\small\texttt{foo}} as the \textit{id}. If the parent node is a function call that the expression value is passed as one of its argument, we reduce the function expression to a name and we keep that as \textit{id}. In the case of function call, another value, \textit{hint}, will also be computed from other arguments and stored. In the case where the parent node is an assignment we reduce the left side expression to a name and we keep that as \textit{id}. The algorithm ends when we reach a node which is an assignment or a statement which does not return any value (i.e., the node is not an expression). 
 
@@ -470,6 +469,17 @@ The function bodies in {\small\texttt{eval}} statements can be named similar to 
 %\subsection{Naming Functions in Call Stack}
 
 
+\subsection{Example}
+  
+To illustrate the basic idea, we use the JavaScript code presented in Figure~\ref{js-code}. We can recognize seven function bodies in the code, none of them has a name. 
+
+The first function on line 9 is called just after its creation (see line 18) and the return sets the {\small\texttt{main}} value. We can explain the function object consumption after its creation in two steps: 1) the function object is called. 2) the result is assigned to {\small\texttt{main}}. This differs from the simple variable assignment case: the value of {\small\texttt{main}} is not a function object but rather the return value of a function object.   We summarize this by saying that the result object is produced by the function object or the function object contributed to the {\small\texttt{main}} value and we write it {\small\texttt{main<}}, where the symbol {\small\texttt{<}} indicates "contributes to".
+
+The function in line 10 is returned just after its creation. This function is located inside a closure function (i.e., a function which is called directly after its creation). This structure lets us to continue the static function object consumption analysis by assigning the return expression (the function body in line 10) to the alias set by the closure call result ({\small\texttt{main}}). The summary of the function object consumption will be: 1) the function object is returned , 2) the function object is assigned to {\small\texttt{main}}. As the function object is directly assigned to this variable we name the function {\small\texttt{main}}.
+
+The third function, line 14, is passed to a function {\small\texttt{op}} on line 13, within the body of the function we named {\small\texttt{main}} . Here 1) the function object is passed as an argument to function {\small\texttt{op}}, 2) The call result is assigned to {\small\texttt{result}}. If we simply put the identifiers in the summary together we get {\small\texttt{main/result<op()}}. The first part before slash  shows the context name (the enclosing function name) for this function.  However, the function names (here {\small\texttt{op()}}) usually give an indirect information (e.g., role) about the function object. Therefore, as we explain in 4.5, we ignore them if other kind of identifiers (e.g., variable and property name) are available in the summary. After dropping {\small\texttt{op}}, we will have {\small\texttt{main/result<}}. Eliding identifiers is important to avoid creating long, unwieldy names.
+
+The next two functions, {\small\texttt{FOO}} on line 19 and {\small\texttt{BAR}} on line 22 are simple examples of case 6.  The last two functions defined in lines 25 and 27, similar to functions in lines 9 and 10, are named {\small\texttt{op<}} and {\small\texttt{op}} respectively. 
 
 
 \section{evaluation}
