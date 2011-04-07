@@ -288,7 +288,43 @@ The next two functions, {\small\texttt{FOO}} on line 19 and {\small\texttt{BAR}}
 %\subsection{Full Function Object Consumption Name}
 \subsection{Consumption Summary Algorithm}
 \label{sec:nodewalk}
-The algorithm builds a consumption summary for an expression, starting from the expression node walking up in the absstract syntax tree. In the particular case when we start from an expression wich defines a function ( a function body or {\small\texttt{new Function()}}), it calculates the consumption summary for the function. The first node is an expression and returns a value. The algorithm ends when we reach a node which is an assignment or a statmement which does not return any value. When we move from a node to its parent, the value of the node expression can be the same, part of or different from its parent expression value. For every visited node we keep this information. 
+
+The algrithm builds a consumption summary for an expression which returns a value. It starts from the the expression node in the abstract syntax tree produced from parsing the source code and walks up  collecting data. In the particular case when we start from an expression wich defines a function ( a function body or {\small\texttt{new Function()}} ), it computess the consumption summary for the function. The first node is an expression and returns a value. At every step, it stores how the value of the current node is related to the value of the parent node. If the parent expression is an array or object literal then the curerent node value is \textit{partOf} the parent node value. Otherwise the node expression value is \textit{theSame} as or different \textit{contributesTo} parent value. 
+
+%~\ref{alg1})
+
+\begin{table}
+\centering
+%\scalebox{0.8}{
+\renewcommand\arraystretch{2.0}
+\begin{tabular}{ | c | l | m{2.5cm} | l|}
+  \hline
+   & \multicolumn{2} {| c |}{Description} & \multicolumn{1} {| c |}{Code} \\ 
+  \hline 
+
+   1 & 
+   & \raggedright an object literal.
+   & \{ ..., foo: expr \}\\ 
+   \cline{0-0}\cline{3-4}
+	 
+   2 & \multirow{4}{*}{\hspace{.2cm}\begin{rotate}{90}The parent node is\end{rotate}} 
+   & 
+     \raggedright a function call.
+   & foo\textsuperscript{*}(..., expr, ...) \\
+   \cline{0-0}\cline{3-4} 
+
+   3 &
+   & \raggedright an assignment.
+   & foo\textsuperscript{*} = expr\\
+   \cline{0-0}\cline{2-4} 
+
+  \end{tabular}
+%  }
+\caption{Nodes produce identifiers in the function object consumption summary. Identifiers with a star in the table can be expressions as well as simple identifiers; we explain how we reduce expressions to pseudo-identifier in ~\ref{sec:general-element-naming}.}
+\label{table:node-types} 
+\end{table}
+
+Morover, we compute an \textit{id} value for node types appear in table~\ref{table:node-types}. If the parent node is an object literal, then the node value is assigned to a named property like {\small\texttt{foo}}. In this case we keep {\small\texttt{foo}} as the \textit{id}. If the parent node is a function call that the expression value is passed as one of its argument, we reduce the function expression to a name and we keep that as \textit{id}. In the case of function call, another value, \textit{hint}, will also be computed and saved. In the case where the parent node is an assignment we reduce the left side expression to a name and we keep that as \textit{id}. The algorithm ends when we reach a node which an assignment or a statmement which does not return any value (i.e., the node is not an expression). 
 
 %\floatname{algorithm}{Procedure}
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
@@ -310,7 +346,7 @@ The algorithm builds a consumption summary for an expression, starting from the 
     \ELSIF {$n$ value is a property of $n.parent$ value}
     		\STATE $dataItem.isPartOf$ = $true$
     \ELSE	
-	   		\STATE $dataItem.isContributedTo$ = $true$
+	   		\STATE $dataItem.isContributesTo$ = $true$
     \ENDIF
     \IF {$n.parent$ is a function call and $n$ is an argument}
    	    \STATE $dataItem.isFunctionCall$ = $true$
@@ -334,18 +370,16 @@ The algorithm builds a consumption summary for an expression, starting from the 
 \end{algorithmic}
 \end{algorithm}
 
-Once we move from a node to its parent, we keep the 
 
 %The algorithm build a consumption summary for an expression which returns a value. A consumption summary is a list of collected information at every not in the tree traversal. At every node two items are stored. First the relation of the consumed value and the result value. The consumed expressions can be part of the result expression like first two cases in table 2. The result value might be different from the consumed value like case 3 in table 2. Morover we keep identifiers at every node is one of the constructs in table 2.
 
 %Our function naming algorithm parses the JavaScript and builds a name based on the parse tree.  Each function body results in a list of identifers and expressions marked with the kind of parse node that contributed them (\ref{sec:nodewalk}).  Some of the items on the list are dropped if their neighboring items already give better information for the name.  Then the expressions are converted to pseudo-identifiers (\ref{sec:general-element-naming}). Finally the attributes are converted to augmenting symbols on the identifiers while  the list is collapsed to a name\ref{sec:concatenate}.
 
 
+%The first stage of the algorithm builds a list of identifiers we call the \textit{full-name}, short for \textit{Full Function Object Consumption Name}.
+%The algorithm starts by parsing the JavaScript code in to a syntax tree\cite{XX}, then iterating over each function body in the tree. For each function body we look for the path of the function object from creation to consumption. We process the abstract syntax tree from the function body node back to the root node in the enclosed function. On each step we determine if the next node represents one of the cases presented in Table~\ref{table:function-types}. As we go upward in the tree, we keep identifiers and whether the object consumed is the result object (rows 1-6), part of the result object (rows 7-8), or contribute to the result object (rows 9-11). Once the summary is ready we construct the identifier. The identifiers come from function calls (case 11) are ignored if there is any other type of identifier. Otherwise, only the closest function call identifier will be used. Nodes which are not one of the type specified in Table~\ref{table:function-types} are ignored.
 
-The first stage of the algorithm builds a list of identifiers we call the \textit{full-name}, short for \textit{Full Function Object Consumption Name}.
-The algorithm starts by parsing the JavaScript code in to a syntax tree\cite{XX}, then iterating over each function body in the tree. For each function body we look for the path of the function object from creation to consumption. We process the abstract syntax tree from the function body node back to the root node in the enclosed function. On each step we determine if the next node represents one of the cases presented in Table~\ref{table:function-types}. As we go upward in the tree, we keep identifiers and whether the object consumed is the result object (rows 1-6), part of the result object (rows 7-8), or contribute to the result object (rows 9-11). Once the summary is ready we construct the identifier. The identifiers come from function calls (case 11) are ignored if there is any other type of identifier. Otherwise, only the closest function call identifier will be used. Nodes which are not one of the type specified in Table~\ref{table:function-types} are ignored.
-
-Note that two cases, one where the function is a top script element and the second where function is created by {\small\texttt{Function}} constructor do not appear in the table. The top script functions can not be anonymous and the functions defined by the constructor can be considered as a regular function body. 
+%Note that two cases, one where the function is a top script element and the second where function is created by {\small\texttt{Function}} constructor do not appear in the table. The top script functions can not be anonymous and the functions defined by the constructor can be considered as a regular function body. 
 
 %\subsection{Variable Refinement}\subsubsection{Read Variable}\subsubsection{Write Variable}
 
@@ -355,8 +389,9 @@ Note that two cases, one where the function is a top script element and the seco
 %\subsection{Temporary Variables} %aliases for the same object
 
 \subsection{Expression Reductions}
-\subsubsection{to a Name}
 \label{sec:general-element-naming}
+
+\subsubsection{to a Name}
 In simple cases the syntax tree node will have an identifier we can use as part of our name. In more complex cases an expression will written in place of an identifier. 
 The expression can be long and complex. Again, to make our names more compact and readable we convert expression into a pseudo-identifier (i.e. not neccessarily
  a valid JavaScript identifier) that resembles the expression. We do this by retaining any simple identifiers -- the developer will recognize these -- but we drop WHAT. 
