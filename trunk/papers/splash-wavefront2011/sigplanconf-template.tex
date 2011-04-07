@@ -324,7 +324,6 @@ The algrithm builds a consumption summary for an expression which returns a valu
 \label{table:node-types} 
 \end{table}
 
-Morover, we compute an \textit{id} value for node types appear in table~\ref{table:node-types}. If the parent node is an object literal, then the node value is assigned to a named property like {\small\texttt{foo}}. In this case we keep {\small\texttt{foo}} as the \textit{id}. If the parent node is a function call that the expression value is passed as one of its argument, we reduce the function expression to a name and we keep that as \textit{id}. In the case of function call, another value, \textit{hint}, will also be computed and saved. In the case where the parent node is an assignment we reduce the left side expression to a name and we keep that as \textit{id}. The algorithm ends when we reach a node which an assignment or a statmement which does not return any value (i.e., the node is not an expression). 
 
 %\floatname{algorithm}{Procedure}
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
@@ -370,6 +369,8 @@ Morover, we compute an \textit{id} value for node types appear in table~\ref{tab
 \end{algorithmic}
 \end{algorithm}
 
+
+Morover, we compute an \textit{id} value for node types appear in table~\ref{table:node-types}. If the parent node is an object literal, then the node value is assigned to a named property like {\small\texttt{foo}}. In this case we keep {\small\texttt{foo}} as the \textit{id}. If the parent node is a function call that the expression value is passed as one of its argument, we reduce the function expression to a name and we keep that as \textit{id}. In the case of function call, another value, \textit{hint}, will also be computed from other arguments and stored. In the case where the parent node is an assignment we reduce the left side expression to a name and we keep that as \textit{id}. The algorithm ends when we reach a node which is an assignment or a statmement which does not return any value (i.e., the node is not an expression). 
 
 %The algorithm build a consumption summary for an expression which returns a value. A consumption summary is a list of collected information at every not in the tree traversal. At every node two items are stored. First the relation of the consumed value and the result value. The consumed expressions can be part of the result expression like first two cases in table 2. The result value might be different from the consumed value like case 3 in table 2. Morover we keep identifiers at every node is one of the constructs in table 2.
 
@@ -665,6 +666,97 @@ June, 2010.
 
 
 \section{To Be Removed}
+
+
+
+\begin{table}
+\centering
+\scalebox{0.8}{
+\renewcommand\arraystretch{2.0}
+\begin{tabular}{ | c | l | l | l | m{2.5cm} | l|}
+  \hline
+   & \multicolumn{4} {| c |}{Description} & \multicolumn{1} {| c |}{Code} \\ 
+  \hline 
+   1 &
+   & 
+   &  
+   & direct access.
+   & bar\textsuperscript{*}.foo = function()\{...\}\\
+   \cline{0-0}\cline{5-6} 
+
+   2 & \multirow{11}{*}{\hspace{.2cm}\begin{rotate}{90}The function object is\end{rotate}} 
+   & 
+   & 
+   & \raggedright hashmap access by a string. 
+   & bar\textsuperscript{*}["foo"] = function()\{...\} \\
+   \cline{0-0}\cline{5-6} 
+
+   3 &
+   & \multirow{8}{*}{\hspace{.2cm}\begin{rotate}{90}assigned to a(n)\end{rotate}}
+   & \multirow{5}{*}{\hspace{.2cm}\begin{rotate}{90}object property through\end{rotate}}
+   & \raggedright hashmap access by a variable name.
+   & bar\textsuperscript{*}[foo] = function()\{...\} \\
+   \cline{0-0}\cline{5-6} 
+
+   4 &
+   & 
+   & 
+   & \raggedright hashmap access by a JavaScript expression.
+   & bar\textsuperscript{*}[foo\textsuperscript{*}] = function()\{...\} \\
+   \cline{0-0}\cline{5-6} 
+      
+   5 &
+   &
+   &
+   & \raggedright  array index.
+   & foo\textsuperscript{*}[0] = function()\{...\} \\
+   \cline{0-0}\cline{4-6} 
+
+   6 &
+   & 
+   & \multicolumn{2}{|l|}{
+      variable.}
+   & foo = function()\{...\} \\
+   \cline{0-0}\cline{4-6} 
+
+   7 &
+   &  
+   & \multicolumn{2}{|m{2.8cm}|}{
+     \raggedright property of a new object in an object literal.}
+   & \{ ..., foo: function()\{...\}, ...\}\\ %{\small\begin{verbatim}{ ..., foo: function(){...}, ...}\end{verbatim}} \\ %
+   \cline{0-0}\cline{4-6}
+	 
+	 8 &
+	 & 
+	 & \multicolumn{2}{|m{2.8cm}|}{
+	   new array index in an array literal.} 
+   & [..., function()\{...\}, ...] \\ 
+   \cline{0-0}\cline{3-6} 
+
+   9 &
+   & \multicolumn{3}{|m{3.8cm}|}{
+     \raggedright directly called.}
+   & function()\{...\}() \\
+   \cline{0-0}\cline{3-6} 
+
+   10 &
+   & \multicolumn{3}{|m{3.5cm}|}{
+     \raggedright returned from a function call.}
+   & \{... return function()\{...\}\} \\
+   \cline{0-0}\cline{3-6} 
+
+   11 &
+   & \multicolumn{3}{|m{3.5cm}|}{
+     \raggedright passed as an argument to a function.}
+   & foo\textsuperscript{*}(..., function()\{\}, ...) \\
+   \hline 
+
+  \end{tabular}
+  }
+\caption{Different cases of function object creation and usage in JavaScript.  Identifiers with a star in the table can be expressions as well as simple identifiers; we explain how we reduce expressions to pseudo-identifier in ~\ref{sec:general-element-naming}.}
+\label{table:function-types} 
+\end{table}
+
 
 \begin{table*}
 \centering
