@@ -243,10 +243,11 @@ A function name is basically used to assist the developer to recall or understan
 JavaScript does not support a standard packaging mechanism to be used for modular programming. Scripts are loaded from different files and executed within the same or different global objects. Developers usually use objects at the top level to encapsulate properties, objects and functions from a framework or library. The same mechanism is reused for defining subpackages. As the project size and the number of functions increases, the short function name will not be enough for recognizing the function. The developer also wants the class or the module contains the function. In addition to the package name, knowing the context (the enclosing function body) that contains the function can help in better understanding the function behavior.
 
 
-\section{To Be Removed}
+\section{Building Up Intuition by Example}
+We know that we face an ill-defined task: we are after all attempting to create short useful names for nameless functions. We have to create salient information from source code: we anticipate removing characters will be our biggest challenge.  To create an algorithm we decided to study the spectrum of examples from our 10 large collections of functions. We want to see what kinds of cases are important and what aspects of these cases help us identify functions.
 
-
-
+For this purpose we created 11 categories of function body expressions shown in Table~\ref{table:function-types} and we categorized all of the nameless functions from the 10 libraries into one of 11 cases, giving the numerical results in Table~\ref{function-type-count}.  Then we examine each of these cases to think about how we want the functions named.
+  
 \begin{table}
 \centering
 \scalebox{0.8}{
@@ -374,34 +375,45 @@ JavaScript does not support a standard packaging mechanism to be used for modula
 %     and extracting the initial name used for the function object after its creation. 
 %In the third subsection we discuss qualities we expect from an automatically created function name.
  
-\subsection{Building Up Intuition by Example}
-We know that we face an ill-defined task: we are after all attempting to create short useful names for nameless functions. We have to create salient information from source code: we anticipate removing characters will be our biggest challenge.  To create an algorithm we decided to study the spectrum of examples from our 10 large collections of functions. We want to see what kinds of cases are important and what aspects of these cases help us identify functions.
 
-For this purpose we created 11 categories of function body expressions shown in Table~\ref{table:function-types} and we categorized all of the nameless functions from the 10 libraries into one of 11 cases, giving the numerical results in Table~\ref{function-type-count}.  Then we examine each of these cases to think about how we want the functions named.
-  
 \subsubsection{Case 1: in Object Literal}
  This case usually appears when developers try to group a set of functions in a new object. A common case is grouping a set of functions in the {\small\texttt{prototype}} property of the constructor. This structure resembles the class structure in traditional object-oriented languages. When a new object is created by the constructor, the new object also inherits all functions defined in the constructor's prototype. This structure is also used  when the owner object is a shared object with a set of utility functions.
  
  The majority of nameless functions (more than 65\%) in almost all studied projects (except Closure), are defined in object literals. This case seems particularly simple: the property name makes a good name for the function body. But why? Our reasoning; the developer-invented property name has high information content, it is textually close to the function body, and the function object created by the function body initializes to the property.  In some sense the property 'consumes' the function object.
  
 \subsubsection{Case 2: in Array Literal}
-Contrary to the previous case the appearance of this case is very limited. It usually appears in initializations or when an array of functions are passed as an argument. Among all projects only two projects have instances of nameless functions defined in this way. To name the function body defined in an array literal, first we must name the array literal. To name the array literal, we consider it as a function body and we employ the same algorithm we use for naming a function body. If the array literal receives a name like {\small\texttt{foo}}, and the function is defined at index ({\small\texttt{i}}), {{\small\texttt{foo[i]}} is assigned as the function body name. 
+Contrary to the previous case the appearance of this case is very limited. It usually appears in initializations or when an array of functions are passed as an argument. Among all projects only two have instances of nameless functions defined in this way. 
+
+To name the function body defined in an array literal, first we must name the array literal. To name the array literal, we consider it as a function body and we employ the same algorithm we use for naming a function body. If the array literal receives a name like {\small\texttt{foo}}, and the function is defined at index ({\small\texttt{i}}), {{\small\texttt{foo[i]}} is assigned as the function body name. 
 
 
 \subsubsection{Case3: setProperty by Direct Access }
 This case is the second most common case in the studied projects. Here, we can see why the Closure project is different from other projects in the first case. About 94\% of nameless functions in this project are defined in this way. It seems that the Closure developers follow an internal standard for function objects creation and usage. Although most functions are assigned to objects in the initialization phase, there are still cases where functions assigned through direct access. 
-This case usually happens when the functions are assigned to object properties after its initialization. Similar to the first case the property name is assinged to the function body as its name. 
+This case usually happens when the functions are assigned to object properties after its initialization. Similar to the first case the property name is assigned to the function body as its name. 
  
 
 \subsubsection{Case 4: setProperty by String}
 In JavaScript, objects are like hashmaps and their properties can also be accessed by strings. In general an expression can be specified in the brackets after the object. The expression is evaluated at runtime and the result which should be a string is used to access the property. In the simplest form, the expression can be a string. As this form can be completely replaced by the direct access, we see few instances of this form for function object assignment. The string inside the brackets become the function name in this case.
 
 \subsubsection{Case 5: setProperty by variable}
-The usage of this case is also limited. This form usually appears when the same function body is assigned to different properties in a loop. Therefore, the variable
- name is a general name like {\small\texttt{fname}} or {\small\texttt{item}}. Moreover, based on the variable value-which is not known until runtime-the owner can be a    regular object or an array. To name a function in this case we use the owner object name with the variable inside brackets like {\small\texttt{bar[foo]}}.
+The usage of this case is also limited. This form usually appears when the same function body is assigned to different properties in a loop. 
+For example see the inner function in Fig.~\ref{fig:jQueryEach}. The variable
+ name in the cases we examined was generic name like {\small\texttt{o}} or {\small\texttt{item}}. Nevertheless identifying the function body using the assignment target seems natural and clear in these cases.
+\begin{figure*}[htp]
+\begin{verbatim}
+jQuery.each( "ajaxStart ajaxStop ajaxComplete ajaxError".split(" "), function( i, o ) {
+    jQuery.fn[o] = function( f ) {
+        return this.bind(o, f);
+    };
+});
+\end{verbatim}
+\caption{An example of functions passed as arguments to a function (row 11 in Table~\ref{table:function-types} and (the inner definition) an example of a 
+function assigned to a hashmap using a variable name (row 5 in Table~\ref{table:function-types}. The function is from the jQuery library but simplified to fit on the page. }
+\label{fig:jQueryEach}
+\end{figure*}
 
 \subsubsection{Case 6: setProperty by Expression}
- A common case of expression in this case is a conditional expression, e.g., {\small\texttt{condition?"prop1":"prop2"}}. To name this functions, similar to previous case we use the owner object and a sbustring of expression inside the brackets.
+ A common case of expression in this case is a conditional expression, e.g., {\small\texttt{condition?"prop1":"prop2"}}. To name this functions, similar to previous case we use the owner object and a substring of expression inside the brackets.
  
 %jQuery.fn["inner" + name] = function() {
 %dojo[dojo._defaultXhr ? "_defaultXhr" : "xhr"] = function
@@ -420,16 +432,15 @@ Calling functions objects just after their creations is a common pattern in Java
 If the function call has no result, it means that the function performs one task (e.g., initialization of some values in the outer scope for later use). In this case, we name the function {\small\texttt{Closure}}. If the function returns a value and it is assinged to {\small\texttt{foo}}, we name the function {\small\texttt{fooClosure}}.
 
 \subsubsection{Case 10: Returned}
-Although this category only includes 2\% of nameless function, proper naming of functions in this class is important. Many constructors are build by this form and therefore the name of thes functions appear in object summaries.
+Although this category only includes 2\% of nameless function, proper naming of functions in this class is important. Many constructors are build by this form and therefore the name of these functions appear in object summaries.
 
 If the function is returned from a function which is just called after its creation(case 9), and the result is assigned to {\small\texttt{foo}}, we name the function {\small\texttt{foo}}. Otherwise, if the name of outer function is {\small\texttt{foo}}, we name the function {\small\texttt{fooResult}}.
 
 % this is also important as many constructor/classes are made in this way 
 
 \subsubsection{Case 11: as an Argument}
-Numbers in table~\ref{function-types-count} show that creating and passing functions as arguments is very common in JavaScript. If the calling function name is 
-{\small\texttt{foo}} and the function is passed as the {\small\texttt{ith}} argument, we name the function {\small\texttt{foo(i)}}. One of the common cases of passing
-functions as arguments is to register function in a global shared object. The function is usually registered with a name which is also passed as string argument. Therefore, to improve our naming approach, we include the first string argument (if there is any) in the name. For example if the string argument is {\small\texttt{myFunction}} the assigned name will be {\small\texttt{foo(i)(myFunction)}}.
+Numbers in table~\ref{function-type-count} show that creating and passing functions as arguments is very common in JavaScript.
+For example, see Fig.~\ref{fig:jQueryEach}. The calling function and the other arguments look helpful, to the extent that they have identifiers invented by the developer. As in the the example we see that the calling function, \verb|jQuery.each()| can be generic so it provides less valuable information, but the arguments in the example are highly specific to the function body. 
 
 
 %\subsection{Is it possible to automatically name functions?}
