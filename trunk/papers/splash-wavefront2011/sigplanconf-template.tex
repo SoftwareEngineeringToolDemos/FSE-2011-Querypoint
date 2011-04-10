@@ -77,7 +77,7 @@ Understanding JavaScript code due to its dynamic, weakly-typed nature is complic
 Algorithms, Human Factors, Languages
 
 \keywords
-JavaScript, Function Name, Debugger
+JavaScript, Anonymous Function Name, Debugger
 
 \section{Introduction}
 The unique and important role of JavaScript in web programming is undeniable. Along with the wave of ``Web 2.0", JavaScript has become the inevitable part of almost every modern web site. This language is used by all of the web's 100 most popular sites\footnote[1]{http://www.alexa.com}. It is very likely that JavaScript keeps this crucial role for the next few years or even the next decade. Along with the growth of demands for more comprehensive user interfaces, the size and the complexity of web applications is increasing. Moreover, JavaScript is also becoming a general purpose computing platform with office applications \cite{JSOffice, JSOffice2}, browsers \cite{FAO, GCE} and development environments \cite{Ingalls} being developed in JavaScript \cite{Richards}. There are also proposals for employing JavaScript in server-side applications \cite{SSJSR, CJS}.
@@ -111,7 +111,7 @@ So what do JavaScript developers do in practice?  To get empirical evidence we a
 
 \begin{table}
 \centering
-\scalebox{0.9}{
+\scalebox{0.8}{
   \begin{tabular}{ | l | l | l | l | l |}
   \hline
    Project & Description & Total & Named \\ 
@@ -246,7 +246,7 @@ JavaScript does not support a standard packaging mechanism to be used for modula
 \section{Building Up Intuition by Example}
 We know that we face an ill-defined task: we are after all attempting to create short useful names for nameless functions. We have to create salient information from source code: we anticipate removing characters will be our biggest challenge.  To create an algorithm we decided to study the spectrum of examples from our 10 large collections of functions. We want to see what kinds of cases are important and what aspects of these cases help us identify functions.
 
-For this purpose we created 11 categories of function body expressions shown in Table~\ref{table:function-types} and we categorized all of the nameless functions from the 10 libraries into one of 11 cases, giving the numerical results in Table~\ref{function-type-count}.  Then we examine each of these cases to think about how we want the functions named. We'll ignore nesting of function scopes in the analysis to avoid taking on too much at one time.
+For this purpose we created 12 categories of function body expressions shown in Table~\ref{table:function-types} and we categorized all of the nameless functions from the 10 libraries into one of 12 cases, giving the numerical results in Table~\ref{function-type-count}.  Then we examine each of these cases to think about how we want the functions named. We'll ignore nesting of function scopes in the analysis to avoid taking on too much at one time.
   
 \begin{table}
 \centering
@@ -265,20 +265,20 @@ For this purpose we created 11 categories of function body expressions shown in 
    \cline{0-0}\cline{4-6}
 	 
 	 2 &
-	 & \multirow{8}{*}{\hspace{.2cm}\begin{rotate}{90}assigned to a(n)\end{rotate}}
+	 & \multirow{8}{*}{\hspace{.2cm}\begin{rotate}{90}is assigned to a(n)\end{rotate}}
 	 & \multicolumn{2}{|m{2.8cm}|}{
 	   new array index in an array literal.} 
    & [..., function()\{...\}, ...] \\ 
    \cline{0-0}\cline{4-6} 
 
-   3 &
+   3 & \multirow{12}{*}{\hspace{.2cm}\begin{rotate}{90}The function object\end{rotate}} 
    & 
    &  
-   & direct access.
+   & direct access by a property identifier.
    & bar\textsuperscript{*}.foo = function()\{...\}\\
    \cline{0-0}\cline{5-6} 
 
-   4 & \multirow{11}{*}{\hspace{.2cm}\begin{rotate}{90}The function object is\end{rotate}} 
+   4 & 
    & 
    & 
    & \raggedright hashmap access by a string. 
@@ -315,58 +315,66 @@ For this purpose we created 11 categories of function body expressions shown in 
    
    9 &
    & \multicolumn{3}{|m{3.8cm}|}{
-     \raggedright directly called.}
+     \raggedright is directly called.}
    & function()\{...\}() \\
    \cline{0-0}\cline{3-6} 
 
    10 &
-   & \multicolumn{3}{|m{3.5cm}|}{
-     \raggedright returned from a function call.}
-   & \{... return function()\{...\}\} \\
+   & \multicolumn{3}{|m{3.8cm}|}{
+     \raggedright property is accessed.}
+   & function()\{...\}.foo \\
    \cline{0-0}\cline{3-6} 
 
    11 &
    & \multicolumn{3}{|m{3.5cm}|}{
-     \raggedright passed as an argument to a function.}
+     \raggedright is returned from a function call.}
+   & \{... return function()\{...\}\} \\
+   \cline{0-0}\cline{3-6} 
+
+   12 &
+   & \multicolumn{3}{|m{3.5cm}|}{
+     \raggedright is passed as an argument to a function.}
    & foo\textsuperscript{*}(..., function()\{\}, ...) \\
    \hline 
 
   \end{tabular}
     }
-\caption{Different cases of function object creation and usage in JavaScript.  Identifiers with a star in the table can be expressions as well as simple identifiers; we explain how we reduce expressions to pseudo-identifier in ~\ref{sec:general-element-naming}.}
+\caption{Different cases of anonymous function object creation and usage in JavaScript.  Identifiers with a star in the table can be expressions as well as simple identifiers; we explain how we reduce expressions to pseudo-identifier in ~\ref{sec:general-element-naming}.}
 \label{table:function-types} 
 \end{table}
 
 
 \begin{table*}
 \centering
-  \begin{tabular}{ | l | l | l | l | l | l | l | l | l | l | l | l |}
+\scalebox{0.9}{
+  \begin{tabular}{ | l | l | l | l | l | l | l | l | l | l | l | l | l |}
   \hline
-     & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 \\ 
+     & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12\\ 
   \hline 
-   Closure       & 23(0.3\%)  & 0  & 8465(94\%) & 3  & 4  & 0  & 0 & 67(0.7\%)& 16(0.2\%)& 43(0.5\%)& 365(4\%)\\ 
+   Closure       & 23(0.3\%)  & 0  & 8466(94\%) & 3  & 4  & 0  & 0 & 67(0.7\%) & 16(0.2\%) & 0  & 43(0.5\%) & 365(4\%)\\ 
   \hline 
-   DOJO          & 9599(61\%) & 6  & 1762(11\%) & 21 & 22 & 2  & 1 & 1143(7\%)& 471(3\%) & 169(1\%) & 2644(17\%) \\ 
+   DOJO          & 9601(61\%) & 7  & 1765(11\%) & 21 & 24 & 2  & 1 & 1151(7\%) & 476(3\%) & 2  & 175(1\%) & 2641(17\%) \\ 
   \hline 
-   ExtJS         & 30221(83\%)& 10  & 1476(4\%)  & 3  & 16 & 9  & 0 & 820(2\%) & 788(2\%) & 509(1\%) & 2617(7\%) \\ 
+   ExtJS         & 30221(83\%) & 0  & 1476(4\%)  & 3  & 40 & 9  & 0 & 859(2\%) & 788(2\%) & 180  & 517(1\%) & 2439(7\%) \\ 
   \hline 
-   Firebug       & 2296(76\%) & 0  & 539(18\%)  & 1  & 0  & 0  & 0 & 14(0.4\%)& 7(0.2\%) & 6(0.2\%) & 149(5\%) \\ 
+   Firebug       & 2296(76\%) & 0  & 539(18\%)  & 1  & 2  & 0  & 0 & 17(0.4\%) & 7(0.2\%) & 2  & 6(0.2\%) & 148(5\%) \\ 
   \hline 
-   jQuery        & 233(58\%)  & 0  & 34(9\%)    & 0  & 10 & 2  & 0 & 24(6\%)  & 9(2\%)   & 0        & 86(21\%)  \\ 
+   jQuery        & 233(58\%)  & 0  & 34(9\%)    & 0  & 10 & 2  & 0 & 24(6\%)  & 10(2\%)   & 0  & 0        & 86(21\%)  \\ 
   \hline 
-   MochiKit      & 1080(59\%) & 0  & 383(21\%)  & 0  & 2  & 0  & 0 & 106(6\%) & 18(1\%)  & 41(2\%)  & 181(10\%) \\ 
+   MochiKit      & 1080(59\%) & 10  & 385(21\%)  & 0  & 4  & 0  & 0 & 110(6\%) & 18(1\%)  & 0  & 41(2\%)  & 181(10\%) \\ 
   \hline 
-   MooTools      & 339(55\%)  & 0  & 79(13\%)   & 0  & 4  & 3  & 0 & 53(9\%)  & 21(3\%)  & 14(2\%)  & 105(17\%) \\ 
+   MooTools      & 339(55\%)  & 0  & 79(13\%)   & 0  & 4  & 3  & 0 & 53(9\%)  & 21(3\%)  & 20  & 14(2\%)  & 85(13\%) \\ 
   \hline 
-   Prototype     & 265(60\%)  & 0  & 28(6\%)    & 0  & 0  & 1  & 0 & 25(6\%)  & 44(10\%) & 8(2\%)   & 71(16\%) \\ 
+   Prototype     & 265(60\%)  & 0  & 28(6\%)    & 0  & 0  & 1  & 0 & 25(6\%)  & 44(10\%) & 1  & 8(2\%)   & 70(16\%) \\ 
   \hline 
-   Scriptaculous & 564(64\%)  & 0  & 75(8\%)    & 0  & 2  & 2  & 0 & 27(3\%)  & 45(5\%)  & 9(1\%)   & 160(18\%) \\ 
+   Scriptaculous & 564(64\%)  & 0  & 75(8\%)    & 0  & 2  & 2  & 0 & 27(3\%)  & 45(5\%)  & 21  & 9(1\%)   & 139(15\%) \\ 
   \hline 
-   YUI           & 14154(66\%)& 7  & 1721(8\%)  & 0  & 90 & 0  & 0 & 1181(6\%)& 172(1\%) & 95(0.5\%)& 4004(19\%)\\ 
+   YUI           & 14154(66\%) & 7  & 1721(8\%)  & 0  & 90 & 0  & 0 & 1181(6\%) & 172(1\%) & 0  & 95(0.5\%) & 4004(19\%)\\ 
   \hline 
-   All           & 58774(65\%)& 23 & 14562(16\%)& 28 & 150& 19 & 1 & 3460(4\%)& 1591(2\%)& 894(1\%) & 10382(12\%) \\ 
+   All           & 58776(65\%)& 24 & 14568(16\%)& 28 & 180& 19 & 1 & 3514(4\%)& 1597(2\%)& 226  & 908(1\%) & 10072(11\%) \\ 
   \hline 
   \end{tabular}
+}
 \caption{The number of nameless functions in each category defined in table~\ref{table:function-types}.}
 \label{function-type-count} 
 \end{table*} 
@@ -387,7 +395,7 @@ Contrary to the previous case the appearance of this case is very limited. It us
 To name the function body defined in an array literal, first we must name the array literal. To name the array literal, we consider it as a function body and we employ the same algorithm we use for naming a function body. If the array literal receives a name like {\small\texttt{foo}}, and the function is defined at index ({\small\texttt{i}}), {{\small\texttt{foo[i]}} is assigned as the function body name. 
 
 
-\subsection{Case 3: Property Assignment With  Property Identifier }
+\subsection{Case 3: Property Assignment With Property Identifier }
 This case is the second most common case in the studied projects. Here, we can see why the Closure project is different from other projects in the first case. About 94\% of nameless functions in this project are defined in this way. It seems that the Closure developers follow an internal standard for function objects creation and usage.
 
 Following the model from Case 1, we expect a good name would combine the object name with the property identifier. The complication in this case comes from the object name: in general the object reference can be a computed expression. These expressions can be long and complex: to create a useful name we need to focus on developer-invented identifiers in the expression and work to keep the total number of characters small.  This comment apply to all of the cases in table~\ref{table:function-types} marked with an asterix on the expression identifier.
@@ -442,7 +450,11 @@ One important special case are functions returned from functions which are immed
 
 % this is also important as many constructor/classes are made in this way 
 
-\subsection{Case 11: Function passed as an Argument}
+\subsection{Case 11: Function Property is Accessd}
+This case usually happens one of the predefined functions of function object (i.e., {\small\texttt{call, apply, bind}}) or an agumented function to {\small\texttt{Function}} object prototype is called.
+
+
+\subsection{Case 12: Function Passed as an Argument}
 Numbers in table~\ref{function-type-count} show that creating and passing functions as arguments is very common in JavaScript.
 For example, see Fig.~\ref{fig:jQueryEach}. The calling function and the other arguments look helpful, to the extent that they have identifiers invented by the developer. As in the example we see that the calling function, \verb|jQuery.each()| can be generic so it provides less valuable information, but the arguments in that example are highly specific to the function body. This important case will stress any naming algorithm: we somehow have to summarize the function call -- which itself may be an expression -- and the other arguments -- any or all of which may be expressions. 
 
@@ -583,7 +595,7 @@ The name is built by the above process does not contain any information about en
 
 
 %The first stage of the algorithm builds a list of identifiers we call the \textit{full-name}, short for \textit{Full Function Object Consumption Name}.
-%The algorithm starts by parsing the JavaScript code in to a syntax tree\cite{XX}, then iterating over each function body in the tree. For each function body we look for the path of the function object from creation to consumption. We process the abstract syntax tree from the function body node back to the root node in the enclosed function. On each step we determine if the next node represents one of the cases presented in Table~\ref{table:function-types}. As we go upward in the tree, we keep identifiers and whether the object consumed is the result object (rows 1-6), part of the result object (rows 7-8), or contribute to the result object (rows 9-11). Once the summary is ready we construct the identifier. The identifiers come from function calls (case 11) are ignored if there is any other type of identifier. Otherwise, only the closest function call identifier will be used. Nodes which are not one of the type specified in Table~\ref{table:function-types} are ignored.
+%The algorithm starts by parsing the JavaScript code in to a syntax tree\cite{XX}, then iterating over each function body in the tree. For each function body we look for the path of the function object from creation to consumption. We process the abstract syntax tree from the function body node back to the root node in the enclosed function. On each step we determine if the next node represents one of the cases presented in Table~\ref{table:function-types}. As we go upward in the tree, we keep identifiers and whether the object consumed is the result object (rows 1-6), part of the result object (rows 7-8), or contribute to the result object (rows 9-11). Once the summary is ready we construct the identifier. The identifiers come from function calls (case 12) are ignored if there is any other type of identifier. Otherwise, only the closest function call identifier will be used. Nodes which are not one of the type specified in Table~\ref{table:function-types} are ignored.
 
 %Note that two cases, one where the function is a top script element and the second where function is created by {\small\texttt{Function}} constructor do not appear in the table. The top script functions can not be anonymous and the functions defined by the constructor can be considered as a regular function body. 
 
@@ -637,7 +649,7 @@ is returned in the closure function is assigned to the expression that closure f
 function call defines "this" (by apply()) or arguments these variables can be replaced in the function body.
 
 \subsection{Conversion to an Name}
-At this stage of the algorithm we have a list of identifiers with attributes (which row contributed the identifier). Next we join the list items using special characters to signal the attributes. For identifiers from rows 1-6 of Table~\ref{table:function-types} we put out the identifier followed by a WHAT. For rows 7 and 8 we put out the identifier followed by a slash (/), the traditional separator in a containment hierarchy. For rows 9-11 the identifier is followed by a left angle bracket (<) indicating 'contributes to'. 
+At this stage of the algorithm we have a list of identifiers with attributes (which row contributed the identifier). Next we join the list items using special characters to signal the attributes. For identifiers from rows 1-6 of Table~\ref{table:function-types} we put out the identifier followed by a WHAT. For rows 7 and 8 we put out the identifier followed by a slash (/), the traditional separator in a containment hierarchy. For rows 9-12 the identifier is followed by a left angle bracket (<) indicating 'contributes to'. 
 
 The particular symbols we use may be refined with more experience in how developers respond to them. Our intuition is that these extra symbols need to be visually compact because their purpose is to adjust the developers expectation for the identifier. For example, the function on line 9 of Fig.~\ref{fig:js-code} is named \texttt{main<} but the developer may only key on the word \texttt{main} to recall the function body. 
 
