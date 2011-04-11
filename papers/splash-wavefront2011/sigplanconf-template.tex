@@ -476,16 +476,10 @@ Overlaying our analysis above is hierarchy: any of the cases can be nested in fu
 % functions pass the name as string, different types of class definitions
 
 \section{Static  Function Object Consumption}
-Using our analysis we have created a preliminary automatic naming solution.  
-We call our automated naming solution "Static Function Object Consumption", since it relies only on a parser (static) and it attempts to name function bodies by tracking the function object created from the body to where the object is 'consumed', for example by assignment to or initialization of  an object property, variable reference, or function argument.
-Static Function Object Consumption generalizes the built-in JavaScript naming and common, simple coding patterns like object property initializers and variable assignments typically recognized by developers as naming functions.
+Using our analysis we have created a preliminary automatic naming solution.  The three parts of our solution match three observations for our study. First we apply 
+ \textit{(Static) Function Object Consumption}, which tracks the function object created from a function body to where the object is 'consumed', for example by assignment to or initialization of  an object property, variable reference, or function argument. The "static" qualifier just indicates that we will only use a parser.  Second, we reduce complex expressions to pseudo-identifiers focusing on developer-invented names.  Third we apply our approach hierarchically to  deal with nested function bodies.
 
-The built-in naming, a function declaration, binds a name in a scope to a function object created from the adjacent function body. For example, in  {\small\texttt{function foo() \{return 1;\}}}, the name  {\small\texttt{foo}} is bound the the function body in curly braces.
-Object property initializers bind a object property name to a function created from an adjacent function body. For example,  {\small\texttt{var bar = \{foo: function()\{return 2; \}\}}}, sets {\small\texttt{bar.foo}} to a function object created from the body {\small\texttt{\{return 2;\}}}. While the language does not associate the function body with the property  {\small\texttt{bar.foo}}, a JavaScript developer would because the created function body initializes the property. Similarly, a varible name bound to a function object, such as {\small\texttt{var baz = function()\{return 3; \}}}, is naturally associated with the function body. All three of these simple cases share the character that a function body creates a function object which is then bound to an identifier. 
-
-Our algorithm applies the same logic: we look at the code preceding the function body to see where the resulting function object will end up, or
-where the object will be \textit{consumed}. Along that path we collect or construct identifiers from the developers source code. We add some symbols to guide the developer to the function body in complex cases, and we prefix deeply nested function bodies with context names to disambiguate the result.
-For the simple cases of function declaration, object property initialization, and variable initialization the algorithm gives the same results we described above. 
+We will describe the details in the next sections. In constructing names we realized one additional aspect: as we move from simple object property names to more complex examples, the path of the object consumption is an added bit of information helpful in naming. Thus we add some symbols to guide the developer to the function body in complex cases: this way the extra information does not take a lot of space and it can be ignored by developers who have not yet learned about its significance.
 
 
 %To name a expression, we walk up the tree looking for the constructs in table 2. As we describe in section XX, for every matching construct we record identifiers or expressions to use in constructing a name. Then we assemble a name using the expression-reduction rules outlined in section YY and the context naming rules in section ZZ. The result is a summary that contains identifiers (i.e., variable and property names) and strings available in the source code plus some explanatory tokens. It compactly explains the function object creation, consumption and assignment. For the simple cases of function declaration, object property initialization, and variable initialization the algorithm gives the same results we described above.
@@ -506,57 +500,9 @@ For the simple cases of function declaration, object property initialization, an
 \label{sec:nodewalk}
 
 
-We parse the JavaScript and search the resulting syntax tree for function body nodes. For each function body, we apply the algorithm outlined in Algorithm ~\ref{alg1}. The basic idea is to look for parent nodes with helpful identifiers as outlined in  Table~\ref{table:node-types}. In simple cases the parent node will have a simple identifier; otherwise we construct an identifier from the expression as described in \ref{sec:general-element-naming}.  At each step we track how the parent and child are related.  If the parent expression is an array or object literal then the current node value is \textit{partOf} the parent node value. Otherwise the node expression value is \textit{theSame} as or different \textit{contributesTo} parent value. The algorithm ends when we reach a node which is an assignment or a statement which does not return any value (i.e., the node is not an expression).  The algorithm result is an \textit{object consumption summary}, a list of collected data at every visited parent node of the function body.
+We parse the JavaScript and search the resulting syntax tree for function body nodes. For each function body, we apply the algorithm outlined in Algorithm~\ref{alg1}. The basic idea (the \verb|while| loop) is to walk the syntax tree from the body up through parent nodes until we hit a node that is not a JavaScript expression. For each node we create an entry in a list and record in it information about the relationship between the node and its parent. We'll use this relationship information in Sec.~\ref{sec:concatenation}.Then for each node  we record developer-invented identifiers related to the destiny of the function object created from the body as outlined in  Table~\ref{table:node-types}. For the first and third rows of the table we record the information recursively; for the second row,  assignment node, we record the information after the loop terminates.   The algorithm ends when we reach a node which is an assignment or a statement which does not return any value (i.e., the node is not an expression).  The algorithm result is an \textit{object consumption summary}, a list of collected data at every visited parent node of the function body.
 
-Next we rank the collected identifiers and strings to elide less relevant data from the summary. 
-\begin{verbatim}
-	salmir	if during the walking up we reach a "return" node and the outer function is a "closure function" we jump to the parent node of "closure function"
-	johnjbarton	inside the while correct?
-	salmir	right.
-	salmir	there is also another effect, but not in the algorithm. The parent context name will become the closure functions parent context name.
-johnjbarton	can we handle this case with the end of the while loop:
-	johnjbarton	n = n.parent
-	salmir	yes.
-	johnjbarton	to
-	johnjbarton	n = getNextNode(n)
-	salmir	getParentNode();
-	johnjbarton	then explain getNextNode is either n.parent or the funky other thing
-
-		so now we are done with the summary and we process it with another algorithm
-	salmir	yes.drop case 2 unless we have at least one of 1 or 3?
-	salmir	yes.
-	johnjbarton	why?because the name from the function call is less valuable than the target
-	salmir	because those identifiers give some information about the function object directly, but the function calls are indirect.
-johnjbarton	ok we need an example for both paths
-salmir	line 13
-	salmir	we drop op()
-	salmir	for the other case when we keep function call, you can use figure 4.
-	salmir	jquery example.
-	johnjbarton	which one, inner or outer
-	salmir	inner
-	johnjbarton	I don't see it
-	salmir	right, outer.
-
-salmir	if there are more than on function call we just use the closes one to the function defintion.
-	salmir	foo(bar(baz("MyFun", function(){})) -> baz[MyFun]()
-	johnjbarton	so if we have two case 2 and zero 1 or 3, then pick the early case 2?
-	salmir	yes.
-
-johnjbarton	so the next step is to concatenate
-	johnjbarton	and you just remove dups or?
-	salmir	just that.
-	johnjbarton	and the reason for << is no identifier is found
-	salmir	yes, or internal nodes.
-	johnjbarton	what is an internal node?>
-	salmir	foo(bar(baz((function(){})))
-	salmir	<<<
-	salmir	myObject = foo(bar(baz((function(){})))
-        salmir	here foo, bar baz all are internal nodes.
-	salmir	so we just get myObject< as name
-\end{verbatim}
-Finally we concatenate the items with marker symbols to construct a string from the consumption summary. The result contains identifiers (i.e., variable and property names) and strings available in the source code plus some explanatory tokens. It compactly explains the function object creation, consumption and assignment.
- 
-The name is built by the above process does not contain any information about enclosing scopes. We call it \textit{local name}. We get the function \textit{full name} by adding the enclosing function full-name with a slash before the local-name, recursing through enclosing scopes. This full-name is our function body name.
+The algorithm uses three subroutines: \verb|getNextNode|,  \verb|nameExpression|, and \verb|argSummary|. The \verb|getNextNode| routine normally returns \verb|n.parent|, but we also use this point in the algorithm to handle an important special case, function bodies inside of \textit{immediate functions} typically used for modularity or scoping in JavaScript. We discuss this case in Sec.~\ref{sec:immediate}. The remaining two subroutines construct a pseudo-identifier from the expression as described in \ref{sec:general-element-naming}; they return their argument if it is simply an identifier.  
 
 
 %\floatname{algorithm}{Procedure}b
@@ -590,7 +536,7 @@ The name is built by the above process does not contain any information about en
    	    \STATE $dataItem.id$ = $foo$
     \ENDIF     
    \STATE $summary.add(dataItem)$
-   \STATE $n$ = $n.parent$
+   \STATE $n$ = getNextNode($n$)
 \ENDWHILE 
  
   \IF {$n.parent$ is an assignment} 
@@ -634,35 +580,21 @@ The name is built by the above process does not contain any information about en
 \label{table:node-types} 
 \end{table}
 
-%Moreover, we compute an \textit{id} value for node types appear in table~\ref{table:node-types}. If the parent node is an object literal, then the node value is assigned to a named property like {\small\texttt{foo}}. In this case we keep {\small\texttt{foo}} as the \textit{id}. If the parent node is a function call that the expression value is passed as one of its argument, we reduce the function expression to a name and we keep that as \textit{id}. In the case of function call, another value, \textit{hint}, will also be computed from other arguments and stored. In the case where the parent node is an assignment we reduce the left side expression to a name and we keep that as \textit{id}. 
+\subsection{Consumption by Immediate Functions}
+\label{sec:immediate}
+JavaScript developers use function scope to dynamically create functions with shared but private state. In this pattern, an enclosing function contains a number of function and object definitions and it is called immediately after it is defined. We call these functions \textit{immediate functions}.  For an example, see line 10 of the Listing~\ref{js-code} which is enclosed in the function on line 9. If the developer returns a function from this outer, immediate function we want to follow the returned object to where it is consumed. 
 
-%The algorithm build a consumption summary for an expression which returns a value. A consumption summary is a list of collected information at every not in the tree traversal. At every node two items are stored. First the relation of the consumed value and the result value. The consumed expressions can be part of the result expression like first two cases in table 2. The result value might be different from the consumed value like case 3 in table 2. Moreover we keep identifiers at every node is one of the constructs in table 2.
-
-%Our function naming algorithm parses the JavaScript and builds a name based on the parse tree.  Each function body results in a list of identifers and expressions marked with the kind of parse node that contributed them (\ref{sec:nodewalk}).  Some of the items on the list are dropped if their neighboring items already give better information for the name.  Then the expressions are converted to pseudo-identifiers (\ref{sec:general-element-naming}). Finally the attributes are converted to augmenting symbols on the identifiers while  the list is collapsed to a name\ref{sec:concatenate}.
-
-
-%The first stage of the algorithm builds a list of identifiers we call the \textit{full-name}, short for \textit{Full Function Object Consumption Name}.
-%The algorithm starts by parsing the JavaScript code in to a syntax tree\cite{XX}, then iterating over each function body in the tree. For each function body we look for the path of the function object from creation to consumption. We process the abstract syntax tree from the function body node back to the root node in the enclosed function. On each step we determine if the next node represents one of the cases presented in Table~\ref{table:function-types}. As we go upward in the tree, we keep identifiers and whether the object consumed is the result object (rows 1-6), part of the result object (rows 7-8), or contribute to the result object (rows 9-11). Once the summary is ready we construct the identifier. The identifiers come from function calls (case 12) are ignored if there is any other type of identifier. Otherwise, only the closest function call identifier will be used. Nodes which are not one of the type specified in Table~\ref{table:function-types} are ignored.
-
-%Note that two cases, one where the function is a top script element and the second where function is created by {\small\texttt{Function}} constructor do not appear in the table. The top script functions can not be anonymous and the functions defined by the constructor can be considered as a regular function body. 
-
-%\subsection{Variable Refinement}\subsubsection{Read Variable}\subsubsection{Write Variable}
-
-%examples: toString functions in different classes, myFunction = cond? function(){..} : function(){..} 
-% more than one return
-
-%\subsection{Temporary Variables} %aliases for the same object
+To keep our core algorithm simple we handle these returns from immediate functions as a special case. At the end of each loop in Algorithm~\ref{alg1} at the point marked \verb|getNextNode()| we check to see if our parent is a \verb|return| node.  If not we return the parent node and the loop continues. If we have a \verb|return| node, we look to the parent of the \verb|return| node to see if it is a call (either directly with \verb|()| or via \verb|apply()| or \verb|call()|. If so, we know we are returning a function object from an immediate function.  We return the parent of the immediate function, effectively skipping the intermediate nodes so that the name will reflect the consumption of the return value into the destination of the immediate function.
 
 \subsection{Expression Reductions}
 \label{sec:general-element-naming}
 
 In simple cases the syntax tree node will have an identifier we can use as part of our name. In more complex cases an expression will written in place of an identifier. We reduce these expressions to pseudo-identifiers (i.e. not necessarily a valid JavaScript identifier) that resembles the expression. This work is done during the Object Consumption Summary algorithm in the functions described here:
-\paragraph{Identifiers for Function Arguments (argSummary)} Search for all string nodes in other arguments and concatenated them by ``-'', dropping  characters over 10. 
-\paragraph{Identifiers for Assignments and Function calls (nameExpressions)} This function gets called for nodes resulting from the first 6 rows of Table~{table:function-types}. The expressions here will evaluate to a writable address, so we want to extract the most specific developer-invented identifiers from the expression. Thus we apply the rules from Table~{expression-reduction}, which starts from the right hand side of the expression;  we skip any JavaScript keywords like \texttt{this} or \text{prototype}. If we encounter any pattern which does not match, for example a function call, we stop. 
+\paragraph{Identifiers for Function Arguments} Search for all string nodes in other arguments and concatenated them by ``-'', dropping  characters over 10.  
+ (This work is on in Algorithm~\ref{alg1} in \verb|argSummary|).
+\paragraph{Identifiers for Assignments and Function calls} This function gets called for nodes resulting from the first 6 rows of Table~\ref{table:function-types}. The expressions here will evaluate to a writable address, so we want to extract the most specific developer-invented identifiers from the expression. Thus we apply the rules from Table~\ref{expression-reduction}, which starts from the right hand side of the expression;  we skip any JavaScript keywords like \texttt{this} or \texttt{prototype}. If we encounter any pattern which does not match, for example a function call, we stop.   (This work is on in Algorithm~\ref{alg1} in \verb|nameExpressions|.)
 
 Obviously these rules are heuristic and can be improved through experience and interaction with developers. We are attempting to balance information content with length. Large complex expressions will give pseudo-identifiers which are complex, but with some identifiable parts.
-
-
 
 \begin{table}
 \centering
@@ -671,7 +603,7 @@ Obviously these rules are heuristic and can be improved through experience and i
   \hline
    Description &Pattern &  Name \\ 
   \hline 
-   Primitive Value & value & value.toString() \\ 
+   Primitive & value & value.toString() \\ 
   \hline 
    Variable & id & id \\ 
   \hline 
@@ -689,16 +621,19 @@ Obviously these rules are heuristic and can be improved through experience and i
 \label{expression-reduction} 
 \end{table}    
 
-\subsection{Enclosed By a Closure Function}
-A closure function is called directly after its creation. Therefore a closure function is like a simple block and any static analysis like
-for building object consumption summary and variable refinement can be continued outside a closure function. Every expression which its value
-is returned in the closure function is assigned to the expression that closure function call result is assigned to. Moreover, in cases where the
-function call defines "this" (by apply()) or arguments these variables can be replaced in the function body.
-
 \subsection{Conversion to an Name}
-At this stage of the algorithm we have a list of identifiers with attributes (which row contributed the identifier). Next we join the list items using special characters to signal the attributes. For identifiers from rows 1-6 of Table~\ref{table:function-types} we put out the identifier followed by a WHAT. For rows 7 and 8 we put out the identifier followed by a slash (/), the traditional separator in a containment hierarchy. For rows 9-12 the identifier is followed by a left angle bracket (<) indicating 'contributes to'. 
+\label{sec:concatenation}
+At this stage of the algorithm we have a list of identifiers with attributes which we want to concatenate to create a name. 
+
+First we drop function-call identifiers if we have anything else to use for a name. The function-call identifiers typically tell us about a transformation of the function body before it is assigned to an object property or variable. The transformation may be used many places in the code, while the assignment target is typically an identifier defined by the developer.  See for example function on line 14 and the function call on line 13 in the Listing~\ref{js-code}. Specifically we drop identifiers from row 2 of table~\ref{table:node-types} in any case where have identifiers from rows 1 or 3.  The outer function in Fig.~\ref{fig:jQueryEach} illustrates the opposite case, where we don't drop function-call identifier. 
+ 
+Second we concatenate the identifiers with a symbol between each parent and child showing the relationship.  As shown in Algorithm~\ref{alg1},  
+if the parent expression is an array or object literal then the identifier will be marked  as \textit{isPartOf} and we insert a dot character. If the identifier was marked as  \textit{isContributesTo} we insert a left angle bracket. An identifier marked \textit{isSameAs} is skipped over because we already have identifier information for it. Because some entries on the object consumption list are empty strings we may have duplicate symbols. Any duplicates are replaced a single symbol. The result contains identifiers (i.e., variable and property names) and strings available in the source code plus some explanatory tokens. It compactly explains the function object creation, consumption and assignment.
+ 
 
 The particular symbols we use may be refined with more experience in how developers respond to them. Our intuition is that these extra symbols need to be visually compact because their purpose is to adjust the developers expectation for the identifier. For example, the function on line 9 of Fig.~\ref{fig:js-code} is named \texttt{main<} but the developer may only key on the word \texttt{main} to recall the function body. 
+
+The name is built by the above process does not contain any information about enclosing scopes. We call it \textit{local name}. We get the function \textit{full name} by adding the enclosing function full-name with a slash before the local-name, recursing through enclosing scopes. This full-name is our function body name.
 
 \section{Special Cases}
 Given that our goals trade precision for rapid recognition, our names are not unique or perfectly tuned to every developer's need. We also leave some cases anonymous. We add  few special cases to our algorithm to patch over these issues.
@@ -707,15 +642,12 @@ Given that our goals trade precision for rapid recognition, our names are not un
 It is conceivable, that function bodies are named with the same names in a file. It can happen in different situations. One of the common cases is the two different function bodies may assign to a property based on a condition (e.g., the browser). For these cases we add a dollar sign and an index to the similar function names. For example, if there are two function bodies with names {\small\texttt{myFunction}}, the functions are named as {\small\texttt{myFunction\$0}} and {\small\texttt{myFunction\$1}}. 
 
 \subsection{Namer Functions}
-Many JavaScript projects have one or a few functions which are used for defining classes or registering function objects. These functions usually receive a string as the class name or function name. The number of namer functions is usually very limited for a specific project and can be provided to debugger by the developer. A namer function works like an assignment in the summary.  MORE
+Many JavaScript projects have one or a few functions which are used for defining classes or registering function objects. These functions usually receive a string as the class name or function name. The number of namer functions is usually very limited for a specific project and can be provided to debugger by the developer. A namer function works like an assignment in the summary.  
 
 % to register a function with a name
 % to wrap the function
 % as a callback
 
-
-
-\subsection{Context Name}
 
 \subsection{Functions created by {\large \texttt{eval()}}}
 The function bodies in {\small\texttt{eval}} statements can be named similar to other objects as the source code is available. However, eval scripts have no file name and therefore, it causes issues for assigning appropriate packages name to these functions. 
