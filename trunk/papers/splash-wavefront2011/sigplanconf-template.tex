@@ -508,7 +508,53 @@ For the simple cases of function declaration, object property initialization, an
 
 We parse the JavaScript and search the resulting syntax tree for function body nodes. For each function body, we apply the algorithm outlined in Algorithm ~\ref{alg1}. The basic idea is to look for parent nodes with helpful identifiers as outlined in  Table~\ref{table:node-types}. In simple cases the parent node will have a simple identifier; otherwise we construct an identifier from the expression as described in \ref{sec:general-element-naming}.  At each step we track how the parent and child are related.  If the parent expression is an array or object literal then the current node value is \textit{partOf} the parent node value. Otherwise the node expression value is \textit{theSame} as or different \textit{contributesTo} parent value. The algorithm ends when we reach a node which is an assignment or a statement which does not return any value (i.e., the node is not an expression).  The algorithm result is an \textit{object consumption summary}, a list of collected data at every visited parent node of the function body.
 
-Next we rank the collected identifiers and strings to elide less relevant data from the summary. Finally we concatenate the items with marker symbols to construct a string from the consumption summary. The result contains identifiers (i.e., variable and property names) and strings available in the source code plus some explanatory tokens. It compactly explains the function object creation, consumption and assignment.
+Next we rank the collected identifiers and strings to elide less relevant data from the summary. 
+\begin{verbatim}
+	salmir	if during the walking up we reach a "return" node and the outer function is a "closure function" we jump to the parent node of "closure function"
+	johnjbarton	inside the while correct?
+	salmir	right.
+	salmir	there is also another effect, but not in the algorithm. The parent context name will become the closure functions parent context name.
+johnjbarton	can we handle this case with the end of the while loop:
+	johnjbarton	n = n.parent
+	salmir	yes.
+	johnjbarton	to
+	johnjbarton	n = getNextNode(n)
+	salmir	getParentNode();
+	johnjbarton	then explain getNextNode is either n.parent or the funky other thing
+
+		so now we are done with the summary and we process it with another algorithm
+	salmir	yes.drop case 2 unless we have at least one of 1 or 3?
+	salmir	yes.
+	johnjbarton	why?because the name from the function call is less valuable than the target
+	salmir	because those identifiers give some information about the function object directly, but the function calls are indirect.
+johnjbarton	ok we need an example for both paths
+salmir	line 13
+	salmir	we drop op()
+	salmir	for the other case when we keep function call, you can use figure 4.
+	salmir	jquery example.
+	johnjbarton	which one, inner or outer
+	salmir	inner
+	johnjbarton	I don't see it
+	salmir	right, outer.
+
+salmir	if there are more than on function call we just use the closes one to the function defintion.
+	salmir	foo(bar(baz("MyFun", function(){})) -> baz[MyFun]()
+	johnjbarton	so if we have two case 2 and zero 1 or 3, then pick the early case 2?
+	salmir	yes.
+
+johnjbarton	so the next step is to concatenate
+	johnjbarton	and you just remove dups or?
+	salmir	just that.
+	johnjbarton	and the reason for << is no identifier is found
+	salmir	yes, or internal nodes.
+	johnjbarton	what is an internal node?>
+	salmir	foo(bar(baz((function(){})))
+	salmir	<<<
+	salmir	myObject = foo(bar(baz((function(){})))
+        salmir	here foo, bar baz all are internal nodes.
+	salmir	so we just get myObject< as name
+\end{verbatim}
+Finally we concatenate the items with marker symbols to construct a string from the consumption summary. The result contains identifiers (i.e., variable and property names) and strings available in the source code plus some explanatory tokens. It compactly explains the function object creation, consumption and assignment.
  
 The name is built by the above process does not contain any information about enclosing scopes. We call it \textit{local name}. We get the function \textit{full name} by adding the enclosing function full-name with a slash before the local-name, recursing through enclosing scopes. This full-name is our function body name.
 
