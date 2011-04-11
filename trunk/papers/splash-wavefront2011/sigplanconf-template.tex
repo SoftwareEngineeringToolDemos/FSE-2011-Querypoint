@@ -347,7 +347,7 @@ For this purpose we created 12 categories of function body expressions shown in 
 
 \begin{table*}
 \centering
-\scalebox{0.9}{
+\scalebox{0.8}{
   \begin{tabular}{ | l | l | l | l | l | l | l | l | l | l | l | l | l |}
   \hline
      & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12\\ 
@@ -737,64 +737,66 @@ The third function, line 14, is passed to a function {\small\texttt{op}} on line
 The next two functions, {\small\texttt{FOO}} on line 19 and {\small\texttt{BAR}} on line 22 are simple examples of case 6.  The last two functions defined in lines 25 and 27, similar to functions in lines 9 and 10, are named {\small\texttt{op<}} and {\small\texttt{op}} respectively. 
 
 
-\section{evaluation}
 
 \begin{table*}
 \centering
 \scalebox{0.8}{
   \begin{tabular}{ | l | l | l | l | l | l | l | l | l | l |}
   \hline
-   Project       & Anonymous &  FBUG NoName   & NoName   & NoShortName &    = FBUG Name       &    ~ FBUG Name        & Duplicates  & Avg/lng       & Avg/lng  \\ 
+   Project       & Anonymous &  FBUG NoName   & NoName   & NoShortName &    = FBUG Name     & \texttildelow FBUG Name & Duplicates  & Avgerage      & Longest  \\ 
   \hline 
-   Closure       & 8987      &   312(3\%)     & 10       &  51         &    66(0.7\%)         &    8528(95\%)         & 113(1\%)    & 33/76         & 35/101 \\ 
+   Closure       & 8987      &   312(3\%)     & 10       &  51         &    66(0.7\%)         &    8462(94\%)         & 113(1\%)    & 33/35         & 76/101 \\ 
   \hline 
-   DoJo          & 15866     &   3362(2\%)    & 390      &  528        &    3067(19\%)        &    12182(77\%)        & 2677(17\%)  & 35/81         & 36/162 \\ 
+   DoJo          & 15866     &   3362(2\%)    & 390      &  528        &    3067(19\%)        &    9115(57\%)         & 2677(17\%)  & 35/36         & 81/162 \\ 
   \hline 
-   ExtJS         & 36533     &   1543(4\%)    & 231      &  631        &    4007(11\%)        &    17579(48\%)        & 2573(7\%)   & 22/65         & 25/91  \\ 
+   ExtJS         & 36533     &   1543(4\%)    & 231      &  631        &    4007(11\%)        &    13572(37\%         & 2573(7\%)   & 22/25         & 65/91  \\ 
   \hline 
-   Firebug       & 3018      &   167(5\%)     & 10       &  14         &    397(13\%)         &    2839(94\%)         & 2976(1\%)   & 27/70         & 36/140 \\ 
+   Firebug       & 3018      &   167(5\%)     & 10       &  14         &    397(13\%)         &    2442(80\%)         & 2976(1\%)   & 27/36         & 70/140 \\ 
   \hline 
-   jQuery        & 399       &   95(24\%)     & 8        &  9          &    151(38\%)         &    282(70\%)          & 64(16\%)    & 14/50         & 18/65  \\ 
+   jQuery        & 399       &   95(24\%)     & 8        &  9          &    151(38\%)         &    131(33\%)          & 64(16\%)    & 14/18         & 50/65  \\ 
   \hline 
-   MochiKit      & 1829      &   202(11\%)    & 16       &  59         &    779(43\%)         &    1568(86\%)         & 207(11\%)   & 17/49         & 22/80   \\ 
+   MochiKit      & 1829      &   202(11\%)    & 16       &  59         &    779(43\%)         &    789(43\%)          & 207(11\%)   & 17/22         & 49/80   \\ 
   \hline 
-   MooTools      & 618       &   121(19\%)    & 18       &  30         &    266(43\%)         &    446(72\%)          & 156(25\%)   & 12/36         & 14/73   \\ 
+   MooTools      & 618       &   121(19\%)    & 18       &  30         &    266(43\%)         &    180(29\%)          & 156(25\%)   & 12/14         & 36/73   \\ 
   \hline 
-   Prototype     & 442       &   125(28\%)    & 19       &  24         &    38(0.8\%)         &    310(70\%)          & 89(20\%)    & 23/55         & 25/88    \\ 
+   Prototype     & 442       &   125(28\%)    & 19       &  24         &    38(8\%)           &    272(62\%)          & 89(20\%)    & 23/25         & 55/88    \\ 
   \hline  
-   Scriptaculous & 884       &   195(22\%)    & 19       &  25         &    79(0.8\%)         &    652(74\%)          & 105(12\%)   & 22/55         & 27/132   \\ 
+   Scriptaculous & 884       &   195(22\%)    & 19       &  25         &    79(8\%)           &    573(65\%)          & 105(12\%)   & 22/27         & 55/132   \\ 
   \hline    
-   YUI           & 21424     &   3317(15\%)   & 15       &  212        &    4846(23\%)        &    11808(55\%)        & 2220(10\%)  & 16/114         & 37/145  \\ 
+   YUI           & 21424     &   3317(15\%)   & 15       &  212        &    4846(23\%)        &    6962(33\%)         & 2220(10\%)  & 16/37         & 114/145  \\ 
   \hline 
-   All           & 90000     &   9439(10\%)   & 736(1\%) &  1583(2\%)  &    13696(15\%)       &    56194(62\%)        & 8264(9\%)   &                &          \\ 
+   All           & 90000     &   9439(10\%)   & 736(1\%) &  1583(2\%)  &    13696(15\%)       &    42498(47\%)        & 8264(9\%)   &                &          \\ 
   \hline       
   \end{tabular}
   }
- \label{firebug} 
+ \label{evaluation} 
 \caption{Number of functions remaind anonymous, the number of produced unique function names, the number of produced function names used for at most two functions and the average and longest length of produced names for each project.}
 \end{table*}    
-\subsection{Produced Names Characteristics}
 
-\subsection{Developers' vs. Automated Names}
+\section{evaluation}
+The purpose of our evaluation is to answer the follwing questions: 1) How effective is the approach in naming anonymous functions? 2)How the algorithm  improves the current approaches used in available debuggers for inferring anonymous function names? 3) Are the proposed names are unique to be used as identifiers or conversely what portion of proposed names are duplicated? 4) Are the proposed names appropriate for user interface presentation? 
 
-\subsection{Compared to Firebug {\large \texttt{guessFunctionName()}}}
-Firebug uses a utility function called {\small \texttt{guessFunctionName()}} to name nameless functions.
-This algorithm used in the function searches lines around the line the function definition line for specific patterns by regular expressions. The
-  first string matches one of the patterns becomes the name of the function. We compared the results of our algorithm to Firebug's in table~\ref{firebug}.
-  
-The first column shows, how many functions get similar names by both algorithm. In average, for 60\% of functions both algorithms produce the same names.
-Firebug is not able to name about 15\% of functions. In 35\% of functions the results are different. In most cases, the proposed name by Firebug is the name of another function and is wrong.
-   
+We compared our results to Firebug naming output. Firebug does not use a parser for naming functions, it instead employs a number of regular expressions and apply them on a few lines around the function definition to obtain a name. Although this approach is not reliable and may provide wrong names for some functions, it infers acceptable names in many simple cases. First column in Table~\ref{evaluation} contains the number of anonymous functions in each project. The second column shows the number of functions remained anonymous in Firebug. About 10 percent of anonymous functions still remained nameless in Firebug. The third column contains the number of functions which remained nameless after applying the static function object consumption algorithm. The numbers show that the algorihtm names more than 99 percent of anonymous functions. The next column shows how many of functions are named by do not have a short name (i.e., they are named only by their context names).
+
+The fifth and sixth columns compare Firebug names to short names. In 15 percent of cases the short name is the same as firbug name. The next column shows the number of functions which their short name does not equals to Firebug name but ends with it. It means that short names contain more information (e.g., the function class name or parent object name) than Firebug names in 47 percent of cases. 
+
+The duplicates column show the number of duplicated function names. About 9 percent of inferred names used for more than one function in a file. The main source of duplicated names are test cases particularly in DOJO, ExtJS and YUI. 
+%the other sources :1) function calls with no hint  2) conditional functions (e.g., based on browser)
+
+The last two columns show the average and longest function name lengths (in characters) for both short and full names. The average length is at most 37 characters.
+
+%\subsection{Produced Names Characteristics}
+%\subsection{Developers' vs. Automated Names}
+%\subsection{Compared to Firebug {\large \texttt{guessFunctionName()}}}
 
 \subsection{Manual Check}
-%Firebug, JQuery,
-
-%JQuery
-% core.js 
-
 %namespaces in JS:http://javascriptweblog.wordpress.com/2010/12/07/namespacing-in-javascript/
 %commonjs requriejs, ...
 %the function name not very long like google chrome  xxxx.yyy.zzz
+
+%Firebug uses a utility function called {\small \texttt{guessFunctionName()}} to name nameless functions.This algorithm used in the function searches lines around the line the function definition line for specific patterns by regular expressions. The  first string matches one of the patterns becomes the name of the function. We compared the results of our algorithm to Firebug's in table~\ref{firebug}.
+%The first column shows, how many functions get similar names by both algorithm. In average, for 60\% of functions both algorithms produce the same names. Firebug is not able to name about 15\% of functions. In 35\% of functions the results are different. In most cases, the proposed name by Firebug is the name of another function and is wrong. 
+   
 
 \section{Disucussion}
 
