@@ -97,19 +97,8 @@ We propose an automated approach based on extracted data from the source code fo
 %The function name is necessary for referring and recalling the function's functionality, but only a small proportion (less than 7\%) of JavaScript functions are named.
 
 
-
-%\section{The Nameless Function Problem}
-\section{The Anonymous Function Problem}
-
-A JavaScript function can be defined with the {\small\texttt{function}} operator or the {\small\texttt{Function}} constructor (i.e., {\small\texttt{new Function(args, source)}}) \cite{ECMA}. The {\small\texttt{function}} operator can appear in a function declaration, function expression, or function statement (the latter form is available in Firefox but not part of a standard).  Of these forms, only the function declaration requires a function name and the {\small\texttt{Function}} constructor has no mechanism to name the function.  In other words, JavaScript developers can define functions with or without function names.
-
-If you are unfamiliar with JavaScript or other functional programming languages, you might imagine that developers would naturally select the form with names, simply as an organizational tool. However this is not the case. Functions in JavaScript are first-class objects. They can be assigned to any variable or object property, or passed as an argument to a function. Consequently JavaScript programmers can use these other constructs to organize their thinking about the program, without the use of function names.
-
-So what do JavaScript developers do in practice?  To get empirical evidence we analyzed the source code of ten well-known JavaScript projects. For every project, the total number of functions and the number of functions with an identifier shown in Table~\ref{js-functions}. The average ratio of named functions to all functions is less then 7 percent and, excepting one project {\textit Prototype}, the ratio does not exceed 13 percent. Among all functions only a very limited number of them (116 functions) are defined by the {\small\texttt{Function}} constructor. Our analysis does not include the functions defined dynamically by {\small\texttt{eval}} function or {\small\texttt{new Function()}}; these cases would only make the ratio even smaller.  Therefore, we conclude that a large proportion of JavaScript functions are anonymous.
-
-
-
 \begin{table}
+
 \centering
 \scalebox{0.8}{
   \begin{tabular}{ | l | l | l | l | l |}
@@ -140,9 +129,21 @@ So what do JavaScript developers do in practice?  To get empirical evidence we a
   \hline 
   \end{tabular}
   }
-\caption{The total number of functions and the number of named functions (and percent named)  in ten large JavaScript projects. See appendix 1 for the project citations.}
+\caption{The total number of functions and the number of named functions (and percent named)  in ten large JavaScript projects. See appendix 1 for the project citations.} 
 \label{js-functions} 
 \end{table}    
+
+
+%\section{The Nameless Function Problem}
+\section{The Anonymous Function Problem}
+
+A JavaScript function can be defined with the {\small\texttt{function}} operator or the {\small\texttt{Function}} constructor (i.e., {\small\texttt{new Function(args, source)}}) \cite{ECMA}. The {\small\texttt{function}} operator can appear in a function declaration, function expression, or function statement (the latter form is available in Firefox but not part of a standard).  Of these forms, only the function declaration requires a function name and the {\small\texttt{Function}} constructor has no mechanism to name the function.  In other words, JavaScript developers can define functions with or without function names.
+
+If you are unfamiliar with JavaScript or other functional programming languages, you might imagine that developers would naturally select the form with names, simply as an organizational tool. However this is not the case. Functions in JavaScript are first-class objects. They can be assigned to any variable or object property, or passed as an argument to a function. Consequently JavaScript programmers can use these other constructs to organize their thinking about the program, without the use of function names.
+
+So what do JavaScript developers do in practice?  To get empirical evidence we analyzed the source code of ten well-known JavaScript projects \footnote[1]{We did not perform any preprocess to exclude third-party or repeated files in the provided source code bundles.}. For every project, the total number of functions and the number of functions with an identifier shown in Table~\ref{js-functions}. The average ratio of named functions to all functions is less then 7 percent and, excepting one project {\textit Prototype}, the ratio does not exceed 13 percent. Among all functions only a very limited number of them (116 functions) are defined by the {\small\texttt{Function}} constructor. Our analysis does not include the functions defined dynamically by {\small\texttt{eval}} function or {\small\texttt{new Function()}}; these cases would only make the ratio even smaller.  Therefore, we conclude that a large proportion of JavaScript functions are anonymous.
+
+
 
 
 \begin{figure}[htp]
@@ -505,7 +506,7 @@ For the simple cases of function declaration, object property initialization, an
 \label{sec:nodewalk}
 
 
-We parse the JavaScript and search the resulting syntax tree for function body nodes. For each function body, we apply the algorithm outlined in Algorithm~\ref{alg1}). The basic idea is to look for parent nodes with helpful identifiers as outlined in  Table~\ref{table:node-types}. In simple cases the parent node will have a simple identifier; otherwise we construct an identifier from the expression as described in \ref{sec:general-element-naming}.  At each step we track how the parent and child are related.  If the parent expression is an array or object literal then the current node value is \textit{partOf} the parent node value. Otherwise the node expression value is \textit{theSame} as or different \textit{contributesTo} parent value. The algorithm ends when we reach a node which is an assignment or a statement which does not return any value (i.e., the node is not an expression).  The algorithm result is an \textit{object consumption summary}, a list of collected data at every visited parent node of the function body.
+We parse the JavaScript and search the resulting syntax tree for function body nodes. For each function body, we apply the algorithm outlined in Algorithm ~\ref{alg1}. The basic idea is to look for parent nodes with helpful identifiers as outlined in  Table~\ref{table:node-types}. In simple cases the parent node will have a simple identifier; otherwise we construct an identifier from the expression as described in \ref{sec:general-element-naming}.  At each step we track how the parent and child are related.  If the parent expression is an array or object literal then the current node value is \textit{partOf} the parent node value. Otherwise the node expression value is \textit{theSame} as or different \textit{contributesTo} parent value. The algorithm ends when we reach a node which is an assignment or a statement which does not return any value (i.e., the node is not an expression).  The algorithm result is an \textit{object consumption summary}, a list of collected data at every visited parent node of the function body.
 
 Next we rank the collected identifiers and strings to elide less relevant data from the summary. Finally we concatenate the items with marker symbols to construct a string from the consumption summary. The result contains identifiers (i.e., variable and property names) and strings available in the source code plus some explanatory tokens. It compactly explains the function object creation, consumption and assignment.
  
@@ -692,6 +693,41 @@ The next two functions, {\small\texttt{FOO}} on line 19 and {\small\texttt{BAR}}
 
 \section{evaluation}
 
+\begin{table}
+\centering
+\scalebox{0.8}{
+  \begin{tabular}{ | l | l | l | l | l |}
+  \hline
+   Project & NoName & Freq=1 & Freq\textless=2 & Avg/lng Len  \\ 
+  \hline 
+   Closure & 10 & 8874(99\%) & 8960(99.7\%) & 35/101 \\ 
+  \hline 
+   DoJo & 390 & 13189(83\%) & 13761(87\%) & 36/162 \\ 
+  \hline 
+   ExtJS & 231 & 33960(93\%) & 35240(96\%)  & 25/91\\ 
+  \hline 
+   Firebug & 10 & 2976(99\%) & 3002(99.5\%) & 36/140 \\ 
+  \hline 
+   jQuery & 8  & 335(84\%) & 381(95\%) & 18/65 \\ 
+  \hline 
+   MochiKit &  16 & 1622(89\%) & 1714(84\%) & 22/80 \\ 
+  \hline 
+   MooTools & 18  & 462(75\%) & 546(88\%) & 14/73 \\ 
+  \hline 
+   Prototype & 19  & 353(80\%) & 383(87\%) & 25/88 \\ 
+  \hline 
+   Scriptaculous &  19 & 779(88\%) & 819(93\%) & 27/132 \\ 
+  \hline 
+   YUI & 15 & 19204(90\%) & 20298(95\%)  & 37/145 \\ 
+  \hline 
+   All & 736(1\%) & 81754(91\%) & 85104(95\%) &  \\ 
+  \hline 
+  \end{tabular}
+  }
+ \label{firebug} 
+\caption{Number of functions remaind anonymous, the number of produced unique function names, the number of produced function names used for at most two functions and the average and longes length of produced names for each project.}
+\end{table}    
+\subsection{Produced Names Characteristics}
 
 \subsection{Developers' vs. Automated Names}
 
@@ -705,37 +741,37 @@ Firebug is not able to name about 15\% of functions. In 35\% of functions the re
   
 \begin{table}
 \centering
-\scalebox{0.9}{
-  \begin{tabular}{ | l | l | l | l | l |}
+\scalebox{0.8}{
+  \begin{tabular}{ | l | l | l | l |}
   \hline
-   Project & Similar & Different & UnNamed \\ 
+   Project & Equal & Similar & Fbug NoName  \\ 
   \hline 
-   Closure & 8524(1\%) & 9195 & 516(2\%) \\ 
+   Closure & 5 & 8528(95\%) & 312(3\%) \\ 
   \hline 
-   DoJo & 12180(1\%) & 9195 & 5780(2\%) \\ 
+   DoJo & 1853(12\%) & 12182(77\%) & 3362(2\%)  \\ 
   \hline 
-   ExtJS & 100(1\%) & 9195 & 208(2\%) \\ 
+   ExtJS & 3376(9\%) & 17579(48\%) & 1543(4\%)  \\ 
   \hline 
-   Firebug & 2901(1\%) & 9195 & 494(0\%) \\ 
+   Firebug & 271(9\%) & 2839(94\%) & 167(5\%)  \\ 
   \hline 
-   jQuery & 283(1\%) & 9195 & 117(0\%) \\ 
+   jQuery & 119(30\%) & 282(70\%) & 95(24\%) \\ 
   \hline 
-   MochiKit &  1568(1\%) & 9195 & 234(2\%) \\ 
+   MochiKit & 609(33\%) &  1568(86\%) & 202(11\%) \\ 
   \hline 
-   MooTools & 440(1\%) & 9195 & 128(2\%) \\ 
+   MooTools & 250(40\%) & 446(72\%) & 121(19\%)  \\ 
   \hline 
-   Prototype & 292(1\%) & 9195 & 326(0\%) \\ 
+   Prototype & 33(7\%) & 310(70\%) & 125(28\%)  \\ 
   \hline 
-   Scriptaculous &  100(1\%) & 9195 & 397(2\%) \\ 
+   Scriptaculous & 36(4\%) &  652(74\%) & 195(22\%)  \\ 
   \hline 
-   YUI &  11248(1\%) & 9195 & 3702(2\%) \\ 
+   YUI & 51 &  11808(55\%) & 3317(15\%) \\ 
   \hline 
-   All & 100(1\%) & 9195 & 208(2\%) \\ 
+   All & 6603(7\%) & 56194(62\%) & 9439(10\%) \\ 
   \hline 
   \end{tabular}
   }
  \label{firebug} 
-\caption{Number of similar, and different function names in comparison to Firebug {\small \texttt{guessFunctionName()}}.}
+\caption{Number of functions received the same or similar names to FOC approach and no name by Firebug {\small \texttt{guessFunctionName()}}.}
 \end{table}    
 
 \subsection{Manual Check}
