@@ -739,40 +739,40 @@ The next two functions, {\small\texttt{FOO}} on line 19 and {\small\texttt{BAR}}
 
 \section{evaluation}
 
-\begin{table}
+\begin{table*}
 \centering
 \scalebox{0.8}{
-  \begin{tabular}{ | l | l | l | l | l |}
+  \begin{tabular}{ | l | l | l | l | l | l | l | l | l | l |}
   \hline
-   Project & NoName & Freq=1 & Freq\textless=2 & Avg/lng Len  \\ 
+   Project       & Anonymous &  FBUG NoName   & NoName   & NoShortName &    = FBUG Name       &    ~ FBUG Name        & Duplicates  & Avg/lng       & Avg/lng  \\ 
   \hline 
-   Closure & 10 & 8874(99\%) & 8960(99.7\%) & 35/101 \\ 
+   Closure       & 8987      &   312(3\%)     & 10       &  51         &    66(0.7\%)         &    8528(95\%)         & 113(1\%)    & 33/76         & 35/101 \\ 
   \hline 
-   DoJo & 390 & 13189(83\%) & 13761(87\%) & 36/162 \\ 
+   DoJo          & 15866     &   3362(2\%)    & 390      &  528        &    3067(19\%)        &    12182(77\%)        & 2677(17\%)  & 35/81         & 36/162 \\ 
   \hline 
-   ExtJS & 231 & 33960(93\%) & 35240(96\%)  & 25/91\\ 
+   ExtJS         & 36533     &   1543(4\%)    & 231      &  631        &    4007(11\%)        &    17579(48\%)        & 2573(7\%)   & 22/65         & 25/91  \\ 
   \hline 
-   Firebug & 10 & 2976(99\%) & 3002(99.5\%) & 36/140 \\ 
+   Firebug       & 3018      &   167(5\%)     & 10       &  14         &    397(13\%)         &    2839(94\%)         & 2976(1\%)   & 27/70         & 36/140 \\ 
   \hline 
-   jQuery & 8  & 335(84\%) & 381(95\%) & 18/65 \\ 
+   jQuery        & 399       &   95(24\%)     & 8        &  9          &    151(38\%)         &    282(70\%)          & 64(16\%)    & 14/50         & 18/65  \\ 
   \hline 
-   MochiKit &  16 & 1622(89\%) & 1714(84\%) & 22/80 \\ 
+   MochiKit      & 1829      &   202(11\%)    & 16       &  59         &    779(43\%)         &    1568(86\%)         & 207(11\%)   & 17/49         & 22/80   \\ 
   \hline 
-   MooTools & 18  & 462(75\%) & 546(88\%) & 14/73 \\ 
+   MooTools      & 618       &   121(19\%)    & 18       &  30         &    266(43\%)         &    446(72\%)          & 156(25\%)   & 12/36         & 14/73   \\ 
   \hline 
-   Prototype & 19  & 353(80\%) & 383(87\%) & 25/88 \\ 
+   Prototype     & 442       &   125(28\%)    & 19       &  24         &    38(0.8\%)         &    310(70\%)          & 89(20\%)    & 23/55         & 25/88    \\ 
+  \hline  
+   Scriptaculous & 884       &   195(22\%)    & 19       &  25         &    79(0.8\%)         &    652(74\%)          & 105(12\%)   & 22/55         & 27/132   \\ 
+  \hline    
+   YUI           & 21424     &   3317(15\%)   & 15       &  212        &    4846(23\%)        &    11808(55\%)        & 2220(10\%)  & 16/114         & 37/145  \\ 
   \hline 
-   Scriptaculous &  19 & 779(88\%) & 819(93\%) & 27/132 \\ 
-  \hline 
-   YUI & 15 & 19204(90\%) & 20298(95\%)  & 37/145 \\ 
-  \hline 
-   All & 736(1\%) & 81754(91\%) & 85104(95\%) &  \\ 
-  \hline 
+   All           & 90000     &   9439(10\%)   & 736(1\%) &  1583(2\%)  &    13696(15\%)       &    56194(62\%)        & 8264(9\%)   &                &          \\ 
+  \hline       
   \end{tabular}
   }
  \label{firebug} 
-\caption{Number of functions remaind anonymous, the number of produced unique function names, the number of produced function names used for at most two functions and the average and longes length of produced names for each project.}
-\end{table}    
+\caption{Number of functions remaind anonymous, the number of produced unique function names, the number of produced function names used for at most two functions and the average and longest length of produced names for each project.}
+\end{table*}    
 \subsection{Produced Names Characteristics}
 
 \subsection{Developers' vs. Automated Names}
@@ -784,41 +784,7 @@ This algorithm used in the function searches lines around the line the function 
   
 The first column shows, how many functions get similar names by both algorithm. In average, for 60\% of functions both algorithms produce the same names.
 Firebug is not able to name about 15\% of functions. In 35\% of functions the results are different. In most cases, the proposed name by Firebug is the name of another function and is wrong.
-  
-\begin{table}
-\centering
-\scalebox{0.8}{
-  \begin{tabular}{ | l | l | l | l |}
-  \hline
-   Project & Equal & Similar & Fbug NoName  \\ 
-  \hline 
-   Closure & 5 & 8528(95\%) & 312(3\%) \\ 
-  \hline 
-   DoJo & 1853(12\%) & 12182(77\%) & 3362(2\%)  \\ 
-  \hline 
-   ExtJS & 3376(9\%) & 17579(48\%) & 1543(4\%)  \\ 
-  \hline 
-   Firebug & 271(9\%) & 2839(94\%) & 167(5\%)  \\ 
-  \hline 
-   jQuery & 119(30\%) & 282(70\%) & 95(24\%) \\ 
-  \hline 
-   MochiKit & 609(33\%) &  1568(86\%) & 202(11\%) \\ 
-  \hline 
-   MooTools & 250(40\%) & 446(72\%) & 121(19\%)  \\ 
-  \hline 
-   Prototype & 33(7\%) & 310(70\%) & 125(28\%)  \\ 
-  \hline 
-   Scriptaculous & 36(4\%) &  652(74\%) & 195(22\%)  \\ 
-  \hline 
-   YUI & 51 &  11808(55\%) & 3317(15\%) \\ 
-  \hline 
-   All & 6603(7\%) & 56194(62\%) & 9439(10\%) \\ 
-  \hline 
-  \end{tabular}
-  }
- \label{firebug} 
-\caption{Number of functions received the same or similar names to FOC approach and no name by Firebug {\small \texttt{guessFunctionName()}}.}
-\end{table}    
+   
 
 \subsection{Manual Check}
 %Firebug, JQuery,
