@@ -244,6 +244,7 @@ JavaScript does not support a standard packaging mechanism to be used for modula
 
 
 \section{Building Up Intuition by Example}
+\label{sec:intuition}
 We know that we face an ill-defined task: we are after all attempting to create short useful names for nameless functions. We have to create salient information from source code: we anticipate removing characters will be our biggest challenge.  To create an algorithm we decided to study the spectrum of examples from our 10 large collections of functions. We want to see what kinds of cases are important and what aspects of these cases help us identify functions.
 
 For this purpose we created 12 categories of function body expressions shown in Table~\ref{table:function-types} and we categorized all of the nameless functions from the 10 libraries into one of 12 cases, giving the numerical results in Table~\ref{function-type-count}.  Then we examine each of these cases to think about how we want the functions named. We'll ignore nesting of function scopes in the analysis to avoid taking on too much at one time.
@@ -390,6 +391,7 @@ For this purpose we created 12 categories of function body expressions shown in 
  The majority of nameless functions (more than 65\%) in almost all studied projects (except Closure), are defined in object literals. This case seems particularly simple: the property name makes a good name for the function body. But what logic are we implicitly applying here? Our reasoning: the developer-invented property name has high information content, it is textually close to the function body, and the function object created by the function body initializes to the property. These observations guide us in more complex cases.
  
 \subsection{Case 2: Entry in an Array Literal}
+\label{sec:arrayLiteral}
 Contrary to the previous case the appearance of this case is very limited. It usually appears in initializations or when an array of functions are passed as an argument. Among all projects only two have instances of nameless functions defined in this way. For example array argument to \verb|Event._attach| in this example from YUI:
 \begin{verbatim}
 _attach: function (el, notifier, delegate) {
@@ -403,6 +405,7 @@ _attach: function (el, notifier, delegate) {
 (The example is nested in more function definitions we do not show here). The developer will probably think of the array entry one item in a collection passed to \verb|Event._attach|. In general we shall want to name these kinds of functions by the destiny of the containing array.
 
 \subsection{Case 3: Property Assignment With Property Identifier}
+\label{sec:propid}
 This case is the second most common case in the studied projects. Here, we can see why the Closure project is different from other projects in the first case. About 94\% of nameless functions in this project are defined in this way. It seems that the Closure developers follow an internal standard for function objects creation and usage.  
 
 Following the model from Case 1, we expect a good name would combine the object name with the property identifier. The complication in this case comes from the object name: in general the object reference can be a computed expression. (This comment applies to all of the cases in table~\ref{table:function-types} marked with an asterisk on the expression identifier). Here is a simple example from the Closure project: 
@@ -436,6 +439,7 @@ function assigned to a hashmap using a variable name (row 5 in Table~\ref{table:
 \end{figure*}
 
 \subsection{Case 6:  Property Assignment With  Property Name Expressions}
+\label{sec:propexpressions}
 Object member names can be expressions that get converted to strings at runtime: this is more general than case 5. 
  A common case of expression in this case is a conditional expression, e.g., {\small\texttt{condition?"prop1":"prop2"}}, where the property that we assign the function to depends upon runtime values. Another kind of example of computed names comes from the Prototype project (refomatted to fit in the page):
 \begin{verbatim}
@@ -456,8 +460,9 @@ Notice that from the programming language point of view, Cases 3 through 6 are a
 We only observed one instance of this form in the studied projects. The numerical index should clearly be part of the name; the array name may be an expression that we have to analyze to create name.
 
 \subsection{Case 8: Assignment to a Variable }
+This case is widely used and we expect  developers would expect the function body to get the name of the variable.
 As the functions are immutable objects, it is very likely that a function object which is assigned to a variable, is used with the same variable name in the function scope
-and its internal scopes. Although, there are cases that the variable name is temporary as the function is passed to another function or assigned to an object property, in most cases the variable name works will as the function name. 
+and its internal scopes. There are cases in which a variable name is used temporarily, as the function is passed to another function or assigned to an object property. However, in most cases the variable name works well as the function name. 
 
 \subsection{Case 9: Anonymous Functions Immediately Called}
 Calling functions objects just after their creations is a common pattern in JavaScript. For example see the assignment to \verb|Y.ClassNameManager| in Fig.~\ref{fig:classnamemanager}; the function is called at the bottom of the example. 
@@ -490,6 +495,7 @@ If the called-function is assigned to a variable or object property, then we hav
 If the function call has no result, it means that the function performs one task (e.g., initialization of some values in the outer scope for later use). In this case we can't use the assignment target idea from Case 1, but source proximity and developer-invented names point to using interior identifiers in a name. To avoid confusing the developer by using the same name for the outer and interior functions, we will need some way to signify that the name we create this way is for an immediately called function.
 
 \subsection{Case 10: Function Property is Accessed}
+\label{sec:funcprop}
 In this unusual case a property of the function is accessed directly from the function body. This case usually happens one of the predefined functions of function object (i.e., {\small\texttt{call, apply, bind}}) or when the predefined functions are augmented by adding to {\small\texttt{Function}} prototype.  Here is an example, from ExtJS, reformatted for display here:
 \begin{verbatim}
 setVisible : function(v, a, d, c, e){
@@ -730,6 +736,36 @@ The name is built by the above process does not contain any information about en
 
 \subsection{Examples}
 \label{sec:examples}
+
+\begin{table*}[tb]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+Example Code & Static Function-Object Consumption Name \\
+\hline
+Sec.~\ref{sec:arrayLiteral} & YUI.add[event-focus]()/\_attach/Event.\_attach() \\
+\hline
+Sec.~\ref{sec:propid} & eventPool\_createObject \\
+\hline
+Fig.~\ref{fig:jQueryEach} outer & jQuery.each(ajaxStart) \\
+\hline
+Fig.~\ref{fig:jQueryEach} inner & jQuery.fn[o] \\
+\hline
+Sec.~\ref{sec:propexpressions}  & define/viewport[get+D] \\
+\hline
+Fig.~\ref{fig:classnamemanager} outer & YUI.add[classnamemanager]()/Y.ClassNameManage\verb|<| \\
+\hline
+Fig.~\ref{fig:classnamemanager} inner & YUI.add[classnamemanager]()/Y.ClassNameManager/getClassName \\
+\hline
+Sec.~\ref{sec:funcprop} inner & ?????????????\\
+\hline
+Fig.~\ref{fig:registerWin} inner & registerWin\verb|<| \\
+\end{tabular}
+\label{table:examples}
+\caption{Results from applying the approach in Sec.~\ref{sec:foc} to the examples in the paper at the point given in the first column.
+Full names are listed, even in cases where our example code omitted the enclosing function scope.}
+\end{table*}
+
 To further explain our approach we now apply it to the JavaScript code presented in Figure~\ref{js-code}. We can recognize five function bodies in the code, none of them has a name. 
 
 The first function on line 9 is assigned to the variable \verb|main|. The parent node for the function body in the syntax tree will be an assignment, so in Algorithm~\ref{alg1} we skip the \verb|while| loop and compute the \verb|nameExpression| as \verb|main|.  Ultimately this becomes the name of the function.
@@ -741,6 +777,10 @@ The third function on line 18 is called immediately after definition, on line 24
 The fourth function on line 20 is returned by \verb|FOO<|. After the first pass through the \verb|while| loop in Algorithm~\ref{alg1} we enter \verb|getNextNode| and trigger the code described in Sec.~\ref{sec:immediate}.  This will cause us to walk up the syntax tree to find the assignment target for the outer function. We end up with name \verb|FOO|. Because do not process the intermediate nodes in the \verb|while| loop we don't mark the name with contributes-to and we don't record that the function is nested. Of course the function body is nested, but it is bound to an un-nested variable. To keep the name compact we choose not to encode this complex information. Rather we stick to the simple picture that the function 'is' \verb|FOO|. If the developer wants to know more they can look up \verb|FOO| to see the construction and nesting.
 
 The fifth function on line 25 is assigned to two variables. This example illustrates that we stop processing in Algorithm~\ref{alg1} as soon as we hit the first assignment, giving the name \verb|BAR|. This aligns with our observation that the visually closest identifier is the best choice.
+
+
+
+Finally, Table~\ref{table:examples} gives the names of functions from examples discussed in \ref{sec:intuition}.
 
 \section{Evaluation}
 
@@ -839,9 +879,9 @@ The ultimate fallback for function names is to allow the developer to specify th
 % typing system papers
 % readability parameter paper
 
-To best of our knowledge, this paper is the first study in naming anonymous functions in JavaScript. H{\o}st and {\O}stvold \cite{Host} attempted to find and fix inappropriate function names in Java programs. Their approach employ rules extracted from a big corpus of Java projects to recognize buggy names. To fix a name a list of candidate names are constructed and ranked, the the name with highest rank is proposed for the replacement. This approach assumes that the function is already named and constructs the names based on the function internal structure. In contrast, our approach construct the function name by analysing the function context. 
+To best of our knowledge, this paper is the first study in naming anonymous functions in JavaScript. H{\o}st and {\O}stvold \cite{Host} attempted to find and fix inappropriate function names in Java programs. Their approach employs rules extracted from a big corpus of Java projects to recognize buggy names. To fix a name a list of candidate names are constructed and ranked, the the name with highest rank is proposed for the replacement. This approach assumes that the function is already named and constructs the names based on the function internal structure. In contrast, our approach construct the function name by analyzing the function context. 
 
-Caprile and Tonella \cite{Caprile}, analyse the structure of function identifiers in C programs. The identifiers are decomposed into fragments that are then classified into seven lexical categories. The structure of the function identifiers are futher described by a hand-crafted grammar.
+Caprile and Tonella \cite{Caprile}, analyse the structure of function identifiers in C programs. The identifiers are decomposed into fragments that are then classified into seven lexical categories. The structure of the function identifiers are further described by a hand-crafted grammar.
 %JavaScript, unlike many traditional object oriented languages such as Java and C\#, does not have classes, and does not encourage encapsulation or even structured programming. JavaScript is a weakly typed language with no type declarations and only run-time checking of calls and field accesses \cite{Richards}. As a direct consequence, the JavaScript code contains less explanatory data about the program elements and their relations. For example, the value of a variable can be a primitive value, an object with any structure or even a function. One call-site may invoke different function bodies with various number of arities that none of them can be understood from the code. Therefore, the lack of descriptive data in JavaScript code is the most fundamental issue in enhancing JavaScript tool support.
 
 
