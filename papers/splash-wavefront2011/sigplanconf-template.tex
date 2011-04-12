@@ -692,7 +692,7 @@ Obviously these rules are heuristic and can be improved through experience and i
 
 \begin{table}
 \centering
-\scalebox{0.9}{
+\scalebox{0.8}{
   \begin{tabular}{ | l | l | l |}
   \hline
    Description &Pattern &  Name \\ 
@@ -739,13 +739,16 @@ The name is built by the above process does not contain any information about en
 
 \begin{table*}[tb]
 \centering
+\scalebox{1}{
 \begin{tabular}{|l|l|}
 \hline
 Example Code & Static Function-Object Consumption Name \\
 \hline
-Sec.~\ref{sec:arrayLiteral} & YUI.add[event-focus]()/\_attach/Event.\_attach() \\
+Sec.~\ref{sec:arrayLiteral} outer & YUI.add(event-focus)/\_attach \\
 \hline
-Sec.~\ref{sec:propid} & eventPool\_createObject \\
+Sec.~\ref{sec:arrayLiteral} inner & YUI.add(event-focus)/\_attach/Event.\_attach() \\
+\hline
+Sec.~\ref{sec:propid} & eventPool.\_createObject \\
 \hline
 Fig.~\ref{fig:jQueryEach} outer & jQuery.each(ajaxStart) \\
 \hline
@@ -753,14 +756,16 @@ Fig.~\ref{fig:jQueryEach} inner & jQuery.fn[o] \\
 \hline
 Sec.~\ref{sec:propexpressions}  & define/viewport[get+D] \\
 \hline
-Fig.~\ref{fig:classnamemanager} outer & YUI.add[classnamemanager]()/Y.ClassNameManage\verb|<| \\
+Fig.~\ref{fig:classnamemanager} outer & YUI.add(classnamemanager)/Y.ClassNameManager\textless \\
 \hline
-Fig.~\ref{fig:classnamemanager} inner & YUI.add[classnamemanager]()/Y.ClassNameManager/getClassName \\
+Fig.~\ref{fig:classnamemanager} inner & YUI.add(classnamemanager)/Y.ClassNameManager/getClassName \\
 \hline
-Sec.~\ref{sec:funcprop} inner & ?????????????\\
+Sec.~\ref{sec:funcprop} inner & setVisible/cb\textless\\
 \hline
-Fig.~\ref{fig:registerWin} inner & registerWin\verb|<| \\
+Fig.~\ref{fig:registerWin} inner & registerWin/ \\
+\hline
 \end{tabular}
+}
 \label{table:examples}
 \caption{Results from applying the approach in Sec.~\ref{sec:foc} to the examples in the paper at the point given in the first column.
 Full names are listed, even in cases where our example code omitted the enclosing function scope.}
