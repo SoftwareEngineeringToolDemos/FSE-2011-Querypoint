@@ -390,22 +390,35 @@ For this purpose we created 12 categories of function body expressions shown in 
  
  The majority of nameless functions (more than 65\%) in almost all studied projects (except Closure), are defined in object literals. This case seems particularly simple: the property name makes a good name for the function body. But what logic are we implicitly applying here? Our reasoning: the developer-invented property name has high information content, it is textually close to the function body, and the function object created by the function body initializes to the property. These observations guide us in more complex cases.
  
-\subsection{Case 2: in Array Literal}
-Contrary to the previous case the appearance of this case is very limited. It usually appears in initializations or when an array of functions are passed as an argument. Among all projects only two have instances of nameless functions defined in this way. 
+\subsection{Case 2: Entry in an Array Literal}
+Contrary to the previous case the appearance of this case is very limited. It usually appears in initializations or when an array of functions are passed as an argument. Among all projects only two have instances of nameless functions defined in this way. For example array argument to \verb|Event._attach| in this example from YUI:
+\begin{verbatim}
+        _attach: function (el, notifier, delegate) {
+            if (Y.DOM.isWindow(el)) {
+                return Event._attach([type, function (e) {
+                    notifier.fire(e);
+                }, el]);
+            }
+       }
+\end{verbatim}
+(The example is nested in more function definitions we do not show here). The developer will probably think of the array entry one item in a collection passed to \verb|Event._attach|. In general we shall want to name these kinds of functions by the destiny of the containing array.
 
-To name the function body defined in an array literal, first we must name the array literal. To name the array literal, we consider it as a function body and we employ the same algorithm we use for naming a function body. If the array literal receives a name like {\small\texttt{foo}}, and the function is defined at index ({\small\texttt{i}}), {{\small\texttt{foo[i]}} is assigned as the function body name. 
+\subsection{Case 3: Property Assignment With Property Identifier}
+This case is the second most common case in the studied projects. Here, we can see why the Closure project is different from other projects in the first case. About 94\% of nameless functions in this project are defined in this way. It seems that the Closure developers follow an internal standard for function objects creation and usage.  
 
-
-\subsection{Case 3: Property Assignment With Property Identifier }
-This case is the second most common case in the studied projects. Here, we can see why the Closure project is different from other projects in the first case. About 94\% of nameless functions in this project are defined in this way. It seems that the Closure developers follow an internal standard for function objects creation and usage.
-
-Following the model from Case 1, we expect a good name would combine the object name with the property identifier. The complication in this case comes from the object name: in general the object reference can be a computed expression. These expressions can be long and complex: to create a useful name we need to focus on developer-invented identifiers in the expression and work to keep the total number of characters small.  This comment apply to all of the cases in table~\ref{table:function-types} marked with an asterix on the expression identifier.
+Following the model from Case 1, we expect a good name would combine the object name with the property identifier. The complication in this case comes from the object name: in general the object reference can be a computed expression. (This comment applies to all of the cases in table~\ref{table:function-types} marked with an asterisk on the expression identifier). Here is a simple example from the Closure project: 
+\begin{verbatim}
+  this.eventPool_.createObject = function() {
+    return new goog.debug.Trace_.Event_();
+  };
+\end{verbatim}
+ These expressions can be long and complex: to create a useful name we need to focus on developer-invented identifiers in the expression and work to keep the total number of characters small. For example, \verb|this.| add no information to the name since we can't know the value of \verb|this| while parsing. 
 
 \subsection{Case 4: Property Assignment With  Property Name String}
 In JavaScript, objects are like hashmaps and their properties can also be accessed by a string can be specified in the brackets after the object. Semantically this is the same as the previous case and we see few instances of this form for function object assignment. The string inside the brackets can be considered a property identifier for naming.
 
 \subsection{Case 5: Property Assignment With  Property Name Variable}
-Object member names can be variable references that get converted to strings at runtime: this is syntactically similar to Case 4, but we can't statically compute the string to use as a property identifier.
+Object member names can be variable references that get converted to strings at runtime: this is syntactically similar to Case 4, but we can't (usually) statically compute the string to use as a property identifier.
 The usage of this case is also limited. This form usually appears when the same function body is assigned to different properties in a loop. 
 For example see the inner function in Fig.~\ref{fig:jQueryEach}. The variable
  name in the cases we examined was generic name like {\small\texttt{o}} or {\small\texttt{item}}. Unlike the previous two cases, we
@@ -425,7 +438,18 @@ function assigned to a hashmap using a variable name (row 5 in Table~\ref{table:
 
 \subsection{Case 6:  Property Assignment With  Property Name Expressions}
 Object member names can be expressions that get converted to strings at runtime: this is more general than case 5. 
- A common case of expression in this case is a conditional expression, e.g., {\small\texttt{condition?"prop1":"prop2"}}, where the property that we assign the function to depends upon runtime values. Unlike Case 5, the property name expression need not be a simple developer-invented identifier. We will need to process the expression to balance length with information.
+ A common case of expression in this case is a conditional expression, e.g., {\small\texttt{condition?"prop1":"prop2"}}, where the property that we assign the function to depends upon runtime values. Another kind of example of computed names comes from the Prototype project (refomatted to fit in the page):
+\begin{verbatim}
+  function define(D) {
+    if (!element) element = getRootElement();
+    property[D] = 'client' + D;
+    viewport['get' + D] = function() { 
+      return element[property[D]] 
+    };
+    return viewport['get' + D]();
+  }
+\end{verbatim}
+The word \verb|get| is concatenated with the \verb|toString()| value of the argument \verb|D| at runtime to create the property name.  Unlike Case 5, the property name expression need not be a simple developer-invented identifier. In this example, \verb|viewport[getD]| could be a good name, but in general we will need to process the expression to balance length with information.
 
 Notice that from the programming language point of view, Cases 3 through 6 are all special cases of Case 6. After all we are just selecting an object property in all of these cases.  But from a naming point of view these cases present different challenges and the more complex cases will make our necessary tradeoffs more costly.
 
@@ -437,27 +461,46 @@ As the functions are immutable objects, it is very likely that a function object
 and its internal scopes. Although, there are cases that the variable name is temporary as the function is passed to another function or assigned to an object property, in most cases the variable name works will as the function name. 
 
 \subsection{Case 9: Anonymous Functions Immediately Called}
-Calling functions objects just after their creations is a common pattern in JavaScript. This pattern is usually used for building modules employing the closure feature in JavaScript.
-In this pattern, the called or outer function provides a scope for function and object definition; functions defined inside of the called-function  have access to the properties in the closure scope in the future calls. The outer function is often not explicitly named and in some cases the return value is not assigned. 
+Calling functions objects just after their creations is a common pattern in JavaScript. For example see the assignment to \verb|Y.ClassNameManager| in Fig.~\ref{fig:classnamemanager}; the function is called at the bottom of the example. 
+\begin{figure}[htp]
+\begin{verbatim}
+Y.ClassNameManager = function () {
+
+ var sPrefix    = CONFIG[CLASS_NAME_PREFIX],
+   sDelimiter = CONFIG[CLASS_NAME_DELIMITER];
+
+    return {
+       getClassName: Y.cached(function () {
+          var args = Y.Array(arguments);
+          if (args[args.length-1] !== true) {
+              args.unshift(sPrefix);
+          } else {
+              args.pop();
+          }
+          return args.join(sDelimiter);
+      })
+    };
+}();
+\end{verbatim}
+\label{fig:classnamemanager}
+\caption{An example the YUI project of function bodies from cases 9 (the outer function)  and 12  (the argument to Y.cached) from Table~\ref{table:function-types}  }
+\end{figure}
 
 If the called-function is assigned to a variable or object property, then we have a version of one of the other cases in Table~\ref{function-types}. The difference here is that we can tell from static analysis that the assignment will use the return value of the function, not the function object itself. But for naming purposes the key information will be the assignment target.
 
 If the function call has no result, it means that the function performs one task (e.g., initialization of some values in the outer scope for later use). In this case we can't use the assignment target idea from Case 1, but source proximity and developer-invented names point to using interior identifiers in a name. To avoid confusing the developer by using the same name for the outer and interior functions, we will need some way to signify that the name we create this way is for an immediately called function.
 
-\subsection{Case 10: Returned From a Function Call}
+\subsection{Case 10: Function Property is Accessed}
+This case usually happens one of the predefined functions of function object (i.e., {\small\texttt{call, apply, bind}}) or an argument function to {\small\texttt{Function}} object prototype is called.
+
+\subsection{Case 11:  Returned From a Function Call}
+
 Although this category only includes 2\% of nameless function, proper naming of functions in this class is important. Many constructors are built using this form and therefore the names of these functions appear in object summaries.
-
-One important special case are functions returned from functions which are immediately called (Case 9).  For example, XXX. 
-
-% this is also important as many constructor/classes are made in this way 
-
-\subsection{Case 11: Function Property is Accessd}
-This case usually happens one of the predefined functions of function object (i.e., {\small\texttt{call, apply, bind}}) or an agumented function to {\small\texttt{Function}} object prototype is called.
-
 
 \subsection{Case 12: Function Passed as an Argument}
 Numbers in table~\ref{function-type-count} show that creating and passing functions as arguments is very common in JavaScript.
-For example, see Fig.~\ref{fig:jQueryEach}. The calling function and the other arguments look helpful, to the extent that they have identifiers invented by the developer. As in the example we see that the calling function, \verb|jQuery.each()| can be generic so it provides less valuable information, but the arguments in that example are highly specific to the function body. This important case will stress any naming algorithm: we somehow have to summarize the function call -- which itself may be an expression -- and the other arguments -- any or all of which may be expressions. 
+For example, see Fig.~\ref{fig:jQueryEach}. The calling function and the other arguments look helpful, to the extent that they have identifiers invented by the developer. As in the example we see that the calling function, \verb|jQuery.each()| can be generic so it provides less valuable information, but the arguments in that example are highly specific to the function body.  Fig.~\ref{fig:classnamemanager} shows different example, where the function called (\verb|Y.Cached()| seems much less important for naming the function than the property that we initialize with the result of calling the function.
+This important case will stress any naming algorithm: we somehow have to summarize the function call -- which itself may be an expression -- and the other arguments -- any or all of which may be expressions. 
 
 \subsection{Results of studying examples}
 We reached two main conclusions from studying the way anonymous functions are used in the source of the 10 projects we examined. First, we want to try to find the name of the initializer or assignment target that will receive the function object created from a function body.  JavaScript programmers are creating anonymous functions but they are loading them into object references and the expressions that result in those references have informative identifiers inside. Second, these expressions that we focus on may often be simple identifiers, but if they don't we will need to analyze the source of these expressions to extract meaningful summaries. This summary has to balance information against length.
@@ -483,7 +526,7 @@ We will describe the details in the next sections. In constructing names we real
 
 
 %To name a expression, we walk up the tree looking for the constructs in table 2. As we describe in section XX, for every matching construct we record identifiers or expressions to use in constructing a name. Then we assemble a name using the expression-reduction rules outlined in section YY and the context naming rules in section ZZ. The result is a summary that contains identifiers (i.e., variable and property names) and strings available in the source code plus some explanatory tokens. It compactly explains the function object creation, consumption and assignment. For the simple cases of function declaration, object property initialization, and variable initialization the algorithm gives the same results we described above.
-
+ 
 %	We instead, to tackle the aforementioned issues caused due to the lack of function names, propose automated function naming by anlyzing the source code. Before getting into details of how the function name is constructed, we discuss the rationale behind some of decisions we made in this approach.
 %  Developers usually understand and refer to function objects by aliases they use to access them. This fact particularly holds for permanent function objects such as classes and utility functions. However, functions with shorter lifetimes such as closures and callbacks are referred by their roles or purposes in the program. We employ these facts to construct an identifier for a function. We analyze the source code and build a summary that explains the function object creation, consumption and assignment.
 %This summary which only contains identifiers (i.e., variable and property names) and strings available in the source code gives us the ingeredients for function identifier construction.
@@ -635,22 +678,6 @@ The particular symbols we use may be refined with more experience in how develop
 
 The name is built by the above process does not contain any information about enclosing scopes. We call it \textit{local name}. We get the function \textit{full name} by adding the enclosing function full-name with a slash before the local-name, recursing through enclosing scopes. This full-name is our function body name.
 
-\section{Special Cases}
-Given that our goals trade precision for rapid recognition, our names are not unique or perfectly tuned to every developer's need. We also leave some cases anonymous. We add  few special cases to our algorithm to patch over these issues.
-
-\subsection{Similar Function Names in a File}
-It is conceivable, that function bodies are named with the same names in a file. It can happen in different situations. One of the common cases is the two different function bodies may assign to a property based on a condition (e.g., the browser). For these cases we add a dollar sign and an index to the similar function names. For example, if there are two function bodies with names {\small\texttt{myFunction}}, the functions are named as {\small\texttt{myFunction\$0}} and {\small\texttt{myFunction\$1}}. 
-
-\subsection{Namer Functions}
-Many JavaScript projects have one or a few functions which are used for defining classes or registering function objects. These functions usually receive a string as the class name or function name. The number of namer functions is usually very limited for a specific project and can be provided to debugger by the developer. A namer function works like an assignment in the summary.  
-
-% to register a function with a name
-% to wrap the function
-% as a callback
-
-
-\subsection{Functions created by {\large \texttt{eval()}}}
-The function bodies in {\small\texttt{eval}} statements can be named similar to other objects as the source code is available. However, eval scripts have no file name and therefore, it causes issues for assigning appropriate packages name to these functions. 
 
 %\section{Improved by Runtime Data}
 %\subsection{Naming Functions in Call Stack}
@@ -702,20 +729,19 @@ The next two functions, {\small\texttt{FOO}} on line 19 and {\small\texttt{BAR}}
   \end{tabular}
   }
  \label{evaluation} 
-\caption{Number of functions remaind anonymous, the number of produced unique function names, the number of produced function names used for at most two functions and the average and longest length of produced names for each project.}
+\caption{Results of Function Object Consumption. The rows are the projects listed in Appendix 1. First column in  contains the number of anonymous functions in each project. The second column shows the number of functions Firebug could not name. The third column contains the number of functions nameless after applying the static Function Object Consumption (FOC) algorithm;  and the fourth column is the number with only a name for enclosing scopes. The fifth column give the number of times a FOC function name appears twice in a file and sixth and seventh columns give the average and longest name character counts respectively. The last columns have two entries divided by a slash, the first is the local name and the second is the full name.} 
 \end{table*}    
 
-\section{evaluation}
-The purpose of our evaluation is to answer the follwing questions: 1) How effective is the approach in naming anonymous functions? 2)How the algorithm  improves the current approaches used in available debuggers for inferring anonymous function names? 3) Are the proposed names are unique to be used as identifiers or conversely what portion of proposed names are duplicated? 4) Are the proposed names appropriate for user interface presentation? 
+\section{Evaluation}
+The purpose of our evaluation is to answer the following questions: 1) How effective is the approach in naming anonymous functions? 2) How the algorithm  improves the current approaches used in available debuggers for inferring anonymous function names? 3) Are the proposed names are unique to be used as identifiers or conversely what portion of proposed names are duplicated? 4) Are the proposed names appropriate for user interface presentation? 
 
-We compared our results to Firebug naming output. Firebug does not use a parser for naming functions, it instead employs a number of regular expressions and apply them on a few lines around the function definition to obtain a name. Although this approach is not reliable and may provide wrong names for some functions, it infers acceptable names in many simple cases. First column in Table~\ref{evaluation} contains the number of anonymous functions in each project. The second column shows the number of functions remained anonymous in Firebug. About 10 percent of anonymous functions still remained nameless in Firebug. The third column contains the number of functions which remained nameless after applying the static function object consumption algorithm. The numbers show that the algorihtm names more than 99 percent of anonymous functions. The next column shows how many of functions are named by do not have a short name (i.e., they are named only by their context names).
+In Table~\ref{evaluation} We compared our results to Firebug's naming output for each of the 10 projects used previously and listed in Appendix 1. Firebug does not use a parser for naming functions. It instead employs a number of regular expressions and apply them on a few lines around the function definition to obtain a name. Although this approach is not reliable and may provide wrong names for some functions, it infers acceptable names in many simple cases. About 10 percent of anonymous functions still remained nameless in Firebug (in addition, some named functions may be quite incorrect because of the simple algorithm).The numbers show that the algorithm names more than 99 percent of the anonymous functions.
 
-The fifth and sixth columns compare Firebug names to short names. In 15 percent of cases the short name is the same as firbug name. The next column shows the number of functions which their short name does not equals to Firebug name but ends with it. It means that short names contain more information (e.g., the function class name or parent object name) than Firebug names in 47 percent of cases. 
 
 The duplicates column show the number of duplicated function names. About 9 percent of inferred names used for more than one function in a file. The main source of duplicated names are test cases particularly in DOJO, ExtJS and YUI. 
 %the other sources :1) function calls with no hint  2) conditional functions (e.g., based on browser)
 
-The last two columns show the average and longest function name lengths (in characters) for both short and full names. The average length is at most 37 characters.
+The last two columns show the average and longest function name lengths (in characters) for both short and full names. The average length is at most 37 characters. The longest  names are typically long because of a long local name.  
 
 %\subsection{Produced Names Characteristics}
 %\subsection{Developers' vs. Automated Names}
@@ -730,7 +756,23 @@ The last two columns show the average and longest function name lengths (in char
 %The first column shows, how many functions get similar names by both algorithm. In average, for 60\% of functions both algorithms produce the same names. Firebug is not able to name about 15\% of functions. In 35\% of functions the results are different. In most cases, the proposed name by Firebug is the name of another function and is wrong. 
    
 
-\section{Disucussion}
+\section{Discussion}
+
+Given that our goals trade precision for rapid recognition, our names are not unique or perfectly tuned to every developer's need. We also leave some cases anonymous. We add  few special cases to our algorithm to patch over these issues.
+
+\subsection{Similar Function Names in a File}
+It is conceivable, that function bodies are named with the same names in a file. It can happen in different situations. One of the common cases is the two different function bodies may assign to a property based on a condition (e.g., the browser). For these cases we add a dollar sign and an index to the similar function names. For example, if there are two function bodies with names {\small\texttt{myFunction}}, the functions are named as {\small\texttt{myFunction\$0}} and {\small\texttt{myFunction\$1}}. 
+
+\subsection{Namer Functions}
+Many JavaScript projects have one or a few functions which are used for defining classes or registering function objects. These functions usually receive a string as the class name or function name. The number of namer functions is usually very limited for a specific project and can be provided to debugger by the developer. A namer function works like an assignment in the summary.  
+
+% to register a function with a name
+% to wrap the function
+% as a callback
+
+
+\subsection{Functions created by {\large \texttt{eval()}}}
+The function bodies in {\small\texttt{eval}} statements can be named similar to other objects as the source code is available. However, eval scripts have no file name and therefore, it causes issues for assigning appropriate packages name to these functions. 
 
 \subsection{ {\texttt .displayName} }
 The ultimate fallback for function names is to allow the developer to specify them manually. For applicaiton developers this is tedious path, but for library developers the cost may be justified by the many potential developers who will see the custom name.
