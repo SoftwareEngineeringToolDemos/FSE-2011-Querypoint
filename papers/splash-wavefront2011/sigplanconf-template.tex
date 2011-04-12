@@ -151,28 +151,28 @@ So what do JavaScript developers do in practice?  To get empirical evidence we a
 \begin{figure}[htp]
 
 \lstset{basicstyle=\scriptsize}
-\lstset{emph={FOO,BAR}} %,emphstyle=\bf}
+\lstset{emph={Foo,Bar}} %,emphstyle=\bf}
 \lstdefinelanguage{myLang}
 {morekeywords={if, function, var, return, new, this}}
 
 \begin{lstlisting}[frame=single, language=myLang]
 9  var main = function() {          // main
-10   var foo = new FOO(            
+10   var foo = new Foo(            
 11      function(){                 // main/foo<
 12        this.welcome = "Hi!";
 13      });
-14   var bar = new BAR("GoodBye.");
+14   var bar = new Bar("GoodBye.");
 15   alert(foo.welcome);
 16   alert(bar.message);
 17 };
-18 var FOO = function(){            // FOO<    
+18 var Foo = function(){            // Foo<    
 19   var instances;
-20   return function(initializer){  // FOO
+20   return function(initializer){  // Foo
 21       instances++;         
 22       initializer.apply(this);
 23     }
 24 }();
-25 var BAZ = BAR = function(msg){   // BAR
+25 var Baz = Bar = function(msg){   // Bar
 26   this.message = msg;
 27 }
 \end{lstlisting}
@@ -183,9 +183,9 @@ So what do JavaScript developers do in practice?  To get empirical evidence we a
 
 \begin{figure*}[htp]
 \centerline{
-\subfigure[Google Chrome Debugger]{\label{fig_object_second_case}\includegraphics[width=0.48\textwidth]{pic/chrome-objects.jpg}}
+\subfigure[Google Chrome Debugger]{\label{fig_object_second_case}\includegraphics[width=0.48\textwidth]{pic/chrome-objects.png}}
 \hfil
-\subfigure[Firebug]{\label{fig_object_first_case}\includegraphics[width=.48\textwidth]{pic/fbug-objects.jpg}}}
+\subfigure[Firebug]{\label{fig_object_first_case}\includegraphics[width=.48\textwidth]{pic/fbug-objects.png}}}
 \caption{The screenshot of variables view of Google Chrome and Firebug JavaScript debuggers paused on a breakpoint at line 15 of the program shown in Figure~\ref{js-code}.}
 \label{debuggers-objects}
 \end{figure*}
@@ -197,7 +197,7 @@ Two main issues appear in debuggers due to the lack of function name. First, obj
 JavaScript does not support classes, but objects can be created by constructors ({\small\texttt{new}} followed by a function call). A constructor is a regular JavaScript function. Once the {\small\texttt{new}} keyword is evaluated, an empty object, with the constructor prototype as its prototype, is created, then the new object is bound to {\small\texttt{this}} and the constructor is called. The role of constructor is to initialize the empty object. Unlike class-based object-oriented languages, the structure of object imposed by the constructor may change during the object's lifetime \cite{Richards}, the constructor can still be useful in classify the object.
 Debuggers employ this fact and display the constructor name in the object summary to facilitate developer's understanding. 
 
-Figure~\ref{js-code} shows an excerpt of a JavaScript program we use to illustrate this issue. We set a breakpoint on line 15 and examine the runtime elements at this breakpoint by two JavaScript debuggers, Google Chrome and Firebug (Figure~\ref{debuggers-objects}). Two objects assigned to variables {\small\texttt{foo}} and {\small\texttt{bar}} are constructed by two different constructors: {\small\texttt{FOO}} and {\small\texttt{BAR}}. However, Google Chrome debugger shows the general class of {\small\texttt{Object}} for {\small\texttt{foo}} and the {\small\texttt{BAZ.BAR}} class for {\small\texttt{bar}} as their summaries. The first class is very general and the second one is misleading. The developer has to expand the object nodes to recognize their similarities and differences. Firebug classify both objects in the general {\small\texttt{Object}} class, but includes some of the object properties in the summary. These additional properties may hint the developer about the object structures. {\small\texttt{FOO}} and {\small\texttt{BAR}} definitions at lines 20 and 25 explain the debuggers' behavior; the function statements has no explicit name (identifier), therefore debuggers considered them as \textit{anonymous} functions. 
+Figure~\ref{js-code} shows an excerpt of a JavaScript program we use to illustrate this issue. We set a breakpoint on line 15 and examine the runtime elements at this breakpoint by two JavaScript debuggers, Google Chrome and Firebug (Figure~\ref{debuggers-objects}). Two objects assigned to variables {\small\texttt{foo}} and {\small\texttt{bar}} are constructed by two different constructors: {\small\texttt{Foo}} and {\small\texttt{Bar}}. However, Google Chrome debugger shows the general class of {\small\texttt{Object}} for {\small\texttt{foo}} and the {\small\texttt{Baz.Bar}} class for {\small\texttt{bar}} as their summaries. The first class is very general and the second one is misleading. The developer has to expand the object nodes to recognize their similarities and differences. Firebug classify both objects in the general {\small\texttt{Object}} class, but includes some of the object properties in the summary. These additional properties may hint the developer about the object structures. {\small\texttt{Foo}} and {\small\texttt{Bar}} definitions at lines 20 and 25 explain the debuggers' behavior; the function statements has no explicit name (identifier), therefore debuggers considered them as \textit{anonymous} functions. 
 
 
 \subsection{Anonymous Function Names in Call-stack View}
@@ -208,9 +208,9 @@ In these cases, the information provided by debugger is useless and the develope
 
 \begin{figure*}[htp]
 \centerline{
-\subfigure[Google Chrome Debugger]{\label{fig_second_case}\includegraphics[width=0.48\textwidth]{pic/chrome-callstack.jpg}}
+\subfigure[Google Chrome Debugger]{\label{fig_second_case}\includegraphics[width=0.48\textwidth]{pic/chrome-callstack.png}}
 \hfil
-\subfigure[Firebug]{\label{fig_first_case}\includegraphics[width=.48\textwidth]{pic/fbug-callstack.jpg}}}
+\subfigure[Firebug]{\label{fig_first_case}\includegraphics[width=.48\textwidth]{pic/fbug-callstack.png}}}
 \caption{The screenshot of call-stack view of Google Chrome and Firebug JavaScript debuggers paused on a breakpoint at line 15 of the program shown in Figure~\ref{js-code}.}
 \label{debuggers-callstack}
 \end{figure*}
@@ -737,7 +737,7 @@ The function in line 10 is returned just after its creation. This function is lo
 
 The third function, line 14, is passed to a function {\small\texttt{op}} on line 13, within the body of the function we named {\small\texttt{main}} . Here 1) the function object is passed as an argument to function {\small\texttt{op}}, 2) The call result is assigned to {\small\texttt{result}}. If we simply put the identifiers in the summary together we get {\small\texttt{main/result<op()}}. The first part before slash  shows the context name (the enclosing function name) for this function.  However, the function names (here {\small\texttt{op()}}) usually give an indirect information (e.g., role) about the function object. Therefore, as we explain in 4.5, we ignore them if other kind of identifiers (e.g., variable and property name) are available in the summary. After dropping {\small\texttt{op}}, we will have {\small\texttt{main/result<}}. Eliding identifiers is important to avoid creating long, unwieldy names.
 
-The next two functions, {\small\texttt{FOO}} on line 19 and {\small\texttt{BAR}} on line 22 are simple examples of case 6.  The last two functions defined in lines 25 and 27, similar to functions in lines 9 and 10, are named {\small\texttt{op<}} and {\small\texttt{op}} respectively. 
+The next two functions, {\small\texttt{Foo}} on line 19 and {\small\texttt{Bar}} on line 22 are simple examples of case 6.  The last two functions defined in lines 25 and 27, similar to functions in lines 9 and 10, are named {\small\texttt{op<}} and {\small\texttt{op}} respectively. 
 
 
 
