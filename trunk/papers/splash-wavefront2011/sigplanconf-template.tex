@@ -485,16 +485,61 @@ Y.ClassNameManager = function () {
 \caption{An example the YUI project of function bodies from cases 9 (the outer function)  and 12  (the argument to Y.cached) from Table~\ref{table:function-types}  }
 \end{figure}
 
-If the called-function is assigned to a variable or object property, then we have a version of one of the other cases in Table~\ref{function-types}. The difference here is that we can tell from static analysis that the assignment will use the return value of the function, not the function object itself. But for naming purposes the key information will be the assignment target.
+If the called-function is assigned to a variable or object property, then we have a version of one of the other cases in Table~\ref{table:function-types}. The difference here is that we can tell from static analysis that the assignment will use the return value of the function, not the function object itself. But for naming purposes the key information will be the assignment target.
 
 If the function call has no result, it means that the function performs one task (e.g., initialization of some values in the outer scope for later use). In this case we can't use the assignment target idea from Case 1, but source proximity and developer-invented names point to using interior identifiers in a name. To avoid confusing the developer by using the same name for the outer and interior functions, we will need some way to signify that the name we create this way is for an immediately called function.
 
 \subsection{Case 10: Function Property is Accessed}
-This case usually happens one of the predefined functions of function object (i.e., {\small\texttt{call, apply, bind}}) or an argument function to {\small\texttt{Function}} object prototype is called.
+In this unusual case a property of the function is accessed directly from the function body. This case usually happens one of the predefined functions of function object (i.e., {\small\texttt{call, apply, bind}}) or when the predefined functions are augmented by adding to {\small\texttt{Function}} prototype.  Here is an example, from ExtJS, reformatted for display here:
+\begin{verbatim}
+setVisible : function(v, a, d, c, e){
+    if(v){
+        this.showAction();
+    }
+    if(a && v){
+        var cb = function(){
+            this.sync(true);
+            if(c){
+                c();
+            }
+        }.createDelegate(this);
+   }
+   // .....
+}
+\end{verbatim}
+The inner function body is not used directly, but the result of \verb|createDelegate| is assigned to \verb|cb|. The most valuable information here is the variable name \verb|cb|, followed by the \verb|createDelegate| function name.  This example also illustrates that automatic naming could have an effect on developers coding style:  giving a longer name for \verb|cb| would give better names in development tools but currently developers have limited expectations that tools will show such information.
 
 \subsection{Case 11:  Returned From a Function Call}
 
-Although this category only includes 2\% of nameless function, proper naming of functions in this class is important. Many constructors are built using this form and therefore the names of these functions appear in object summaries.
+In this case the function body appears in a return statement of another function body. Although this category only includes 2\% of nameless function, proper naming of functions in this class is important. Many constructors are built using this form and therefore the names of these functions appear in object summaries.    Clearly the name of these returned functions is almost the same as the name of the functions that define them. For example, in Fig.~\ref{fig:registerWin} a developer might pick names like \verb|registerWinOnIE| and \verb|registerWinNotOnIE| for the functions returned by the Dojo function \verb|registerWin|.
+\begin{figure*}[htbp]
+\begin{verbatim}
+registerWin: function(targetWindow, effectiveNode){
+  // ...
+  if(doc){
+    if(dojo.isIE){
+      ....
+      return function(){
+        doc.detachEvent('onmousedown', mousedownListener);
+        doc.detachEvent('onactivate', activateListener);
+        doc.detachEvent('ondeactivate', deactivateListener);
+        doc = null;    // prevent memory leak (apparent circular reference via closure)
+      };
+    }else{
+      ....
+      return function(){
+        doc.removeEventListener('mousedown', mousedownListener, true);
+        doc.removeEventListener('focus', focusListener, true);
+        doc.removeEventListener('blur', blurListener, true);
+        doc = null;    // prevent memory leak (apparent circular reference via closure)
+      };
+    }
+  }
+},
+\end{verbatim}
+\label{fig:registerWin}
+\caption{An example of a function body in a return statement, case 11 of Table~\ref{table:function-types}  adapted from the Dojo project code}
+\end{figure*}
 
 \subsection{Case 12: Function Passed as an Argument}
 Numbers in table~\ref{function-type-count} show that creating and passing functions as arguments is very common in JavaScript.
@@ -673,7 +718,7 @@ Second we concatenate the identifiers with a symbol between each parent and chil
 if the parent expression is an array or object literal then the identifier will be marked  as \textit{isPartOf} and we insert a dot character. If the identifier was marked as  \textit{isContributesTo} we insert a left angle bracket. An identifier marked \textit{isSameAs} is skipped over because we already have identifier information for it. Because some entries on the object consumption list are empty strings we may have duplicate symbols. Any duplicates are replaced a single symbol. The result contains identifiers (i.e., variable and property names) and strings available in the source code plus some explanatory tokens. It compactly explains the function object creation, consumption and assignment.
  
 
-The particular symbols we use may be refined with more experience in how developers respond to them. Our intuition is that these extra symbols need to be visually compact because their purpose is to adjust the developers expectation for the identifier. For example, the function on line 9 of Fig.~\ref{fig:js-code} is named \texttt{main<} but the developer may only key on the word \texttt{main} to recall the function body. 
+The particular symbols we use may be refined with more experience in how developers respond to them. Our intuition is that these extra symbols need to be visually compact because their purpose is to adjust the developers expectation for the identifier. For example, the function on line 9 of Fig.~\ref{js-code} is named \texttt{main<} but the developer may only key on the word \texttt{main} to recall the function body. 
 
 The name is built by the above process does not contain any information about enclosing scopes. We call it \textit{local name}. We get the function \textit{full name} by adding the enclosing function full-name with a slash before the local-name, recursing through enclosing scopes. This full-name is our function body name.
 
