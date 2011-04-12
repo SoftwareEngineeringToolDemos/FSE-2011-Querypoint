@@ -831,11 +831,17 @@ The ultimate fallback for function names is to allow the developer to specify th
 %"this" in names
 
 % open problems: naming scripts loaded and evaluated by eval,
+
+
 \section{Related Work}
 % Andrew Ko paper about errors by names
 % ecoop 2009 paper
 % typing system papers
+% readability parameter paper
 
+To best of our knowledge, this paper is the first study in naming anonymous functions in JavaScript. H{\o}st and {\O}stvold \cite{Host} attempted to find and fix inappropriate function names in Java programs. Their approach employ rules extracted from a big corpus of Java projects to recognize buggy names. To fix a name a list of candidate names are constructed and ranked, the the name with highest rank is proposed for the replacement. This approach assumes that the function is already named and constructs the names based on the function internal structure. In contrast, our approach construct the function name by analysing the function context. 
+
+Caprile and Tonella \cite{Caprile}, analyse the structure of function identifiers in C programs. The identifiers are decomposed into fragments that are then classified into seven lexical categories. The structure of the function identifiers are futher described by a hand-crafted grammar.
 %JavaScript, unlike many traditional object oriented languages such as Java and C\#, does not have classes, and does not encourage encapsulation or even structured programming. JavaScript is a weakly typed language with no type declarations and only run-time checking of calls and field accesses \cite{Richards}. As a direct consequence, the JavaScript code contains less explanatory data about the program elements and their relations. For example, the value of a variable can be a primitive value, an object with any structure or even a function. One call-site may invoke different function bodies with various number of arities that none of them can be understood from the code. Therefore, the lack of descriptive data in JavaScript code is the most fundamental issue in enhancing JavaScript tool support.
 
 
@@ -848,20 +854,20 @@ Our contributions in this paper include an empirical study of the extent of anon
 
 
 
-\appendix
-\section{JavaScript Projects Analyzed for Function Names}
-\begin{description}
-\item[Closure] Google Web Library, ...
-\item[Dojo] JavaScript Toolkit
-\item[ExtJS] JavaScript Framework
-\item[Firebug] Web Page Debugger, http://code.google.com/p/fbug/, version 1.7??
-\item[jQuery]
-\item[MochiKit]
-\item[MooTools]
-\item[Prototype]
-\item[Scriptaculous]
-\item[YUI]
-\end{description}
+%\appendix
+%\section{JavaScript Projects Analyzed for Function Names}
+%\begin{description}
+%\item[Closure] Google Web Library, ...
+%\item[Dojo] JavaScript Toolkit
+%\item[ExtJS] JavaScript Framework
+%\item[Firebug] Web Page Debugger, http://code.google.com/p/fbug/, version 1.7??
+%\item[jQuery]
+%\item[MochiKit]
+%\item[MooTools]
+%\item[Prototype]
+%\item[Scriptaculous]
+%\item[YUI]
+%\end{description}
 
 
 
@@ -892,6 +898,11 @@ July, 2005.
 C. Anderson and P. Giannini. \newblock Type checking for javascript.
 \newblock \emph{Electr. Notes Theor. Comput. Sci.}, 138(2), 2005. 
 
+\bibitem{Caprile}
+B. Caprile and P. Tonella. \newblock Nomen est omen: Analyzing the language of function identifiers.
+\newblock In \emph{Proceedings of the 6th working conference on Reverse Engineering(WCRE)},
+October, 1999.
+
 \bibitem{CJS}
 Common JS.
 \newblock http://www.commonjs.org/
@@ -920,6 +931,11 @@ Google Chrome Extensions.
 P. Heidegger and P. Thiemann.\newblock Recency types for dynamically-typed, object-based languages.
 \newblock In \emph{Proceedings of Foundations of Object Oriented Languages (FOOL)},
 2009.
+
+\bibitem{Host}
+E. W. H{\o}st and  B. M. {\O}stvold.\newblock Debugging Method Names.
+\newblock In \emph{Proceedings of the 23rd European conference on Object-Oriented Programming(ECOOP)},
+July, 2009.
 
 \bibitem{Ingalls}
 D. Ingalls, K. Palacz, S. Uhler and A. Taivalsaari.\newblock The lively kernel a self-supporting system on
