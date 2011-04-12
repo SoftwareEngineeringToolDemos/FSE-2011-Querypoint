@@ -176,7 +176,7 @@ So what do JavaScript developers do in practice?  To get empirical evidence we a
 26   this.message = msg;
 27 }
 \end{lstlisting}
-\caption{An excerpt of a JavaScript code.}
+\caption{An excerpt of a JavaScript code illustrating anonymous functions. The comments give the results from Sec.~\ref{sec:foc} and these are discussed in Sec.~\ref{sec:examples}}
 \label{js-code}
 \end{figure}
 
@@ -563,6 +563,7 @@ Overlaying our analysis above is hierarchy: any of the cases can be nested in fu
 % functions pass the name as string, different types of class definitions
 
 \section{Static  Function Object Consumption}
+\label{sec:foc}
 Using our analysis we have created a preliminary automatic naming solution.  The three parts of our solution match three observations for our study. First we apply 
  \textit{(Static) Function Object Consumption}, which tracks the function object created from a function body to where the object is 'consumed', for example by assignment to or initialization of  an object property, variable reference, or function argument. The "static" qualifier just indicates that we will only use a parser.  Second, we reduce complex expressions to pseudo-identifiers focusing on developer-invented names.  Third we apply our approach hierarchically to  deal with nested function bodies.
 
@@ -727,19 +728,21 @@ The name is built by the above process does not contain any information about en
 %\subsection{Naming Functions in Call Stack}
 
 
-\subsection{Example}
-  
-To further explain our approach we now apply it to the JavaScript code presented in Figure~\ref{js-code}. We can recognize seven function bodies in the code, none of them has a name. 
+\subsection{Examples}
+\label{sec:examples}
+To further explain our approach we now apply it to the JavaScript code presented in Figure~\ref{js-code}. We can recognize five function bodies in the code, none of them has a name. 
 
-The first function on line 9 is called just after its creation (see line 18) and the return sets the {\small\texttt{main}} value. We can explain the function object consumption after its creation in two steps. First the parent node is a function call (row 2 in Table~\ref{table:node-types}. 2) the result is assigned to {\small\texttt{main}}. This differs from the simple variable assignment case: the value of {\small\texttt{main}} is not a function object but rather the return value of a function object.   We summarize this by saying that the result object is produced by the function object or the function object contributed to the {\small\texttt{main}} value and we write it {\small\texttt{main<}}, where the symbol {\small\texttt{<}} indicates "contributes to".
+The first function on line 9 is assigned to the variable \verb|main|. The parent node for the function body in the syntax tree will be an assignment, so in Algorithm~\ref{alg1} we skip the \verb|while| loop and compute the \verb|nameExpression| as \verb|main|.  Ultimately this becomes the name of the function.
 
-The function in line 10 is returned just after its creation. This function is located inside a closure function (i.e., a function which is called directly after its creation). This structure lets us to continue the static function object consumption analysis by assigning the return expression (the function body in line 10) to the alias set by the closure call result ({\small\texttt{main}}). The summary of the function object consumption will be: 1) the function object is returned , 2) the function object is assigned to {\small\texttt{main}}. As the function object is directly assigned to this variable we name the function {\small\texttt{main}}.
+The second function on line 11 is nested in the first one.  It is passed as an argument to a constructor call on line 10 and the resulting object is assigned to \verb|foo|. In Algorithm~\ref{alg1} we create two entries in the consumption summary, one for the function call with identifier \verb|FOO| and one for the assignment with identifier \verb|foo|. The first one gets marked with \verb|isContributesTo|.  Following the logic in Sec.~\ref{sec:concatenation}, we drop the function call identifier but mark the name with \verb|<| for contributes-to. The resulting local name is \verb|foo<| and the full name includes the enclosing function name: \verb|main/foo<|.
 
-The third function, line 14, is passed to a function {\small\texttt{op}} on line 13, within the body of the function we named {\small\texttt{main}} . Here 1) the function object is passed as an argument to function {\small\texttt{op}}, 2) The call result is assigned to {\small\texttt{result}}. If we simply put the identifiers in the summary together we get {\small\texttt{main/result<op()}}. The first part before slash  shows the context name (the enclosing function name) for this function.  However, the function names (here {\small\texttt{op()}}) usually give an indirect information (e.g., role) about the function object. Therefore, as we explain in 4.5, we ignore them if other kind of identifiers (e.g., variable and property name) are available in the summary. After dropping {\small\texttt{op}}, we will have {\small\texttt{main/result<}}. Eliding identifiers is important to avoid creating long, unwieldy names.
+The third function on line 18 is called immediately after definition, on line 24. This means the function body in the syntax tree will have a parent from the immediate call then the assignment; the call does not give us an identifier but it does give a consumption summary entry with \verb|isContributesTo|. The name becomes \verb|FOO<|.
 
-The next two functions, {\small\texttt{Foo}} on line 19 and {\small\texttt{Bar}} on line 22 are simple examples of case 6.  The last two functions defined in lines 25 and 27, similar to functions in lines 9 and 10, are named {\small\texttt{op<}} and {\small\texttt{op}} respectively. 
+The fourth function on line 20 is returned by \verb|FOO<|. After the first pass through the \verb|while| loop in Algorithm~\ref{alg1} we enter \verb|getNextNode| and trigger the code described in Sec.~\ref{sec:immediate}.  This will cause us to walk up the syntax tree to find the assignment target for the outer function. We end up with name \verb|FOO|. Because do not process the intermediate nodes in the \verb|while| loop we don't mark the name with contributes-to and we don't record that the function is nested. Of course the function body is nested, but it is bound to an un-nested variable. To keep the name compact we choose not to encode this complex information. Rather we stick to the simple picture that the function 'is' \verb|FOO|. If the developer wants to know more they can look up \verb|FOO| to see the construction and nesting.
 
+The fifth function on line 25 is assigned to two variables. This example illustrates that we stop processing in Algorithm~\ref{alg1} as soon as we hit the first assignment, giving the name \verb|BAR|. This aligns with our observation that the visually closest identifier is the best choice.
 
+\section{Evaluation}
 
 \begin{table*}
 \centering
@@ -778,8 +781,6 @@ The next two functions, {\small\texttt{Foo}} on line 19 and {\small\texttt{Bar}}
 \caption{Results of Function Object Consumption. The rows are the projects listed in Appendix 1. First column in  contains the number of anonymous functions in each project. The second column shows the number of functions Firebug could not name. The third column contains the number of functions nameless after applying the static Function Object Consumption (FOC) algorithm;  and the fourth column is the number with only a name for enclosing scopes. The fifth column give the number of times a FOC function name appears twice in a file and sixth and seventh columns give the average and longest name character counts respectively. The last columns have two entries divided by a slash, the first is the local name and the second is the full name.} 
 \end{table*}    
 
-\section{Evaluation}
-The purpose of our evaluation is to answer the following questions: 1) How effective is the approach in naming anonymous functions? 2) How the algorithm  improves the current approaches used in available debuggers for inferring anonymous function names? 3) Are the proposed names are unique to be used as identifiers or conversely what portion of proposed names are duplicated? 4) Are the proposed names appropriate for user interface presentation? 
 
 In Table~\ref{evaluation} We compared our results to Firebug's naming output for each of the 10 projects used previously and listed in Appendix 1. Firebug does not use a parser for naming functions. It instead employs a number of regular expressions and apply them on a few lines around the function definition to obtain a name  (a function called {\small \texttt{guessFunctionName()}}). Although this approach is not reliable and may provide wrong names for some functions, it infers acceptable names in many simple cases. About 10 percent of anonymous functions still remained nameless in Firebug (in addition, some named functions may be quite incorrect because of the simple algorithm).The numbers show that the algorithm names more than 99 percent of the anonymous functions.
 
