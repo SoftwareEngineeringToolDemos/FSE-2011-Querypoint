@@ -67,7 +67,9 @@
 \maketitle
 
 \begin{abstract}
-Understanding JavaScript code due to its dynamic, weakly-typed nature is complicated. Developers usually comprehend JavaScript programs by running them and examining their elements at runtime. However, understanding concrete values, particularly user-defined and function objects, is not always straightforward. Function names can aid in this regard; they can appear as the constructor name in object representation or as the function identifier in call-stack. Based on our analysis over ten famous JavaScript projects, unfortunately only a very low proportion (less than 7\%) of JavaScript functions are named by developers in the first place. As a solution to this problem, we propose an automated approach based on local source code analysis for naming nameless JavaScript functions. We applied our approach on several JavaScript projects and the results are very promising.
+JavaScript developers create and call functions; they use functions to construct objects. JavaScript development tools need to report to developers about those functions and constructors, for example in debugger call-stacks and object representations. However, developers need not specify names for functions.  
+ Based on our analysis of ten large, widely used JavaScript projects, less than 7\% of JavaScript functions are named by developers. 
+By studying examples from these JavaScript projects, we propose Static Function-Object Consumption, a principled, automated approach based on local source code analysis for naming nameless JavaScript functions.  We applied our approach to these same JavaScript projects and the results are very promising.
 \end{abstract}
 
 \category{D.2.5}{Testing and Debugging}{Debugging aids}
@@ -393,13 +395,13 @@ For this purpose we created 12 categories of function body expressions shown in 
 \subsection{Case 2: Entry in an Array Literal}
 Contrary to the previous case the appearance of this case is very limited. It usually appears in initializations or when an array of functions are passed as an argument. Among all projects only two have instances of nameless functions defined in this way. For example array argument to \verb|Event._attach| in this example from YUI:
 \begin{verbatim}
-        _attach: function (el, notifier, delegate) {
-            if (Y.DOM.isWindow(el)) {
-                return Event._attach([type, function (e) {
-                    notifier.fire(e);
-                }, el]);
-            }
-       }
+_attach: function (el, notifier, delegate) {
+  if (Y.DOM.isWindow(el)) {
+    return Event._attach([type, function (e) {
+         notifier.fire(e);
+    }, el]);
+  }
+}
 \end{verbatim}
 (The example is nested in more function definitions we do not show here). The developer will probably think of the array entry one item in a collection passed to \verb|Event._attach|. In general we shall want to name these kinds of functions by the destiny of the containing array.
 
@@ -735,7 +737,7 @@ The next two functions, {\small\texttt{FOO}} on line 19 and {\small\texttt{BAR}}
 \section{Evaluation}
 The purpose of our evaluation is to answer the following questions: 1) How effective is the approach in naming anonymous functions? 2) How the algorithm  improves the current approaches used in available debuggers for inferring anonymous function names? 3) Are the proposed names are unique to be used as identifiers or conversely what portion of proposed names are duplicated? 4) Are the proposed names appropriate for user interface presentation? 
 
-In Table~\ref{evaluation} We compared our results to Firebug's naming output for each of the 10 projects used previously and listed in Appendix 1. Firebug does not use a parser for naming functions. It instead employs a number of regular expressions and apply them on a few lines around the function definition to obtain a name. Although this approach is not reliable and may provide wrong names for some functions, it infers acceptable names in many simple cases. About 10 percent of anonymous functions still remained nameless in Firebug (in addition, some named functions may be quite incorrect because of the simple algorithm).The numbers show that the algorithm names more than 99 percent of the anonymous functions.
+In Table~\ref{evaluation} We compared our results to Firebug's naming output for each of the 10 projects used previously and listed in Appendix 1. Firebug does not use a parser for naming functions. It instead employs a number of regular expressions and apply them on a few lines around the function definition to obtain a name  (a function called {\small \texttt{guessFunctionName()}}). Although this approach is not reliable and may provide wrong names for some functions, it infers acceptable names in many simple cases. About 10 percent of anonymous functions still remained nameless in Firebug (in addition, some named functions may be quite incorrect because of the simple algorithm).The numbers show that the algorithm names more than 99 percent of the anonymous functions.
 
 
 The duplicates column show the number of duplicated function names. About 9 percent of inferred names used for more than one function in a file. The main source of duplicated names are test cases particularly in DOJO, ExtJS and YUI. 
@@ -747,7 +749,7 @@ The last two columns show the average and longest function name lengths (in char
 %\subsection{Developers' vs. Automated Names}
 %\subsection{Compared to Firebug {\large \texttt{guessFunctionName()}}}
 
-\subsection{Manual Check}
+%\subsection{Manual Check}
 %namespaces in JS:http://javascriptweblog.wordpress.com/2010/12/07/namespacing-in-javascript/
 %commonjs requriejs, ...
 %the function name not very long like google chrome  xxxx.yyy.zzz
@@ -757,11 +759,13 @@ The last two columns show the average and longest function name lengths (in char
    
 
 \section{Discussion}
+Overall the Function-Object Consumption approach dramatically improves reduces the number of functions that a development tool cannot name for a developer.  By looking at the examples and comparing the algorithms, the names selected by FOC will be the same as the one's selected by  Firebug's {\small \texttt{guessFunctionName()}} when that function gives reasonable results. In other cases FOC will give a more useful name including many cases where the current Firebug approach fails. 
 
-Given that our goals trade precision for rapid recognition, our names are not unique or perfectly tuned to every developer's need. We also leave some cases anonymous. We add  few special cases to our algorithm to patch over these issues.
+There is room for improvements. The heuristic elements of the naming solution need to be tuned based on more experience.  Given that our goals trade precision for rapid recognition, our names are not unique. We also leave some cases anonymous which need further investigation. 
+
 
 \subsection{Similar Function Names in a File}
-It is conceivable, that function bodies are named with the same names in a file. It can happen in different situations. One of the common cases is the two different function bodies may assign to a property based on a condition (e.g., the browser). For these cases we add a dollar sign and an index to the similar function names. For example, if there are two function bodies with names {\small\texttt{myFunction}}, the functions are named as {\small\texttt{myFunction\$0}} and {\small\texttt{myFunction\$1}}. 
+In some cases function bodies are named with the same names in a file. It can happen in different situations. One of the common cases is the two different function bodies may assign to a property based on a condition (e.g., the browser). For these cases we add a dollar sign and an index to the similar function names. For example, if there are two function bodies with names {\small\texttt{myFunction}}, the functions are named as {\small\texttt{myFunction\$0}} and {\small\texttt{myFunction\$1}}. 
 
 \subsection{Namer Functions}
 Many JavaScript projects have one or a few functions which are used for defining classes or registering function objects. These functions usually receive a string as the class name or function name. The number of namer functions is usually very limited for a specific project and can be provided to debugger by the developer. A namer function works like an assignment in the summary.  
@@ -775,9 +779,9 @@ Many JavaScript projects have one or a few functions which are used for defining
 The function bodies in {\small\texttt{eval}} statements can be named similar to other objects as the source code is available. However, eval scripts have no file name and therefore, it causes issues for assigning appropriate packages name to these functions. 
 
 \subsection{ {\texttt .displayName} }
-The ultimate fallback for function names is to allow the developer to specify them manually. For applicaiton developers this is tedious path, but for library developers the cost may be justified by the many potential developers who will see the custom name.
+The ultimate fallback for function names is to allow the developer to specify them manually. For application developers this is tedious path, but for library developers the cost may be justified by the many potential developers who will see the custom name.
 
-\subsection{Limitations}
+%\subsection{Limitations}
 %some long names
 %"this" in names
 
@@ -795,9 +799,8 @@ Catching errors early (i.e., before or at the compilation time) is an important 
 %Developers usually understand JavaScript code by examining the running program in debuggers. At runtime, concrete values are available and the developer can directly check and understand object structures and control flows. Understanding a concrete value, particularly for non-primitive values such as objects and functions, is not always straightforward. To facilitate understanding these complex values in the first place, debuggers show a summary of these objects. For example, in the case of user-defined objects, the name of object's constructor in the object summary can be very helpful. It works like a class name in class-based languages and suggests the object structure.
 
 \section{Conclusion}
-We highlighted the problem of anonymous functions in JavaScript. We studied 10 famous JavaScript projects source code. From
-our study we suggested an automatic approach for naming nameless functions that can be used in debuggers for better representation of concrete
-values and functions in the call-stack.
+Our contributions in this paper include an empirical study of the extent of anonymous functions in JavaScript libraries, categorization of those functions to understand the potential for automatic naming, an practical algorithm based on the empirical study, and its evaluation.   We believe our results can be applied directly in existing JavaScript development tools to give immediate benefit to developers and they provide a basis for future improvements.
+
 
 
 \appendix
