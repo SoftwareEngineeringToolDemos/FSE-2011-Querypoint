@@ -791,15 +791,21 @@ Fig.~\ref{fig:registerWin}  inner & registerWin/ \\
 \end{tabular}
 }
 }
-\label{table:examples}
 \caption{Results from applying the approach in Sec.~\ref{sec:foc} to the examples in the paper at the point given in the first column.
 Full names are listed, even in cases where our example code omitted the enclosing function scope.}
+\label{table:examples}
 \end{table}
 
 
 \section{Evaluation}
 
-\begin{table*}
+In Table~\ref{evaluation} We compared our results to Firebug's naming output for each of the 10 projects used previously and listed in Appendix 1. Firebug does not use a parser for naming functions. It instead employs a number of regular expressions and apply them on a few lines around the function definition to obtain a name (a function called {\small \texttt{guessFunctionName()}}). Although this approach is not reliable and may provide wrong names for some functions, it infers acceptable names in many simple cases. About 10 percent (the second column) of anonymous functions still remained nameless in Firebug (in addition, some named functions may be quite incorrect because of the simple algorithm). The third column shows that only FOC-Locall name more than 98 percent of anonymous functions. By adding the enclosing function names, this number increases to more than 99 percent for FOC-Full(the fourth column). Based on our observations, most functions remain anonymous in FOC-Full are top level \textit{immediate} functions which are usually used for creating a local scope for a set of variables.
+
+The duplicates columns show the number of functions which get a name which is also assigned to another function(s) for Firebug, FOC-Local and FOC-FULL. The number shows that Firebug assignes duplicate names to about 47 percent of anonymous functions. The first reason behind this huge number is that Firebug relies on regular expressions instead of abastract syntax tree for locating names. The second reason is that Firebug does not analyze the function object flow but tries to construct the name from the identifiers close to function definition. The second column shows that FOC-Local gives much less duplicates (13\%) comparing to Firebug. It means that local names with are sufficient for recognizing function while they have shorter length than full names. The third column says that less than 9 percent of anonymous functions get duplicated names by full names. Based on our observations, many of duplicates in projects such as DOJO, ExtJS and YUI come from test files. In a test file the same use case is repeated with different data and therefore the same function names appear several times. In projects like JQuery, Prototype, MooTools the conditional statements are the main source of duplicates. These libraries usually check against different environment properties (e.g., browser) to load the appropriate function.
+
+The last two columns show the average and longest function name lengths (in characters) for both short and full names. The average length is at most 37 characters. The longest names are typically long because of a long local name. Again in most cases long names apear in test files due to deep nested functions.
+
+\begin{table*}[htp]
 \centering
 \scalebox{0.8}{
   \begin{tabular}{ | l | l | l | l | l | l | l | l | l | l |}
@@ -832,18 +838,11 @@ Full names are listed, even in cases where our example code omitted the enclosin
   \hline       
   \end{tabular}
   }
+\caption{Results of Function Object Consumption. The rows are the projects listed in Appendix 1. First column contains the number of anonymous functions in each project. The second column shows the number of functions Firebug could not name. The third column contains the number of functions nameless after applying the static Function Object Consumption (FOC) algorithm; and the fourth column is the number with only a name for enclosing scopes. The next three column gives the number of times a Firebug, FOC-Local and FOC-Full function name appears twice in a file and eighth and nineth columns give the average and longest name character counts respectively. The last columns have two entries divided by a slash, the first is the local name and the second is the full name.} 
  \label{evaluation} 
-\caption{Results of Function Object Consumption. The rows are the projects listed in Appendix 1. First column in  contains the number of anonymous functions in each project. The second column shows the number of functions Firebug could not name. The third column contains the number of functions nameless after applying the static Function Object Consumption (FOC) algorithm;  and the fourth column is the number with only a name for enclosing scopes. The fifth column give the number of times a FOC function name appears twice in a file and sixth and seventh columns give the average and longest name character counts respectively. The last columns have two entries divided by a slash, the first is the local name and the second is the full name.} 
 \end{table*}    
 
 
-In Table~\ref{evaluation} We compared our results to Firebug's naming output for each of the 10 projects used previously and listed in Appendix 1. Firebug does not use a parser for naming functions. It instead employs a number of regular expressions and apply them on a few lines around the function definition to obtain a name  (a function called {\small \texttt{guessFunctionName()}}). Although this approach is not reliable and may provide wrong names for some functions, it infers acceptable names in many simple cases. About 10 percent of anonymous functions still remained nameless in Firebug (in addition, some named functions may be quite incorrect because of the simple algorithm).The numbers show that the algorithm names more than 99 percent of the anonymous functions.
-
-
-The duplicates column show the number of duplicated function names. About 9 percent of inferred names used for more than one function in a file. The main source of duplicated names are test cases particularly in DOJO, ExtJS and YUI. 
-%the other sources :1) function calls with no hint  2) conditional functions (e.g., based on browser)
-
-The last two columns show the average and longest function name lengths (in characters) for both short and full names. The average length is at most 37 characters. The longest  names are typically long because of a long local name.  
 
 %\subsection{Produced Names Characteristics}
 %\subsection{Developers' vs. Automated Names}
