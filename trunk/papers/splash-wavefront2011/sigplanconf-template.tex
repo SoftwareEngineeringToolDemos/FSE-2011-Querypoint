@@ -40,7 +40,7 @@
 
 \begin{document}
 
-\conferenceinfo{SPLASH Wavefront '11}{22-27 October, Portlant, Oregon, USA.} 
+\conferenceinfo{SPLASH Wavefront '11}{22-27 October, Portland, Oregon, USA.} 
 \copyrightyear{2011} 
 \copyrightdata{[to be supplied]} 
 
@@ -447,7 +447,7 @@ functions passed as arguments to a function (row 11 in Table~\ref{table:function
 \subsection{Case 6:  Property Assignment With  Property Name Expressions}
 \label{sec:propexpressions}
 Object member names can be expressions that get converted to strings at runtime: this is more general than case 5. 
- A common case of expression in this case is a conditional expression, e.g., \verb|condition?"prop1":"prop2"|, where the property that we assign the function to depends upon runtime values. Another kind of example of computed names comes from the Prototype project (refomatted to fit in the page):
+ A common case of expression in this case is a conditional expression, e.g., \verb|condition?"prop1":"prop2"|, where the property that we assign the function to depends upon runtime values. Another kind of example of computed names comes from the Prototype project (reformatted to fit in the page):
 \lstset{basicstyle=\scriptsize}
 \begin{lstlisting}[frame=single, language=myLang]
   function define(D) {
@@ -801,47 +801,46 @@ Full names are listed, even in cases where our example code omitted the enclosin
 
 In Table~\ref{evaluation} We compared our results to Firebug's naming output for each of the 10 projects used previously and listed in Appendix 1. Firebug does not use a parser for naming functions. It instead employs a number of regular expressions and apply them on a few lines around the function definition to obtain a name (a function called {\small \texttt{guessFunctionName()}}). Although this approach is not reliable and may provide wrong names for some functions, it infers acceptable names in many simple cases. About 10 percent (the second column) of anonymous functions still remained nameless in Firebug (in addition, some named functions may be quite incorrect because of the simple algorithm). The third column shows that only FOC-Locall name more than 98 percent of anonymous functions. By adding the enclosing function names, this number increases to more than 99 percent for FOC-Full(the fourth column). Based on our observations, most functions remain anonymous in FOC-Full are top level \textit{immediate} functions which are usually used for creating a local scope for a set of variables.
 
-The duplicates columns show the number of functions which get a name which is also assigned to another function(s) for Firebug, FOC-Local and FOC-FULL. The number shows that Firebug assignes duplicate names to about 47 percent of anonymous functions. The first reason behind this huge number is that Firebug relies on regular expressions instead of abastract syntax tree for locating names. The second reason is that Firebug does not analyze the function object flow but tries to construct the name from the identifiers close to function definition. The second column shows that FOC-Local gives much less duplicates (13\%) comparing to Firebug. It means that local names with are sufficient for recognizing function while they have shorter length than full names. The third column says that less than 9 percent of anonymous functions get duplicated names by full names. Based on our observations, many of duplicates in projects such as DOJO, ExtJS and YUI come from test files. In a test file the same use case is repeated with different data and therefore the same function names appear several times. In projects like JQuery, Prototype, MooTools the conditional statements are the main source of duplicates. These libraries usually check against different environment properties (e.g., browser) to load the appropriate function.
+The duplicates columns show the number of functions which get a name which is also assigned to another function(s) for Firebug, FOC-Local and FOC-FULL. The number shows that Firebug assigns duplicate names to about 47 percent of anonymous functions. The first reason behind this huge number is that Firebug relies on regular expressions instead of abstract syntax tree for locating names. The second reason is that Firebug does not analyze the function object flow but tries to construct the name from the identifiers close to function definition. The second column shows that FOC-Local gives much less duplicates (13\%) comparing to Firebug. It means that local names with are sufficient for recognizing function while they have shorter length than full names. The third column says that less than 9 percent of anonymous functions get duplicated names by full names. Based on our observations, many of duplicates in projects such as DOJO, ExtJS and YUI come from test files. In a test file the same use case is repeated with different data and therefore the same function names appear several times. In projects like JQuery, Prototype, MooTools the conditional statements are the main source of duplicates. These libraries usually check against different environment properties (e.g., browser) to load the appropriate function.
 
-The last two columns show the average and longest function name lengths (in characters) for both short and full names. The average length is at most 37 characters. The longest names are typically long because of a long local name. Again in most cases long names apear in test files due to deep nested functions.
+The last two columns show the average and longest function name lengths (in characters) for both short and full names. The average length is at most 37 characters. The last column shows that only 3 percent of functions get local names longer than 50 characters or full names longer than 80 characters. Again, based on our observations a main source of long names are deep nested functions which mostly appear in test files.
 
 \begin{table*}[htp]
 \centering
 \scalebox{0.8}{
-  \begin{tabular}{ | l | l | l | l | l | l | l | l | l | l |}
+  \begin{tabular}{ | l | l | l | l | l | l | l | l | l | l | l |}
   \hline
-\multirow{2}{*}{Project} & \multicolumn{4}{|c|}{Anonymous Functions By} &         \multicolumn{3}{|c|}{Duplicates by}              & \multicolumn{2}{|c|}{Local/Full Length}  \\ 
-  \cline{2-10}
-                 & Developer &   Firebug      & FOC-Local & FOC-Full  &    Firebug          &    FOC-Local   & FOC-Full    & Avgerage   & Longest  \\ 
+\multirow{2}{*}{Project} & \multicolumn{4}{|c|}{Anonymous Functions By} &         \multicolumn{3}{|c|}{Duplicates by}              & \multicolumn{3}{|c|}{Local/Full Length}  \\ 
+  \cline{2-11}
+                 & Developer &   Firebug      & FOC-Local & FOC-Full  &    Firebug          &    FOC-Local   & FOC-Full    & Average   & Longest & \textgreater50/\textgreater80 \\ 
   \hline 
-   Closure       & 8987      &   312(3\%)     & 51        & 10        &    662(7\%)         &    211(2\%)    & 103(1\%)    & 33/35      & 76/101 \\ 
+   Closure       & 8987      &   312(3\%)     & 51        & 10        &    662(7\%)         &    211(2\%)    & 103(1\%)    & 33/35      & 76/101 & 471/30  \\ 
   \hline 
-   DoJo          & 15866     &   3362(21\%)   & 528       & 390       &    3325(21\%)       &    2993(19\%)  & 2287(14\%)  & 35/36      & 81/162 \\ 
+   DoJo          & 15866     &   3362(21\%)   & 528       & 390       &    3325(21\%)       &    2993(19\%)  & 2287(14\%)  & 24/36      & 81/162 & 680/765 \\ 
   \hline 
-   ExtJS         & 36533     &   1543(4\%)    & 631       & 231       &    23777(65\%)      &    3737(10\%   & 2342(7\%)   & 22/25      & 65/91  \\ 
+   ExtJS         & 36533     &   1543(4\%)    & 631       & 231       &    23777(65\%)      &    3737(10\%   & 2342(7\%)   & 22/25      & 65/91  & 177/2 \\ 
   \hline 
-   Firebug       & 3018      &   167(5\%)     & 14        & 10        &    481(16\%)        &    85(3\%)     & 32(1\%)     & 27/36      & 70/140 \\ 
+   Firebug       & 3018      &   167(5\%)     & 14        & 10        &    481(16\%)        &    85(3\%)     & 32(1\%)     & 27/36      & 70/140 & 76/18 \\ 
   \hline  
-   jQuery        & 399       &   95(24\%)     & 9         & 8         &    162(40\%)        &    97(24\%)    & 56(14\%)    & 14/18      & 50/65  \\ 
+   jQuery        & 399       &   95(24\%)     & 9         & 8         &    162(40\%)        &    97(24\%)    & 56(14\%)    & 14/18      & 50/65  & 0/0 \\ 
   \hline  
-   MochiKit      & 1829      &   202(11\%)    & 59        & 16        &    491(27\%)        &    314(17\%)   & 191(10\%)   & 17/22      & 49/80   \\ 
+   MochiKit      & 1829      &   202(11\%)    & 59        & 16        &    491(27\%)        &    314(17\%)   & 191(10\%)   & 17/22      & 49/80  & 0/0 \\ 
   \hline 
-   MooTools      & 618       &   121(19\%)    & 30        & 18        &    272(44\%)        &    158(26\%)   & 138(22\%)   & 12/14      & 36/73   \\ 
+   MooTools      & 618       &   121(19\%)    & 30        & 18        &    272(44\%)        &    158(26\%)   & 138(22\%)   & 12/14      & 36/73  & 0/0 \\ 
   \hline 
-   Prototype     & 442       &   125(28\%)    & 24        & 19        &    154(35\%)        &    70(16\%)    & 70(16\%)    & 23/25      & 55/88    \\ 
+   Prototype     & 442       &   125(28\%)    & 24        & 19        &    154(35\%)        &    70(16\%)    & 70(16\%)    & 21/25      & 55/88  & 5/1 \\ 
   \hline  
-   Scriptaculous & 884       &   195(22\%)    & 25        & 19        &    306(36\%)        &    131(19\%)   & 86(9\%)     & 22/27      & 55/132   \\ 
+   Scriptaculous & 884       &   195(22\%)    & 25        & 19        &    306(36\%)        &    131(19\%)   & 86(9\%)     & 21/27      & 55/132 & 7/5  \\ 
   \hline    
-   YUI           & 21424     &   3317(15\%)   & 212       & 15        &    10073(47\%)      &    3558(17\%)  & 2205(10\%)  & 16/37      & 114/145  \\ 
+   YUI           & 21424     &   3317(15\%)   & 212       & 15        &    10073(47\%)      &    3558(17\%)  & 2205(10\%)  & 16/37      & 114/145 & 223/292 \\ 
   \hline 
-   All           & 90000     &   9439(10\%)   & 1583(2\%) & 736(1\%)  &    39703(44\%)      &    11354(13\%) & 7510(8\%)  & N/A       & N/A         \\ 
+   All           & 90000     &   9439(10\%)   & 1583(2\%) & 736(1\%)  &    39703(44\%)      &    11354(13\%) & 7510(8\%)   & N/A       & N/A      & 1639/1113 (3\%)  \\ 
   \hline       
   \end{tabular}
   }
-\caption{Results of Function Object Consumption. The rows are the projects listed in Appendix 1. First column contains the number of anonymous functions in each project. The second column shows the number of functions Firebug could not name. The third column contains the number of functions nameless after applying the static Function Object Consumption (FOC) algorithm; and the fourth column is the number with only a name for enclosing scopes. The next three column gives the number of times a Firebug, FOC-Local and FOC-Full function name appears twice in a file and eighth and nineth columns give the average and longest name character counts respectively. The last columns have two entries divided by a slash, the first is the local name and the second is the full name.} 
+\caption{Results of Function Object Consumption. The rows are the projects listed in Appendix 1. First column contains the number of anonymous functions in each project. The second column shows the number of functions Firebug could not name. The third column contains the number of functions nameless after applying the static Function Object Consumption (FOC) algorithm; and the fourth column is the number with only a name for enclosing scopes. The next three column gives the number of times a Firebug, FOC-Local and FOC-Full function name appears twice in a file. The last three columns contain the length information. Every cell has two entries divided by a slash, the first is the local name and the second is the full name. The eighth and ninth columns give the average and longest name character counts respectively. The last columns shows the number of functions get local names/full names with length greater than 50/80 characters.} 
  \label{evaluation} 
 \end{table*}    
-
 
 
 %\subsection{Produced Names Characteristics}
@@ -857,28 +856,29 @@ The last two columns show the average and longest function name lengths (in char
 %The first column shows, how many functions get similar names by both algorithm. In average, for 60\% of functions both algorithms produce the same names. Firebug is not able to name about 15\% of functions. In 35\% of functions the results are different. In most cases, the proposed name by Firebug is the name of another function and is wrong. 
    
 
-\section{Discussion}
-Overall the Function-Object Consumption approach dramatically improves reduces the number of functions that a development tool cannot name for a developer.  By looking at the examples and comparing the algorithms, the names selected by FOC will be the same as the one's selected by  Firebug's {\small \texttt{guessFunctionName()}} when that function gives reasonable results. In other cases FOC will give a more useful name including many cases where the current Firebug approach fails. 
+%\section{Discussion}
+%Overall the Function-Object Consumption approach dramatically improves reduces the number of functions that a development tool cannot name for a developer.  By looking at the examples and comparing the algorithms, the names selected by FOC will be the same as the one's selected by  Firebug's {\small \texttt{guessFunctionName()}} when that function gives reasonable results. In other cases FOC will give a more useful name including many cases where the current Firebug approach fails. 
 
-There is room for improvements. The heuristic elements of the naming solution need to be tuned based on more experience.  Given that our goals trade precision for rapid recognition, our names are not unique. We also leave some cases anonymous which need further investigation. 
+%There is room for improvements. The heuristic elements of the naming solution need to be tuned based on more experience.  Given that our goals trade precision for rapid recognition, our names are not unique. We also leave some cases anonymous which need further investigation. 
 
+%Java Inner classes have the same problem in a smaller scale
 
-\subsection{Similar Function Names in a File}
-In some cases function bodies are named with the same names in a file. It can happen in different situations. One of the common cases is the two different function bodies may assign to a property based on a condition (e.g., the browser). For these cases we add a dollar sign and an index to the similar function names. For example, if there are two function bodies with names \verb|myFunction|, the functions are named as \verb|myFunction\$0| and \verb|myFunction\$1|. 
+%\subsection{Similar Function Names in a File}
+%In some cases function bodies are named with the same names in a file. It can happen in different situations. One of the common cases is the two different function bodies may assign to a property based on a condition (e.g., the browser). For these cases we add a dollar sign and an index to the similar function names. For example, if there are two function bodies with names \verb|myFunction|, the functions are named as \verb|myFunction\$0| and \verb|myFunction\$1|. 
 
-\subsection{Namer Functions}
-Many JavaScript projects have one or a few functions which are used for defining classes or registering function objects. These functions usually receive a string as the class name or function name. The number of namer functions is usually very limited for a specific project and can be provided to debugger by the developer. A namer function works like an assignment in the summary.  
+%\subsection{Namer Functions}
+%Many JavaScript projects have one or a few functions which are used for defining classes or registering function objects. These functions usually receive a string as the class name or function name. The number of namer functions is usually very limited for a specific project and can be provided to debugger by the developer. A namer function works like an assignment in the summary.  
 
 % to register a function with a name
 % to wrap the function
 % as a callback
 
 
-\subsection{Functions created by {\large \texttt{eval()}}}
-The function bodies in \verb|eval| statements can be named similar to other objects as the source code is available. However, eval scripts have no file name and therefore, it causes issues for assigning appropriate packages name to these functions. 
+%\subsection{Functions created by {\large \texttt{eval()}}}
+%The function bodies in \verb|eval| statements can be named similar to other objects as the source code is available. However, eval scripts have no file name and therefore, it causes issues for assigning appropriate packages name to these functions. 
 
-\subsection{ {\texttt .displayName} }
-The ultimate fallback for function names is to allow the developer to specify them manually. For application developers this is tedious path, but for library developers the cost may be justified by the many potential developers who will see the custom name.
+%\subsection{ {\texttt .displayName} }
+%The ultimate fallback for function names is to allow the developer to specify them manually. For application developers this is tedious path, but for library developers the cost may be justified by the many potential developers who will see the custom name.
 
 %\subsection{Limitations}
 %some long names
@@ -893,13 +893,16 @@ The ultimate fallback for function names is to allow the developer to specify th
 % typing system papers
 % readability parameter paper
 
-To best of our knowledge, this paper is the first study in naming anonymous functions in JavaScript. H{\o}st and {\O}stvold \cite{Host} attempted to find and fix inappropriate function names in Java programs. Their approach employs rules extracted from a big corpus of Java projects to recognize buggy names. To fix a name a list of candidate names are constructed and ranked, the the name with highest rank is proposed for the replacement. This approach assumes that the function is already named and constructs the names based on the function internal structure. In contrast, our approach construct the function name by analyzing the function context. 
+To best of our knowledge, this paper is the first study in naming anonymous functions in JavaScript. However, there have been a few studies on the JavaScript programs behavior. In a recent work, Richards et al. conducted a study on dynamic behavior of JavaScript programs \cite{Richard2}. Although thier study contains some aspects of JavaScript function objects creation and usage, such as the number of different call sites and arities in function calls, it does not provide any data about anonymous functions. 
 
-Caprile and Tonella \cite{Caprile}, analyse the structure of function identifiers in C programs. The identifiers are decomposed into fragments that are then classified into seven lexical categories. The structure of the function identifiers are further described by a hand-crafted grammar.
+H{\o}st and {\O}stvold \cite{Host} attempted to find and fix inappropriate function names in Java programs. Their approach employs rules extracted from a big corpus of Java projects to recognize buggy names. To fix a name a list of candidate names are constructed and ranked, the the name with highest rank is proposed for the replacement. This approach assumes that the function is already named and constructs the names based on the function internal structure. In contrast, our approach construct the function name by analyzing the function context. 
+
+Caprile and Tonella \cite{Caprile}, analyze the structure of function identifiers in C programs. The identifiers are decomposed into fragments that are then classified into seven lexical categories. The structure of the function identifiers are further described by a hand-crafted grammar.
 %JavaScript, unlike many traditional object oriented languages such as Java and C\#, does not have classes, and does not encourage encapsulation or even structured programming. JavaScript is a weakly typed language with no type declarations and only run-time checking of calls and field accesses \cite{Richards2}. As a direct consequence, the JavaScript code contains less explanatory data about the program elements and their relations. For example, the value of a variable can be a primitive value, an object with any structure or even a function. One call-site may invoke different function bodies with various number of arities that none of them can be understood from the code. Therefore, the lack of descriptive data in JavaScript code is the most fundamental issue in enhancing JavaScript tool support.
 
+The result of our work can be improved and impact other aspects of JavaScript programming if a stronger typing system is employed. a few static typing systems have been proposed for JavaScript \cite{Anderson, Anderson2, Heidegger, Thiemann}. These approaches discover the type of values and object structures for a variable by statically analyzing the source code and possible program control flows lead to the variable assignment. The discovered facts about variable types are not only useful for catching errors but to assist developers in code comprehension. Nevertheless, none of the mentioned approaches provided effective means for sharing this information with the developer. Our approach can help in this regard by assigning names to nameless elements.
 
-Catching errors early (i.e., before or at the compilation time) is an important feature for development environments. It can save developers' time, prevent bugs and improve the program quality. However, many errors can not be recognized without a strong typing system. To attack this issue a few static typing systems have been proposed for JavaScript \cite{Anderson, Anderson2, Heidegger, Thiemann}. These approaches discover the type of values and object structures for a variable by statically analyzing the source code and possible program control flows lead to the variable assignment. The discovered facts about variable types are not only useful for catching errors but to provide modern editing features such as auto-complete and refactoring in development environments. Moreover, the inferred data can help in code comprehension if they are properly presented. Nevertheless, none of the mentioned approaches provided effective means for sharing this information with the developer. This leads us to another hidden issue for improving JavaScript development tools; Due to highly dynamism in JavaScript many elements are remained nameless. Therefore there is no common language between the tool and developer for referring to elements.
+%Catching errors early (i.e., before or at the compilation time) is an important feature for development environments. It can save developers' time, prevent bugs and improve the program quality. However, many errors can not be recognized without a strong typing system. To attack this issue a few static typing systems have been proposed for JavaScript \cite{Anderson, Anderson2, Heidegger, Thiemann}. These approaches discover the type of values and object structures for a variable by statically analyzing the source code and possible program control flows lead to the variable assignment. The discovered facts about variable types are not only useful for catching errors but to provide modern editing features such as auto-complete and refactoring in development environments. Moreover, the inferred data can help in code comprehension if they are properly presented. Nevertheless, none of the mentioned approaches provided effective means for sharing this information with the developer. This leads us to another hidden issue for improving JavaScript development tools; Due to highly dynamism in JavaScript many elements are remained nameless. Therefore there is no common language between the tool and developer for referring to elements.
 
 %Developers usually understand JavaScript code by examining the running program in debuggers. At runtime, concrete values are available and the developer can directly check and understand object structures and control flows. Understanding a concrete value, particularly for non-primitive values such as objects and functions, is not always straightforward. To facilitate understanding these complex values in the first place, debuggers show a summary of these objects. For example, in the case of user-defined objects, the name of object's constructor in the object summary can be very helpful. It works like a class name in class-based languages and suggests the object structure.
 
@@ -999,11 +1002,11 @@ a web page.
 
 \bibitem{JSOffice}
 JScript development in Microsoft Office 11.
-\newblock http://msdn.microsoft.com/ en-us/library/aa202668(office.11).aspx
+\newblock http://msdn.microsoft.com/en-us/library/aa202668(office.11).aspx
 
 \bibitem{JSOffice2}
 JavaScript development in OpenOffice.
-\newblock http://framework.openoffice.org/ scripting/release-0.2/javascript-devguide.html
+\newblock http://framework.openoffice.org/scripting/release-0.2/javascript-devguide.html
 
 \bibitem{Richards1}
 G. Richards, C. Hammer, B. Burg and J. Vitek. \newblock The Eval that Men Do.
@@ -1017,7 +1020,7 @@ June, 2010.
 
 \bibitem{SSJSR}
 Server-Side JavaScript Reference v1.2.
-\newblock http://research.nihonsoft.org/ javascript/ServerReferenceJS12.
+\newblock http://research.nihonsoft.org/javascript/ServerReferenceJS12.
 
 \bibitem{Thiemann}
 P. Thiemann.\newblock Towards a type system for analyzing JavaScript programs.
