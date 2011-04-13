@@ -740,43 +740,8 @@ The name is built by the above process does not contain any information about en
 %\section{Improved by Runtime Data}
 %\subsection{Naming Functions in Call Stack}
 
-
 \subsection{Examples}
 \label{sec:examples}
-
-\begin{table*}[tb]
-\centering
-\scalebox{1}{
-\begin{tabular}{|l|l|}
-\hline
-Example Code & Static Function-Object Consumption Full Name \\
-\hline
-Sec.~\ref{sec:arrayLiteral} outer & YUI.add(event-focus)/\_attach \\
-\hline
-Sec.~\ref{sec:arrayLiteral} inner & YUI.add(event-focus)/\_attach/Event.\_attach() \\
-\hline
-Sec.~\ref{sec:propid} & eventPool\_.createObject \\
-\hline
-Fig.~\ref{fig:jQueryEach} outer & jQuery.each(ajaxStart) \\
-\hline
-Fig.~\ref{fig:jQueryEach} inner & jQuery.each(ajaxStart)/jQuery.fn[o] \\
-\hline
-Sec.~\ref{sec:propexpressions}  & define/viewport[get+D] \\
-\hline
-Fig.~\ref{fig:classnamemanager} outer & YUI.add(classnamemanager)/Y.ClassNameManager\textless \\
-\hline
-Fig.~\ref{fig:classnamemanager} inner & YUI.add(classnamemanager)/Y.ClassNameManager.getClassName\textless \\
-\hline
-Sec.~\ref{sec:funcprop} inner & setVisible/cb\textless\\
-\hline
-Fig.~\ref{fig:registerWin} inner & registerWin/ \\
-\hline
-\end{tabular}
-}
-\label{table:examples}
-\caption{Results from applying the approach in Sec.~\ref{sec:foc} to the examples in the paper at the point given in the first column.
-Full names are listed, even in cases where our example code omitted the enclosing function scope.}
-\end{table*}
 
 To further explain our approach we now apply it to the JavaScript code presented in Figure~\ref{js-code}. We can recognize five function bodies in the code, none of them has a name. 
 
@@ -792,6 +757,45 @@ The fifth function on line 25 is assigned to two variables. This example illustr
 
 
 Finally, Table~\ref{table:examples} gives the names of functions from examples discussed in \ref{sec:intuition}.
+
+
+
+\begin{table}[htb]
+\centering
+\scalebox{.8}{
+{\small
+\begin{tabular}{|l|l|}
+\hline
+Example Code & Static Function-Object Consumption Full Name \\
+\hline
+Sec.~\ref{sec:arrayLiteral} outer & YUI.add(event-focus)/\_attach \\
+\hline
+Sec.~\ref{sec:arrayLiteral}  inner & YUI.add(event-focus)/\_attach/Event.\_attach() \\
+\hline
+Sec.~\ref{sec:propid} & eventPool\_.createObject \\
+\hline
+Fig.~\ref{fig:jQueryEach} outer & jQuery.each(ajaxStart) \\
+\hline
+Fig.~\ref{fig:jQueryEach} inner & jQuery.each(ajaxStart)/jQuery.fn[o] \\
+\hline
+Sec.~\ref{sec:propexpressions}  & define/viewport[get+D] \\
+\hline
+Fig.~\ref{fig:classnamemanager}  outer & YUI.add(classnamem)/Y.ClassNameManager\textless \\
+\hline
+Fig.~\ref{fig:classnamemanager}  inner &  YUI.add(classnamem)/Y.ClassNameManager.getClassName\textless \\
+\hline
+Sec.~\ref{sec:funcprop}  inner & setVisible/cb\textless\\
+\hline
+Fig.~\ref{fig:registerWin}  inner & registerWin/ \\
+\hline
+\end{tabular}
+}
+}
+\label{table:examples}
+\caption{Results from applying the approach in Sec.~\ref{sec:foc} to the examples in the paper at the point given in the first column.
+Full names are listed, even in cases where our example code omitted the enclosing function scope.}
+\end{table}
+
 
 \section{Evaluation}
 
@@ -972,7 +976,7 @@ December 1999.
 
 \bibitem{FAO}
 Firefox Add-ons.
-\newblock https://addons.mozilla.org/en-US/developers/docs/gett ing-started.
+\newblock https://addons.mozilla.org/en-US/developers/docs/getting-started.
 
 \bibitem{GCE}
 Google Chrome Extensions.
