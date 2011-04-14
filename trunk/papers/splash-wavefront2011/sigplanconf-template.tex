@@ -67,7 +67,7 @@
 \maketitle
 
 \begin{abstract}
-JavaScript developers create and call functions; they use functions to construct objects. JavaScript development tools need to report to developers about those functions and constructors, for example in debugger call-stacks and in object representations. However, most functions are anonymous: developers need not to specify names for functions.  
+JavaScript developers create programs by calling functions and they use functions to construct objects. JavaScript development tools need to report to developers about those functions and constructors, for example in debugger call-stacks and in object representations. However, most functions are anonymous: developers need not to specify names for functions.  
  Based on our analysis of ten large, widely used JavaScript projects, less than 7\% of JavaScript functions are named by developers. 
 After studying examples from these JavaScript projects, we propose \textit{Static Function-Object Consumption}, a principled, automated approach based on local source code analysis for providing names to nameless JavaScript functions. We applied our approach to 90000 anonymous functions that appeared in the analyzed JavaScript project. The approach is successful in naming more than 99\% (91\% are unique within their file) of anonymous functions while the average length of function names is kept less than 37 characters.% which is appropriate for presentation.
 
@@ -252,11 +252,7 @@ A function name is basically used to assist the developer to recall or understan
 JavaScript does not support a standard packaging mechanism to be used for modular programming. Scripts are loaded from different files and executed within the same or different global objects. Developers usually use objects at the top level to encapsulate objects, properties and functions from a framework or library. The same mechanism is reused for defining subpackages. As the project size and the number of functions increases, the short function name will not be enough for recognizing the function. The developer also wants the class or the module that contains the function. In addition to the package name, knowing the context (the enclosing function body) that contains the function can help in better understanding the function behavior.
 
 
-\section{Building Up Intuition by Example}
-\label{sec:intuition}
-We know that we face an ill-defined task: we are after all attempting to create short useful names for nameless functions. We have to create salient information from source code: we anticipate that removing characters will be our biggest challenge.  To create an algorithm we decided to study the spectrum of examples from our 10 large collections of functions. We want to see what kinds of cases are important and what aspects of these cases help us identify functions.
 
-For this purpose we created 12 categories of function body expressions shown in Table~\ref{table:function-types} and we categorized all of the nameless functions from the 10 JavaScript projects into one of these 12 cases, giving the numerical results in Table~\ref{function-type-count}.  Then we examine each of these cases to think about how we want the functions named. We will skip over the nesting of function scopes in the analysis to avoid taking on too much at one time; we return to this aspect at the end of this section.
 
   
 \begin{table}[htp]
@@ -354,6 +350,11 @@ For this purpose we created 12 categories of function body expressions shown in 
 \label{table:function-types} 
 \end{table}
 
+\section{Building Up Intuition by Example}
+\label{sec:intuition}
+We know that we face an ill-defined task: we are after all attempting to create short useful names for nameless functions. We have to create salient information from source code: we anticipate that removing characters will be our biggest challenge.  To create an algorithm we decided to study the spectrum of examples from our 10 large collections of functions. We want to see what kinds of cases are important and what aspects of these cases help us identify functions.
+
+For this purpose we created 12 categories of function body expressions shown in Table~\ref{table:function-types} and we categorized all of the nameless functions from the 10 JavaScript projects into one of these 12 cases, giving the numerical results in Table~\ref{function-type-count}.  Then we examine each of these cases to think about how we want the functions named. We will skip over the nesting of function scopes in the analysis to avoid taking on too much at one time; we return to this aspect at the end of this section.
  
 \begin{table*}[htp]
 \centering
@@ -609,12 +610,6 @@ We will describe the details in the next sections. In constructing names we real
 \subsection{Consumption Summary Algorithm}
 \label{sec:nodewalk}
 
-
-We parse the JavaScript and search the resulting syntax tree for function body nodes. For each function body, we apply the algorithm outlined in Algorithm~\ref{alg1}. The basic idea (the \verb|while| loop) is to walk the syntax tree from the body up through parent nodes until we hit a node that is not a JavaScript expression. For each node we create an entry in a list and record in it information about the relationship between the node and its parent. We'll use this relationship information in Sec.~\ref{sec:concatenation}. Then for each node  we record developer-invented identifiers related to the destiny of the function object created from the body as outlined in  Table~\ref{table:node-types}. For the first and third rows of the table we record the information recursively; for the second row,  assignment node, we record the information after the loop terminates.   The algorithm ends when we reach a node which is an assignment or a statement which does not return any value (i.e., the node is not an expression).  The algorithm result is an \textit{object consumption summary}, a list of collected data at every visited parent node of the function body.
-
-The algorithm uses three subroutines: \verb|getNextNode|,  \verb|nameExpression|, and \verb|argSummary|. The \verb|getNextNode| routine normally returns \verb|n.parent|, but we also use this point in the algorithm to handle an important special case, function bodies inside of \textit{immediate functions} typically used for modularity or scoping in JavaScript. We discuss this case in Sec.~\ref{sec:immediate}. The remaining two subroutines construct a pseudo-identifier from the expression as described in \ref{sec:general-element-naming}; they return their argument if it is simply an identifier.  
-
-
 %\floatname{algorithm}{Procedure}b
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
@@ -658,6 +653,13 @@ The algorithm uses three subroutines: \verb|getNextNode|,  \verb|nameExpression|
   \RETURN $summary$
 \end{algorithmic}
 \end{algorithm}
+
+We parse the JavaScript and search the resulting syntax tree for function body nodes. For each function body, we apply the algorithm outlined in Algorithm~\ref{alg1}. The basic idea (the \verb|while| loop) is to walk the syntax tree from the body up through parent nodes until we hit a node that is not a JavaScript expression. For each node we create an entry in a list and record in it information about the relationship between the node and its parent. We'll use this relationship information in Sec.~\ref{sec:concatenation}. Then for each node  we record developer-invented identifiers related to the destiny of the function object created from the body as outlined in  Table~\ref{table:node-types}. For the first and third rows of the table we record the information recursively; for the second row,  assignment node, we record the information after the loop terminates.   The algorithm ends when we reach a node which is an assignment or a statement which does not return any value (i.e., the node is not an expression).  The algorithm result is an \textit{object consumption summary}, a list of collected data at every visited parent node of the function body.
+
+The algorithm uses three subroutines: \verb|getNextNode|,  \verb|nameExpression|, and \verb|argSummary|. The \verb|getNextNode| routine normally returns \verb|n.parent|, but we also use this point in the algorithm to handle an important special case, function bodies inside of \textit{immediate functions} typically used for modularity or scoping in JavaScript. We discuss this case in Sec.~\ref{sec:immediate}. The remaining two subroutines construct a pseudo-identifier from the expression as described in \ref{sec:general-element-naming}; they return their argument if it is simply an identifier.  
+
+
+
 
 \begin{table}
 \centering
