@@ -1,0 +1,136 @@
+Thank you for reviewing our paper on 'lastChange'. We respond to the
+questions raised by the reviewers and then request that the first
+reviewer reconsider part of their analysis.
+
+The first reviewer asks: 
+
+Q: "The paper presents the work as a general debugging approach. ... how
+much of it is made possible through the unique characteristics of
+Firefox and Javascript programming? How closely similar could it be
+possible to support this idea for a compiled language?"
+
+A: Section 3 of our paper presents a general algorithm and in that
+section we give the four prerequisite operations, 1) objectId(), 2)
+setPropertyChangeHook(), 3) scopeId(), and 4)
+setVariableChangeHook(). A runtime which can support these operations
+can run the algorithm; other runtimes cannot. No special feature of
+Firefox or of JavaScript is used in this section. Whether a language
+is compiled or not does not relate to our technique. We have
+implemented this technique for Java as shown in an unreviewed
+technical report: http://infoscience.epfl.ch/record/164417. This
+technique should apply to C, C++, C#, Pascal, PHP, Ruby, and so on.
+
+The second reviewer asked many important questions about our small user study:
+
+Q: "Who were the developers?"
+
+A: Unfortunately it would not be practical to give the names of our study
+particiapants. We assume the reviewer is asking for more information
+about the skill of the developers, which we addresss in the remaining
+answers.
+
+Q: "How much experience did they have?"
+
+A: These were all skilled developers with several years of experience in
+debugging complex programs.
+
+Q: "Are they researchers?"
+
+A: Yes of course. Practically speaking, we cannot hire 'average'
+developers to engage in a lengthy study of such a complex subject as
+debugging code. A small study with "folks down the hall" is what is
+practical.
+
+Q: "Do they know the concept of a data dependency?"
+
+A: Yes. However, our prototype does not require users to know this concept.
+
+Q: "Do they work on programming tools?"
+
+A: No. 
+
+Q: "How complex were the test applications?"
+
+A: These were simple applications and they are available on the Web site
+we listed in footnote 4,
+http://ltiwww.epfl.ch/~mirghase/lastchange-userstudy.
+
+Q: "We're they already familiar with Firebug and its debugging tools?"
+
+A: Of course, most JavaScript developers use Firebug.
+
+Q: "How was the task explained to them?"
+
+A: The instructions were provided on the Web pages listed in footnote 4,
+http://ltiwww.epfl.ch/~mirghase/lastchange-userstudy/group1.html.
+
+Q: "We're they given time limits?"
+
+A: As described in the Web pages listed in footnote 4, the introduction
+and practice sessions where not timed, then two time trials were
+performed. That is how we arrived that the numbers in Figure 12.
+
+Q: "How were they recruited?" 
+
+A: We asked for volunteers from among people in our building who we
+knew wrote JavaScript.
+
+Q: "What counted as a "step" in Figure 12)."
+
+A: Oops we should have explained that a step in Figure 12 means a button
+push, either single stepping the debugger or running a querypoint.
+
+Q: "The sample size of 4 was extremely small, preventing the authors from
+really avoiding learning effects (they did counterbalance exposure to
+each program)."
+
+A: We did counterbalance amoung users but as you say the small sample
+makes this ineffective. We would like to point out that learning
+effects stongly bias against our technique. As the reviewers surely
+experience, debugging takes a long time to master. New debugging
+techniques take a long time to learn. That our test subjects were able
+to succeed in less than an hour is itself the most important result of
+our small study.
+
+
+Finally we ask reviewer #1 to reconsider section 4 of our paper and
+the related work section discussing reverse watchpoints.  
+
+We are very surprised at the claim of reviewer #1 that we don't build
+on top of existing debug technology. Section 4 of our paper details
+how we built lastChange on top of the Firebug debugger. Perhaps we
+should have been clearer: by "breakpoint technology" we mean all the
+different ways debuggers pause execution when a special event
+occurs. It includes line step, function enter/exit, variable/property
+access/change (watchpoint), error/exception, conditional breakpionts,
+and changes on graphical changes. (see for example our ref. 1). Our
+ability to build upon existing debugger technology is essential to the
+practicality of our approach.
+
+We do not believe the claim of the first reviewer that a developer can
+"manually perform a lastChange query in relatively few steps." In fact
+our user study, as small and limited as it may be, provides direct
+evidence against this claim. Moreover our approach can be applied
+recursively, to obtain the lastChange to a value found on a
+lastChange.
+
+Reviewer #1 points to a combination of watchpoints and the "drop in
+frame" feature in Eclipse. Watchpoints trigger on data value changes;
+"Drop in frame" allows for shorter re-execution cycles like the local
+replay we explained in section 4.5. The fundamental problem with these
+techniques is that they only work in the 'forward' direction. If we
+land on a watchpoint after a 'drop in frame' operation, then is this
+the last change or just one of a hundred changes? This fundamental
+problem is why papers cited as our references 4, 5, 6, 8, 11, 12, 13,
+and 15 exist: developers want to go backwards. That is why we called
+our paper "lastChange". As cited in our related work section, our
+approach is superior to even reverse watchpoints, a technology created
+to go beyond normal watchpoints. We could of course include a
+discussion of normal watchpoints.
+
+Again we thank the reviewers. We believe small changes to the text
+based on this feedback would clarify and improve the paper.
+
+
+
+
