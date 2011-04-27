@@ -6,7 +6,7 @@ Q: "The paper presents the work as a general debugging approach. ... How closely
 
 A: Section 3 of our paper presents a general algorithm and we have implemented this technique for Java as shown in this technical report: http://infoscience.epfl.ch/record/164417. 
 
-2) The second reviewer asked a few questions about our user study, we summarized them in 3 main qeustions:
+2) The second reviewer asked a few questions about our user study, we summarized them in 3 main questions:
 
 Q: Who were the developers? 
 
