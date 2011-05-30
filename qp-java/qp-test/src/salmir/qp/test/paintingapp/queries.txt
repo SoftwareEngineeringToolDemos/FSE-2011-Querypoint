@@ -1,0 +1,19 @@
+DrawLine
+tracequery{methodentry{callee{clazz{name{*Graphics2D*}}}method{void drawLine}}}
+
+if (!tpc.callerClass("salmir.qpdb.example.*"))
+            return false;
+ return tpc.checkConditionRemote("this.getColor().equals(java.awt.Color.black)");
+
+
+ForgroundColorChange
+tracequery{fieldchanged{object{ref{DrawLine[0](0):this}}field{foregroundColor}}beforethread{DrawLine[0]}}
+
+
+ColorChange
+tracequery{fieldchanged{object{ref{ForgroundColorChange[-1](1):this}}field{color}}beforethread{ForgroundColorChange[-1]}}
+
+
+SecondColorChange
+tracequery{fieldchanged{object{ref{ColorChange[-1](1):this}}field{color}}beforethread{ColorChange[-1]}}
+
