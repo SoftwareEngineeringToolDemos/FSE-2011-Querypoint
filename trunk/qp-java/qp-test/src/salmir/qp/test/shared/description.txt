@@ -1,0 +1,20 @@
+Example  1 – Shared Variable Bug
+Bug description : There is a program with many threads that they increase a shared value, we know that there is a bug that sometimes the shared value has not been increased.
+How the technique can be used:
+This is part of code which increases a variable:
+
+public class MyClass{
+…
+increaseSharedValue(){
+int x = shared;
+x++;
+shared = x;
+}
+…
+}
+
+We define P1 the point just after the return of the place we increase the shared value and put this assertion in this point, so every time the execution reach this point this assertion will be checked until it is violated.
+DefinePoint p1 = return MyClass.increaseSharedValue();
+Assert (shared ==ExecutionHistory.getNumberOfPoints(p1));
+ // shared should be equal to number of P1 which has been seen from the beginning of execution
+

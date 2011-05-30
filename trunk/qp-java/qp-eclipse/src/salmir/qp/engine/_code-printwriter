@@ -1,0 +1,9 @@
+
+        private PrintWriter qpdbTrace;  // Where qpdb events go
+        try {
+              qpdbTrace = new PrintWriter(new FileWriter(qpdbTraceFileName));
+        } catch (IOException exc) {
+              log.error("Cannot open output file: " + "qpdbTrace.txt"
+                       + " - " +  exc);
+              qpdbTrace = new PrintWriter(System.out);
+        }
