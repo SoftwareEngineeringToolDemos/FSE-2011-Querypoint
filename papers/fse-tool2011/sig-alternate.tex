@@ -159,14 +159,19 @@ Claude Petitpierre\\
 Developers often seek the origins of wrong values they see in their
 debugger. Their search must be backwards in time: the code causing the
 wrong value executed before the wrong value appeared. Searching with
-breakpoint- or log- based debuggers demands persistence and significant experience with the application being debugged.  
+breakpoint- or log- based debuggers demands persistence and significant 
+experience with the application being debugged.  
 
-\textit{Querypoint}, is a Firefox plugin which enhances the popular Firebug JavaScript debugger with
- a new, practical feature called \textit{lastChange}, which automatically locates the last point that a variable 
-or an object property has been changed. Starting from a program halted on a breakpoint, the \textit{lastChange} solution
-applies queries to the live program during re-execution, recording the call stack and limited program state each time 
-the property value changes. When the program halts again on the breakpoint, the recorded information can be shown to the developer.
-
+\textit{Querypoint}, is a Firefox plugin which enhances the popular 
+Firebug JavaScript debugger with a new, practical feature called 
+\textit{lastChange}. \textit{lastChange} automatically locates the last point that 
+a variable or an object property has been changed. Starting from a 
+program halted on a breakpoint, the \textit{lastChange} algorithm 
+applies queries to the live program during re-execution, recording 
+the call stack and limited program state each time 
+the property value changes. When the program halts again on the breakpoint, 
+it shows the program state at the last change point. To evaluate the usability and effectivness 
+of \textit{Querypoint} we studied four experienced JavaScript developers applying the tool to two test cases.
 
 \category{D.2.5}{Testing and Debugging}{Debugging aids}
 \category{D.2.6}{Programming Environments}{Integrated environments}
@@ -197,184 +202,120 @@ log-based debugging, require tedious steps of
 selecting data to be collected, collecting the data, then analyzing
 the results. 
 
-In breakpoint debugging, developers select data to be collected by
-searching through source files and setting breakpoints. To determine
-where a value was set incorrectly, a developer must set
-breakpoints at all possible points where the value changes. At
-every breakpoint, the developer must determine if the location is in
-fact related to the questionable value change then study the complex
-debugger user interface and memorize values or manually collect
-data. As the number of breakpoint hits increases, the process of
-checking the program state, collecting data and resuming the execution
-becomes cumbersome.
+%In breakpoint debugging, developers select data to be collected by
+%searching through source files and setting breakpoints. To determine
+%where a value was set incorrectly, a developer must set
+%breakpoints at all possible points where the value changes. At
+%every breakpoint, the developer must determine if the location is in
+%fact related to the questionable value change then study the complex
+%debugger user interface and memorize values or manually collect
+%data. As the number of breakpoint hits increases, the process of
+%checking the program state, collecting data and resuming the execution
+%becomes cumbersome.
 
-In log-based debugging, developers select data to be collected by
-inserting statements for all points of possible change.  While in
-breakpoint-based debugging, the whole program state is available to
-developer, in log-based debugging, developer has to decide what data
-should be collected when inserts the log statement. It is very common
-that the developer has to repeat this step several times due to
-insufficient collected data, or to wait a long time because too much
-data is recorded. Once adequate data is collected, it still
-requires analyzing and understanding. Developers usually end up in
-dealing with long log files and analyzing huge amounts of collected data. 
-Neither approach effectively assists the developer in finding origins to a wrong
-value.
+%In log-based debugging, developers select data to be collected by
+%inserting statements for all points of possible change.  While in
+%breakpoint-based debugging, the whole program state is available to
+%developer, in log-based debugging, developer has to decide what data
+%should be collected when inserts the log statement. It is very common
+%that the developer has to repeat this step several times due to
+%insufficient collected data, or to wait a long time because too much
+%data is recorded. Once adequate data is collected, it still
+%requires analyzing and understanding. Developers usually end up in
+%dealing with long log files and analyzing huge amounts of collected data. 
+%Neither approach effectively assists the developer in finding origins to a wrong
+%value.
 
-Our new functionality in
-debuggers, \textit{lastChange}, locates the origin of a wrong
-value by queries on the running program.
-Imagine that a program execution is
-paused on a breakpoint and the developer is
-suspicious about the value of a variable or an object property. The
-developer selects \textit{lastChange} on the value. The debugger
-replays the buggy execution and collects data
-when the data field changes. Once the execution reaches the same place 
-(i.e., the same
-breakpoint hit), it pauses the execution, analyzes the collected data
-and shows the location of the last change to the developer. The
-developer can also examine the program state at the located point of
-execution, and continue debugging by more \textit{lastChange} queries
-from that point.
+Locating the origin of wrong values becomes even harder when developers 
+deal with weakly-typed dynamic languages such as JavaScript. First, due to weakly-typed
+nature of these languages the search space that the developer should consider is considerably 
+larger than traditional languages such as Java and C{\small\#}. Second, dynamic features make 
+program full static analysis almost impossible.
 
-Our contribution in this paper is the technique \textit{lastChange},
-which locates the last place a value has changed, gathers other values
-from that execution point, and allows \textit{lastChange} operations
-from that point. The technique builds on existing breakpoint debugger
-technology  and it does not require a special environment to
-create identical, instruction by instruction, re-executions. We demonstrate the feasibility of the approach with 
-\textit{Querypoint}, an implementation extending Firebug
-JavaScript debugger. \textit{Querypoint} also provides mechanism for
-automated bug reproduction, and a novel user interface which
+\textit{Querypoint}, is a Firefox plugin which enhances the popular 
+Firebug JavaScript debugger with a new, practical feature called 
+\textit{lastChange}\cite{Mirghasemi2011}. \textit{lastChange}, locates the origin of a wrong
+value by queries on the running program. This feature enables interactive 
+dynamic data dependency navigation without requiring a full trace, unlike 
+other dynamic slice navigation interfaces. The technique builds on existing 
+breakpoint debugger technology  and it does not require a special environment to
+create identical, instruction by instruction, re-executions. \textit{Querypoint} 
+also provides mechanism for automated bug reproduction, and a novel user interface which
 summarizes investigated execution points and collected results.
-The \textit{lastChange} algorithm provides information on important program
-values during the program execution without voluminous logs and without tedious
- insertion and removal of breakpoints. We believe other queries over the
- running program can be formulated to generalize this technique.
+
+
+%Morover, it implements interactive 
+% dynamic data dependency navigation for JavaScript, which poses a unique 
+% challenge with respect to its dynamic nature. 
+
+
+%Imagine that a program execution 
+%is paused on a breakpoint and the developer is
+%suspicious about the value of a variable or an object property. The
+%developer selects \textit{lastChange} on the value. The debugger
+%replays the buggy execution and collects data when the data field changes. 
+%Once the execution reaches the same place (i.e., the same
+%breakpoint hit), it pauses the execution, analyzes the collected data
+%and shows the location of the last change to the developer. The
+%developer can also examine the program state at the located point of
+%execution, and continue debugging by more \textit{lastChange} queries
+%from that point. 
+
 
 \section{Related Work}
 \label{sec:relatedWork}
 %whyline, firecrystal
-
-Tools developed to enhance developers' movement on the buggy execution can be classifed in two groups: replay-based and logging-based.
-
-%The algorithm we presented in this paper obtain information about
-%the execution state logically earlier in the control flow by querying 
-%the executioin state during replay using the technology of 
-%conventional breakpoint debuggers.  
-The \textit{lastChange} approach resembles the operational model of replay-based debugging 
-and the query approach of logging-based
-debugging.  Replay-based approaches capture limited data during
-execution and replay the buggy execution to reach past points. In
-contrast, logging-based approaches collect enough data during
+Most tools developed to enhance developers' navigation on the buggy execution can 
+be classifed in two main groups: replay-based and logging-based. Replay-based 
+approaches capture limited data during execution and replay the buggy execution 
+to reach past points. In contrast, logging-based approaches collect enough data during
 execution to relieve developer from re-execution, then query the data to 
-inform the developer. Replay-based
-approaches impose much less runtime overhead (about two orders of
-magnitudes) comparing to logging-based approaches. However, developer
-has to re-execute the buggy execution several
-times. \textit{lastChange} collects data on re-execution by queries
-selected by developer interaction with the debugger. Therefore it has 
-the selectivity of the replay-based approaches that improves performance, 
-% but we have 
-and the flexibilty of the queries so it does not require deterministic replay.
+inform the developer.
 
-Among replay-based debuggers we compare to bdb \cite{Boothe} and
-reverse watchpoint \cite{Maruyama}.  A bidirectional C debugger, bdb
-employs a step counter to locate the requested point from the
-beginning of execution. It relies on deterministic execution replay
-%(i.e., the same sequence of instructions in re-execution) 
-and records the results of non-deterministic system calls and re-injects them into
-the program when it is replayed. It makes use of checkpoints to reduce
-the time needed for re-execution. Reverse watchpoint, similar to bdb, uses
-a counter to correctly locate the last write access of a selected variable in the
-next execution \cite{Maruyama}.
-% Reverse watchpoint is proposed by Maruyama et al., analyses the execution and moves the debugger to the
-% last write access of a selected variable by re-executing the program
-%from the beginning\cite{Maruyama}.  Similar to bdb it relies on deterministic
-%replay and uses a counter to correctly locate a point in the next
-%execution. 
-The main disadvantage of these approaches is that they require 
-identical, instruction by instruction, re-executions. % exactly the same executions. 
-Even one instruction difference between
-two executions leads to wrong results. On the other hand,
-\textit{lastChange} doesn't require any special feature in the
-re-execution and fits into existing debugging practice
+Among replay-based debuggers we can name bdb \cite{Boothe} and
+reverse watchpoint \cite{Maruyama}. Both tools rely on deterministic
+executions and employ a step counter to locate the requested point from the
+beginning of execution. These tools incur two to four times runtime overhead.
 
-Among logging-based approaches are \textit{omniscient} debuggers
-ODB\cite{Lewis} and Unstuck\cite{Hofer}. Both
-approaches keep the log history in memory and hence can only record
-and store the complete history for a short period of time. These
-debuggers record all the events that occur during the buggy execution
-and later let the developer to navigate through the obtained execution
-log. In these approaches there is no execution to resume: moving
-backwards in the log can be similar to moving forwards. A more scalable 
-approach to omniscient debugging has been proposed by Pothier et al. \cite{Pothier}. 
-Their back-in-time debugger, TOD, addresses the space problem by storing 
-execution events in a distributed database. Bhansali et al. \cite{Bhansali} attempted to address the performance overhead 
-and large trace size of logging-based debugging in their time-travelling debugger, Nirvana. 
-Nirvana first collects a full compressed trace of program execution and then 
-simulates re-execution. Their results are quite similar to omniscient 
-debuggers. Nirvana incurs about 15 to 68 times runtime overhead in 
-re-simulation.
-
-
-Logging-based debuggers suffer from different issues. First, the recording
-step is time expensive and it should be repeated in case of changes in
+Among logging-based debuggers are \textit{omniscient} debuggers (e.g.,
+ODB\cite{Lewis}, TOD \cite{Pothier}, Unstuck\cite{Hofer} and WhyLine\cite{Ko}) and
+time-travelling debuggers (e.g., Nirvana \cite{Bhansali}). Logging-based debuggers 
+suffer from different issues. First, the recording
+step is time expensive (20-120 times) and it should be repeated in case of changes in
 program. Second, the execution log cannot fully replace the live
 execution. There are other aspects of execution (e.g., program user
 interface, file system, database tables, etc.) which are also
 important in debugging and are not available to the developer in 
 logging-based debuggers. Third, querying collected data (e.g., to restore
 the program state at a certain point) may not be efficient enough for
-debugging realistic programs. Comparing to logging-based debuggers our approach 
-has little upfront cost and more flexibility. The developer can start debugging just 
-after reproducing the bug without a capturing step.  Changing inputs or
-environment settings and re-executing to investigate the bug works as
-in conventional breakpoint debuggers.
+debugging realistic programs. 
+
+\textit{Querypoint} resembles the operational model of replay-based debuggers
+and the query approach of logging-based debuggers. Contrary to
+other replay-based debuggers, which require exactly the same
+re-executions (deterministic executions), \textit{Querypoint} only requires \textit{bug 
+reproducibility}, meaning a test case is available which reproduces the bug and a 
+way to halt execution reliably after the reproduction. Contrary to logging-based
+debuggers \textit{Querypoint} selectively collects data which significantly reduces
+runtime overhead incured by logging.
+
+%A recent work by Lienhard et al.\cite{Lienhard} suggests virtual
+%machine level support for keeping the history of events. It replaces every
+%object reference with an alias object which keeps the history of
+%changes to the object reference. Although this approach incurs less runtime overhead (7 times) in
+%comparison to omniscient debuggers, it adds memory
+%overhead. 
+
+% Origin tracking of \texttt{undefined} and \texttt{null} values employing \textit{value piggybacking} technique proposed by
+%Bond et al. \cite{Bond}. This approach has two main limitations comparing to \textit{lastChange}.
+%First, it is limited to \texttt{undefined} and \texttt{null} values. Second, it does not return the last change
+%of a \texttt{null} variable but the first place that the \texttt{null} value is originated.
 
 
-A recent work by Lienhard et al.\cite{Lienhard} suggests virtual
-machine level support for keeping the history of events. It replaces every
-object reference with an alias object which keeps the history of
-changes to the object reference. 
-%In this way, when an object is
-%collected by garbage collector, its track of changes (if it is not
-%referenced by other aliases) will be also collected. 
-Although this approach incurs less runtime overhead (7 times) in
-comparison to omniscient debuggers, it adds memory
-overhead. 
-
-Origin tracking of \texttt{undefined} and \texttt{null} values employing \textit{value piggybacking} technique proposed by
-Bond et al. \cite{Bond}. This approach has two main limitations comparing to \textit{lastChange}.
-First, it is limited to \texttt{undefined} and \texttt{null} values. Second, it does not return the last change
-of a \texttt{null} variable but the first place that the \texttt{null} value is originated.
-
-
-%Two new directions in logging debuggers explore more detailed use of
-%the log and more effective user interface to the collected data. %logging approaches. 
-%WhyLine\cite{Ko} provides visual interface to collected runtime information and lets
-%developer moves on execution log using queries expressed in terms of
-%the programming objects. 
-
-WhyLine\cite{Ko} stores the program user interface in
-addition to the program trace and provides answers to why and why not
-questions to the user. 
-%Jive\cite{Czyz} depicts the history of
-%execution by a sequence diagram and lets the user to query on the events
-%database. 
-WhyLine suffers from the requirement of gathering tracing information before its unique capabilities can be used.
-We imagine that the runtime queries we use in \textit{lastChange} may be used to gather data incrementally for this kind of debugging approach.
-
-%Querypoint debugging uses re-executions to gather infor-mation requested by the developer: the memory overhead depends on the query not the entire program. Moreover, the Lienhard et al. debugger significantly changes the virtual machine, while our approach is a generalization to conditional breakpoints and available debugger infrastructure can be adapted to support it.
- 
-%\textit{lastChange} functionality does rely on a conventional breakpoint to begin queries, a requirement not shared by full logging solutions.  Here we leverage past experience of developers, but there are also new tools [] to help with this problem in the case of graphical and event based systems.
-
-
-
-\section{Introductory example}
+\section{Querypoint}
 \label{sec:introExample}
 
-We illustrate the \textit{lastChange} functionality by a simple
+We illustrate the \textit{Querypoint} functionality by a simple
 example. The example demonstrates a buggy JavaScript code in a HTML
 page (Figure~\ref{fig:js-code}). The page contains a button (line 40)
 showing the value of \texttt{myObject.myProperty}.  When the user
@@ -382,19 +323,18 @@ clicks on the button, the \texttt{onClick} function (line 13) is
 called. This function increases the value of
 \texttt{myObject.myProperty} by one (line 15) and calls
 \texttt{updateButton} function which updates the button's text to the new
-value (line 22).  Once the page is loaded for the first time the
+value (line 22).  Once the page is loaded for the first time, the
 button shows \texttt{1} as the initial value of
 \texttt{myObject.myProperty}.  In practice when the user clicks on the
 button, \texttt{0} appears instead of \texttt{2}: there is a bug.
 
-
-Two other functions are called in \texttt{onClick()}, \texttt{foo()}
-and \texttt{bar()}. As developers we often encounter function calls
-which seem peripheral to our current concern; they may have been added
-by another developer, or we may have forgotten their exact properties
-or those properties may have changed, and so on. The difference
-between what we expect these functions to do, e.g. nothing
-interesting, and what they do in practice may cause bugs.
+%Two other functions are called in \texttt{onClick()}, \texttt{foo()}
+%and \texttt{bar()}. As developers we often encounter function calls
+%which seem peripheral to our current concern; they may have been added
+%by another developer, or we may have forgotten their exact properties
+%or those properties may have changed, and so on. The difference
+%between what we expect these functions to do, e.g. nothing
+%interesting, and what they do in practice may cause bugs.
 
 
 \begin{figure}[htp]
@@ -446,7 +386,7 @@ interesting, and what they do in practice may cause bugs.
 \label{fig:js-code}
 \end{figure}
 
-By browsing through the code or other means\cite{Barton},
+By browsing through the code,% or other means\cite{Barton},
  the developer determines that the value displayed on the 
 button is set at line 22. Since the displayed value is incorrect we know 
 the bug occurred before we hit this line.
@@ -461,34 +401,6 @@ stepping. To the right of the script panel, the Watch panel shows the program st
 where the developer can examine object and variable values. In our case, the
 \texttt{myObject.myProperty} value at the paused point is \texttt{0}. We expected this value to be \texttt{2}.
 
-
-To apply backward search strategy for locating defects, the developer
-first needs to know the origin of the wrong value. To achieve this
-goal using breakpoints, the developer should search code to find all possible places that
-\texttt{myObject. myProperty} might get a new value and set breakpoint at these locations. However, an
-object and property can be accessed and changed through different
-names and methods. There is no simple way to identify these aliases or
-even their total number.  The developer can make a good guess and set
-breakpoints on lines where the property seems to be changed. Then they
-re-execute the program and examine the state looking for values that
-may lead to the incorrect value observed at line 22. All this work
-must be repeated if a new alias is discovered or if some
-information related to the buggy result was missed while stopped on
-one of the breakpoints.
-
-In contrast, we have added a high-level function in the debugger,
-\textit{lastChange}, which provides the answer without tedious manual
-effort from the developer. By right clicking on
-\texttt{myObject.myProperty} in the Watch panel, the developer can run
-\textit{lastChange} command (Figure~\ref{fig:example1}). The debugger
-re-executes the program and halts again at the breakpoint on line 22.
-However, it shows a new panel, called QP, centered on the source at line 29
-(Figure~\ref{fig:example3}), the point of \textit{lastChange}.  To
-the right, the TraceData panel shows values of properties of the
-program state when it passed through line 29.  These two panels
-resemble the Script and Watch panels, but they show data collected by
-the debugger at one execution point which is now past: these are
-\textit{traces} or \textit{logs} of information collected during the re-execution.
 
 
 \begin{figure*}[htp]
@@ -523,6 +435,34 @@ the debugger at one execution point which is now past: these are
 \end{figure*}
 
 
+To apply backward search strategy for locating defects, the developer
+first needs to know the origin of the wrong value. To achieve this
+goal using breakpoints, the developer should search code to find all possible places that
+\texttt{myObject. myProperty} might get a new value and set breakpoint at these locations. However, an
+object and property can be accessed and changed through different
+names and methods. There is no simple way to identify these aliases or
+even their total number.  The developer can make a good guess and set
+breakpoints on lines where the property seems to be changed. Then they
+re-execute the program and examine the state looking for values that
+may lead to the incorrect value observed at line 22. All this work
+must be repeated if a new alias is discovered or if some
+information related to the buggy result was missed while stopped on
+one of the breakpoints.
+
+In contrast, we have added a high-level function in the debugger,
+\textit{lastChange}, which provides the answer without tedious manual
+effort from the developer. By right clicking on
+\texttt{myObject.myProperty} in the Watch panel, the developer can run
+\textit{lastChange} command (Figure~\ref{fig:example1}). The debugger
+re-executes the program and halts again at the breakpoint on line 22.
+However, it shows a new panel, called QP, centered on the source at line 29
+(Figure~\ref{fig:example3}), the point of \textit{lastChange}.  To
+the right, the TraceData panel shows values of properties of the
+program state when it passed through line 29.  These two panels
+resemble the Script and Watch panels, but they show data collected by
+the debugger at one execution point which is now past: these are
+\textit{traces} or \textit{logs} of information collected during the re-execution.
+
 Looking at line 29, it seems that something is wrong with
 \texttt{myCondition.value} which causes line 29 execution. The
 developer examines \texttt{myCondition.value} and it is
@@ -537,44 +477,89 @@ the debugger can notify the developer that this variable is never assigned a val
 \texttt{undefined} once the execution reaches line 25 (Figure~\ref{fig:example4}).
 
 
-As demonstrated in Figure~\ref{fig:example-points}, the developer has
-examined three points of execution. The first point  was the breakpoint set by the developer. 
+The developer has examined three points of execution. The first point  was the breakpoint set by the developer. 
 We call this special breakpoint the \textit{reproduction point}.
 The second and third points preceded the reproduction point in execution sequence.
 All three points-the history
 of the search for the defect-are available through the debugger's
 interface. On the top of the left panel in Figure~\ref{fig:example4}
-there is an opened list which shows all three examined points. The
-first one is the breakpoint on line 22, the second one is the point
-which is when \texttt{myObject.myProperty} changed before
-reaching the breakpoint and finally the last one is the point of
-execution in which \texttt{myCondition.value} gets the
-\texttt{undefined} value. Moreover, the source lines related to these
+there is an opened list which shows all three examined points. Moreover, the source lines related to these
 points are marked with red \textbf{Q} icons.
+%The
+%first one is the breakpoint on line 22, the second one is the point
+%which is when \texttt{myObject.myProperty} changed before
+%reaching the breakpoint and finally the last one is the point of
+%execution in which \texttt{myCondition.value} gets the
+%\texttt{undefined} value. 
 
-Notice that in our example, \textit{lastChange} combines some aspects
-of breakpoint and of log-based debugging. Like breakpoint debugging,
-the developer re-executes a live runtime without changing the source
-and without a special execution environment beyond the debugger. The
-state of the program memory and the call stack are available at each
-lastChange point. Like log-based debugging, the program state and the
-call stack are recorded during program execution. We can't halt the
-program at \textit{lastChange} because we don't know which point is the last
-one until we return to the original breakpoint. In section 5 we
-discuss cases where it is possible to pause at lines of \textit{lastChange}.
+%Notice that in our example, \textit{lastChange} combines some aspects
+%of breakpoint and of log-based debugging. Like breakpoint debugging,
+%the developer re-executes a live runtime without changing the source
+%and without a special execution environment beyond the debugger. The
+%state of the program memory and the call stack are available at each
+%lastChange point. Like log-based debugging, the program state and the
+%call stack are recorded during program execution. We can't halt the
+%program at \textit{lastChange} because we don't know which point is the last
+%one until we return to the original breakpoint. 
+%In section 5 we discuss cases where it is possible to pause at lines of \textit{lastChange}.
 
-\subsection{Re-Execution, Reproduction Point and Data Collection}
+\textit{Querypoint} needs a test case to reproduce the
+execution and conditions to correctly recognize the reproduction point. 
+Although both elements can be directly provided by developer, \textit{Querypoint}
+is also able to automatically create them from the first execution. 
 
-\section{Limitations and Future Work}
+To replay execution, \textit{Querypoint} keeps track of breakpoint hits and single steps. For example, 
+if the developer queries \textit{lastChange} at the third hit of breakpoint \textit{b}, in
+re-execution, the third hit is recognized as the reproduction point. \textit{Querypoint} supports two mechanism
+for automatic re-execution: callstack-reproduction and record-replay. In callstack reproduction the function from
+the earliest frame of the call stack is called with the same parameters. The record-replay execution uses two phases. In the record phase, it 
+stores the initial page url and the events and parameters corresponding to user actions. In the replay phase, it opens
+the same url and simulates events as if they were user actions. 
 
-\section{Reproducible Non-Deterministic Execution}
 
-\subsection{Combination of {\large\bf\textit{lastChange}} and Breakpoint Debugging}
+In addition to the data collected at every change event for identifying the \textit{lastChange}
+result, \textit{Querypoint} partially stores values in program state. There is a trade-off between the amount of data collected at every change event and the number of re-executions. If the developer asks for some values which have not been stored, \textit{Querypoint} re-executes and collects the requested data. 
 
 
-\section{Conclusion}
+\section{User Study}
+We supplied four experienced Javascript developers with \textit{Querypoint} in an 
+extended Firebug debugger\footnote[1]{http://ltiwww.epfl.ch/\texttildelow mirghase/lastchange-userstudy}. Following a tutorial and a practice case, we observed as they 
+applied both conventional breakpoint and \textit{lastChange} on two small programs we provided. The first program, Shapes, calculates the area and perimeter values for a list of shapes. The bug happens when one of the calculated numbers is zero. The second program, Moving Circle, randomly scales and moves a circle in the page. The bug happens once the circle becomes invisible after an exception occurs. This case represent a reproducible non-deterministic execution. The developers were asked to locate the defects that caused these bugs. All four developers successfully applied \textit{lastChange} to the test programs and understood how it could help debugging. To find the defect location with breakpoints, all four users took more steps\footnote[2]{A step is a button push, either single stepping the debugger or running a lastChange query} and more time (Figure~\ref{fig:userstudy}).    
 
-\section{Acknowledgments}
+%another searched the text, a third set a lot of breakpoints to understand the control flow. 
+%Based on our own experience we expect these strategies represent the kinds of approaches 
+%developers have available. These operations are time consuming and tedious. In contrast, all four users 
+%found the defect location with just two \textit{lastChange} operations.
+
+% Based on our measurements,
+%this makes \textit{lastChange} about three times faster than breakpoints for the navigation from 
+%the reproduction point to the defect
+%We recognize that these programs were designed to highlight lastChange and many kinds of debugging 
+%issues have been hidden by the design of our tests. Nevertheless our results show that, when a defect 
+%relates to incorrect values and a developer recognizes this, then the operational 
+%mechanics of lastChange lead to the defect much more quickly than breakpoints.
+
+
+\begin{figure}[htp]
+\centering 
+\includegraphics[width=.48\textwidth]{10-userstudy.pdf}
+\caption{The number of steps (and time in seconds) required before locating a defect, for each test subject and test program. 
+Cells with a white background report values with conventional debugging; Cells with a colored background use \textit{lastChange}.}
+
+\label{fig:userstudy}
+\end{figure}
+
+
+\section{Conclusion and Future Work}
+\textit{Querypoint} provides critical information for debugging Jav- aScript programs: 
+the location and state at the point where a questionable value was assigned. It only requires 
+bug reproducibility and is built on the existing breakpoint technology.
+
+In our next iteration we plan to merge the query and breakpoint results. \textit{Querypoint} shows the 
+results of \textit{lastChange} in a similar but different view from breakpoint debugging. This focuses attention 
+on value changes, but it makes studying control flow more difficult. %: we don't support single stepping from a \textit{lastChange} result in our user interface. 
+
+% In our next iteration we plan to merge the query and breakpoint results and support pausing as described in Sec.~\ref{sec:pausing}.
 
 %
 % The following two commands are all you need in the
@@ -584,10 +569,10 @@ discuss cases where it is possible to pause at lines of \textit{lastChange}.
 %\bibliography{sigproc}  % sigproc.bib is the name of the Bibliography in this case
 \begin{thebibliography}{16}
 
-\bibitem{Barton}
-J.J. Barton, and J. Odvarko. \newblock Dynamic and graphical web page breakpoints.
-\newblock In \emph{Conference on World Wide Web(WWW)},
-April, 2010.
+%\bibitem{Barton}
+%J.J. Barton, and J. Odvarko. \newblock Dynamic and graphical web page breakpoints.
+%\newblock In \emph{Conference on World Wide Web(WWW)},
+%April, 2010.
 
 \bibitem{Bhansali}
 S. Bhansali, W. Chen, S. de Jong, A. Edwards, R. Murray, M. Drini\'{c}, D. Miho\v{c}ka, J. Chau. \newblock Framework for instruction-level tracing and analysis of program executions.
@@ -625,23 +610,23 @@ C. Hofer, M. Denker, and S. Ducasse. \newblock Implementing a backward-in-time d
 \newblock In Proceedings of\emph{NODe'06},
 volume P-88, pages 17-32. Lecture Notes in Informatics, 2006.
 
-\bibitem{Horwitz}%[Hofer(2006)]
-S. Horwitz, B. Liblit, and M. Polishchuk. \newblock Better Debugging via Output Tracing and Callstack-Sensitive Slicing.
-\emph{IEEE Transactions on
-Software Engineering}, 36(1):7-19, 2010.
+%\bibitem{Horwitz}%[Hofer(2006)]
+%S. Horwitz, B. Liblit, and M. Polishchuk. \newblock Better Debugging via Output Tracing and Callstack-Sensitive Slicing.
+%\emph{IEEE Transactions on
+%Software Engineering}, 36(1):7-19, 2010.
 
-\bibitem{JPDA}%[JSD(2010)]
-Java Platform Debugger Architecture. \newblock http://java.sun.com/javase/technologies/ core/toolsapis/jpda.
+%\bibitem{JPDA}%[JSD(2010)]
+%Java Platform Debugger Architecture. \newblock http://java.sun.com/javase/technologies/ core/toolsapis/jpda.
 
 \bibitem{Ko}%[Ko(2008)]
 A.J. Ko, and B.A. Myers. \newblock Debugging reinvented: asking and answering why and why not questions about program behavior.
 \newblock In \emph{30th international conference on Software engineering(ICSE)},
 May, 2008.
 
-\bibitem{Korel}%[Ko(2008)]
-B. Korel and J. Laski. \newblock Dynamic Program Slicing.
-\newblock \emph{Information Processing Letters},
- 29(3):155-163, 1988.
+%\bibitem{Korel}%[Ko(2008)]
+%B. Korel and J. Laski. \newblock Dynamic Program Slicing.
+%\newblock \emph{Information Processing Letters},
+% 29(3):155-163, 1988.
 
 \bibitem{LaToza}%[LaToza(2006)]
 T.D. LaToza, G. Venolia, and R. DeLine. \newblock Maintaining mental models: a study of developer work habits
@@ -653,38 +638,41 @@ B. Lewis, and M. Ducasse. \newblock Using events to debug Java programs backward
 \newblock In \emph{Companion of the 18th annual ACM SIGPLAN conference on Object-oriented programming, systems, languages, and applications(OOPSLA)},
 2003.
 
-\bibitem{Lienhard}%[Lienhard(2008)]
-A. Lienhard, T. G\^{\i}rba, and O. Nierstrasz. \newblock Practical Object-Oriented Back-in-Time Debugging.
-\newblock In \emph{22nd European conference on Object-Oriented Programming(ECOOP)},
-July, 2008.
+%\bibitem{Lienhard}%[Lienhard(2008)]
+%A. Lienhard, T. G\^{\i}rba, and O. Nierstrasz. \newblock Practical Object-Oriented Back-in-Time Debugging.
+%\newblock In \emph{22nd European conference on Object-Oriented Programming(ECOOP)},
+%July, 2008.
 
 \bibitem{Maruyama}%[Maruyama(2003)]
 K. Maruyama, and T. Kazutaka. \newblock Debugging with Reverse Watchpoint.
 \newblock In \emph{Proceedings of the Third International Conference on Quality Software},
 2003.
 
-\bibitem{JSD}%[JSD(2010)]
-Mozila JavaScript Debugging Interface. \newblock http://www.mozilla.org/js/jsd.
+\bibitem{Mirghasemi2011}
+S. Mirghasemi, J.J. Barton, and C. Petitpierre. \newblock Debugging by lastChange.
+\newblock Technical Report. EPFL-REPORT-164250, 2011. 
+%\bibitem{JSD}%[JSD(2010)]
+%Mozila JavaScript Debugging Interface. \newblock http://www.mozilla.org/js/jsd.
 
 \bibitem{Pothier}%[Pothier(2007)]
 G. Pothier, \'{E}. Tanter, and J. Piquer. \newblock Scalable omniscient debugging.
 \newblock In \emph{22nd annual ACM SIGPLAN conference on Object-oriented programming, systems, languages, and applications(OOPSLA)},
 October, 2007.
 
-\bibitem{Sridharan}%[Boothe(2000)]
-M. Sridharan, S.J. Fink , and R. Bodik. \newblock Thin slicing.
-\newblock In \emph{Conference on Programming Language Design and Implementation(PLDI)},
-June, 2007.
+%\bibitem{Sridharan}%[Boothe(2000)]
+%M. Sridharan, S.J. Fink , and R. Bodik. \newblock Thin slicing.
+%\newblock In \emph{Conference on Programming Language Design and Implementation(PLDI)},
+%June, 2007.
 
-\bibitem{Weiser}
-M. Weiser. \newblock Program slicing.
-\newblock \emph{IEEE Transactions on
-Software Engineering}, vol. SE-10, no. 4, pp. 352-357,
-July 1984.
+%\bibitem{Weiser}
+%M. Weiser. \newblock Program slicing.
+%\newblock \emph{IEEE Transactions on
+%Software Engineering}, vol. SE-10, no. 4, pp. 352-357,
+%July 1984.
 
-\bibitem{Zeller}
-A. Zeller. \newblock Why programs fail: A guide to systematic debugging.
-Morgan Kaufmann (2005)
+%\bibitem{Zeller}
+%A. Zeller. \newblock Why programs fail: A guide to systematic debugging.
+%Morgan Kaufmann (2005)
 
 \end{thebibliography}
 

@@ -1,10 +1,6 @@
 \BOOKMARK [1][-]{section.1}{Introduction}{}
 \BOOKMARK [1][-]{section.2}{Related Work}{}
-\BOOKMARK [1][-]{section.3}{Introductory example}{}
-\BOOKMARK [2][-]{subsection.3.1}{Re-Execution, Reproduction Point and Data Collection}{section.3}
-\BOOKMARK [1][-]{section.4}{Limitations and Future Work}{}
-\BOOKMARK [1][-]{section.5}{Reproducible Non-Deterministic Execution}{}
-\BOOKMARK [2][-]{subsection.5.1}{Combination of lastChange and Breakpoint Debugging}{section.5}
-\BOOKMARK [1][-]{section.6}{Conclusion}{}
-\BOOKMARK [1][-]{section.7}{Acknowledgments}{}
-\BOOKMARK [1][-]{section.8}{References}{}
+\BOOKMARK [1][-]{section.3}{Querypoint}{}
+\BOOKMARK [1][-]{section.4}{User Study}{}
+\BOOKMARK [1][-]{section.5}{Conclusion and Future Work}{}
+\BOOKMARK [1][-]{section.6}{References}{}
