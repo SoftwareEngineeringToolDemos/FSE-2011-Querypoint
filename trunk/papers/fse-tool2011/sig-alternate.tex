@@ -524,7 +524,7 @@ result, \textit{Querypoint} partially stores values in program state. There is a
 \section{User Study}
 We supplied four experienced Javascript developers with \textit{Querypoint} in an 
 extended Firebug debugger\footnote[1]{http://ltiwww.epfl.ch/\texttildelow mirghase/lastchange-userstudy}. Following a tutorial and a practice case, we observed as they 
-applied both conventional breakpoint and \textit{lastChange} on two small programs we provided. The first program, Shapes, calculates the area and perimeter values for a list of shapes. The bug happens when one of the calculated numbers is zero. The second program, Moving Circle, randomly scales and moves a circle in the page. The bug happens once the circle becomes invisible after an exception occurs. This case represent a reproducible non-deterministic execution. The developers were asked to locate the defects that caused these bugs. All four developers successfully applied \textit{lastChange} to the test programs and understood how it could help debugging. To find the defect location with breakpoints, all four users took more steps\footnote[2]{A step is a button push, either single stepping the debugger or running a lastChange query} and more time (Figure~\ref{fig:userstudy}).    
+applied both conventional breakpoint and \textit{lastChange} on two small programs we provided. The first program, Shapes, calculates the area and perimeter values for a list of shapes. The bug happens when one of the calculated numbers is zero. The second program, Moving Circle, randomly scales and moves a circle in the page. The bug happens once the circle becomes invisible after an exception occurs. This case represent a reproducible non-deterministic execution. The developers were asked to locate the defects that caused these bugs. All four developers successfully applied \textit{lastChange} to the test programs and understood how it could help debugging. To find the defect location with breakpoints, all four users took more steps\footnote[2]{A step is a button push, either single stepping the debugger or running a \textit{lastChange query}} and more time (Figure~\ref{fig:userstudy}).    
 
 %another searched the text, a third set a lot of breakpoints to understand the control flow. 
 %Based on our own experience we expect these strategies represent the kinds of approaches 
@@ -687,18 +687,25 @@ October, 2007.
 
 \appendix
 \section{Presentation}
-The presentation will include the follwing parts:
+The presentation will include the following parts:
 \begin{enumerate}
 	\item A short demo, debugging a simple buggy web page by the tool.
-	\item A brief explanation of \textit{lastChange} algorithm.
-	\item A brief explanation on \textit{Querypoint} debugging as a general debugging approach.
-	\item Discussion about non-deterministic reproducible executions.
-	\item A comprehensive demo on the Tool features.
+	\item The brief explanation of \textit{lastChange} algorithm.
+	\item The brief explanation of \textit{Querypoint} debugging as a general debugging approach.
+	\item The Discussion about non-deterministic reproducible executions.
+	\item A Comprehensive demo on the Tool features.
 \end{enumerate}
 
 \section{Tool Maturity}
 The tool is functional, however this is the first version of \textit{Querypoint} and therefore it is 
-not mature enough to be used by developers working in industry.
+not mature enough to be used by developers. Moreover, \textit{Querypoint} is built on top of the 
+Firefox 3.6 JavaScript engine. Due to significant changes in Firefox platform, \textit{Querypoint} is 
+not compatible with the newer versions of Firefox. 
+
+We requested the mozilla team to support basic operations needed by \textit{lastChange} inside the 
+Firefox JavaScript Engine. Our proposal was accepted and they planned for the implementation of 
+these operations (Feature requests 641234 and 641236 in Mozilla Bugzilla) in the next major Firefox release.
+
 
 \section{Resources}
 The tool and its source code are publicly available and can be downloaded 
