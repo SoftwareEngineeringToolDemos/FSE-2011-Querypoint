@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592-1.40.4 (MiKTeX 2.7) (preloaded format=pdflatex 2008.10.12)  9 JUN 2011 11:23
+This is pdfTeX, Version 3.141592-1.40.4 (MiKTeX 2.7) (preloaded format=pdflatex 2008.10.12)  10 JUN 2011 11:02
 entering extended mode
 **C:/salmir/work/epfl/projects/43_querypoint-debugging/trunk/papers/fse-tool201
 1/sig-alternate.tex
@@ -540,90 +540,25 @@ Overfull \hbox (9.7739pt too wide) in paragraph at lines 184--186
 \T1/aer/m/n/9 Debugging, Lo-cat-ing De-fects, Query-point, LastChange, Break-
  []
 
-
-LaTeX Warning: Citation `LaToza' on page \thepage  undefined on input line 189.
-
-
-
-LaTeX Warning: Citation `Mirghasemi2011' on page \thepage  undefined on input l
-ine 237.
-
-
-LaTeX Warning: Citation `Boothe' on page \thepage  undefined on input line 275.
-
-
-
-LaTeX Warning: Citation `Maruyama' on page \thepage  undefined on input line 27
-6.
-
-
-LaTeX Warning: Citation `Lewis' on page \thepage  undefined on input line 281.
-
-
-LaTeX Warning: Citation `Pothier' on page \thepage  undefined on input line 281
-.
-
-
-LaTeX Warning: Citation `Hofer' on page \thepage  undefined on input line 281.
-
-
-LaTeX Warning: Citation `Ko' on page \thepage  undefined on input line 281.
-
-
-LaTeX Warning: Citation `Bhansali' on page \thepage  undefined on input line 28
-2.
-
 [1{C:/ProgramData/MiKTeX/2.7/pdftex/config/pdftex.map}
 
 
 ]
-
-LaTeX Warning: Reference `fig:js-code' on page \thepage  undefined on input lin
-e 320.
-
 LaTeX Font Info:    Try loading font information for T1+aett on input line 321.
+
 
 ("C:\Program Files\MiKTeX 2.7\tex\latex\ae\t1aett.fd"
 File: t1aett.fd 1997/11/16 Font definitions for T1/aett.
 )
-
-LaTeX Warning: Reference `fig:example1' on page \thepage  undefined on input li
-ne 395.
-
-<1-bp22.jpg, id=61, 549.55313pt x 126.4725pt>
-File: 1-bp22.jpg Graphic file (type jpg)
- <use 1-bp22.jpg>
-
-LaTeX Warning: Reference `fig:js-code' on page \thepage  undefined on input lin
-e 415.
-
-
-LaTeX Warning: Reference `fig:js-code' on page \thepage  undefined on input lin
-e 415.
-
-<3-lastChange.jpg, id=62, 549.55313pt x 216.05719pt>
-File: 3-lastChange.jpg Graphic file (type jpg)
- <use 3-lastChange.jpg>
-<4-lastChange2.jpg, id=63, 548.80031pt x 197.23688pt>
-File: 4-lastChange2.jpg Graphic file (type jpg)
- <use 4-lastChange2.jpg>
-
-LaTeX Warning: Reference `fig:example1' on page \thepage  undefined on input li
-ne 456.
-
-
-LaTeX Warning: Reference `fig:example3' on page \thepage  undefined on input li
-ne 459.
-
-
-LaTeX Warning: Reference `fig:example4' on page \thepage  undefined on input li
-ne 477.
-
-
-LaTeX Warning: Reference `fig:example4' on page \thepage  undefined on input li
-ne 485.
-
-
+<1-bp22.png, id=76, 772.8875pt x 218.8175pt>
+File: 1-bp22.png Graphic file (type png)
+ <use 1-bp22.png>
+<3-lastChange.png, id=79, 581.92406pt x 216.81pt>
+File: 3-lastChange.png Graphic file (type png)
+ <use 3-lastChange.png>
+<4-lastChange2.png, id=80, 775.89874pt x 281.05pt>
+File: 4-lastChange2.png Graphic file (type png)
+ <use 4-lastChange2.png>
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has b
@@ -636,7 +571,8 @@ e.}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
 l.494 
-       [3 <1-bp22.jpg> <3-lastChange.jpg> <4-lastChange2.jpg>]
+       [3 <1-bp22.png (PNG copy)> <3-lastChange.png (PNG copy)> <4-lastChange2.
+png (PNG copy)>]
 LaTeX Font Info:    Try loading font information for TS1+aer on input line 526.
 
 LaTeX Font Info:    No file TS1aer.fd. on input line 526.
@@ -647,14 +583,10 @@ LaTeX Font Warning: Font shape `TS1/aer/m/n' undefined
 (Font)              for symbol `texttildelow' on input line 526.
 
 
-LaTeX Warning: Reference `fig:userstudy' on page \thepage  undefined on input l
-ine 527.
-
-
 
 pdfTeX warning:  (file 10-userstudy.pdf): PDF inclusion: found PDF version <1.5
 >, but at most version <1.4> allowed
-<10-userstudy.pdf, id=116, 390.25798pt x 86.724pt>
+<10-userstudy.pdf, id=143, 390.25798pt x 86.724pt>
 File: 10-userstudy.pdf Graphic file (type pdf)
  <use 10-userstudy.pdf>
 Overfull \hbox (1.91785pt too wide) in paragraph at lines 545--547
@@ -673,9 +605,6 @@ Overfull \hbox (7.56732pt too wide) in paragraph at lines 558--561
 ows the re-sults of \T1/aer/m/it/9 lastChange
  []
 
-
-Underfull \vbox (badness 1107) has occurred while \output is active []
-
 pdfTeX warning (ext4): destination with the same identifier (name{page.}) has b
 een already used, duplicate ignored
 <to be read again> 
@@ -693,21 +622,15 @@ l.720 \end{document}
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
  ) 
 Here is how much of TeX's memory you used:
  7897 strings out of 95340
  105346 string characters out of 1184192
- 191886 words of memory out of 1500000
+ 192966 words of memory out of 1500000
  10839 multiletter control sequences out of 110000
  69438 words of font info for 99 fonts, out of 1200000 for 2000
  14 hyphenation exceptions out of 8191
- 39i,11n,42p,1017b,1138s stack positions out of 5000i,500n,10000p,200000b,5000s
+ 39i,11n,42p,1018b,1138s stack positions out of 5000i,500n,10000p,200000b,5000s
 {C:/Program Files/MiKTeX 2.7/dvips/cm-super/cm-super-ts1.enc}{C:/Program File
 s/MiKTeX 2.7/fonts/enc/dvips/8r.enc}<C:/Program Files/MiKTeX 2.7/fonts/type1/bl
 uesky/cm/cmbx12.pfb><C:/Program Files/MiKTeX 2.7/fonts/type1/bluesky/cm/cmbx7.p
@@ -724,9 +647,9 @@ m Files/MiKTeX 2.7/fonts/type1/bluesky/cm/cmtt9.pfb><C:/Program Files/MiKTeX 2.
 ype1/urw/helvetic/uhvr8a.pfb><C:/Program Files/MiKTeX 2.7/fonts/type1/urw/times
 /utmb8a.pfb><C:/Program Files/MiKTeX 2.7/fonts/type1/urw/times/utmr8a.pfb><C:/P
 rogram Files/MiKTeX 2.7/fonts/type1/urw/times/utmri8a.pfb>
-Output written on sig-alternate.pdf (5 pages, 319632 bytes).
+Output written on sig-alternate.pdf (5 pages, 299922 bytes).
 PDF statistics:
- 233 PDF objects out of 1000 (max. 8388607)
+ 251 PDF objects out of 1000 (max. 8388607)
  71 named destinations out of 1000 (max. 131072)
  109 words of extra memory for PDF output out of 10000 (max. 10000000)
 

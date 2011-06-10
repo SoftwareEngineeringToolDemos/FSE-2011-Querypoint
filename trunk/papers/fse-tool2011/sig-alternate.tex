@@ -170,7 +170,7 @@ program halted on a breakpoint, the \textit{lastChange} algorithm
 applies queries to the live program during re-execution, recording 
 the call stack and limited program state each time 
 the property value changes. When the program halts again on the breakpoint, 
-it shows the program state at the last change point. To evaluate the usability and effectivness 
+it shows the call stack and program state at the last change point. To evaluate the usability and effectivness 
 of \textit{Querypoint} we studied four experienced JavaScript developers applying the tool to two test cases.
 
 \category{D.2.5}{Testing and Debugging}{Debugging aids}
@@ -229,8 +229,8 @@ the results.
 Locating the origin of wrong values becomes even harder when developers 
 deal with weakly-typed dynamic languages such as JavaScript. First, due to weakly-typed
 nature of these languages the search space that the developer should consider is considerably 
-larger than traditional languages such as Java and C{\small\#}. Second, dynamic features make 
-program full static analysis almost impossible.
+larger than traditional languages such as Java and C{\small\#}. Second, dynamics features limit 
+the value of traditional compile-time program analysis.
 
 \textit{Querypoint}, is a Firefox plugin which enhances the popular 
 Firebug JavaScript debugger with a new, practical feature called 
@@ -412,7 +412,7 @@ where the developer can examine object and variable values. In our case, the
   breakpoint. The Watch panel on the right shows the program state at
   the paused
   point. Developer can query \textit{lastChange} on \texttt{myObject.myProperty} by right-clicking on the value of \texttt{myProperty}. ]{\label{fig:example1}\includegraphics[width=1.0\textwidth, %height=.17\textheight
-  ]{1-bp22.jpg}}
+  ]{1-bp22.png}}
 
 
 \subfigure[The result of \textit{lastChange} query for
@@ -420,7 +420,7 @@ where the developer can examine object and variable values. In our case, the
   code at the point of \textit{lastChange}; The right panel,
   TraceData, shows the collected data at the
   point.]{\label{fig:example3}\includegraphics[width=1.0\textwidth,% height=.21\textheight
-  ]{3-lastChange.jpg}}
+  ]{3-lastChange.png}}
 
 \subfigure[The result of \textit{lastChange} query for
   \texttt{myCondition.value}. To evaluate an expression (e.g., oldValue) at this point, developer can %TODO should we remove it?
@@ -428,7 +428,7 @@ where the developer can examine object and variable values. In our case, the
   The opened list on the top of the left panel shows the visited execution points. Clicking on each point in
   the list shows the corresponding code and
   data.]{\label{fig:example4}\includegraphics[width=1.0\textwidth%,height=.25\textheight
-    ]{4-lastChange2.jpg}}
+    ]{4-lastChange2.png}}
 
 \caption{The stages of locating the defect using \textit{lastChange} feature.}
 \label{fig:lastChange}
@@ -711,7 +711,7 @@ these operations (Feature requests 641234 and 641236 in Mozilla Bugzilla) in the
 The tool and its source code are publicly available and can be downloaded 
 from \textit{Querypoint Debugging} web site at this address:
 
-\mbox{\href{http://code.google.com/p/querypoint-debugging}{http://code.google.com/p/querypoint-debugging}}
+\mbox{\href{http://sites.google.com/site/querypoint}{http://sites.google.com/site/querypoint}}
 
 The details of our user study, including the instructions and test cases source code, are available at this address:
 
