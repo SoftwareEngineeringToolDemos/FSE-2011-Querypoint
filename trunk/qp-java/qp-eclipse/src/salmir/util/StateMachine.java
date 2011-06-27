@@ -16,7 +16,9 @@ public class StateMachine {
   //sample: <start, {start, initialized, working}>
   private Map<String, String[]> transitions = new HashMap<String, String[]>();
 
+  Object Owner;
   String initialState;
+  String oldState;
   String state;
 
   boolean inTransition = false;
@@ -46,15 +48,19 @@ public class StateMachine {
           transitions.put(transitionsData[i][0], transitionsData[i]);
       }
 
+      this.oldState = null;
       state = initialState;
       lastChangeTime = System.currentTimeMillis();
   }
 
   public void startTransit(String transition) //throws Exception
   {
-      assert (transitions.containsKey(transition));
-      assert (state.equals(transitions.get(transition)[1])):state;
+      assert (!inTransition): "The state machine is in transision: from '"
+          					  + oldState + "' state by '" +currentTransition+"'";
       inTransition = true;
+	  assert (transitions.containsKey(transition)): "The state machine does not contain this transition : " + transition;
+      assert (state.equals(transitions.get(transition)[1])): "The from state of '" + transition + "' transition is not '" + state + "'";
+      oldState = state;
       state = null;
       currentTransition = transition;
       lastChangeTime = System.currentTimeMillis();

@@ -3,18 +3,19 @@ package salmir.qp.core.concept;
 import java.util.HashMap;
 import java.util.Map;
 
-import salmir.qp.core.concept.querypoints.BreakpointQuerypoint;
-import salmir.qp.core.concept.querypoints.GeneralQuerypoint;
-import salmir.qp.core.concept.querypoints.LastchangeQuerypoint;
+import salmir.qp.core.IQuerypoint;
+import salmir.qp.internal.querypoints.JavaLineBreakpointQuerypoint;
+import salmir.qp.internal.querypoints.GeneralQuerypoint;
+import salmir.qp.internal.querypoints.LastchangeQuerypoint;
 
 public class DebugModel {
-	Map<Integer, Querypoint> querypoints = new HashMap<Integer, Querypoint>();
+	Map<Integer, IQuerypoint> querypoints = new HashMap<Integer, IQuerypoint>();
     int nextQuerypointId = 0;
     
-    public BreakpointQuerypoint addBreakpointQuerypoint(String className, int lineNumber, int hitCount){
-    	for (Querypoint qp: querypoints.values()){
-    		if (qp instanceof BreakpointQuerypoint){
-    			BreakpointQuerypoint qpToCompare = (BreakpointQuerypoint)qp;
+    public JavaLineBreakpointQuerypoint addBreakpointQuerypoint(String className, int lineNumber, int hitCount){
+    	for (IQuerypoint qp: querypoints.values()){
+    		if (qp instanceof JavaLineBreakpointQuerypoint){
+    			JavaLineBreakpointQuerypoint qpToCompare = (JavaLineBreakpointQuerypoint)qp;
     			if (qpToCompare.className.equals(className)
     			 && qpToCompare.lineNumber == lineNumber
     		     && qpToCompare.hitCount == hitCount){
@@ -22,13 +23,13 @@ public class DebugModel {
     			}
     		}
     	}
-    	BreakpointQuerypoint qp = new BreakpointQuerypoint(++nextQuerypointId, className, lineNumber, hitCount);
+    	JavaLineBreakpointQuerypoint qp = new JavaLineBreakpointQuerypoint(++nextQuerypointId, className, lineNumber, hitCount);
     	querypoints.put(qp.id, qp);
     	return qp;
     }
     
-    public LastchangeQuerypoint addLastchangeQuerypoint(Querypoint refQuerypoint){
-    	for (Querypoint qp: querypoints.values()){
+    public LastchangeQuerypoint addLastchangeQuerypoint(IQuerypoint refQuerypoint){
+    	for (IQuerypoint qp: querypoints.values()){
     		if (qp instanceof LastchangeQuerypoint){
     			LastchangeQuerypoint qpToCompare = (LastchangeQuerypoint)qp;
     			if (qpToCompare.refQuerypoint.id == refQuerypoint.id){
@@ -41,8 +42,8 @@ public class DebugModel {
     	return qp;
     }
     
-    public GeneralQuerypoint addGeneralQuerypoint(Querypoint refQuerypoint){
-    	for (Querypoint qp: querypoints.values()){
+    public GeneralQuerypoint addGeneralQuerypoint(IQuerypoint refQuerypoint){
+    	for (IQuerypoint qp: querypoints.values()){
     		if (qp instanceof GeneralQuerypoint){
     			GeneralQuerypoint qpToCompare = (GeneralQuerypoint)qp;
     			if (qpToCompare.refQuerypoint.id == refQuerypoint.id){

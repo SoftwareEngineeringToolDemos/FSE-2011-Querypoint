@@ -8,14 +8,13 @@ import java.util.Map;
 public class Tracepoint {
     int id;
     String possibleTraceQueryName; //it cannot be null
-    String traceQueryName; //it is not null if it is definitly a trace query result
-    String querypointName; //it is not null if a trace point is assinged to it
-    int possibleIndex; //indexof trace point in trace query resluts
-    int index; //indexof trace point in trace query resluts
+    String traceQueryName; //it is not null if it is definitely a trace query result
+    String querypointName; //it is not null if a trace point is assigned to it
+    int possibleIndex; //indexof trace point in trace query results
+    int index; //indexof trace point in trace query results
     List<Integer> remainedMultipointConstraintsToCheck = new ArrayList();
 
     Map<String, Tracedata> tracedataList = new HashMap();
-
 
     // additional data
     String threadName;

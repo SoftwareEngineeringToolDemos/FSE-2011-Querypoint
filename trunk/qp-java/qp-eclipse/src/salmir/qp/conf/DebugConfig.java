@@ -1,7 +1,7 @@
 package salmir.qp.conf;
 
 
-import salmir.qp.core.concept.Reproducer;
+import salmir.qp.reproduction.IReproducer;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -9,15 +9,15 @@ import java.util.ArrayList;
 
 public class DebugConfig{
 
-    Reproducer reproducer;
+    IReproducer reproducer;
     DebugTargetBean debugTargetBean;
     DebugModelBean debugModelBean;
 
-    public Reproducer getReproducer() {
+    public IReproducer getReproducer() {
         return reproducer;
     }
 
-    public void setReproducer(Reproducer reproducer) {
+    public void setReproducer(IReproducer reproducer) {
         this.reproducer = reproducer;
     }
 

@@ -1,6 +1,6 @@
 package salmir.qp.engine;
 
-import salmir.qp.core.concept.DebugSession;
+import salmir.qp.core.IDebugSession;
 import salmir.util.AppContext;
 import salmir.util.concurrent.AsynchronousMessageChannel;
 import salmir.util.concurrent.Message;
@@ -32,7 +32,7 @@ public class EngineMessageHandler implements MessageHandler {
 
     public void handleEvent(EngineAction e)
     {
-        DebugSession debugSession = engine.getDebugSession();
+        IDebugSession debugSession = engine.getDebugSession();
         if (debugSession == null)
             return;
         if (e.getActionId() == EngineActions.ACTION_START)
