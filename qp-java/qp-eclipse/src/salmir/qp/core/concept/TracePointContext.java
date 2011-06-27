@@ -5,19 +5,21 @@ import com.sun.jdi.*;
 
 import java.util.List;
 
+import salmir.qp.core.IDebugSession;
+import salmir.qp.core.IQuerypoint;
 import salmir.util.AppContext;
 
 
 //PointContext Class
 public class TracePointContext {
 
-    DebugSession debugSession;
-    Querypoint querypoint;
+    IDebugSession debugSession;
+    IQuerypoint querypoint;
     Event event;
     
 
 
-    public TracePointContext(Querypoint querypoint, Event event) {
+    public TracePointContext(IQuerypoint querypoint, Event event) {
         this.querypoint = querypoint;
         this.event = event;
     }
@@ -163,7 +165,7 @@ public class TracePointContext {
     }
 
 
-    public DebugSession getDebugSession() {
+    public IDebugSession getDebugSession() {
         return debugSession;
     }
 
@@ -171,7 +173,7 @@ public class TracePointContext {
         return event;
     }
 
-    public Querypoint getQuerypoint() {
+    public IQuerypoint getQuerypoint() {
         return querypoint;
     }
 

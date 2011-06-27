@@ -1,6 +1,9 @@
 package salmir.qp.core.concept;
 
 import com.sun.jdi.*;
+
+import salmir.qp.core.IQuerypoint;
+import salmir.qp.internal.querypoints.DataTobeCollected;
 import salmir.qp.query.constraint.ConstraintMultipoint;
 
 import java.util.*;
@@ -46,8 +49,8 @@ public class Trace {
 
     public Tracepoint addTracepoint(TracePointContext tracePointContext)
     {
-        Querypoint querypoint = tracePointContext.getQuerypoint();
-        String querypointName = querypoint.getName();
+        IQuerypoint querypoint = tracePointContext.getQuerypoint();
+        String querypointName = querypoint.getLabel();
         long jvmLifeTime = tracePointContext.getDebugSession().getReproductionLifeTime();
         long addedTime = tracePointContext.getDebugSession().getReproductionLiveTime();
 
@@ -132,8 +135,8 @@ public class Trace {
         }
 
         //store traceobjectlog
-        List<Querydata> querydataList = querypoint.getQuerydataList();
-        for (Querydata querydata : querydataList)
+        List<DataTobeCollected> querydataList = querypoint.getQuerydataList();
+        for (DataTobeCollected querydata : querydataList)
         {
             ObjectReference or = tracePointContext.getObjectReference(querydata.getFrame(),querydata.getExpression());
             if (or == null)

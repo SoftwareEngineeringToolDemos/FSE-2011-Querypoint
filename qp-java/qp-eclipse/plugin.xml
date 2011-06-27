@@ -4,22 +4,29 @@
 
    <extension
          point="org.eclipse.ui.commands">
-      <category
-            name="Sample Category"
-            id="qp_eclipse.commands.category">
-      </category>
       <command
-            name="Sample Command"
-            categoryId="qp_eclipse.commands.category"
-            id="qp_eclipse.commands.sampleCommand">
+            categoryId="salmir.qp.plugin.category.command"
+            id="salmir.qp.plugin.commands.lastchange"
+            name="Last Change">
       </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
-      <handler
-            commandId="qp_eclipse.commands.sampleCommand"
-            class="qp_eclipse.handlers.SampleHandler">
-      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            id="salmir.qp.plugin.JavaVariableActions"
+            objectClass="org.eclipse.jdt.debug.core.IJavaVariable">
+         <action
+               class="salmir.qp.plugin.actions.LastchangeAction"
+               definitionId="salmir.qp.plugin.commands.lastchange"
+               id="salmir.qp.plugin.actions.LastchangeAction"
+               label="lastchange"
+               menubarPath="additions"
+               tooltip="locates the last change of this variable/property by re-execution">
+         </action>
+      </objectContribution>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -58,8 +65,8 @@
          </toolbar>
       </menuContribution>
    </extension>
-   <extension
-         point="org.eclipse.ui.actionSets">
+  
+   <extension point="org.eclipse.ui.actionSets">
       <actionSet
             id="salmir.qp.plugin.actionSet"
             label="qp actions"
@@ -73,6 +80,14 @@
                style="pulldown"
                toolbarPath="org.eclipse.debug.ui.launchActionSet/debug"
                tooltip="Querypoint">
+         </action>
+         <action
+               class="salmir.qp.plugin.actions.LastchangeAction"
+               definitionId="salmir.qp.plugin.commands.lastchange"     
+               id="salmir.qp.plugin.actions.LastchangeAction"
+               label="lastchange"
+               menubarPath="org.eclipse.ui.run/jdtGroup"
+               style="push">
          </action>
       </actionSet>
    </extension>
@@ -110,6 +125,13 @@
             id="salmir.qp.plugin.launchConfigurationTabGroup.JDT_JavaLocal"
             type="org.eclipse.jdt.launching.localJavaApplication">
       </launchConfigurationTabGroup>
+   </extension>
+   <extension
+         point="org.eclipse.jdt.debug.breakpointListeners">
+      <breakpointListener
+            class="salmir.qp.plugin.breakpoints.MyResumeBreakpointListener"
+            id="qp-eclipse.breakpointListener1">
+      </breakpointListener>
    </extension>
 
 </plugin>

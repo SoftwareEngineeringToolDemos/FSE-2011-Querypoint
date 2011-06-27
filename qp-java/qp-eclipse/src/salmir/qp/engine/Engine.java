@@ -1,8 +1,9 @@
 package salmir.qp.engine;
 
 import salmir.qp.conf.DebugConfig;
-import salmir.qp.core.concept.DebugSession;
+import salmir.qp.core.IDebugSession;
 import salmir.qp.debugservice.JVMDebugService;
+import salmir.qp.internal.core.DebugSession;
 import salmir.qp.standalone.BasicDebugConfig;
 import salmir.util.AppContext;
 import salmir.util.concurrent.ManageableThread;
@@ -16,7 +17,7 @@ public class Engine extends ManageableThread {
     private static Engine instance;
     public static String ID = "Engine";
 
-    DebugSessionImpl debugSession;
+    DebugSession debugSession;
     EngineMessageHandler engineMessageHandler;
 
     public static Engine getInstance(){
@@ -52,7 +53,7 @@ public class Engine extends ManageableThread {
         } catch (Exception e) {
             log.error("Problem in loading/finding the configuration file : " + className ,e);
         }
-        debugSession = new DebugSessionImpl(debugConfig);
+        debugSession = new DebugSession(debugConfig);
         debugSession.init();
         engineMessageHandler = new EngineMessageHandler(AppContext.getAsyncChannel());
     }
@@ -87,7 +88,7 @@ public class Engine extends ManageableThread {
         }
     }
 
-    public DebugSession getDebugSession() {
+    public IDebugSession getDebugSession() {
         return debugSession;
     }
 

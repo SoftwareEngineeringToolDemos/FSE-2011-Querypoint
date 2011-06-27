@@ -1,15 +1,15 @@
 package salmir.qp.standalone;
 
-import salmir.qp.core.concept.Reproducer;
-import salmir.qp.core.concept.ReproductionException;
-import salmir.qp.core.concept.Reproduction;
+import salmir.qp.reproduction.IReproducer;
+import salmir.qp.reproduction.IReproduction;
+import salmir.qp.reproduction.ReproducingException;
 import salmir.util.StreamRedirectThread;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 
-public class BasicJavaReproducer implements Reproducer{
+public class BasicJavaReproducer implements IReproducer{
 
     String mainClassName;
 
@@ -43,10 +43,10 @@ public class BasicJavaReproducer implements Reproducer{
 		this.mainClassName = mainClassName;
 	}
 	
-	public Reproduction reproduce() throws ReproductionException {
+	public IReproduction reproduce() throws ReproducingException {
         try {
             Process process = Runtime.getRuntime().exec(cmd + mainClassName);
-            JavaDebugTarget basicDebugTarget = JavaDebugTarget.getJavaDebugTarget_Attach("main"
+            JavaQPDebugTarget basicDebugTarget = JavaQPDebugTarget.getJavaDebugTarget_Attach("main"
                              , true
                              , null, null,
                              "8000");
@@ -77,15 +77,15 @@ public class BasicJavaReproducer implements Reproducer{
             outThread.start();
 
 
-            Reproduction reproduction = new Reproduction();
+            IReproduction reproduction = new IReproduction();
             reproduction.setDebugTarget(basicDebugTarget);
             return reproduction;
         } catch (Exception e) {
-            throw new ReproductionException(e);
+            throw new ReproducingException(e);
         }
     }
 	
-	public boolean endReproduction(Reproduction reproduction){
+	public boolean endReproduction(IReproduction reproduction){
 		return true;
 	}
 }

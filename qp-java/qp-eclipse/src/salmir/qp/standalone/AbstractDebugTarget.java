@@ -1,8 +1,8 @@
 package salmir.qp.standalone;
 
-import salmir.qp.core.concept.DebugTarget;
+import salmir.qp.reproduction.IQPDebugTarget;
 
-public class AbstractDebugTarget implements DebugTarget{
+public class AbstractDebugTarget implements IQPDebugTarget{
 
     String name;
     Process process;

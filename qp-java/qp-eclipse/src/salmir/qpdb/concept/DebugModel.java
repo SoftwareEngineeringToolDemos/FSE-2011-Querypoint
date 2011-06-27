@@ -2,21 +2,21 @@ package salmir.qpdb.concept;
 
 import salmir.qp.conf.QuerypointBean;
 import salmir.qp.conf.DebugModelBean;
-import salmir.qp.core.concept.Querydata;
+import salmir.qp.core.IQuerypoint;
+import salmir.qp.internal.querypoints.DataTobeCollected;
 
 import java.util.List;
 import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import salmir.qp.core.concept.Querypoint;
 import salmir.qp.query.EventQueryParseException;
 
 public class DebugModel {
 
     private static Log log = LogFactory.getLog(DebugModel.class);
 
-    List<Querypoint> querypoints = new ArrayList();
+    List<IQuerypoint> querypoints = new ArrayList();
     
     int QuerypointId = 0;
     int tracePointId = 0;                           
@@ -24,7 +24,7 @@ public class DebugModel {
     public DebugModel() {
     }
 
-    public List<Querypoint> getQuerypoints() {
+    public List<IQuerypoint> getQuerypoints() {
         return querypoints;
     }
 

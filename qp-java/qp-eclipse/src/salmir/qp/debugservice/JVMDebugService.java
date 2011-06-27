@@ -3,7 +3,8 @@ package salmir.qp.debugservice;
 import com.sun.jdi.*;
 import com.sun.jdi.event.*;
 import com.sun.jdi.request.*;
-import salmir.qp.core.concept.Querypoint;
+
+import salmir.qp.core.IQuerypoint;
 import salmir.qp.core.concept.TracePointContext;
 import salmir.qp.core.concept.Tracedata;
 import salmir.qp.core.concept.Tracepoint;
@@ -300,11 +301,11 @@ public class JVMDebugService {
     }
 
 
-    private boolean checkRuntime(Querypoint querypoint, Event event) {
+    private boolean checkRuntime(IQuerypoint querypoint, Event event) {
         return true;
     }
 
-    private boolean checkCustomRuntime(Querypoint bp, TracePointContext tpc) {
+    private boolean checkCustomRuntime(IQuerypoint bp, TracePointContext tpc) {
         boolean returnBoolean = false;
 
 //        try {

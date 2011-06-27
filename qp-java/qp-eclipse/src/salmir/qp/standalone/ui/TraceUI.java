@@ -1,6 +1,6 @@
 package salmir.qp.standalone.ui;
 
-import salmir.qp.core.concept.DebugSession;
+import salmir.qp.core.IDebugSession;
 import salmir.qp.core.concept.Tracepoint;
 import salmir.qp.engine.Engine;
 
@@ -75,7 +75,7 @@ public class TraceUI extends JPanel {
 
     public void updateSize() {
 
-        DebugSession debugSession = Engine.getInstance().getDebugSession();
+        IDebugSession debugSession = Engine.getInstance().getDebugSession();
         if (debugSession != null && debugSession.isReproductionAlive()) {
             long passedTime = debugSession.getReproductionLifeTime();
             lineLength = (int) (passedTime / 1000 * oneSecondLength) + 10 * 10; //AppContext.getRepositoryRuntime().getCurrentExecution().getAllTracepoints().size();
@@ -109,7 +109,7 @@ public class TraceUI extends JPanel {
         // .. Draw allocated and used strings ..
         big.setColor(GREEN);
 
-        DebugSession debugSession = Engine.getInstance().getDebugSession();
+        IDebugSession debugSession = Engine.getInstance().getDebugSession();
         if (debugSession != null) {// && (debugSession.isAlive()) {
             long passedTime = debugSession.getReproductionLifeTime();
             usedStr = "passedTime: " + passedTime / 1000 + " s";
