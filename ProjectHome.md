@@ -1,0 +1,1 @@
+The aim of this project is to build debuggers which support Querypoint debugging. For more details look at <a href='https://sites.google.com/site/querypoint/'>here</a>.
