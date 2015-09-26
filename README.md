@@ -10,7 +10,8 @@ This repository is not the original repository for this tool. Here are some link
 In this repository, for Querypoint you will find:
 
 - :x: Source code (not available)
-- :white_check_mark: Querypoint project related files imported from Google Code (executable tool not available)
+- :white_check_mark: Querypoint project related files imported from Google Code
+- :x: Executable tool (not available)
 
 As we couldn't get our hands on the Querypoint tool, we had to mark it as unworkable.
 
