@@ -10,6 +10,7 @@ This repository is not the original repository for this tool. Here are some link
 In this repository, for Querypoint you will find:
 
 - :x: Source code (not available)
-- :white_check_mark: Querypoint project related files imported from Google Code (missing the executable tool)
+- :white_check_mark: Querypoint project related files imported from Google Code (executable tool not available)
+- As we couldn't get our hands on the Querypoint tool, we had to mark it as unworkable.
 
-This repository was constructed by Sumit K Tomer under the supervision of Emerson Murphy-Hill. Thanks to [Salman Mirghasemi] (https://github.com/google/qpp/wiki/Salman-Mirghasemi's-Work-on-Querypoint-Debugging) for their help in establishing this repository. 
+This repository was constructed by [Sumit K Tomer] (https://github.com/sktomer) under the supervision of Emerson Murphy-Hill. Thanks to [Salman Mirghasemi] (https://github.com/google/qpp/wiki/Salman-Mirghasemi's-Work-on-Querypoint-Debugging) for their help in establishing this repository. 
