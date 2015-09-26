@@ -1,4 +1,4 @@
-This repository contains information related to the tool Querypoint presented in the Foundations of Software Engineering, 2011. The tool was originally presented in this paper.
+This repository contains information related to the tool Querypoint presented in the Foundations of Software Engineering, 2011. The tool was originally presented in [this paper](http://dl.acm.org/citation.cfm?doid=2025113.2025184).
 
 This repository is not the original repository for this tool. Here are some links to the original project:
 
