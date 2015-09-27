@@ -1,5 +1,5 @@
 #FSE-2011-Querypoint
-A tool that offers unrestricted dynamic software updates (DSUs) for Java
+Querypoint, is a Firefox plugin that enhances the popular Firebug JavaScript debugger with a new, practical feature called lastChange.
 
 ***
 
