@@ -10,7 +10,7 @@ This repository _is not_ the original repository for this tool. Here are some li
 - [The Official Project Page] (https://sites.google.com/site/querypoint/)
 - [The Google Code Project link] (https://code.google.com/p/querypoint-debugging/)
 - [Infoscience EPFL Record] (http://infoscience.epfl.ch/record/164417)
-- [Brief video] (https://www.youtube.com/watch?t=51&v=yw-0s-5CfW8) of tool
+- [Brief video of tool] (https://www.youtube.com/watch?t=51&v=yw-0s-5CfW8)
 
 In this repository, for Querypoint you will find:
 
