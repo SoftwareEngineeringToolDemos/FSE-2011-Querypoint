@@ -14,8 +14,7 @@ This repository _is not_ the original repository for this tool. Here are some li
 
 In this repository, for Querypoint you will find:
 
-- :x: Source code (not available)
-- :white_check_mark: Querypoint project related files imported from Google Code
+- :x: [Source code](.)
 - :x: Executable tool (not available)
 - :x: Virtual machine containing tool (not available)
 
